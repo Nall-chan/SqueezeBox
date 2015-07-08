@@ -1,0 +1,33 @@
+{
+    "elements":
+            [
+                {
+                    "type": "Label",
+                    "label": "Pin Read Timer:"
+                },
+                {
+                    "name": "Interval",
+                    "type": "IntervalBox",
+                    "caption": "seconds"
+                },
+                {
+                    "name": "EmulateStatus",
+                    "type": "CheckBox",
+                    "caption": "Emulate Status"
+                }
+            ],
+    "actions":
+            [
+                {
+                    "type": "Button",
+                    "label": "Request State",
+                    "onClick": "XBee_RequestState($id);"
+                },
+                {
+                    "type": "Button",
+                    "label": "Read Config",
+                    "onClick": "XBee_ReadConfig($id);"
+                }
+
+            ]
+}

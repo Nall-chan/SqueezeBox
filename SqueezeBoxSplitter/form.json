@@ -1,0 +1,21 @@
+{
+    "elements":
+            [
+                {
+                    "name": "NodeName", "type": "ValidationTextBox", "caption": "Node Identifier"
+                }
+            ],
+    "status":
+            [
+                {
+                    "code": 102,
+                    "icon": "active",
+                    "caption": "Node Identifier gültig."
+                },
+                {
+                    "code": 202,
+                    "icon": "error",
+                    "caption": "Node Identifier darf nicht leer sein."
+                }
+            ]
+}

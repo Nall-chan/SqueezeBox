@@ -1,0 +1,11 @@
+{
+    "id": "{61051B08-5B92-472B-AFB2-6D971D9B99EE}",
+    "name": "XBZBSplitter",
+    "type": 2,
+    "vendor": "Digi",
+    "aliases": ["XBee ZigBee Splitter"],
+    "parentRequirements": ["{5971FB22-3F96-45AE-916F-AE3AC8CA8782}"],
+    "childRequirements": ["{018EF6B5-AB94-40C6-AA53-46943E824ACF}", "{0C541DDF-CE0F-4113-A76F-B4836015212B}", "{A245A1A6-2618-47B2-AF49-0EDCAB93CCD0}"],
+    "implemented": ["{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}", "{0C541DDF-CE0F-4113-A76F-B4836015212B}", "{C2813FBB-CBA1-4A92-8896-C8BC32A82BA4}"],
+    "prefix": "XBee"
+}
