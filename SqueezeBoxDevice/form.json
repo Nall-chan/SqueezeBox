@@ -2,13 +2,7 @@
     "elements":
             [
                 {
-                    "type": "Label",
-                    "label": "Pin Read Timer:"
-                },
-                {
-                    "name": "Interval",
-                    "type": "IntervalBox",
-                    "caption": "seconds"
+                    "name": "MACAddress", "type": "ValidationTextBox", "caption": "MAC Adresse"
                 },
                 {
                     "name": "EmulateStatus",
@@ -21,13 +15,24 @@
                 {
                     "type": "Button",
                     "label": "Request State",
-                    "onClick": "XBee_RequestState($id);"
+                    "onClick": "LSQ_RequestState($id);"
                 },
                 {
                     "type": "Button",
-                    "label": "Read Config",
-                    "onClick": "XBee_ReadConfig($id);"
-                }
+                    "label": "Play",
+                    "onClick": "LSQ_Play($id);"
+                },
+                {
+                    "type": "Button",
+                    "label": "Pause",
+                    "onClick": "LSQ_Pause($id);"
+                },
+                {
+                    "type": "Button",
+                    "label": "Stop",
+                    "onClick": "LSQ_Stop($id);"
+                },
+                { "name": "Slider", "type": "HorizontalSlider", "minimum": 0, "maximum": 100, "onChange": "LSQ_SetVolume($id, $Slider);" }
 
             ]
 }
