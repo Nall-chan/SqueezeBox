@@ -2,7 +2,7 @@
     "elements":
             [
                 {
-                    "name": "NodeName", "type": "ValidationTextBox", "caption": "Node Identifier"
+                    "name": "Host", "type": "ValidationTextBox", "caption": "LMS Adresse"
                 }
             ],
     "status":
@@ -10,12 +10,17 @@
                 {
                     "code": 102,
                     "icon": "active",
-                    "caption": "Node Identifier gültig."
+                    "caption": "LMS ereichbar."
                 },
                 {
                     "code": 202,
                     "icon": "error",
-                    "caption": "Node Identifier darf nicht leer sein."
+                    "caption": "LMS Adresse darf nicht leer sein."
+                },
+                {
+                    "code": 203,
+                    "icon": "error",
+                    "caption": "Verbindung zu LMS verloren."
                 }
             ]
 }

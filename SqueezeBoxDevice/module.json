@@ -1,11 +1,11 @@
 {
-    "id": "{68468B6F-DC2B-4A04-83A5-DA072651E4B5}",
-    "name": "XBZBDevice",
+    "id": "{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}",
+    "name": "SqueezeboxDevice",
     "type": 3,
-    "vendor": "Digi",
-    "aliases": ["XBee ZigBee Device"],
-    "parentRequirements": ["{C2813FBB-CBA1-4A92-8896-C8BC32A82BA4}"],
+    "vendor": "Logitech",
+    "aliases": ["Squeezebox Device"],
+    "parentRequirements": ["{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}"],
     "childRequirements": [],
-    "implemented": ["{A245A1A6-2618-47B2-AF49-0EDCAB93CCD0}"],
-    "prefix": "XBee"
+    "implemented": ["{CB5950B3-593C-4126-9F0F-8655A3944419}"],
+    "prefix": "LSQ"
 }
