@@ -14,6 +14,34 @@ class XBZBDevice extends IPSModule {
         //Never delete this line!
         parent::ApplyChanges();
         $this->RequireParent("{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}");             
+	$this->RegisterProfileIntegerEx("Status.Squeezebox", "Information", "", "", Array(
+        	Array(0, "Prev", "", -1),
+                Array(1, "Stop", "", -1),            
+		Array(2, "Play", "", -1),
+		Array(3, "Pause", "", -1),
+		Array(4, "Next", "", -1)
+	));
+	$this->RegisterProfileIntegerEx("Shuffle.Squeezebox", "Shuffle", "", "", Array(
+        	Array(0, "off", "", -1),
+                Array(1, "Title", "", -1),            
+		Array(2, "Album", "", -1)
+	));        
+	$this->RegisterProfileIntegerEx("Repeat.Squeezebox", "Repeat", "", "", Array(
+        	Array(0, "off", "", -1),
+                Array(1, "Title", "", -1),            
+		Array(2, "Album", "", -1)
+	));                
+	$this->RegisterProfileInteger("Volume.Squeezebox", "Intensity", "", " %", 0, 100, 1);
+        $this->RegisterVariableBoolean("Power", "Power", "~Switch");
+	$this->EnableAction("Power");
+	$this->RegisterVariableInteger("Status", "Status", "Status.Squeezebox");
+	$this->EnableAction("Status");
+	$this->RegisterVariableInteger("Volume", "Volume", "Volume.Squeezebox");
+	$this->EnableAction("Volume");
+	$this->RegisterVariableInteger("Shuffle", "Shuffle", "Shuffle.Squeezebox");
+	$this->EnableAction("Shuffle");                                
+	$this->RegisterVariableInteger("Repeat", "Shuffle", "Repeat.Squeezebox");
+	$this->EnableAction("Repeat");                                
     }
 
 ################## PRIVATE     
