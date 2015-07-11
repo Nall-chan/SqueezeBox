@@ -55,7 +55,7 @@ class SqueezeboxDevice extends IPSModule
 
     public function Send($Text)
     {
-        return $this->SendDataToParent(json_encode(Array("DataID" => "{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}", "Buffer" => $Text)));
+        return IPS_SendDataToParent($this->InstanceID, json_encode(Array("DataID" => "{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}", "Buffer" => $Text)));
     }
 
 ################## PUBLIC
