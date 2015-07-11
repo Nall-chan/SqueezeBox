@@ -91,8 +91,10 @@ class SqueezeboxDevice extends IPSModule
         SetValueString($var_id, $str);
     }
 
-    private function decode($array)
+    private function decode($Data)
     {
+        $array = (array)$Data;
+        IPS_LogMessage("IODevice DECODE", print_r($array,1));
         $powerID = $this->GetIDForIdent("Power");
         $volumeID = $this->GetIDForIdent("Volume");
         $modusID = $this->GetIDForIdent("Status");
@@ -267,8 +269,8 @@ class SqueezeboxDevice extends IPSModule
         IPS_LogMessage("IODevice MAC", $this->MAC);
         if ($this->MAC == $data->MAC)
         {
-            IPS_LogMessage("IODevice DATA", print_r((array)$data->Payload, 1));
-            $this->decode((array) $data->Payload);
+            IPS_LogMessage("IODevice DATA", print_r($data->Payload, 1));
+            $this->decode($data->Payload);
             return true;
         }
         else
