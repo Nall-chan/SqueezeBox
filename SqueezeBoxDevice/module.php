@@ -73,7 +73,7 @@ class SqueezeboxDevice extends IPSModule
         return $this->MAC = strtoupper(str_replace(array("-", ":"), "", $mac));
     }
 
-    private function Cover($var_id)
+    private function Cover($var_id,$player_id)
 // setzt die $var_id mit dem Coverbild von $player_id
     {
         $ParentID = $this->GetParent();
@@ -81,7 +81,7 @@ class SqueezeboxDevice extends IPSModule
         {
             $SQserverIP = IPS_GetProperty($ParentID, 'Host');
             $time = time();
-            $player_id = urlencode(implode(":", str_split($this->MAC, 2)));
+//            $player_id = urlencode(implode(":", str_split($this->MAC, 2)));
             $str = "<table width='100%' cellspacing='0'><tr><td align=right>";
             $str = $str . "<img src='http://" . $SQserverIP . "/music/current/cover_150x150_$time.jpg?player=$player_id'></img>";
             $str = $str . "</td></tr></table>";
@@ -143,7 +143,7 @@ class SqueezeboxDevice extends IPSModule
               SqueezeSend($array[0], "album ?"); */
             IPS_Sleep(10);
 
-            $this->Cover($coverID); // Cover anzeigen
+            $this->Cover($coverID,$array[0]); // Cover anzeigen
         }
         // Album aktualisieren
         if ($array[1] == 'album')
