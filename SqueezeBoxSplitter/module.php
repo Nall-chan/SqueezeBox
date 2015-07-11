@@ -91,12 +91,15 @@ class LMSSplitter extends IPSModule
     {
         $array = explode(' ', $raw); // Antwortstring in Array umwandeln
         $Data = new stdClass();
-        $Data->MAC = urldecode($array[0]); // MAC in lesbares Format umwandeln
+        $Data->MAC = $this->GetMAC(urldecode($array[0])); // MAC in lesbares Format umwandeln und als BINAY speichern
         unset($array[0]);
         $Data->Payload = $array;
         return $Data;
     }
-
+    private function GetMAC($mac)
+    {
+        return $this->MAC = @hex2bin(str_replace(array("-",":"), "", $mac)); 
+    }
 ################## DUMMYS / WOARKAROUNDS - protected
 		protected function SendDataToParent($Data) {
 			return IPS_SendDataToParent($this->InstanceID, $Data);

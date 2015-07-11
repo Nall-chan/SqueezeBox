@@ -48,7 +48,11 @@ class SqueezeboxDevice extends IPSModule
         $this->EnableAction("Shuffle");
         $this->RegisterVariableInteger("Repeat", "Shuffle", "Repeat.Squeezebox");
         $this->EnableAction("Repeat");
-        $this->MAC = $this->ReadPropertyString('MACAddress');
+        $this->MAC = $this->GetMAC($this->ReadPropertyString('MACAddress'));
+        if ($this->MAC === false)
+        {
+            IPS_LogMessage("IODevice ApplyChanges", "Invalid MAC".$this->ReadPropertyString('MACAddress'));                        
+        }
     }
 
 ################## PRIVATE     
@@ -57,7 +61,10 @@ class SqueezeboxDevice extends IPSModule
     {
         return IPS_SendDataToParent($this->InstanceID, json_encode(Array("DataID" => "{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}", "Buffer" => $Text)));
     }
-
+    private function GetMAC($mac)
+    {
+        return $this->MAC = @hex2bin(str_replace(array("-",":"), "", $mac)); 
+    }
 ################## PUBLIC
     /**
      * This function will be available automatically after the module is imported with the module control.
@@ -79,11 +86,11 @@ class SqueezeboxDevice extends IPSModule
     {
         // CB5950B3-593C-4126-9F0F-8655A3944419 ankommend von Splitter
         $data = json_decode($JSONString);
-        $this->MAC = $this->ReadPropertyString('MACAddress');        
-        IPS_LogMessage("IODevice MAC", utf8_decode($data->MAC));
-        IPS_LogMessage("IODevice MAC", $data->MAC);        
+        $this->MAC = $this->GetMAC($this->ReadPropertyString('MACAddress'));
+        if ($this->MAC === false) return false;
+        IPS_LogMessage("IODevice MAC", $data->MAC);
         IPS_LogMessage("IODevice MAC", $this->MAC);        
-        if ($this->MAC == utf8_decode($data->MAC))
+        if ($this->MAC == $data->MAC)
         {
             IPS_LogMessage("IODevice DATA", print_r($data->Payload, 1));            
             return true;
