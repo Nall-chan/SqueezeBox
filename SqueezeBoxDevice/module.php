@@ -88,8 +88,8 @@ class SqueezeboxDevice extends IPSModule
         $data = json_decode($JSONString);
         $this->MAC = $this->GetMAC($this->ReadPropertyString('MACAddress'));
         if ($this->MAC === false) return false;
-        IPS_LogMessage("IODevice MAC", $data->MAC);
-        IPS_LogMessage("IODevice MAC", $this->MAC);        
+//        IPS_LogMessage("IODevice MAC", $data->MAC);
+//        IPS_LogMessage("IODevice MAC", $this->MAC);        
         if ($this->MAC == $data->MAC)
         {
             IPS_LogMessage("IODevice DATA", print_r($data->Payload, 1));            
