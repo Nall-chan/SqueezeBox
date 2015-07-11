@@ -76,8 +76,12 @@ class LMSSplitter extends IPSModule
                 continue;
             $encoded = $this->encode($part);
             IPS_LogMessage("IOSplitter encoded", utf8_decode(print_r($encoded, 1)));
-            if ($encoded['MAC'] <> "listen")
-                $this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "MAC" => $encoded['MAC'], "Data" => $encoded['Buffer'])));
+            if ($encoded->MAC <> "listen")
+            {
+                $ret = $this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "MAC" => $encoded->MAC, "Payload" => $encoded->Payload)));
+                IPS_LogMessage("IOSplitter ReturnValue", print_r($ret, 1));
+                
+            }
         }
     }
 
@@ -86,14 +90,21 @@ class LMSSplitter extends IPSModule
     private function encode($raw)
     {
         $array = explode(' ', $raw); // Antwortstring in Array umwandeln
-        $data['MAC'] = urldecode($array[0]); // MAC in lesbares Format umwandeln
+        $Data = new stdClass();
+        $Data->MAC = urldecode($array[0]); // MAC in lesbares Format umwandeln
         unset($array[0]);
-        $data['Buffer'] = $array;
-        return $data;
+        $Data->Payload = $array;
+        return $Data;
     }
 
 ################## DUMMYS / WOARKAROUNDS - protected
+		protected function SendDataToParent($Data) {
+			return IPS_SendDataToParent($this->InstanceID, $Data);
+		}
 
+		protected function SendDataToChildren($Data) {
+			return IPS_SendDataToChildren($this->InstanceID, $Data);
+		}
     protected function GetParent()
     {
         IPS_LogMessage(__CLASS__, __FUNCTION__); //          
