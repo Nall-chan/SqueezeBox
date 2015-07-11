@@ -4,7 +4,7 @@
     "type": 2,
     "vendor": "Logitech",
     "aliases": ["Logitech Media Server"],
-    "parentRequirements": ["{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}"],
+    "parentRequirements": ["{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}"],
     "childRequirements": ["{CB5950B3-593C-4126-9F0F-8655A3944419}"],
     "implemented": ["{018EF6B5-AB94-40C6-AA53-46943E824ACF}", "{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}"],
     "prefix": "LMS"
