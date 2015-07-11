@@ -74,41 +74,39 @@ class LMSSplitter extends IPSModule
         {
             if ($part == '')
                 continue;
-            $encodedMAC = $this->encodeMAC($part);
+            $encoded = $this->encode($part);
             IPS_LogMessage("IOSplitter encoded", utf8_decode(print_r($encoded, 1)));
-            if ($encodedMAC <> "listen")
+            if ($encoded->MAC <> "listen")
             {
-                $ret = $this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "MAC" => $encodedMAC, "Payload" => $data->Buffer)));
+                $ret = $this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "MAC" => $encoded->MAC, "Payload" => $encoded->Payload)));
                 IPS_LogMessage("IOSplitter ReturnValue", print_r($ret, 1));
+                
             }
         }
     }
 
 ################## private functions
 
-    private function encodeMAC($raw)
+    private function encode($raw)
     {
         $array = explode(' ', $raw); // Antwortstring in Array umwandeln
-        return $this->GetMAC(urldecode($array[0])); // MAC in lesbares Format umwandeln und als BINAY speichern
+        $Data = new stdClass();
+        $Data->MAC = $this->GetMAC(urldecode($array[0])); // MAC in lesbares Format umwandeln und als BINAY speichern
+        $Data->Payload = $array;
+        return $Data;
     }
-
     private function GetMAC($mac)
     {
-        return $this->MAC = strtoupper(str_replace(array("-", ":"), "", $mac));
+        return $this->MAC = strtoupper(str_replace(array("-",":"), "", $mac)); 
     }
-
 ################## DUMMYS / WOARKAROUNDS - protected
+		protected function SendDataToParent($Data) {
+			return IPS_SendDataToParent($this->InstanceID, $Data);
+		}
 
-    protected function SendDataToParent($Data)
-    {
-        return IPS_SendDataToParent($this->InstanceID, $Data);
-    }
-
-    protected function SendDataToChildren($Data)
-    {
-        return IPS_SendDataToChildren($this->InstanceID, $Data);
-    }
-
+		protected function SendDataToChildren($Data) {
+			return IPS_SendDataToChildren($this->InstanceID, $Data);
+		}
     protected function GetParent()
     {
         IPS_LogMessage(__CLASS__, __FUNCTION__); //          
