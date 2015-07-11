@@ -267,7 +267,7 @@ class SqueezeboxDevice extends IPSModule
         IPS_LogMessage("IODevice MAC", $this->MAC);
         if ($this->MAC == $data->MAC)
         {
-            IPS_LogMessage("IODevice DATA", print_r($data->Payload, 1));
+            IPS_LogMessage("IODevice DATA", print_r((array)$data->Payload, 1));
             $this->decode((array) $data->Payload);
             return true;
         }
