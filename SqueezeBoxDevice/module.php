@@ -121,22 +121,22 @@ class SqueezeboxDevice extends IPSModule
         //Lautstärke bei Änderung aktualisieren
         if (($array[1] == 'prefset') and ( $array[3] == 'volume'))
         {
-            SetValue($volumeID, urldecode($array[4]));
+            SetValueInteger($volumeID, (int)urldecode($array[4]));
         }
         // Repeat bei Änderung aktualisieren
         if (($array[1] == 'prefset') and ( $array[3] == 'repeat'))
         {
-            SetValue($repeatID, $array[4]);
+            SetValueInteger($repeatID, (int)$array[4]);
         }
         // Shuffle bei Änderung aktualisieren
         if (($array[1] == 'prefset') and ( $array[3] == 'shuffle'))
-            SetValue($shuffleID, $array[4]);
+            SetValueInteger($shuffleID, (int)$array[4]);
 
         //Titel-Tag aktualisieren
         if (($array[1] == 'playlist') and ( $array[2] == 'newsong'))
         {
-            SetValue($titleID, utf8_decode(urldecode($array[3])));
-            SetValue($modusID, 2); // Button auf play
+            SetValueString($titleID, utf8_decode(urldecode($array[3])));
+            SetValueInteger($modusID, 2); // Button auf play
             // Subscripe auf entsprechende Box für Anzeige der Laufzeit
             /*            CSCK_SendText(SqueezeServer, $array[0] . " status - 1 subscribe:2" . chr(13));
               SqueezeSend($array[0], "artist ?");
@@ -149,42 +149,42 @@ class SqueezeboxDevice extends IPSModule
         if ($array[1] == 'album')
         {
             if (isset($array[2]))
-                SetValue($albumID, utf8_decode(urldecode($array[2])));
+                SetValueString($albumID, utf8_decode(urldecode($array[2])));
             else
-                SetValue($albumID, '');
+                SetValueString($albumID, '');
         }
         // Artist aktualisieren
         if ($array[1] == 'artist')
         {
             if (isset($array[2]))
-                SetValue($interpretID, utf8_decode(urldecode($array[2])));
+                SetValueString($interpretID, utf8_decode(urldecode($array[2])));
             else
-                SetValue($interpretID, '');
+                SetValueString($interpretID, '');
         }
         // Steuerungstasten im Webfront aktualisieren
         if ($array[1] == 'play')
         {
-            SetValue($modusID, 2);
+            SetValueInteger($modusID, 2);
         }
         if ($array[1] == 'stop')
         {
-            SetValue($modusID, 0);
+            SetValueInteger($modusID, 1);
         }
         if (($array[1] == 'pause') and ( $array[2] == 1))
         {
-            SetValue($modusID, 1);
+            SetValueInteger($modusID, 3);
         }
         if (($array[1] == 'pause') and ( $array[2] == 0))
         {
-            SetValue($modusID, 2);
+            SetValueInteger($modusID, 2);
         }
         if (($array[1] == 'button') and ( $array[2] == 'jump_rew'))
         {
-            SetValue($modusID, 4);
+            SetValueInteger($modusID, 0);
         }
         if (($array[1] == 'button') and ( $array[2] == 'jump_fwd'))
         {
-            SetValue($modusID, 3);
+            SetValueInteger($modusID, 4);
         }
         if (($array[1] == 'status') and ( $array[4] == 'subscribe%3A2'))
         {
@@ -206,26 +206,26 @@ class SqueezeboxDevice extends IPSModule
                 {
                     if ($chunks[1] == 'play')
                     {
-                        SetValue($modusID, 2);
+                        SetValueInteger($modusID, 2);
                     }
                     if ($chunks[1] == 'stop')
                     {
-                        SetValue($modusID, 0);
+                        SetValueInteger($modusID, 1);
                     }
                     if ($chunks[1] == 'pause')
                     {
-                        SetValue($modusID, 1);
+                        SetValueInteger($modusID, 3);
                     }
                 }
 //signalstrength%3A88 rate%3A1 can_seek%3A1  playlist%20mode%3Aoff seq_no%3A91 playlist_cur_index%3A39 playlist_timestamp%3A1415459866.17632 playlist_tracks%3A42 playlist%20index%3A39 id%3A26977 title%3AMonster%20High%20-%20Flederm%C3%A4use%20im%20Bauch%20-%20H%C3%B6rbuch%20-%20Abschnitt%2040 genre%3AH%C3%B6rbuch artist%3AMonster%20High album%3AMonster%20High%20-%20Flederm%C3%A4use%20im%20Bauch%20-%20H%C3%B6rbuch duration%3A614.034
                 if ($chunks[0] == 'mixer volume')
                 {
-                    SetValue($volumeID, urldecode($chunks[1]));
+                    SetValueInteger($volumeID, (int)urldecode($chunks[1]));
                 }
                 if ($chunks[0] == 'playlist repeat')
-                    SetValue($repeatID, $chunks[1]);
+                    SetValueInteger($repeatID, (int)$chunks[1]);
                 if ($chunks[0] == 'playlist shuffle')
-                    SetValue($shuffleID, $chunks[1]);
+                    SetValueInteger($shuffleID, (int)$chunks[1]);
                 if ($chunks[0] == 'power')
                 {
                     if ($chunks[1] == '1')
