@@ -2,7 +2,14 @@
     "elements":
             [
                 {
-                    "name": "Host", "type": "ValidationTextBox", "caption": "LMS Adresse"
+                    "name": "Open",
+                    "type": "CheckBox",
+                    "caption": "Open"
+                },
+                {
+                    "name": "Host",
+                    "type": "ValidationTextBox",
+                    "caption": "LMS Adresse"
                 }
             ],
     "status":
