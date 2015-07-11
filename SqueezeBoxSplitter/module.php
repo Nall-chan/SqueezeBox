@@ -98,7 +98,7 @@ class LMSSplitter extends IPSModule
     }
     private function GetMAC($mac)
     {
-        return $this->MAC = @hex2bin(str_replace(array("-",":"), "", $mac)); 
+        return $this->MAC = strtoupper(str_replace(array("-",":"), "", $mac)); 
     }
 ################## DUMMYS / WOARKAROUNDS - protected
 		protected function SendDataToParent($Data) {

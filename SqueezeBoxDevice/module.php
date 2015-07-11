@@ -63,8 +63,9 @@ class SqueezeboxDevice extends IPSModule
     }
     private function GetMAC($mac)
     {
-        return $this->MAC = @hex2bin(str_replace(array("-",":"), "", $mac)); 
+        return $this->MAC = strtoupper(str_replace(array("-",":"), "", $mac)); 
     }
+
 ################## PUBLIC
     /**
      * This function will be available automatically after the module is imported with the module control.
@@ -88,8 +89,8 @@ class SqueezeboxDevice extends IPSModule
         $data = json_decode($JSONString);
         $this->MAC = $this->GetMAC($this->ReadPropertyString('MACAddress'));
         if ($this->MAC === false) return false;
-//        IPS_LogMessage("IODevice MAC", $data->MAC);
-//        IPS_LogMessage("IODevice MAC", $this->MAC);        
+        IPS_LogMessage("IODevice MAC", $data->MAC);
+        IPS_LogMessage("IODevice MAC", $this->MAC);        
         if ($this->MAC == $data->MAC)
         {
             IPS_LogMessage("IODevice DATA", print_r($data->Payload, 1));            
