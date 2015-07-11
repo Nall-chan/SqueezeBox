@@ -48,7 +48,7 @@ class SqueezeboxDevice extends IPSModule
         $this->EnableAction("Shuffle");
         $this->RegisterVariableInteger("Repeat", "Shuffle", "Repeat.Squeezebox");
         $this->EnableAction("Repeat");
-        $$this->MAC = $this->ReadPropertyString('MACAddress');
+        $this->MAC = $this->ReadPropertyString('MACAddress');
     }
 
 ################## PRIVATE     
