@@ -71,7 +71,7 @@ public function RequestState()
         // CB5950B3-593C-4126-9F0F-8655A3944419 ankommend von Splitter
             $data = json_decode($JSONString);
             IPS_LogMessage("IODevice MAC", utf8_decode($data->MAC));            
-            IPS_LogMessage("IODevice DATA", utf8_decode($data->Data));
+            IPS_LogMessage("IODevice DATA", print_r($data->Data,1));
             //We would parse our payload here before sending it further...
             //Lets just forward to our children
             //$this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "Buffer" => $data->Buffer)));

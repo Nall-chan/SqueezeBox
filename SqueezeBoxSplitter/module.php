@@ -73,7 +73,8 @@ class LMSSplitter extends IPSModule
         foreach ($packet as $part)
         {
             $encoded = $this->encode($part);
-            $this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "MAC" => $encoded['MAC'], "Data" => $encoded['Buffer'])));
+            if ($encoded['MAC'] <> "listen")
+                $this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "MAC" => $encoded['MAC'], "Data" => $encoded['Buffer'])));
         }
     }
 
