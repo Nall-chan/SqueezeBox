@@ -118,7 +118,7 @@ class LMSSplitter extends IPSModule
         if ($ParentID > 0)
         {
             $parent = IPS_GetInstance($ParentID);
-            if ($parent['InstanceStatus'] == IS_ACTIVE)
+            if ($parent['InstanceStatus'] == 102)
                 return true;
         }
         return false;
