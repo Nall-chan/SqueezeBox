@@ -13,7 +13,7 @@ class SqueezeboxDevice extends IPSModule {
     public function ApplyChanges() {
         //Never delete this line!
         parent::ApplyChanges();
-        $this->RequireParent("{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}");             
+        $this->RequireParent("{61051B08-5B92-472B-AFB2-6D971D9B99EE}");             
 	$this->RegisterProfileIntegerEx("Status.Squeezebox", "Information", "", "", Array(
         	Array(0, "Prev", "", -1),
                 Array(1, "Stop", "", -1),            
