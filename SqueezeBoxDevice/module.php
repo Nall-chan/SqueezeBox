@@ -166,6 +166,10 @@ class SqueezeboxDevice extends IPSModule
         {
             SetValueInteger($modusID, 2);
         }
+        if (($array[1] == 'mode') and ($array[2] == 'play'))
+        {
+            SetValueInteger($modusID, 2);
+        }        
         if ($array[1] == 'stop')
         {
             SetValueInteger($modusID, 1);
@@ -292,7 +296,12 @@ class SqueezeboxDevice extends IPSModule
         }
         return false;
     }
-
+    protected function GetParent()
+    {
+        IPS_LogMessage(__CLASS__, __FUNCTION__); //          
+        $instance = IPS_GetInstance($this->InstanceID);
+        return ($instance['ConnectionID'] > 0) ? $instance['ConnectionID'] : false;
+    }
     protected function SetStatus($data)
     {
         IPS_LogMessage(__CLASS__, __FUNCTION__); //           
