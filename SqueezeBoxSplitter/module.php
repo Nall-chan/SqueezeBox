@@ -72,8 +72,10 @@ class LMSSplitter extends IPSModule
         $packet = explode(chr(0x0d), $data->Buffer);
         foreach ($packet as $part)
         {
+            if ($part == '')
+                continue;
             $encoded = $this->encode($part);
-            IPS_LogMessage("IOSplitter $encoded", utf8_decode(print_r($encoded,1)));            
+            IPS_LogMessage("IOSplitter encoded", utf8_decode(print_r($encoded, 1)));
             if ($encoded['MAC'] <> "listen")
                 $this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "MAC" => $encoded['MAC'], "Data" => $encoded['Buffer'])));
         }
