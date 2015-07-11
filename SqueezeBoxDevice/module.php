@@ -1,5 +1,5 @@
 <?
-class XBZBDevice extends IPSModule {
+class SqueezeboxDevice extends IPSModule {
 
     public function __construct($InstanceID) {
 
