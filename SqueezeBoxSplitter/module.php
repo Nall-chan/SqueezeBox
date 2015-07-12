@@ -82,7 +82,7 @@ class LMSSplitter extends IPSModule
         $data = json_decode($JSONString);
         IPS_LogMessage("IOSplitter FRWD MAC", $data->MAC);        
         IPS_LogMessage("IOSplitter FRWD Payload", $data->Payload);
-        $sendData = implode(":",$mac = str_split($data->MAC, 2))." ".$data->Payload.chr(0x0d);
+        $sendData = implode(":",$mac = str_split($data->MAC, 2))." ".$data->Payload;
         // Daten annehmen und mit MAC codieren. Senden an Parent
         
         // 
@@ -118,7 +118,7 @@ class LMSSplitter extends IPSModule
         //Semaphore püfen
         // setzen
         // senden
-        return IPS_SendDataToParent($this->InstanceID, json_encode(Array("DataID" => "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}", "Buffer" => $Data)));
+        return @IPS_SendDataToParent($this->InstanceID, json_encode(Array("DataID" => "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}", "Buffer" => $Data.chr(0x0d))));
         
         // Rückgabe speichern 
         // Semaphore velassen
