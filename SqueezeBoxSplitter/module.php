@@ -114,10 +114,15 @@ class LMSSplitter extends IPSModule
                 IPS_Sleep(mt_rand(1, 5));
             else
             {
-                $buffer = $this->GetIDForIdent('BufferOUT');
-
-                $ret = GetValueString($buffer);
-                return $ret;
+                if ($this->lock('BufferOut'))
+                {                
+                    $buffer = $this->GetIDForIdent('BufferOUT');
+                    $ret = GetValueString($buffer);
+                    SetValueString($buffer,"");
+                    $this->unlock('BufferOut');
+                    return $ret;                    
+                }
+                return false;
             }
         }
         return false;
@@ -184,9 +189,9 @@ class LMSSplitter extends IPSModule
         }
     }
 
-    public function GetPlayerInfo($player)
+    public function GetPlayerInfo($Value)
     {
-        return $this->SendDataToParent('players ' . $player . ' 1');
+        return $this->SendDataToParent('players ' . $Value . ' 1');
     }
 
     public function GetLibaryInfo()
