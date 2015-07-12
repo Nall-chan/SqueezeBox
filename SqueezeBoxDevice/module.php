@@ -61,7 +61,7 @@ class SqueezeboxDevice extends IPSModule
 
 
         $this->RegisterVariableInteger("Index", "Playlist Position", "", 12);
-        $this->RegisterVariableInteger("Signal", utf8_encode("Signalstärke"), "~Intensity", 13);
+        $this->RegisterVariableInteger("Signal", utf8_encode("Signalstärke"), "~Intensity.100", 13);
         $this->RegisterVariableInteger("Tracks", "Playlist Anzahl Tracks", "", 14);
         $this->RegisterVariableString("Genre", "Stilrichtung", "", 15);
 
