@@ -141,7 +141,8 @@ class LMSSplitter extends IPSModule
     {
 
         $buffer = $this->GetIDForIdent('BufferOUT');
-        if (!(strpos(implode(" ",urldecode($Data[0])), GetValueString($buffer))=== false))
+        $Data[0] = urldecode($Data[0]);
+        if (!(strpos(implode(" ", $Data), GetValueString($buffer)) === false))
         {
             if ($this->lock('BufferOut'))
             {
@@ -184,7 +185,7 @@ class LMSSplitter extends IPSModule
 
     public function GetPlayerInfo($player)
     {
-        return $this->SendDataToParent('players '.$player.' 1');
+        return $this->SendDataToParent('players ' . $player . ' 1');
     }
 
     public function GetLibaryInfo()
@@ -239,8 +240,8 @@ class LMSSplitter extends IPSModule
         {
 //            if ($part == '')
 //                continue;
-            $encoded = $this->encode($part);            
-            $isResponse = $this->WriteResponse($encoded);
+            $encoded = $this->encode($part);
+            $isResponse = $this->WriteResponse($encoded->Payload);
             if ($isResponse === true)
                 continue;
             elseif ($isResponse === false)
