@@ -57,6 +57,7 @@ class SqueezeboxDevice extends IPSModule
         $this->RegisterVariableString("Cover", "Cover", "~HTMLBox", 9);
         $this->RegisterVariableString("Position", "Spielzeit", "", 10);
         $this->RegisterVariableInteger("Position2", "Position", "~Intensity.100", 10);        
+        $this->EnableAction("Position2");        
         $this->RegisterVariableString("Duration", "Dauer", "", 11);
 
 
@@ -404,6 +405,8 @@ class SqueezeboxDevice extends IPSModule
             case "Shuffle":
                 $this->Shuffle($Value);
                 break;
+            case "Position2":
+                break;
             default:
                 throw new Exception("Invalid ident");
         }
@@ -428,7 +431,8 @@ class SqueezeboxDevice extends IPSModule
         //Semaphore püfen
         // setzen
         // senden
-        return IPS_SendDataToParent($this->InstanceID, json_encode(Array("DataID" => "{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}", "MAC" => $this->MAC, "Payload" => $Data)));
+        $ret =  IPS_SendDataToParent($this->InstanceID, json_encode(Array("DataID" => "{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}", "MAC" => $this->MAC, "Payload" => $Data)));
+        return $ret;
         // Rückgabe speichern
         // Semaphore velassen
         // Rückgabe auswerten auf Fehler ?

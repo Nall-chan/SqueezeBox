@@ -74,7 +74,28 @@ class LMSSplitter extends IPSModule
     {
         $this->SendDataToParent($Text);
     }
-
+    public function Rescan()
+    {
+        $this->SendDataToParent('rescan');
+    }
+    public function CreateAllPlayer()
+    {
+        return $this->SendDataToParent('player count ?');
+    }
+    
+    public function GetPlayerInfo()
+    {
+        $this->SendDataToParent('rescan');
+    }
+    public function GetLibaryInfo()
+    {
+        $this->SendDataToParent('rescan');
+    }
+    public function GetStatistic()
+    {
+        $this->SendDataToParent('rescan');
+    }
+    
 ################## DataPoints
 
     public function ForwardData($JSONString)
