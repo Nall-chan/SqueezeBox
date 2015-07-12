@@ -81,7 +81,7 @@ class LMSSplitter extends IPSModule
         $data = json_decode($JSONString);
         IPS_LogMessage("IOSplitter FRWD MAC", $data->MAC);        
         IPS_LogMessage("IOSplitter FRWD Payload", $data->Payload);
-        $sendData = urlencode(implode(":",$mac = str_split($data->MAC, 2)))." ".$data->Payload.chr(0x0d);
+        $sendData = implode(":",$mac = str_split($data->MAC, 2))." ".$data->Payload.chr(0x0d);
         // Daten annehmen und mit MAC codieren. Senden an Parent
         
         // 
