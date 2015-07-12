@@ -102,11 +102,13 @@ class LMSSplitter extends IPSModule
         $head = GetValueString($bufferID);
         $packet = explode(chr(0x0d), $head . $data->Buffer);
         $tail = array_pop($packet);
+        IPS_LogMessage("IOSplitter newTail", $tail);
+          
         SetValueString($bufferID, $tail);
         foreach ($packet as $part)
         {
-            if ($part == '')
-                continue;
+//            if ($part == '')
+//                continue;
             $encoded = $this->encode($part);
             IPS_LogMessage("IOSplitter encoded", utf8_decode(print_r($encoded, 1)));
             if ($encoded->MAC <> "listen")
