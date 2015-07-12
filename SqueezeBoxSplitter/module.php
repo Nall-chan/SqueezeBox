@@ -95,8 +95,9 @@ class LMSSplitter extends IPSModule
         if ($this->lock('BufferOut'))
         {
             $buffer = $this->GetIDForIdent('BufferOUT');
+            $WaitForResponse = $this->GetIDForIdent('WaitForResponse');
             SetValueString($buffer, $Data);
-            SetValueBoolean(WaitForResponse, true);
+            SetValueBoolean($WaitForResponse, true);
             $this->unlock('BufferOut');
             return true;
         }
@@ -126,8 +127,9 @@ class LMSSplitter extends IPSModule
         if ($this->lock('BufferOut'))
         {
             $buffer = $this->GetIDForIdent('BufferOUT');
+            $WaitForResponse = $this->GetIDForIdent('WaitForResponse');
             SetValueString($buffer, '');
-            SetValueBoolean(WaitForResponse, false);
+            SetValueBoolean($WaitForResponse, false);
             $this->unlock('BufferOut');
             return true;
         }
@@ -142,11 +144,12 @@ class LMSSplitter extends IPSModule
         {
             if ($this->lock('BufferOut'))
             {
+                $WaitForResponse = $this->GetIDForIdent('WaitForResponse');
                 SetValueString($buffer, $Data);
-                SetValueBoolean(WaitForResponse, false);
+                SetValueBoolean($WaitForResponse, false);
                 $this->unlock('BufferOut');
                 return true;
-            } 
+            }
             return 'Error on Set Response';
         }
         return false;
@@ -236,18 +239,19 @@ class LMSSplitter extends IPSModule
 //            if ($part == '')
 //                continue;
             $isResponse = $this->WriteResponse($part);
-            if ($isResponse === true) continue;
-            elseif ($isResponse === false) 
+            if ($isResponse === true)
+                continue;
+            elseif ($isResponse === false)
             {
-            $encoded = $this->encode($part);
+                $encoded = $this->encode($part);
 //            IPS_LogMessage("IOSplitter encoded", utf8_decode(print_r($encoded, 1)));
-            if ($encoded->MAC <> "listen")
-            {
-                $ret = $this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "MAC" => $encoded->MAC, "Payload" => $encoded->Payload)));
-                IPS_LogMessage("IOSplitter ReturnValue", print_r($ret, 1));
+                if ($encoded->MAC <> "listen")
+                {
+                    $ret = $this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "MAC" => $encoded->MAC, "Payload" => $encoded->Payload)));
+                    IPS_LogMessage("IOSplitter ReturnValue", print_r($ret, 1));
+                }
             }
-                
-            } else
+            else
             {
                 IPS_LogMessage("IOSplitter ERROR", $isResponse);
             }
