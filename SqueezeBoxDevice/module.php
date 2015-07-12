@@ -38,13 +38,13 @@ class SqueezeboxDevice extends IPSModule
             Array(1, "Title", "", -1),
             Array(2, "Album", "", -1)
         ));
-        $this->RegisterProfileInteger("Volume.Squeezebox", "Intensity", "", " %", 0, 100, 1);
+//        $this->RegisterProfileInteger("Volume.Squeezebox", "Intensity", "", " %", 0, 100, 1);
 
         $this->RegisterVariableBoolean("Power", "Power", "~Switch", 1);
         $this->EnableAction("Power");
         $this->RegisterVariableInteger("Status", "Status", "Status.Squeezebox", 2);
         $this->EnableAction("Status");
-        $this->RegisterVariableInteger("Volume", "Volume", "Volume.Squeezebox", 3);
+        $this->RegisterVariableInteger("Volume", "Volume", "~Intensity.100", 3);
         $this->EnableAction("Volume");
         $this->RegisterVariableInteger("Shuffle", "Shuffle", "Shuffle.Squeezebox", 4);
         $this->EnableAction("Shuffle");
@@ -56,7 +56,7 @@ class SqueezeboxDevice extends IPSModule
         $this->RegisterVariableString("Album", "Album", "", 8);
         $this->RegisterVariableString("Cover", "Cover", "~HTMLBox", 9);
         $this->RegisterVariableString("Position", "Spielzeit", "", 10);
-        $this->RegisterVariableInteger("Position2", "Position", "~Intensity", 10);        
+        $this->RegisterVariableInteger("Position2", "Position", "~Intensity.100", 10);        
         $this->RegisterVariableString("Duration", "Dauer", "", 11);
 
 
