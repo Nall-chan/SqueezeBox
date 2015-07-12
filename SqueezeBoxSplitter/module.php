@@ -44,7 +44,9 @@ class LMSSplitter extends IPSModule
             if ($change)
                 @IPS_ApplyChanges($ParentID);
         }
-        $this->RegisterVariableString("Buffer", "Buffer");
+        $this->RegisterVariableString("BufferIN", "BufferIN");
+        $this->RegisterVariableString("BufferOUT", "BufferOUT");
+        $this->RegisterVariableBoolean("WaitForResponse", "WaitForResponse");
         $this->SendDataToParent("listen 1");
     }
 
@@ -64,6 +66,92 @@ class LMSSplitter extends IPSModule
         return $this->MAC = strtolower(str_replace(array("-", ":"), "", $mac));
     }
 
+    private function lock($ident)
+    {
+        for ($i = 0; $i < 100; $i++)
+        {
+            if (IPS_SemaphoreEnter("LMS_" . (string) $this->InstanceID . (string) $ident, 1))
+            {
+                return true;
+            }
+            else
+            {
+                IPS_Sleep(mt_rand(1, 5));
+            }
+        }
+        return false;
+    }
+
+    private function unlock($ident)
+    {
+        if (!(IPS_SemaphoreEnter("LMS_" . (string) $this->InstanceID . (string) $ident, 1)))
+        {
+            IPS_SemaphoreLeave("LMS_" . (string) $this->InstanceID . (string) $ident);
+        }
+    }
+
+    private function SetWaitForResponse($Data)
+    {
+        if ($this->lock('BufferOut'))
+        {
+            $buffer = $this->GetIDForIdent('BufferOUT');
+            SetValueString($buffer, $Data);
+            SetValueBoolean(WaitForResponse, true);
+            $this->unlock('BufferOut');
+            return true;
+        }
+        return false;
+    }
+
+    private function WaitForResponse($Data)
+    {
+        $Event = $this->GetIDForIdent('WaitForResponse');
+        for ($i = 0; $i < 5000; $i++)
+        {
+            if (GetValueBoolean($Event))
+                IPS_Sleep(mt_rand(1, 5));
+            else
+            {
+                $buffer = $this->GetIDForIdent('BufferOUT');
+
+                $ret = GetValueString($buffer);
+                return $ret;
+            }
+        }
+        return false;
+    }
+
+    private function ResetWaitForResponse()
+    {
+        if ($this->lock('BufferOut'))
+        {
+            $buffer = $this->GetIDForIdent('BufferOUT');
+            SetValueString($buffer, '');
+            SetValueBoolean(WaitForResponse, false);
+            $this->unlock('BufferOut');
+            return true;
+        }
+        return false;
+    }
+
+    private function WriteResponse($Data)
+    {
+
+        $buffer = $this->GetIDForIdent('BufferOUT');
+        if (strpos(urldecode($Data), GetValueString($buffer)))
+        {
+            if ($this->lock('BufferOut'))
+            {
+                SetValueString($buffer, $Data);
+                SetValueBoolean(WaitForResponse, false);
+                $this->unlock('BufferOut');
+                return true;
+            } 
+            return 'Error on Set Response';
+        }
+        return false;
+    }
+
 ################## PUBLIC
     /**
      * This function will be available automatically after the module is imported with the module control.
@@ -74,28 +162,37 @@ class LMSSplitter extends IPSModule
     {
         $this->SendDataToParent($Text);
     }
+
     public function Rescan()
     {
         $this->SendDataToParent('rescan');
     }
+
     public function CreateAllPlayer()
     {
-        return $this->SendDataToParent('player count ?');
+        $players = $this->SendDataToParent('player count ?');
+        for ($i = 0; $i < $players; $i++)
+        {
+            $player = $this->SendDataToParent('players ' . $i . ' 1');
+            // Daten zerlegen und Childs anlegen/prüfen
+        }
     }
-    
+
     public function GetPlayerInfo()
     {
         $this->SendDataToParent('rescan');
     }
+
     public function GetLibaryInfo()
     {
         $this->SendDataToParent('rescan');
     }
+
     public function GetStatistic()
     {
         $this->SendDataToParent('rescan');
     }
-    
+
 ################## DataPoints
 
     public function ForwardData($JSONString)
@@ -119,25 +216,40 @@ class LMSSplitter extends IPSModule
         IPS_LogMessage("IOSplitter RECV", utf8_decode($data->Buffer));
         //We would parse our payload here before sending it further...
         //Lets just forward to our children
-        $bufferID = $this->GetIDForIdent("Buffer");
+        $bufferID = $this->GetIDForIdent("BufferIN");
+        if (!$this->lock("bufferin"))
+        {
+            IPS_LogMessage("IOSplitter ERROR", "Konnte lock nicht setzen");
+            return false;
+        }
         $head = GetValueString($bufferID);
-        SetValueString($bufferID, '');        
+        SetValueString($bufferID, '');
         $packet = explode(chr(0x0d), $head . $data->Buffer);
         $tail = array_pop($packet);
-        SetValueString($bufferID, $tail); 
+        SetValueString($bufferID, $tail);
+        $this->unlock("bufferin");
 //        IPS_LogMessage("IOSplitter newTail", $tail);
-         
+
 
         foreach ($packet as $part)
         {
 //            if ($part == '')
 //                continue;
+            $isResponse = $this->WriteResponse($part);
+            if ($isResponse === true) continue;
+            elseif ($isResponse === false) 
+            {
             $encoded = $this->encode($part);
 //            IPS_LogMessage("IOSplitter encoded", utf8_decode(print_r($encoded, 1)));
             if ($encoded->MAC <> "listen")
             {
                 $ret = $this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "MAC" => $encoded->MAC, "Payload" => $encoded->Payload)));
-                IPS_LogMessage("IOSplier ReturnValue", print_r($ret, 1));
+                IPS_LogMessage("IOSplitter ReturnValue", print_r($ret, 1));
+            }
+                
+            } else
+            {
+                IPS_LogMessage("IOSplitter ERROR", $isResponse);
             }
         }
     }
@@ -146,13 +258,32 @@ class LMSSplitter extends IPSModule
     {
         //Semaphore püfen
         // setzen
+        if (!$this->lock("ToParent"))
+        {
+            IPS_LogMessage("IOSplitter ERROR", "Konnte SendeLock nicht setzen");
+            return false;
+        }
+        if (!$this->SetWaitForResponse($Data))
+        {
+            IPS_LogMessage("IOSplitter ERROR", "Konnte ResponseLock nicht setzen");
+            return false;
+        }
         // senden
-        return @IPS_SendDataToParent($this->InstanceID, json_encode(Array("DataID" => "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}", "Buffer" => $Data . chr(0x0d))));
-
         // Rückgabe speichern 
+        $ret = @IPS_SendDataToParent($this->InstanceID, json_encode(Array("DataID" => "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}", "Buffer" => $Data . chr(0x0d))));
+        if ($ret === false)
+        { // Senden fehlgeschlagen kein Response möglich
+            $this->ResetWaitForResponse();
+        }
+        else
+        {
+            $ret = $this->WaitForResponse($Data);
+        }
         // Semaphore velassen
+        $this->unlock("ToParent");
         // Rückgabe auswerten auf Fehler ?
         // Rückgabe zurückgeben.        
+        return $ret;
     }
 
     protected function SendDataToChildren($Data)
