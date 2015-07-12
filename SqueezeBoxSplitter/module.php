@@ -45,21 +45,48 @@ class LMSSplitter extends IPSModule
     }
 
 ################## PRIVATE     
+
+    private function encode($raw)
+    {
+        $array = explode(' ', $raw); // Antwortstring in Array umwandeln
+        $Data = new stdClass();
+        $Data->MAC = $this->GetMAC(urldecode($array[0])); // MAC in lesbares Format umwandeln und als BINAY speichern
+        $Data->Payload = $array;
+        return $Data;
+    }
+
+    private function GetMAC($mac)
+    {
+        return $this->MAC = strtoupper(str_replace(array("-", ":"), "", $mac));
+    }
+
 ################## PUBLIC
     /**
      * This function will be available automatically after the module is imported with the module control.
      * Using the custom prefix this function will be callable from PHP and JSON-RPC through:
      */
+
+    public function Send($Text)
+    {
+        $this->SendDataToParent($Text);
+    }
+
 ################## DataPoints
 
     public function ForwardData($JSONString)
     {
         //EDD ankommend von Device
         $data = json_decode($JSONString);
-        IPS_LogMessage("IOSplitter FRWD", utf8_decode($data->Buffer));
+        IPS_LogMessage("IOSplitter FRWD MAC", $data->MAC);        
+        IPS_LogMessage("IOSplitter FRWD Payload", $data->Payload);
+        
+        $sendData = urlencode(implode(":",$mac = str_split($data->MAC, 2)))." ".$data->Payload.chr(0x0d);
+        // Daten annehmen und mit MAC codieren. Senden an Parent
+        
+        // 
         //We would package our payload here before sending it further...
         //weiter zu IO per ClientSocket        
-        $this->SendDataToParent(json_encode(Array("DataID" => "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}", "Buffer" => $data->Buffer)));
+        return $this->SendDataToParent($sendData);
     }
 
     public function ReceiveData($JSONString)
@@ -80,33 +107,30 @@ class LMSSplitter extends IPSModule
             {
                 $ret = $this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "MAC" => $encoded->MAC, "Payload" => $encoded->Payload)));
                 IPS_LogMessage("IOSplitter ReturnValue", print_r($ret, 1));
-                
             }
         }
     }
 
-################## private functions
+    protected function SendDataToParent($Data)
+    {
+        //Semaphore püfen
+        // setzen
+        // senden
+        return IPS_SendDataToParent($this->InstanceID, json_encode(Array("DataID" => "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}", "Buffer" => $Data)));
+        
+        // Rückgabe speichern 
+        // Semaphore velassen
+        // Rückgabe auswerten auf Fehler ?
+        // Rückgabe zurückgeben.        
+    }
 
-    private function encode($raw)
+    protected function SendDataToChildren($Data)
     {
-        $array = explode(' ', $raw); // Antwortstring in Array umwandeln
-        $Data = new stdClass();
-        $Data->MAC = $this->GetMAC(urldecode($array[0])); // MAC in lesbares Format umwandeln und als BINAY speichern
-        $Data->Payload = $array;
-        return $Data;
+        return IPS_SendDataToChildren($this->InstanceID, $Data);
     }
-    private function GetMAC($mac)
-    {
-        return $this->MAC = strtoupper(str_replace(array("-",":"), "", $mac)); 
-    }
+
 ################## DUMMYS / WOARKAROUNDS - protected
-		protected function SendDataToParent($Data) {
-			return IPS_SendDataToParent($this->InstanceID, $Data);
-		}
 
-		protected function SendDataToChildren($Data) {
-			return IPS_SendDataToChildren($this->InstanceID, $Data);
-		}
     protected function GetParent()
     {
         IPS_LogMessage(__CLASS__, __FUNCTION__); //          
