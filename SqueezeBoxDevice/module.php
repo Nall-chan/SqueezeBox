@@ -364,7 +364,7 @@ class SqueezeboxDevice extends IPSModule
         //Semaphore püfen
         // setzen
         // senden
-        return IPS_SendDataToParent($this->InstanceID, json_encode(Array("DataID" => "{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}", "MAC"=> $this->ReadPropertyString("MACAddress"),"Payload" => $Data)));
+        return IPS_SendDataToParent($this->InstanceID, json_encode(Array("DataID" => "{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}", "MAC"=> $this->MAC,"Payload" => $Data)));
         // Rückgabe speichern 
         // Semaphore velassen
         // Rückgabe auswerten auf Fehler ?
