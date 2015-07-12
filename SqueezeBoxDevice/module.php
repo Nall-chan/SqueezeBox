@@ -70,7 +70,7 @@ class SqueezeboxDevice extends IPSModule
 
     private function GetMAC($mac)
     {
-        return $this->MAC = strtolower(str_replace(array("-", ":"), "", $mac));
+        return strtolower(str_replace(array("-", ":"), "", $mac));
     }
 
     private function Cover($var_id, $player_id)
@@ -361,6 +361,7 @@ class SqueezeboxDevice extends IPSModule
 ################## DataPoints
     protected function SendDataToParent($Data)
     {
+        if ($this->MAC =='') $this->MAC = $this->GetMAC($this->ReadPropertyString('MACAddress'));        
         //Semaphore püfen
         // setzen
         // senden
