@@ -137,12 +137,11 @@ class SqueezeboxDevice extends IPSModule
         {
             SetValueString($titleID, utf8_decode(urldecode($array[3])));
             SetValueInteger($modusID, 2); // Button auf play
-            // Subscripe auf entsprechende Box für Anzeige der Laufzeit
-            /*            CSCK_SendText(SqueezeServer, $array[0] . " status - 1 subscribe:2" . chr(13));
-              SqueezeSend($array[0], "artist ?");
-              SqueezeSend($array[0], "album ?"); */
-            IPS_Sleep(10);
-
+            // Subscribe auf entsprechende Box für Anzeige der Laufzeit
+            $this->SendDataToParent("status - 1 subscribe:2");
+            $this->SendDataToParent("artist ?");
+            $this->SendDataToParent("album ?");
+//            IPS_Sleep(10);
             $this->Cover($coverID, $array[0]); // Cover anzeigen
         }
         // Album aktualisieren
