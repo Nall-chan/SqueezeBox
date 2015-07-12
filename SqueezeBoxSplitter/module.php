@@ -56,7 +56,8 @@ class LMSSplitter extends IPSModule
     {
         $array = explode(' ', $raw); // Antwortstring in Array umwandeln
         $Data = new stdClass();
-        $Data->MAC = $this->GetMAC(urldecode($array[0])); // MAC in lesbares Format umwandeln und als BINAY speichern
+        $array[0] = urldecode($array[0]);
+        $Data->MAC = $this->GetMAC($array[0]); // MAC in lesbares Format umwandeln
         $Data->Payload = $array;
         return $Data;
     }
@@ -140,7 +141,7 @@ class LMSSplitter extends IPSModule
     {
 
         $buffer = $this->GetIDForIdent('BufferOUT');
-        if (strpos(urldecode($Data), GetValueString($buffer)))
+        if (!(strpos(implode(" ",urldecode($Data[0])), GetValueString($buffer))=== false))
         {
             if ($this->lock('BufferOut'))
             {
@@ -161,14 +162,14 @@ class LMSSplitter extends IPSModule
      * Using the custom prefix this function will be callable from PHP and JSON-RPC through:
      */
 
-    public function Send($Text)
+    public function SendEx($Text)
     {
-        $this->SendDataToParent($Text);
+        return $this->SendDataToParent($Text);
     }
 
     public function Rescan()
     {
-        $this->SendDataToParent('rescan');
+        return $this->SendDataToParent('rescan');
     }
 
     public function CreateAllPlayer()
@@ -181,19 +182,19 @@ class LMSSplitter extends IPSModule
         }
     }
 
-    public function GetPlayerInfo()
+    public function GetPlayerInfo($player)
     {
-        $this->SendDataToParent('rescan');
+        return $this->SendDataToParent('players '.$player.' 1');
     }
 
     public function GetLibaryInfo()
     {
-        $this->SendDataToParent('rescan');
+        return $this->SendDataToParent('rescan');
     }
 
     public function GetStatistic()
     {
-        $this->SendDataToParent('rescan');
+        return $this->SendDataToParent('rescan');
     }
 
 ################## DataPoints
@@ -238,12 +239,12 @@ class LMSSplitter extends IPSModule
         {
 //            if ($part == '')
 //                continue;
-            $isResponse = $this->WriteResponse($part);
+            $encoded = $this->encode($part);            
+            $isResponse = $this->WriteResponse($encoded);
             if ($isResponse === true)
                 continue;
             elseif ($isResponse === false)
             {
-                $encoded = $this->encode($part);
 //            IPS_LogMessage("IOSplitter encoded", utf8_decode(print_r($encoded, 1)));
                 if ($encoded->MAC <> "listen")
                 {
