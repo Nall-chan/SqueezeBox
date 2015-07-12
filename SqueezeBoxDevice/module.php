@@ -60,7 +60,7 @@ class SqueezeboxDevice extends IPSModule
 
         $this->MAC = $this->GetMAC($this->ReadPropertyString('MACAddress'));
     }
-
+           
 ################## PRIVATE     
 
     public function Send($Text)
@@ -70,7 +70,7 @@ class SqueezeboxDevice extends IPSModule
 
     private function GetMAC($mac)
     {
-        return $this->MAC = strtoupper(str_replace(array("-", ":"), "", $mac));
+        return $this->MAC = strtolower(str_replace(array("-", ":"), "", $mac));
     }
 
     private function Cover($var_id, $player_id)
@@ -79,7 +79,7 @@ class SqueezeboxDevice extends IPSModule
         $ParentID = $this->GetParent();
         if (!($ParentID === false))
         {
-            $SQserverIP = IPS_GetProperty($ParentID, 'Host');
+            $SQserverIP = IPS_GetProperty($ParentID, 'Host').":".IPS_GetProperty($ParentID, 'Webport');
             $time = time();
 //            $player_id = urlencode(implode(":", str_split($this->MAC, 2)));
             $str = "<table width='100%' cellspacing='0'><tr><td align=right>";
@@ -271,13 +271,13 @@ class SqueezeboxDevice extends IPSModule
 
     public function Pause()
     {
-           $this->SendDataToParent('button jump_fwd');        
+           $this->SendDataToParent('button pause');        
      
     }
 
     public function Next()
     {
-        $this->SendDataToParent('button next');        
+        $this->SendDataToParent('button jump_fwd');        
     }
 
     public function SetVolume($Value)
@@ -288,7 +288,7 @@ class SqueezeboxDevice extends IPSModule
     public function Power($Value)
     {
       
-        $this->SendDataToParent('power'.(int)$Value);
+        $this->SendDataToParent('power '.(int)$Value);
     }
 
     public function Repeat($Value)

@@ -12,6 +12,8 @@ class LMSSplitter extends IPSModule
         //You cannot use variables here. Just static values.
         $this->RegisterPropertyString("Host", "");
         $this->RegisterPropertyBoolean("Open", true);
+        $this->RegisterPropertyInteger("Port", 9090);        
+        $this->RegisterPropertyInteger("Webport", 9000);        
     }
 
     public function ApplyChanges()
@@ -28,9 +30,9 @@ class LMSSplitter extends IPSModule
                 IPS_SetProperty($ParentID, 'Host', $this->ReadPropertyString('Host'));
                 $change = true;
             }
-            if (IPS_GetProperty($ParentID, 'Port') <> 9090)
+            if (IPS_GetProperty($ParentID, 'Port') <> $this->ReadPropertyInteger('Port'))
             {
-                IPS_SetProperty($ParentID, 'Port', 9090);
+                IPS_SetProperty($ParentID, 'Port', $this->ReadPropertyInteger('Port'));
                 $change = true;
             }
             if (IPS_GetProperty($ParentID, 'Open') <> $this->ReadPropertyBoolean('Open'))
@@ -57,7 +59,7 @@ class LMSSplitter extends IPSModule
 
     private function GetMAC($mac)
     {
-        return $this->MAC = strtoupper(str_replace(array("-", ":"), "", $mac));
+        return $this->MAC = strtolower(str_replace(array("-", ":"), "", $mac));
     }
 
 ################## PUBLIC
@@ -79,7 +81,6 @@ class LMSSplitter extends IPSModule
         $data = json_decode($JSONString);
         IPS_LogMessage("IOSplitter FRWD MAC", $data->MAC);        
         IPS_LogMessage("IOSplitter FRWD Payload", $data->Payload);
-        
         $sendData = urlencode(implode(":",$mac = str_split($data->MAC, 2)))." ".$data->Payload.chr(0x0d);
         // Daten annehmen und mit MAC codieren. Senden an Parent
         
