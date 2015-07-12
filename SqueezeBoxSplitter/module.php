@@ -144,7 +144,8 @@ class LMSSplitter extends IPSModule
 
     private function WriteResponse($Data)
     {
-
+        $Event = $this->GetIDForIdent('WaitForResponse');
+        if (!GetValueBoolean($Event)) return false;
         $buffer = $this->GetIDForIdent('BufferOUT');
         $Data[0] = urldecode($Data[0]);
         $Data =implode(" ", $Data);
@@ -152,9 +153,9 @@ class LMSSplitter extends IPSModule
         {
             if ($this->lock('BufferOut'))
             {
-                $WaitForResponse = $this->GetIDForIdent('WaitForResponse');
+                $Event = $this->GetIDForIdent('WaitForResponse');
                 SetValueString($buffer, $Data);
-                SetValueBoolean($WaitForResponse, false);
+                SetValueBoolean($Event, false);
                 $this->unlock('BufferOut');
                 return true;
             }
