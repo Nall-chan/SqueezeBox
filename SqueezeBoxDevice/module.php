@@ -249,7 +249,7 @@ class SqueezeboxDevice extends IPSModule
                     SetValueString($titleID, utf8_decode(urldecode($chunks[1])));
                 }
 
-                if ($chunks[0] == 'playlist_tacks')
+                if ($chunks[0] == 'playlist_tracks')
                 {
                     SetValueInteger($tracksID, (int) $chunks[1]);
                 }
@@ -416,11 +416,11 @@ class SqueezeboxDevice extends IPSModule
         $this->MAC = $this->GetMAC($this->ReadPropertyString('MACAddress'));
         if ($this->MAC === false)
             return false;
-        IPS_LogMessage("IODevice MAC", $data->MAC);
-        IPS_LogMessage("IODevice MAC", $this->MAC);
+        //IPS_LogMessage("IODevice MAC", $data->MAC);
+        //IPS_LogMessage("IODevice MAC", $this->MAC);
         if ($this->MAC == $data->MAC)
         {
-            IPS_LogMessage("IODevice DATA", print_r($data->Payload, 1));
+            //IPS_LogMessage("IODevice DATA", print_r($data->Payload, 1));
             $this->decode($data->Payload);
             return true;
         }
