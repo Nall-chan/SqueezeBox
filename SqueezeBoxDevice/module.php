@@ -55,12 +55,14 @@ class SqueezeboxDevice extends IPSModule
         $this->RegisterVariableString("Title", "Title", "", 7);
         $this->RegisterVariableString("Album", "Album", "", 8);
         $this->RegisterVariableString("Cover", "Cover", "~HTMLBox", 9);
-        $this->RegisterVariableString("Position", "Position", "", 10);
+        $this->RegisterVariableString("Position", "Spielzeit", "", 10);
+        $this->RegisterVariableInteger("Position2", "Position", "~Intensity", 10);        
         $this->RegisterVariableString("Duration", "Dauer", "", 11);
 
-        $this->RegisterVariableInteger("Index", "Position", "", 12);
-        $this->RegisterVariableInteger("Signal", "Signalstärke", "", 13);
-        $this->RegisterVariableInteger("Tracks", "Tracks", "", 14);
+
+        $this->RegisterVariableInteger("Index", "Playlist Position", "", 12);
+        $this->RegisterVariableInteger("Signal", utf8_encode("Signalstärke"), "~Intensity", 13);
+        $this->RegisterVariableInteger("Tracks", "Playlist Anzahl Tracks", "", 14);
         $this->RegisterVariableString("Genre", "Stilrichtung", "", 15);
 
         $this->MAC = $this->GetMAC($this->ReadPropertyString('MACAddress'));
@@ -69,11 +71,26 @@ class SqueezeboxDevice extends IPSModule
 
 ################## PRIVATE
 
-    public function Send($Text)
+    public function RawSend($Text)
     {
         return $this->SendDataToParent($Text);
     }
-
+    private function SetValueBoolean($id,$value)
+    {
+        if (GetValueBoolean($id) <> $value) SetValueBoolean($id,$value);
+    }
+    private function SetValueInteger($id,$value)
+    {
+        if (GetValueInteger($id) <> $value) SetValueInteger($id,$value);
+        
+    }
+    private function SetValueString($id,$value)
+    {
+        if (GetValueString($id) <> $value) SetValueString($id,$value);
+        
+    }
+    
+    
     private function GetMAC($mac)
     {
         return strtolower(str_replace(array("-", ":"), "", $mac));
@@ -94,7 +111,7 @@ class SqueezeboxDevice extends IPSModule
         }
         else
             $str = "";
-        SetValueString($var_id, $str);
+        $this->SetValueString($var_id, $str);
     }
 
     private function decode($Data)
@@ -111,6 +128,7 @@ class SqueezeboxDevice extends IPSModule
         $interpretID = $this->GetIDForIdent("Interpret");
         $durationID = $this->GetIDForIdent("Duration");
         $positionID = $this->GetIDForIdent("Position");
+        $position2ID         = $this->GetIDForIdent("Position2");
         $titleID = $this->GetIDForIdent("Title");
         $indexID = $this->GetIDForIdent("Index");
         $signalID = $this->GetIDForIdent("Signal");
@@ -120,32 +138,32 @@ class SqueezeboxDevice extends IPSModule
         {
             if ($array[2] == '1')
             {
-                SetValueBoolean($powerID, true);
+                $this->SetValueBoolean($powerID, true);
             }
             else
             {
-                SetValueBoolean($powerID, false);
+                $this->SetValueBoolean($powerID, false);
             }
         }
         //Lautstärke bei Änderung aktualisieren
         if (($array[1] == 'prefset') and ( $array[3] == 'volume'))
         {
-            SetValueInteger($volumeID, (int) urldecode($array[4]));
+            $this->SetValueInteger($volumeID, (int) urldecode($array[4]));
         }
         // Repeat bei Änderung aktualisieren
         if (($array[1] == 'prefset') and ( $array[3] == 'repeat'))
         {
-            SetValueInteger($repeatID, (int) $array[4]);
+            $this->SetValueInteger($repeatID, (int) $array[4]);
         }
         // Shuffle bei Änderung aktualisieren
         if (($array[1] == 'prefset') and ( $array[3] == 'shuffle'))
-            SetValueInteger($shuffleID, (int) $array[4]);
+            $this->SetValueInteger($shuffleID, (int) $array[4]);
 
         //Titel-Tag aktualisieren
         if (($array[1] == 'playlist') and ( $array[2] == 'newsong'))
         {
-            SetValueString($titleID, utf8_decode(urldecode($array[3])));
-            SetValueInteger($modusID, 2); // Button auf play
+            $this->SetValueString($titleID, utf8_decode(urldecode($array[3])));
+            $this->SetValueInteger($modusID, 2); // Button auf play
             // Subscribe auf entsprechende Box für Anzeige der Laufzeit
             $this->SendDataToParent("status - 1 subscribe:2");
 //            $this->SendDataToParent("artist ?");
@@ -157,46 +175,46 @@ class SqueezeboxDevice extends IPSModule
         if ($array[1] == 'album')
         {
             if (isset($array[2]))
-                SetValueString($albumID, utf8_decode(urldecode($array[2])));
+                $this->SetValueString($albumID, utf8_decode(urldecode($array[2])));
             else
-                SetValueString($albumID, '');
+                $this->SetValueString($albumID, '');
         }
         // Artist aktualisieren
         if ($array[1] == 'artist')
         {
             if (isset($array[2]))
-                SetValueString($interpretID, utf8_decode(urldecode($array[2])));
+                $this->SetValueString($interpretID, utf8_decode(urldecode($array[2])));
             else
-                SetValueString($interpretID, '');
+                $this->SetValueString($interpretID, '');
         }
         // Steuerungstasten im Webfront aktualisieren
         if ($array[1] == 'play')
         {
-            SetValueInteger($modusID, 2);
+            $this->SetValueInteger($modusID, 2);
         }
         if (($array[1] == 'mode') and ( $array[2] == 'play'))
         {
-            SetValueInteger($modusID, 2);
+            $this->SetValueInteger($modusID, 2);
         }
         if ($array[1] == 'stop')
         {
-            SetValueInteger($modusID, 1);
+            $this->SetValueInteger($modusID, 1);
         }
         if (($array[1] == 'pause') and ( $array[2] == 1))
         {
-            SetValueInteger($modusID, 3);
+            $this->SetValueInteger($modusID, 3);
         }
         if (($array[1] == 'pause') and ( $array[2] == 0))
         {
-            SetValueInteger($modusID, 2);
+            $this->SetValueInteger($modusID, 2);
         }
         if (($array[1] == 'button') and ( $array[2] == 'jump_rew'))
         {
-            SetValueInteger($modusID, 0);
+            $this->SetValueInteger($modusID, 0);
         }
         if (($array[1] == 'button') and ( $array[2] == 'jump_fwd'))
         {
-            SetValueInteger($modusID, 4);
+            $this->SetValueInteger($modusID, 4);
         }
         if (($array[1] == 'status') and (isset($array[4]) and ($array[4] == 'subscribe%3A2')))
         {
@@ -206,81 +224,89 @@ class SqueezeboxDevice extends IPSModule
                 $chunks = explode(":", $item);
                 if ($chunks[0] == "time")
                 {
-                    SetValueString($positionID, @date('i:s', $chunks[1]));
+                    $this->SetValueString($positionID, @date('i:s', $chunks[1]));
+                    $time = $chunks[1];
 //                IPS_LogMessage("Squeeze",date('i:s', $chunks[1]));
                 }
                 if ($chunks[0] == "duration")
                 {
-                    SetValueString($durationID, @date('i:s', $chunks[1]));
+                    $this->SetValueString($durationID, @date('i:s', $chunks[1]));
+                    $duration = $chunks[1];
 //                IPS_LogMessage("Squeeze",date('i:s', $chunks[1]));
                 }
                 if ($chunks[0] == "mode")
                 {
                     if ($chunks[1] == 'play')
                     {
-                        SetValueInteger($modusID, 2);
+                        $this->SetValueInteger($modusID, 2);
                     }
                     if ($chunks[1] == 'stop')
                     {
-                        SetValueInteger($modusID, 1);
+                        $this->SetValueInteger($modusID, 1);
                     }
                     if ($chunks[1] == 'pause')
                     {
-                        SetValueInteger($modusID, 3);
+                        $this->SetValueInteger($modusID, 3);
                     }
                 }
 //rate%3A1 can_seek%3A1  playlist%20mode%3Aoff seq_no%3A91 playlist_cur_index%3A39 playlist_timestamp%3A1415459866.17632 id%3A26977 duration%3A614.034
                 if ($chunks[0] == 'album')
                 {
-                    SetValueString($albumID, utf8_decode(urldecode($chunks[1])));
+                    $this->SetValueString($albumID, utf8_decode(urldecode($chunks[1])));
                 }
                 if ($chunks[0] == 'genre')
                 {
-                    SetValueString($genreID, utf8_decode(urldecode($chunks[1])));
+                    $this->SetValueString($genreID, utf8_decode(urldecode($chunks[1])));
                 }
 
                 if ($chunks[0] == 'artist')
                 {
 
-                    SetValueString($interpretID, utf8_decode(urldecode($chunks[1])));
+                    $this->SetValueString($interpretID, utf8_decode(urldecode($chunks[1])));
                 }
                 if ($chunks[0] == 'title')
                 {
-                    SetValueString($titleID, utf8_decode(urldecode($chunks[1])));
+                    $this->SetValueString($titleID, utf8_decode(urldecode($chunks[1])));
                 }
 
                 if ($chunks[0] == 'playlist_tracks')
                 {
-                    SetValueInteger($tracksID, (int) $chunks[1]);
+                    $this->SetValueInteger($tracksID, (int) $chunks[1]);
                 }
                 if ($chunks[0] == 'playlist index')
                 {
-                    SetValueInteger($indexID, (int) $chunks[1]);
+                    $this->SetValueInteger($indexID, (int) $chunks[1]);
                 }
                 if ($chunks[0] == 'signalstrength')
                 {
-                    SetValueInteger($signalID, (int) $chunks[1]);
+                    $this->SetValueInteger($signalID, (int) $chunks[1]);
                 }
 
                 if ($chunks[0] == 'mixer volume')
                 {
-                    SetValueInteger($volumeID, (int) urldecode($chunks[1]));
+                    $this->SetValueInteger($volumeID, (int) urldecode($chunks[1]));
                 }
                 if ($chunks[0] == 'playlist repeat')
-                    SetValueInteger($repeatID, (int) $chunks[1]);
+                    $this->SetValueInteger($repeatID, (int) $chunks[1]);
                 if ($chunks[0] == 'playlist shuffle')
-                    SetValueInteger($shuffleID, (int) $chunks[1]);
+                    $this->SetValueInteger($shuffleID, (int) $chunks[1]);
                 if ($chunks[0] == 'power')
                 {
                     if ($chunks[1] == '1')
                     {
-                        SetValueBoolean($powerID, true);
+                        $this->SetValueBoolean($powerID, true);
                     }
                     else
                     {
-                        SetValueBoolean($powerID, false);
+                        $this->SetValueBoolean($powerID, false);
                     }
                 }
+            }
+            if (isset($duration) and isset($time))
+            {
+                    $value = (100/$duration)*$time;                        
+                    $this->SetValueInteger($position2ID, round($value));
+              
             }
         }
     }
@@ -430,7 +456,7 @@ class SqueezeboxDevice extends IPSModule
     }
 
 ################## DUMMYS / WOARKAROUNDS - protected
-
+    
     protected function HasActiveParent()
     {
         IPS_LogMessage(__CLASS__, __FUNCTION__); //
