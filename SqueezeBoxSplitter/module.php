@@ -44,6 +44,7 @@ class LMSSplitter extends IPSModule
             if ($change)
                 @IPS_ApplyChanges($ParentID);
         }
+        $this->SendDataToParent("listen 1");
     }
 
 ################## PRIVATE     

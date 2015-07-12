@@ -59,6 +59,7 @@ class SqueezeboxDevice extends IPSModule
         $this->RegisterVariableString("Duration", "Dauer", "", 11);
 
         $this->MAC = $this->GetMAC($this->ReadPropertyString('MACAddress'));
+        $this->SendDataToParent("listen 1");
     }
            
 ################## PRIVATE     
@@ -346,6 +347,7 @@ class SqueezeboxDevice extends IPSModule
             default:
                 throw new Exception("Invalid ident");
         }
+                $this->SendDataToParent("listen 1");
     }
 
     public function RequestState()
