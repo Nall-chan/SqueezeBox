@@ -12,8 +12,8 @@ class LMSSplitter extends IPSModule
         //You cannot use variables here. Just static values.
         $this->RegisterPropertyString("Host", "");
         $this->RegisterPropertyBoolean("Open", true);
-        $this->RegisterPropertyInteger("Port", 9090);        
-        $this->RegisterPropertyInteger("Webport", 9000);        
+        $this->RegisterPropertyInteger("Port", 9090);
+        $this->RegisterPropertyInteger("Webport", 9000);
     }
 
     public function ApplyChanges()
@@ -44,6 +44,7 @@ class LMSSplitter extends IPSModule
             if ($change)
                 @IPS_ApplyChanges($ParentID);
         }
+        $this->RegisterVariableString("Buffer", "Buffer");
         $this->SendDataToParent("listen 1");
     }
 
@@ -80,11 +81,10 @@ class LMSSplitter extends IPSModule
     {
         //EDD ankommend von Device
         $data = json_decode($JSONString);
-        IPS_LogMessage("IOSplitter FRWD MAC", $data->MAC);        
+        IPS_LogMessage("IOSplitter FRWD MAC", $data->MAC);
         IPS_LogMessage("IOSplitter FRWD Payload", $data->Payload);
-        $sendData = implode(":",$mac = str_split($data->MAC, 2))." ".$data->Payload;
+        $sendData = implode(":", $mac = str_split($data->MAC, 2)) . " " . $data->Payload;
         // Daten annehmen und mit MAC codieren. Senden an Parent
-        
         // 
         //We would package our payload here before sending it further...
         //weiter zu IO per ClientSocket        
@@ -98,7 +98,11 @@ class LMSSplitter extends IPSModule
         IPS_LogMessage("IOSplitter RECV", utf8_decode($data->Buffer));
         //We would parse our payload here before sending it further...
         //Lets just forward to our children
-        $packet = explode(chr(0x0d), $data->Buffer);
+        $bufferID = $this->GetIDForIdent("Buffer");
+        $head = GetValueString($bufferID);
+        $packet = explode(chr(0x0d), $head . $data->Buffer);
+        $tail = array_pop($packet);
+        SetValueString($bufferID, $tail);
         foreach ($packet as $part)
         {
             if ($part == '')
@@ -118,8 +122,8 @@ class LMSSplitter extends IPSModule
         //Semaphore püfen
         // setzen
         // senden
-        return @IPS_SendDataToParent($this->InstanceID, json_encode(Array("DataID" => "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}", "Buffer" => $Data.chr(0x0d))));
-        
+        return @IPS_SendDataToParent($this->InstanceID, json_encode(Array("DataID" => "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}", "Buffer" => $Data . chr(0x0d))));
+
         // Rückgabe speichern 
         // Semaphore velassen
         // Rückgabe auswerten auf Fehler ?

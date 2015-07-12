@@ -58,11 +58,16 @@ class SqueezeboxDevice extends IPSModule
         $this->RegisterVariableString("Position", "Position", "", 10);
         $this->RegisterVariableString("Duration", "Dauer", "", 11);
 
+        $this->RegisterVariableInteger("Index", "Position", "", 12);
+        $this->RegisterVariableInteger("Signal", "Signalstärke", "", 13);
+        $this->RegisterVariableInteger("Tracks", "Tracks", "", 14);
+        $this->RegisterVariableString("Genre", "Stilrichtung", "", 15);
+
         $this->MAC = $this->GetMAC($this->ReadPropertyString('MACAddress'));
         $this->SendDataToParent("listen 1");
     }
-           
-################## PRIVATE     
+
+################## PRIVATE
 
     public function Send($Text)
     {
@@ -80,7 +85,7 @@ class SqueezeboxDevice extends IPSModule
         $ParentID = $this->GetParent();
         if (!($ParentID === false))
         {
-            $SQserverIP = IPS_GetProperty($ParentID, 'Host').":".IPS_GetProperty($ParentID, 'Webport');
+            $SQserverIP = IPS_GetProperty($ParentID, 'Host') . ":" . IPS_GetProperty($ParentID, 'Webport');
             $time = time();
 //            $player_id = urlencode(implode(":", str_split($this->MAC, 2)));
             $str = "<table width='100%' cellspacing='0'><tr><td align=right>";
@@ -107,7 +112,10 @@ class SqueezeboxDevice extends IPSModule
         $durationID = $this->GetIDForIdent("Duration");
         $positionID = $this->GetIDForIdent("Position");
         $titleID = $this->GetIDForIdent("Title");
-
+        $indexID = $this->GetIDForIdent("Index");
+        $signalID = $this->GetIDForIdent("Signal");
+        $tracksID = $this->GetIDForIdent("Tracks");
+        $genreID = $this->GetIDForIdent("Genre");
         if ($array[1] == 'power')
         {
             if ($array[2] == '1')
@@ -140,8 +148,8 @@ class SqueezeboxDevice extends IPSModule
             SetValueInteger($modusID, 2); // Button auf play
             // Subscribe auf entsprechende Box für Anzeige der Laufzeit
             $this->SendDataToParent("status - 1 subscribe:2");
-            $this->SendDataToParent("artist ?");
-            $this->SendDataToParent("album ?");
+//            $this->SendDataToParent("artist ?");
+//            $this->SendDataToParent("album ?");
 //            IPS_Sleep(10);
             $this->Cover($coverID, $array[0]); // Cover anzeigen
         }
@@ -190,7 +198,7 @@ class SqueezeboxDevice extends IPSModule
         {
             SetValueInteger($modusID, 4);
         }
-        if (($array[1] == 'status') and ( $array[4] == 'subscribe%3A2'))
+        if (($array[1] == 'status') and (isset($array[4]) and ($array[4] == 'subscribe%3A2')))
         {
             foreach ($array as $item)
             {
@@ -221,7 +229,39 @@ class SqueezeboxDevice extends IPSModule
                         SetValueInteger($modusID, 3);
                     }
                 }
-//signalstrength%3A88 rate%3A1 can_seek%3A1  playlist%20mode%3Aoff seq_no%3A91 playlist_cur_index%3A39 playlist_timestamp%3A1415459866.17632 playlist_tracks%3A42 playlist%20index%3A39 id%3A26977 title%3AMonster%20High%20-%20Flederm%C3%A4use%20im%20Bauch%20-%20H%C3%B6rbuch%20-%20Abschnitt%2040 genre%3AH%C3%B6rbuch artist%3AMonster%20High album%3AMonster%20High%20-%20Flederm%C3%A4use%20im%20Bauch%20-%20H%C3%B6rbuch duration%3A614.034
+//rate%3A1 can_seek%3A1  playlist%20mode%3Aoff seq_no%3A91 playlist_cur_index%3A39 playlist_timestamp%3A1415459866.17632 id%3A26977 duration%3A614.034
+                if ($chunks[0] == 'album')
+                {
+                    SetValueString($albumID, utf8_decode(urldecode($chunks[1])));
+                }
+                if ($chunks[0] == 'genre')
+                {
+                    SetValueString($genreID, utf8_decode(urldecode($chunks[1])));
+                }
+
+                if ($chunks[0] == 'artist')
+                {
+
+                    SetValueString($interpretID, utf8_decode(urldecode($chunks[1])));
+                }
+                if ($chunks[0] == 'title')
+                {
+                    SetValueString($titleID, utf8_decode(urldecode($chunks[1])));
+                }
+
+                if ($chunks[0] == 'playlist_tacks')
+                {
+                    SetValueInteger($tracksID, (int) $chunks[1]);
+                }
+                if ($chunks[0] == 'playlist index')
+                {
+                    SetValueInteger($indexID, (int) $chunks[1]);
+                }
+                if ($chunks[0] == 'signalstrength')
+                {
+                    SetValueInteger($signalID, (int) $chunks[1]);
+                }
+
                 if ($chunks[0] == 'mixer volume')
                 {
                     SetValueInteger($volumeID, (int) urldecode($chunks[1]));
@@ -253,54 +293,48 @@ class SqueezeboxDevice extends IPSModule
 
     public function Previous()
     {
-        $this->SendDataToParent('button jump_rew');        
-        
+        $this->SendDataToParent('button jump_rew');
     }
 
     public function Stop()
     {
-        $this->SendDataToParent('button stop');        
-        
+        $this->SendDataToParent('button stop');
     }
 
     public function Play()
     {
-        $this->SendDataToParent('button play');        
-        
+        $this->SendDataToParent('button play');
     }
 
     public function Pause()
     {
-           $this->SendDataToParent('button pause');        
-     
+        $this->SendDataToParent('button pause');
     }
 
     public function Next()
     {
-        $this->SendDataToParent('button jump_fwd');        
+        $this->SendDataToParent('button jump_fwd');
     }
 
     public function SetVolume($Value)
     {
-        $this->SendDataToParent('mixer volume '.$Value);
+        $this->SendDataToParent('mixer volume ' . $Value);
     }
 
     public function Power($Value)
     {
-      
-        $this->SendDataToParent('power '.(int)$Value);
+
+        $this->SendDataToParent('power ' . (int) $Value);
     }
 
     public function Repeat($Value)
     {
-        $this->SendDataToParent('playlist repeat '.$Value);
-        
+        $this->SendDataToParent('playlist repeat ' . $Value);
     }
 
     public function Shuffle($Value)
     {
-        $this->SendDataToParent('playlist shuffle '.$Value);
-        
+        $this->SendDataToParent('playlist shuffle ' . $Value);
     }
 
     public function RequestAction($Ident, $Value)
@@ -347,7 +381,7 @@ class SqueezeboxDevice extends IPSModule
             default:
                 throw new Exception("Invalid ident");
         }
-                $this->SendDataToParent("listen 1");
+        $this->SendDataToParent("listen 1");
     }
 
     public function RequestState()
@@ -360,18 +394,21 @@ class SqueezeboxDevice extends IPSModule
     }
 
 ################## DataPoints
+
     protected function SendDataToParent($Data)
     {
-        if ($this->MAC =='') $this->MAC = $this->GetMAC($this->ReadPropertyString('MACAddress'));        
+        if ($this->MAC == '')
+            $this->MAC = $this->GetMAC($this->ReadPropertyString('MACAddress'));
         //Semaphore püfen
         // setzen
         // senden
-        return IPS_SendDataToParent($this->InstanceID, json_encode(Array("DataID" => "{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}", "MAC"=> $this->MAC,"Payload" => $Data)));
-        // Rückgabe speichern 
+        return IPS_SendDataToParent($this->InstanceID, json_encode(Array("DataID" => "{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}", "MAC" => $this->MAC, "Payload" => $Data)));
+        // Rückgabe speichern
         // Semaphore velassen
         // Rückgabe auswerten auf Fehler ?
-        // Rückgabe zurückgeben.        
+        // Rückgabe zurückgeben.
     }
+
     public function ReceiveData($JSONString)
     {
         // CB5950B3-593C-4126-9F0F-8655A3944419 ankommend von Splitter
@@ -396,7 +433,7 @@ class SqueezeboxDevice extends IPSModule
 
     protected function HasActiveParent()
     {
-        IPS_LogMessage(__CLASS__, __FUNCTION__); //          
+        IPS_LogMessage(__CLASS__, __FUNCTION__); //
         $instance = IPS_GetInstance($this->InstanceID);
         if ($instance['ConnectionID'] > 0)
         {
@@ -409,34 +446,34 @@ class SqueezeboxDevice extends IPSModule
 
     protected function GetParent()
     {
-        IPS_LogMessage(__CLASS__, __FUNCTION__); //          
+        IPS_LogMessage(__CLASS__, __FUNCTION__); //
         $instance = IPS_GetInstance($this->InstanceID);
         return ($instance['ConnectionID'] > 0) ? $instance['ConnectionID'] : false;
     }
 
     protected function SetStatus($data)
     {
-        IPS_LogMessage(__CLASS__, __FUNCTION__); //           
+        IPS_LogMessage(__CLASS__, __FUNCTION__); //
     }
 
     protected function RegisterTimer($data, $cata)
     {
-        IPS_LogMessage(__CLASS__, __FUNCTION__); //           
+        IPS_LogMessage(__CLASS__, __FUNCTION__); //
     }
 
     protected function SetTimerInterval($data, $cata)
     {
-        IPS_LogMessage(__CLASS__, __FUNCTION__); //           
+        IPS_LogMessage(__CLASS__, __FUNCTION__); //
     }
 
     protected function LogMessage($data, $cata)
     {
-        
+
     }
 
     protected function SetSummary($data)
     {
-        IPS_LogMessage(__CLASS__, __FUNCTION__ . "Data:" . $data); //                   
+        IPS_LogMessage(__CLASS__, __FUNCTION__ . "Data:" . $data); //
     }
 
     //Remove on next Symcon update
