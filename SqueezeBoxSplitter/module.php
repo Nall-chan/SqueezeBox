@@ -97,6 +97,8 @@ class LMSSplitter extends IPSModule
         {
             $buffer = $this->GetIDForIdent('BufferOUT');
             $WaitForResponse = $this->GetIDForIdent('WaitForResponse');
+            if (substr($Data, -1) == '?')
+                    $Data = substr ($Data, 0, -2);
             SetValueString($buffer, $Data);
             SetValueBoolean($WaitForResponse, true);
             $this->unlock('BufferOut');
@@ -192,7 +194,7 @@ class LMSSplitter extends IPSModule
     public function CreateAllPlayer()
     {
         $players = $this->SendDataToParent('player count ?');
-        IPS_LogMessage('PLAYERS',$players);
+        IPS_LogMessage('PLAYERS',print_r($players,1));
         return;
         for ($i = 0; $i < $players; $i++)
         {
@@ -307,7 +309,7 @@ class LMSSplitter extends IPSModule
         else
         {
             $ret = $this->WaitForResponse($Data);
-            IPS_LogMessage('FOUND RESPONSE2',$ret);            
+            IPS_LogMessage('FOUND RESPONSE2',print_r($ret,1));            
         }
         // Semaphore velassen
         $this->unlock("ToParent");
