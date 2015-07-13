@@ -332,12 +332,12 @@ class LMSSplitter extends IPSModule
             // Rückgabe ist bestätigung ?
             if ($Data == $ret)
             {
-                IPS_LogMessage('FOUND RESPONSE', print_r($ret, 1));
+                IPS_LogMessage('FOUND RESPONSE1', print_r($ret, 1));
                 return true;
             }
             // Anfrage abschneiden und Rückgabe zurückgeben.              
-            $ret = str_replace($Data, "", $ret);
-            IPS_LogMessage('FOUND RESPONSE', print_r($ret, 1));
+            $ret = str_replace($WaitData, "", $ret);
+            IPS_LogMessage('FOUND RESPONSE2', print_r($ret, 1));
 
             return $ret;
         }
