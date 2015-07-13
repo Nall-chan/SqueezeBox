@@ -111,7 +111,7 @@ class LMSSplitter extends IPSModule
         for ($i = 0; $i < 5000; $i++)
         {
             if (GetValueBoolean($Event))
-                IPS_Sleep(mt_rand(1, 5));
+                IPS_Sleep(mt_rand(3, 5));
             else
             {
                 if ($this->lock('BufferOut'))
