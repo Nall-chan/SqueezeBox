@@ -198,7 +198,7 @@ class LMSSplitter extends IPSModule
 
         for ($i = 0; $i < $players; $i++)
         {
-            $player = $this->SendDataToParent('player id $i');
+            $player = $this->SendDataToParent('player id '.$i);
             $playerName = $this->SendDataToParent('player name '.$i);
             // Daten zerlegen und Childs anlegen/prüfen
             IPS_LogMessage('PLAYER ID' . $i, print_r($player, 1));
