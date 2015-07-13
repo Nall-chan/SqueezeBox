@@ -115,12 +115,12 @@ class LMSSplitter extends IPSModule
             else
             {
                 if ($this->lock('BufferOut'))
-                {                
+                {
                     $buffer = $this->GetIDForIdent('BufferOUT');
                     $ret = GetValueString($buffer);
-                    SetValueString($buffer,"");
+                    SetValueString($buffer, "");
                     $this->unlock('BufferOut');
-                    return $ret;                    
+                    return $ret;
                 }
                 return false;
             }
@@ -145,10 +145,11 @@ class LMSSplitter extends IPSModule
     private function WriteResponse($Data)
     {
         $Event = $this->GetIDForIdent('WaitForResponse');
-        if (!GetValueBoolean($Event)) return false;
+        if (!GetValueBoolean($Event))
+            return false;
         $buffer = $this->GetIDForIdent('BufferOUT');
         $Data[0] = urldecode($Data[0]);
-        $Data =implode(" ", $Data);
+        $Data = implode(" ", $Data);
         if (!(strpos($Data, GetValueString($buffer)) === false))
         {
             if ($this->lock('BufferOut'))
@@ -177,7 +178,14 @@ class LMSSplitter extends IPSModule
 
     public function Rescan()
     {
-        return $this->SendDataToParent('rescan');
+        //return $this->SendDataToParent('rescan');
+        return "Test";
+    }
+
+    public function Rescan2()
+    {
+        //return $this->SendDataToParent('rescan');
+        return json_encode(array(1, 5, 7.9, 'footo' => 2, 'foo' => 'bar'));
     }
 
     public function CreateAllPlayer()
@@ -250,10 +258,13 @@ class LMSSplitter extends IPSModule
             $encoded = $this->encode($part);
             $isResponse = $this->WriteResponse($encoded->Payload);
             if ($isResponse === true)
+            {
+                IPS_LogMessage("IOSplitter isnoResonse", "TRUE");
                 continue;
+            }
             elseif ($isResponse === false)
             {
-//            IPS_LogMessage("IOSplitter encoded", utf8_decode(print_r($encoded, 1)));
+                IPS_LogMessage("IOSplitter isnoResonse", "FALSE");
                 if ($encoded->MAC <> "listen")
                 {
                     $ret = $this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "MAC" => $encoded->MAC, "Payload" => $encoded->Payload)));
@@ -319,7 +330,17 @@ class LMSSplitter extends IPSModule
         if ($ParentID > 0)
         {
             $parent = IPS_GetInstance($ParentID);
-            if ($parent['InstanceStatus'] == 102)
+            if ($parent['InstanceStatus
+
+         
+
+          
+
+          
+
+         
+
+         '] == 102)
                 return true;
         }
         return false;
