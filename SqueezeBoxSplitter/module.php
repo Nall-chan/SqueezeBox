@@ -118,6 +118,7 @@ class LMSSplitter extends IPSModule
                 {
                     $buffer = $this->GetIDForIdent('BufferOUT');
                     $ret = GetValueString($buffer);
+                    IPS_LogMessage('FOUND RESPONSE',$ret);
                     SetValueString($buffer, "");
                     $this->unlock('BufferOut');
                     return $ret;
