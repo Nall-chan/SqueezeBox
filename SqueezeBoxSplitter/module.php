@@ -192,6 +192,8 @@ class LMSSplitter extends IPSModule
     public function CreateAllPlayer()
     {
         $players = $this->SendDataToParent('player count ?');
+        IPS_LogMessage('PLAYERS',$players);
+        return;
         for ($i = 0; $i < $players; $i++)
         {
             $player = $this->SendDataToParent('players ' . $i . ' 1');
@@ -226,8 +228,10 @@ class LMSSplitter extends IPSModule
         // Daten annehmen und mit MAC codieren. Senden an Parent
         // 
         //We would package our payload here before sending it further...
-        //weiter zu IO per ClientSocket        
-        return $this->SendDataToParent($sendData);
+        //weiter zu IO per ClientSocket      
+        $ret =  $this->SendDataToParent($sendData);
+                    IPS_LogMessage('ForwardData RESPONSE',$ret);        
+        return $ret;
     }
 
     public function ReceiveData($JSONString)
@@ -303,10 +307,14 @@ class LMSSplitter extends IPSModule
         else
         {
             $ret = $this->WaitForResponse($Data);
+            IPS_LogMessage('FOUND RESPONSE2',$ret);            
         }
         // Semaphore velassen
         $this->unlock("ToParent");
         // Rückgabe auswerten auf Fehler ?
+
+        // 
+        // 
         // Rückgabe zurückgeben.        
         return $ret;
     }
