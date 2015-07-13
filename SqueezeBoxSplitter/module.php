@@ -297,6 +297,7 @@ class LMSSplitter extends IPSModule
         if (!$this->SetWaitForResponse($Data))
         {
             IPS_LogMessage("IOSplitter ERROR", "Konnte ResponseLock nicht setzen");
+            $this->unlock("ToParent");            
             return false;
         }
         // senden
