@@ -97,8 +97,6 @@ class LMSSplitter extends IPSModule
         {
             $buffer = $this->GetIDForIdent('BufferOUT');
             $WaitForResponse = $this->GetIDForIdent('WaitForResponse');
-            if (substr($Data, -1) == '?')
-                    $Data = substr ($Data, 0, -2);
             SetValueString($buffer, $Data);
             SetValueBoolean($WaitForResponse, true);
             $this->unlock('BufferOut');
@@ -107,7 +105,7 @@ class LMSSplitter extends IPSModule
         return false;
     }
 
-    private function WaitForResponse($Data)
+    private function WaitForResponse()
     {
         $Event = $this->GetIDForIdent('WaitForResponse');
         for ($i = 0; $i < 5000; $i++)
@@ -120,7 +118,7 @@ class LMSSplitter extends IPSModule
                 {
                     $buffer = $this->GetIDForIdent('BufferOUT');
                     $ret = GetValueString($buffer);
-                    IPS_LogMessage('FOUND RESPONSE',$ret);
+                    //IPS_LogMessage('FOUND RESPONSE', $ret);
                     SetValueString($buffer, "");
                     $this->unlock('BufferOut');
                     return $ret;
@@ -163,7 +161,7 @@ class LMSSplitter extends IPSModule
                 $this->unlock('BufferOut');
                 return true;
             }
-            return 'Error on Set Response';
+            return 'Error on write ResponseBuffer';
         }
         return false;
     }
@@ -194,7 +192,7 @@ class LMSSplitter extends IPSModule
     public function CreateAllPlayer()
     {
         $players = $this->SendDataToParent('player count ?');
-        IPS_LogMessage('PLAYERS',print_r($players,1));
+        IPS_LogMessage('PLAYERS', print_r($players, 1));
         return;
         for ($i = 0; $i < $players; $i++)
         {
@@ -231,8 +229,8 @@ class LMSSplitter extends IPSModule
         // 
         //We would package our payload here before sending it further...
         //weiter zu IO per ClientSocket      
-        $ret =  $this->SendDataToParent($sendData);
-                    IPS_LogMessage('ForwardData RESPONSE',$ret);        
+        $ret = $this->SendDataToParent($sendData);
+//        IPS_LogMessage('ForwardData RESPONSE', $ret);
         return $ret;
     }
 
@@ -246,8 +244,9 @@ class LMSSplitter extends IPSModule
         $bufferID = $this->GetIDForIdent("BufferIN");
         if (!$this->lock("bufferin"))
         {
-            IPS_LogMessage("IOSplitter ERROR", "Konnte lock nicht setzen");
-            return false;
+//            IPS_LogMessage("IOSplitter ERROR", "Konnte lock nicht setzen");
+            throw new Exception("ReceiveBuffer is locked");
+//            return false;
         }
         $head = GetValueString($bufferID);
         SetValueString($bufferID, '');
@@ -266,12 +265,13 @@ class LMSSplitter extends IPSModule
             $isResponse = $this->WriteResponse($encoded->Payload);
             if ($isResponse === true)
             {
-                IPS_LogMessage("IOSplitter isnoResonse", "TRUE");
+                IPS_LogMessage("IOSplitter isResonse", "TRUE");
+                // wird von Anfrage-Thread bearbeitet, für uns ist hier schluß
                 continue;
             }
             elseif ($isResponse === false)
             {
-                IPS_LogMessage("IOSplitter isnoResonse", "FALSE");
+                IPS_LogMessage("IOSplitter isResonse", "FALSE");
                 if ($encoded->MAC <> "listen")
                 {
                     $ret = $this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "MAC" => $encoded->MAC, "Payload" => $encoded->Payload)));
@@ -280,7 +280,8 @@ class LMSSplitter extends IPSModule
             }
             else
             {
-                IPS_LogMessage("IOSplitter ERROR", $isResponse);
+                throw new Exception($isResponse);
+//                IPS_LogMessage("IOSplitter ERROR", $isResponse);
             }
         }
     }
@@ -291,35 +292,59 @@ class LMSSplitter extends IPSModule
         // setzen
         if (!$this->lock("ToParent"))
         {
-            IPS_LogMessage("IOSplitter ERROR", "Konnte SendeLock nicht setzen");
-            return false;
+//            IPS_LogMessage("IOSplitter ERROR", "Konnte SendeLock nicht setzen");
+            throw new Exception("Can not send to LMS");
+//            return false;
         }
-        if (!$this->SetWaitForResponse($Data))
+        if (substr($Data, -1) == '?')
+            $WaitData = substr($Data, 0, -2);
+        else
+            $WaitData = $Data;
+        if (!$this->SetWaitForResponse($WaitData))
         {
-            IPS_LogMessage("IOSplitter ERROR", "Konnte ResponseLock nicht setzen");
-            $this->unlock("ToParent");            
-            return false;
+//            IPS_LogMessage("IOSplitter ERROR", "Konnte ResponseLock nicht setzen");
+            $this->unlock("ToParent");
+//            return false;
+            throw new Exception("Can not send to LMS");
         }
         // senden
         // Rückgabe speichern 
         $ret = @IPS_SendDataToParent($this->InstanceID, json_encode(Array("DataID" => "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}", "Buffer" => $Data . chr(0x0d))));
         if ($ret === false)
         { // Senden fehlgeschlagen kein Response möglich
+            // Wait Daten löschen
             $this->ResetWaitForResponse();
+            // SendeLock  velassen
+            $this->unlock("ToParent");
+            throw new Exception("LMS not reachable");
+//            return false;            
         }
         else
         {
-            $ret = $this->WaitForResponse($Data);
-            IPS_LogMessage('FOUND RESPONSE2',print_r($ret,1));            
-        }
-        // Semaphore velassen
-        $this->unlock("ToParent");
-        // Rückgabe auswerten auf Fehler ?
+            // Auf Antwort warten....
+            $ret = $this->WaitForResponse();
+            // SendeLock  velassen
+            $this->unlock("ToParent");
+            if ($ret === false)
+            {
+                throw new Exception("No answer from LMS");
+            }
+            // Rückgabe ist bestätigung ?
+            if ($Data == $ret)
+            {
+                IPS_LogMessage('FOUND RESPONSE', print_r($ret, 1));
+                return true;
+            }
+            // Anfrage abschneiden und Rückgabe zurückgeben.              
+            $ret = str_replace($Data, "", $ret);
+            IPS_LogMessage('FOUND RESPONSE', print_r($ret, 1));
 
-        // 
-        // 
-        // Rückgabe zurückgeben.        
-        return $ret;
+            return $ret;
+        }
+
+
+
+        //         // 
     }
 
     protected function SendDataToChildren($Data)
