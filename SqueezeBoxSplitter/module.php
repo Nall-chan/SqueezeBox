@@ -1,15 +1,34 @@
 <?
 
+class LMSCommand extends stdClass
+{
+
+    const SendCommand = 0;
+    const GetData = 1;
+
+    public $Data;
+    public $Typ;
+    public $needResponse;
+
+    public function __construct($Data, $Typ = SendCommand, $needResponse = true)
+    {
+        $this->Data = $Data;
+        $this->Typ = $Typ;
+        $this->needResponse = $needResponse;
+    }
+
+}
+
 class LMSSplitter extends IPSModule
 {
 
     public function __construct($InstanceID)
     {
 
-        //Never delete this line!
+//Never delete this line!
         parent::__construct($InstanceID);
-        //These lines are parsed on Symcon Startup or Instance creation
-        //You cannot use variables here. Just static values.
+//These lines are parsed on Symcon Startup or Instance creation
+//You cannot use variables here. Just static values.
         $this->RegisterPropertyString("Host", "");
         $this->RegisterPropertyBoolean("Open", true);
         $this->RegisterPropertyInteger("Port", 9090);
@@ -18,7 +37,7 @@ class LMSSplitter extends IPSModule
 
     public function ApplyChanges()
     {
-        //Never delete this line!
+//Never delete this line!
         parent::ApplyChanges();
         $change = false;
         $this->RequireParent("{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}");
@@ -47,10 +66,85 @@ class LMSSplitter extends IPSModule
         $this->RegisterVariableString("BufferIN", "BufferIN");
         $this->RegisterVariableString("BufferOUT", "BufferOUT");
         $this->RegisterVariableBoolean("WaitForResponse", "WaitForResponse");
-        $this->SendDataToParent("listen 1");
+        $Data = new LMSCommand("listen 1");
+        $this->SendLMSCommand($Data);
     }
 
 ################## PRIVATE     
+
+    private function SendLMSCommand($LMSCommand)
+    {
+        if ($LMSCommand->needResponse)
+        {
+//Semaphore setzen
+            if (!$this->lock("LMSCommand"))
+            {
+                throw new Exception("Can not send to LMS");
+            }
+            if ($LMSCommand->Typ == LMSCommand::GetData)
+            {
+                $WaitData = substr($LMSCommand->Data, 0, -2);
+            }
+            else
+            {
+                $WaitData = $LMSCommand->Data;
+            }
+            // Anfrage für die Warteschleife schreiben
+            if (!$this->SetWaitForResponse($WaitData))
+            {
+                $this->unlock("LMSCommand");
+                throw new Exception("Can not send to LMS");
+            }
+            try
+            {
+                $this->SendDataToParent($LMSCommand->Data);
+            }
+            catch (Exception $exc)
+            {
+                //  Daten in Warteschleife löschen
+                $this->ResetWaitForResponse();
+                $this->unlock("LMSCommand");
+                throw $exc;
+            }
+            // Auf Antwort warten....
+            $ret = $this->WaitForResponse();
+            // SendeLock  velassen
+            $this->unlock("ToParent");
+            if ($ret === false) // Warteschleife lief in Timeout
+            {
+                //  Daten in Warteschleife löschen                
+                $this->ResetWaitForResponse();
+                // Fehler
+                throw new Exception("No answer from LMS");
+            }
+            // Rückgabe ist eine Bestätigung von einem Befehl
+            if ($LMSCommand->Typ == LMSCommand::SendCommand)
+            {
+                if ($LMSCommand->Data == $ret)
+                    return true;
+                else
+                    return false;
+            }
+            else
+            {
+                // Rückgabe ist ein Wert auf eine Anfrage, abschneiden der Anfrage.
+                $ret = str_replace($WaitData, "", $ret);
+//                IPS_LogMessage('FOUND RESPONSE2', print_r($ret, 1));
+                return $ret;
+            }
+        }
+        else
+        { // ohne warten raussenden
+            try
+            {
+                $this->SendDataToParent($LMSCommand->Data);
+            }
+            catch (Exception $exc)
+            {
+                throw $exc;
+            }
+        }
+    }
 
     private function encode($raw)
     {
@@ -120,7 +214,7 @@ class LMSSplitter extends IPSModule
                 {
                     $buffer = $this->GetIDForIdent('BufferOUT');
                     $ret = GetValueString($buffer);
-                    //IPS_LogMessage('FOUND RESPONSE', $ret);
+//IPS_LogMessage('FOUND RESPONSE', $ret);
                     SetValueString($buffer, "");
                     $this->unlock('BufferOut');
                     return $ret;
@@ -176,12 +270,12 @@ class LMSSplitter extends IPSModule
 
     public function SendEx($Text)
     {
-        return $this->SendDataToParent($Text);
+//        return $this->SendDataToParent($Text);
     }
 
     public function Rescan()
     {
-        return $this->SendDataToParent('rescan');
+//        return $this->SendDataToParent('rescan');
     }
 
     public function Test1()
@@ -196,57 +290,58 @@ class LMSSplitter extends IPSModule
 
     public function CreateAllPlayer()
     {
-        $players = $this->SendDataToParent('player count ?');
+/*        $players = $this->SendDataToParent('player count ?');
 
         for ($i = 0; $i < $players; $i++)
         {
             $player = $this->SendDataToParent('player id ' . $i . ' ?');
             $playerName = $this->SendDataToParent('player name ' . $i . ' ?');
-            // Daten zerlegen und Childs anlegen/prüfen
+// Daten zerlegen und Childs anlegen/prüfen
             IPS_LogMessage('PLAYER ID' . $i, print_r($player, 1));
             IPS_LogMessage('PLAYER NAME' . $i, print_r($playerName, 1));
-        }
+        }*/
     }
 
     public function GetPlayerInfo($Value)
     {
-        return $this->SendDataToParent('players ' . $Value . ' 1');
+//        return $this->SendDataToParent('players ' . $Value . ' 1');
     }
 
     public function GetLibaryInfo()
     {
-        $gernes = $this->SendDataToParent('info total genres ?');
+/*        $gernes = $this->SendDataToParent('info total genres ?');
         $artists = $this->SendDataToParent('info total artists ?');
         $albums = $this->SendDataToParent('info total albums ?');
         $songs = $this->SendDataToParent('info total songs ?');
-        return array('Geners' => $gernes, 'Artists' => $artists, 'Albums' => $albums, 'Songs' => $songs);
+        return array('Geners' => $gernes, 'Artists' => $artists, 'Albums' => $albums, 'Songs' => $songs);*/
     }
 
     public function GetVersion()
     {
-        return $this->SendDataToParent('version ?');
+       return $this->SendLMSCommand(new LMSCommand('version ?',  LMSCommand::GetData));
     }
 
 ################## DataPoints
 
     public function ForwardData($JSONString)
     {
-        //EDD ankommend von Device
+//EDD ankommend von Device
         $data = json_decode($JSONString);
         IPS_LogMessage("IOSplitter FRWD MAC", $data->MAC);
         IPS_LogMessage("IOSplitter FRWD Payload", $data->Payload);
         $sendData = implode(":", $mac = str_split($data->MAC, 2)) . " " . $data->Payload;
-        // Daten annehmen und mit MAC codieren. Senden an Parent
-        //weiter zu IO  mit Warteschlange 
-        $ret = $this->SendDataToParent($sendData);
-        return $ret;
+// Daten annehmen und mit MAC codieren. Senden an Parent
+//weiter zu IO  mit Warteschlange 
+
+//        $ret = $this->SendDataToParent($sendData);
+//        return $ret;
     }
 
     public function ReceiveData($JSONString)
     {
-        // 018EF6B5-AB94-40C6-AA53-46943E824ACF ankommend von IO
+// 018EF6B5-AB94-40C6-AA53-46943E824ACF ankommend von IO
         $data = json_decode($JSONString);
-        //IPS_LogMessage("IOSplitter RECV", utf8_decode($data->Buffer));
+//IPS_LogMessage("IOSplitter RECV", utf8_decode($data->Buffer));
         $bufferID = $this->GetIDForIdent("BufferIN");
         if (!$this->lock("bufferin"))
         {
@@ -266,7 +361,7 @@ class LMSSplitter extends IPSModule
             if ($isResponse === true)
             {
                 IPS_LogMessage("IOSplitter isResonse", "TRUE");
-                // wird von Anfrage-Thread bearbeitet, für uns ist hier schluß
+// wird von Anfrage-Thread bearbeitet, für uns ist hier schluß
                 continue;
             }
             elseif ($isResponse === false)
@@ -275,7 +370,7 @@ class LMSSplitter extends IPSModule
 //                if ($encoded->MAC <> "listen")
 //                {
                 $ret = $this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "MAC" => $encoded->MAC, "Payload" => $encoded->Payload)));
-                //                  IPS_LogMessage("IOSplitter ReturnValue", print_r($ret, 1));
+//                  IPS_LogMessage("IOSplitter ReturnValue", print_r($ret, 1));
 //                }
             }
             else
@@ -292,52 +387,18 @@ class LMSSplitter extends IPSModule
         {
             throw new Exception("Can not send to LMS");
         }
-        // Anfrage an LMS
-        if (substr($Data, -1) == '?')
-            $WaitData = substr($Data, 0, -2);
-        else // Befehl an LMS
-            $WaitData = $Data;
-        // Anfrage für die Warteschleife schreiben
-        if (!$this->SetWaitForResponse($WaitData))
-        {
-            $this->unlock("ToParent");
-            throw new Exception("Can not send to LMS");
-        }
         // Daten senden
-        $ret = @IPS_SendDataToParent($this->InstanceID, json_encode(Array("DataID" => "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}", "Buffer" => $Data . chr(0x0d))));
-        if ($ret === false)
-        { // Senden fehlgeschlagen kein Response möglich
-            //  Daten in Warteschleife löschen
-            $this->ResetWaitForResponse();
-            // SendeLock  velassen
+        try
+        {
+            $ret = IPS_SendDataToParent($this->InstanceID, json_encode(Array("DataID" => "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}", "Buffer" => $Data . chr(0x0d))));
+        }
+        catch (Exception $exc)
+        {
+            // Senden fehlgeschlagen
             $this->unlock("ToParent");
-            // Fehler
             throw new Exception("LMS not reachable");
         }
-        else // erfolgreich gesendet
-        {
-            // Auf Antwort warten....
-            $ret = $this->WaitForResponse();
-            // SendeLock  velassen
-            $this->unlock("ToParent");
-            if ($ret === false) // Warteschleife lief in Timeout
-            {
-                //  Daten in Warteschleife löschen                
-                $this->ResetWaitForResponse();
-                // Fehler
-                throw new Exception("No answer from LMS");
-            }
-            // Rückgabe ist eine Bestätigung von einem Befehl
-            if ($Data == $ret)
-            {
-                IPS_LogMessage('FOUND RESPONSE1', print_r($ret, 1));
-                return true;
-            }
-            // Rückgabe ist ein Wert auf eine Anfrage, abschneiden der Anfrage.
-            $ret = str_replace($WaitData, "", $ret);
-            IPS_LogMessage('FOUND RESPONSE2', print_r($ret, 1));
-            return $ret;
-        }
+        return $ret;
     }
 
     protected function SendDataToChildren($Data)
