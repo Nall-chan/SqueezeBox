@@ -2,7 +2,9 @@
 
 class SqueezeboxDevice extends IPSModule
 {
-
+    const isMAC = 1;
+    const isIP = 2;
+    
     protected $MAC, $Interval;
 
     public function __construct($InstanceID)
@@ -66,6 +68,12 @@ class SqueezeboxDevice extends IPSModule
         $this->RegisterVariableInteger("Signal", utf8_decode("Signalstärke"), "~Intensity.100", 13);
         $this->RegisterVariableInteger("Tracks", "Playlist Anzahl Tracks", "", 14);
         $this->RegisterVariableString("Genre", "Stilrichtung", "", 15);
+        
+        $this->RegisterVariableString("BufferIN", "BufferIN");
+        $this->RegisterVariableString("BufferOUT", "BufferOUT");
+        $this->RegisterVariableBoolean("WaitForResponse", "WaitForResponse");
+
+        
         $this->Init();
 //        $this->SendDataToParent("listen 1");
     }
@@ -527,7 +535,25 @@ class SqueezeboxDevice extends IPSModule
         // CB5950B3-593C-4126-9F0F-8655A3944419 ankommend von Splitter
         $data = json_decode($JSONString);
         $this->Init();
-        IPS_LogMessage("IODevice ", print_r($data, 1));
+//        IPS_LogMessage("IODevice ", print_r($data, 1));
+/*14.07.2015 22:48:33 | IODevice  | stdClass Object
+(
+    [DataID] => {CB5950B3-593C-4126-9F0F-8655A3944419}
+    [LMS] => stdClass Object
+        (
+            [Device] => 1
+            [MAC] => 00:04:20:2b:9d:ae
+            [IP] => 
+            [Data] => Array
+                (
+                    [0] => mixer
+                    [1] => muting
+                    [2] => toggle
+                    [3] => seq_no%3A1332
+                )
+        )
+)*/
+////        
 //        $this->MAC = $this->GetMAC($this->ReadPropertyString('MACAddress'));
         return true;
         if ($this->MAC === false)

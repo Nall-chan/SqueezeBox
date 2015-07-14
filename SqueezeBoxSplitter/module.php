@@ -396,13 +396,13 @@ class LMSSplitter extends IPSModule
         foreach ($packet as $part)
         {
             $Data = new LMSResponse($part);
-            IPS_LogMessage("IOSplitter PART", print_r($Data, 1));
+//            IPS_LogMessage("IOSplitter PART", print_r($Data, 1));
             if ($Data->Device == LMSResponse::isServer)
             {
                 $isResponse = $this->WriteResponse($Data->Data);
                 if ($isResponse === true)
                 {
-                    IPS_LogMessage("IOSplitter isResonse", "TRUE");
+//                    IPS_LogMessage("IOSplitter isResonse", "TRUE");
                     // wird von Anfrage-Thread bearbeitet, für uns ist hier schluß
                     continue;
                 }
@@ -463,7 +463,7 @@ class LMSSplitter extends IPSModule
 
     protected function GetParent()
     {
-        IPS_LogMessage(__CLASS__, __FUNCTION__); //          
+//        IPS_LogMessage(__CLASS__, __FUNCTION__); //          
         $instance = IPS_GetInstance($this->InstanceID);
         return ($instance['ConnectionID'] > 0) ? $instance['ConnectionID'] : false;
     }
