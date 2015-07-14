@@ -85,10 +85,12 @@ class LMSSplitter extends IPSModule
 
     private function unlock($ident)
     {
-        if (!(IPS_SemaphoreEnter("LMS_" . (string) $this->InstanceID . (string) $ident, 1)))
+/*        if (!(IPS_SemaphoreEnter("LMS_" . (string) $this->InstanceID . (string) $ident, 1)))
         {
             IPS_SemaphoreLeave("LMS_" . (string) $this->InstanceID . (string) $ident);
-        }
+        } else {*/
+            IPS_SemaphoreLeave("LMS_" . (string) $this->InstanceID . (string) $ident);
+//        }
     }
 
     private function SetWaitForResponse($Data)
