@@ -3,7 +3,7 @@
 class SqueezeboxDevice extends IPSModule
 {
 
-    protected $MAC;
+    protected $MAC, $Interval;
 
     public function __construct($InstanceID)
     {
@@ -13,7 +13,8 @@ class SqueezeboxDevice extends IPSModule
         //These lines are parsed on Symcon Startup or Instance creation
         //You cannot use variables here. Just static values.
         $this->RegisterPropertyString("MACAddress", "");
-        $this->RegisterPropertyBoolean("EmulateStatus", false);
+        $this->RegisterPropertyInteger("Interval", 2);
+        $this->RegisterPropertyString("CoverSize", "cover");
     }
 
     public function ApplyChanges()
@@ -56,8 +57,8 @@ class SqueezeboxDevice extends IPSModule
         $this->RegisterVariableString("Album", "Album", "", 8);
         $this->RegisterVariableString("Cover", "Cover", "~HTMLBox", 9);
         $this->RegisterVariableString("Position", "Spielzeit", "", 10);
-        $this->RegisterVariableInteger("Position2", "Position", "~Intensity.100", 10);        
-        $this->EnableAction("Position2");        
+        $this->RegisterVariableInteger("Position2", "Position", "~Intensity.100", 10);
+        $this->EnableAction("Position2");
         $this->RegisterVariableString("Duration", "Dauer", "", 11);
 
 
@@ -65,8 +66,7 @@ class SqueezeboxDevice extends IPSModule
         $this->RegisterVariableInteger("Signal", utf8_decode("Signalstärke"), "~Intensity.100", 13);
         $this->RegisterVariableInteger("Tracks", "Playlist Anzahl Tracks", "", 14);
         $this->RegisterVariableString("Genre", "Stilrichtung", "", 15);
-
-        $this->MAC = $this->GetMAC($this->ReadPropertyString('MACAddress'));
+        $this->Init();
         $this->SendDataToParent("listen 1");
     }
 
@@ -76,43 +76,51 @@ class SqueezeboxDevice extends IPSModule
     {
         return $this->SendDataToParent($Text);
     }
-    private function SetValueBoolean($id,$value)
+
+    private function Init()
     {
-        if (GetValueBoolean($id) <> $value) SetValueBoolean($id,$value);
+        $this->MAC = $this->GetMAC($this->ReadPropertyString('MACAddress'));
+        $this->Interval = $this->ReadPropertyString("Interval");
     }
-    private function SetValueInteger($id,$value)
+
+    private function SetValueBoolean($id, $value)
     {
-        if (GetValueInteger($id) <> $value) SetValueInteger($id,$value);
-        
+        if (GetValueBoolean($id) <> $value)
+            SetValueBoolean($id, $value);
     }
-    private function SetValueString($id,$value)
+
+    private function SetValueInteger($id, $value)
     {
-        if (GetValueString($id) <> $value) SetValueString($id,$value);
-        
+        if (GetValueInteger($id) <> $value)
+            SetValueInteger($id, $value);
     }
-    
-    
+
+    private function SetValueString($id, $value)
+    {
+        if (GetValueString($id) <> $value)
+            SetValueString($id, $value);
+    }
+
     private function GetMAC($mac)
     {
         return strtolower(str_replace(array("-", ":"), "", $mac));
     }
 
-    private function Cover($var_id, $player_id)
+    private function GetCover($player_id)
 // setzt die $var_id mit dem Coverbild von $player_id
     {
         $ParentID = $this->GetParent();
         if (!($ParentID === false))
         {
             $SQserverIP = IPS_GetProperty($ParentID, 'Host') . ":" . IPS_GetProperty($ParentID, 'Webport');
-            $time = time();
+            $cover = $this->ReadPropertyString("CoverSize");
 //            $player_id = urlencode(implode(":", str_split($this->MAC, 2)));
-            $str = "<table width='100%' cellspacing='0'><tr><td align=right>";
-            $str = $str . "<img src='http://" . $SQserverIP . "/music/current/cover_150x150_$time.jpg?player=$player_id'></img>";
-            $str = $str . "</td></tr></table>";
+            return "<table width=\"100%\" cellspacing=\"0\"><tr><td align=\"right\">"
+                    . "<img src=\"http://" . $SQserverIP . "/music/current/" . $cover . "png?player=" . $player_id . "\"></img>"
+                    . "</td></tr></table>";
         }
         else
-            $str = "";
-        $this->SetValueString($var_id, $str);
+            return "";
     }
 
     private function decode($Data)
@@ -129,7 +137,7 @@ class SqueezeboxDevice extends IPSModule
         $interpretID = $this->GetIDForIdent("Interpret");
         $durationID = $this->GetIDForIdent("Duration");
         $positionID = $this->GetIDForIdent("Position");
-        $position2ID         = $this->GetIDForIdent("Position2");
+        $position2ID = $this->GetIDForIdent("Position2");
         $titleID = $this->GetIDForIdent("Title");
         $indexID = $this->GetIDForIdent("Index");
         $signalID = $this->GetIDForIdent("Signal");
@@ -166,11 +174,11 @@ class SqueezeboxDevice extends IPSModule
             $this->SetValueString($titleID, utf8_decode(urldecode($array[3])));
             $this->SetValueInteger($modusID, 2); // Button auf play
             // Subscribe auf entsprechende Box für Anzeige der Laufzeit
-            $this->SendDataToParent("status - 1 subscribe:2");
+            $this->SendDataToParent("status - 1 subscribe:".$this->Interval);
 //            $this->SendDataToParent("artist ?");
 //            $this->SendDataToParent("album ?");
 //            IPS_Sleep(10);
-            $this->Cover($coverID, $array[0]); // Cover anzeigen
+            $this->SetValueString($coverID, $this->GetCover($array[0]));
         }
         // Album aktualisieren
         if ($array[1] == 'album')
@@ -192,22 +200,27 @@ class SqueezeboxDevice extends IPSModule
         if ($array[1] == 'play')
         {
             $this->SetValueInteger($modusID, 2);
+            $this->SendDataToParent("status - 1 subscribe:".$this->Interval);
         }
         if (($array[1] == 'mode') and ( $array[2] == 'play'))
         {
             $this->SetValueInteger($modusID, 2);
+            $this->SendDataToParent("status - 1 subscribe:".$this->Interval);
         }
         if ($array[1] == 'stop')
         {
             $this->SetValueInteger($modusID, 1);
+            $this->SendDataToParent("status - 1 subscribe:0");
         }
         if (($array[1] == 'pause') and ( $array[2] == 1))
         {
             $this->SetValueInteger($modusID, 3);
+            $this->SendDataToParent("status - 1 subscribe:0");
         }
         if (($array[1] == 'pause') and ( $array[2] == 0))
         {
             $this->SetValueInteger($modusID, 2);
+            $this->SendDataToParent("status - 1 subscribe:".$this->Interval);
         }
         if (($array[1] == 'button') and ( $array[2] == 'jump_rew'))
         {
@@ -217,7 +230,7 @@ class SqueezeboxDevice extends IPSModule
         {
             $this->SetValueInteger($modusID, 4);
         }
-        if (($array[1] == 'status') and (isset($array[4]) and ($array[4] == 'subscribe%3A2')))
+        if (($array[1] == 'status') and ( isset($array[4]) and ( $array[4] == 'subscribe%3A2')))
         {
             foreach ($array as $item)
             {
@@ -244,10 +257,12 @@ class SqueezeboxDevice extends IPSModule
                     if ($chunks[1] == 'stop')
                     {
                         $this->SetValueInteger($modusID, 1);
+                        $this->SendDataToParent("status - 1 subscribe:0");
                     }
                     if ($chunks[1] == 'pause')
                     {
                         $this->SetValueInteger($modusID, 3);
+                        $this->SendDataToParent("status - 1 subscribe:0");
                     }
                 }
 //rate%3A1 can_seek%3A1  playlist%20mode%3Aoff seq_no%3A91 playlist_cur_index%3A39 playlist_timestamp%3A1415459866.17632 id%3A26977 duration%3A614.034
@@ -305,9 +320,8 @@ class SqueezeboxDevice extends IPSModule
             }
             if (isset($duration) and isset($time))
             {
-                    $value = (100/$duration)*$time;                        
-                    $this->SetValueInteger($position2ID, round($value));
-              
+                $value = (100 / $duration) * $time;
+                $this->SetValueInteger($position2ID, round($value));
             }
         }
     }
@@ -426,12 +440,12 @@ class SqueezeboxDevice extends IPSModule
 
     protected function SendDataToParent($Data)
     {
-        if ($this->MAC == '')
-            $this->MAC = $this->GetMAC($this->ReadPropertyString('MACAddress'));
+        /*        if ($this->MAC == '')
+          $this->MAC = $this->GetMAC($this->ReadPropertyString('MACAddress')); */
         //Semaphore püfen
         // setzen
         // senden
-        $ret =  IPS_SendDataToParent($this->InstanceID, json_encode(Array("DataID" => "{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}", "MAC" => $this->MAC, "Payload" => $Data)));
+        $ret = IPS_SendDataToParent($this->InstanceID, json_encode(Array("DataID" => "{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}", "MAC" => $this->MAC, "Payload" => $Data)));
         return $ret;
         // Rückgabe speichern
         // Semaphore velassen
@@ -443,7 +457,8 @@ class SqueezeboxDevice extends IPSModule
     {
         // CB5950B3-593C-4126-9F0F-8655A3944419 ankommend von Splitter
         $data = json_decode($JSONString);
-        $this->MAC = $this->GetMAC($this->ReadPropertyString('MACAddress'));
+        $this->Init();
+//        $this->MAC = $this->GetMAC($this->ReadPropertyString('MACAddress'));
         if ($this->MAC === false)
             return false;
         //IPS_LogMessage("IODevice MAC", $data->MAC);
@@ -460,7 +475,7 @@ class SqueezeboxDevice extends IPSModule
     }
 
 ################## DUMMYS / WOARKAROUNDS - protected
-    
+
     protected function HasActiveParent()
     {
         IPS_LogMessage(__CLASS__, __FUNCTION__); //
@@ -498,7 +513,7 @@ class SqueezeboxDevice extends IPSModule
 
     protected function LogMessage($data, $cata)
     {
-
+        
     }
 
     protected function SetSummary($data)
