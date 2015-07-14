@@ -80,7 +80,7 @@ class SqueezeboxDevice extends IPSModule
     private function Init()
     {
         $this->MAC = $this->GetMAC($this->ReadPropertyString('MACAddress'));
-        $this->Interval = $this->ReadPropertyString("Interval");
+        $this->Interval = $this->ReadPropertyInteger("Interval");
     }
 
     private function SetValueBoolean($id, $value)
@@ -154,7 +154,39 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetValueBoolean($powerID, false);
             }
         }
-/*
+/*14.07.2015 19:30:12 | IODevice DECODE | Array
+(
+    [0] => 00:04:20:2b:9d:ae
+    [1] => status
+    [2] => -
+    [3] => 1
+    [4] => subscribe%3A2
+    [5] => player_name%3ASqueezebox%20Family
+    [6] => player_connected%3A1
+    [7] => player_ip%3A192.168.201.83%3A39937
+    [8] => power%3A1
+    [9] => signalstrength%3A100
+    [10] => mode%3Aplay
+    [11] => time%3A110.039440977097
+    [12] => rate%3A1
+    [13] => duration%3A275.85
+    [14] => can_seek%3A1
+    [15] => mixer%20volume%3A16
+    [16] => playlist%20repeat%3A0
+    [17] => playlist%20shuffle%3A0
+    [18] => playlist%20mode%3Aoff
+    [19] => seq_no%3A162
+    [20] => playlist_cur_index%3A5
+    [21] => playlist_timestamp%3A1436894784.2188
+    [22] => playlist_tracks%3A9
+    [23] => playlist%20index%3A5
+    [24] => id%3A20877
+    [25] => title%3A%E5%B0%91%E5%A5%B3%E3%81%9F%E3%81%A1%E3%82%88%20%5BNO%20NAME%20ver.%5D
+    [26] => genre%3ASoundtrack%2FAnime
+    [27] => artist%3ANO%20NAME
+    [28] => album%3AAKB0048%20Complete%20Vocal%20Collection
+    [29] => duration%3A275.85
+)
  * 0 = aus
  * 1 = Titel Normalisierung
  * 2 Album 
