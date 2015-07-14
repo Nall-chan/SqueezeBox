@@ -109,7 +109,7 @@ class LMSSplitter extends IPSModule
             // Auf Antwort warten....
             $ret = $this->WaitForResponse();
             // SendeLock  velassen
-            $this->unlock("ToParent");
+            $this->unlock("LMSCommand");
             if ($ret === false) // Warteschleife lief in Timeout
             {
                 //  Daten in Warteschleife löschen                
