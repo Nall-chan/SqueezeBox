@@ -154,18 +154,55 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetValueBoolean($powerID, false);
             }
         }
+/*
+ * 0 = aus
+ * 1 = Titel Normalisierung
+ * 2 Album 
+ * 3 'Intelligente
+ * 
+ * 14.07.2015 19:21:49 | IODevice DECODE | Array
+(
+    [0] => 00:04:20:2b:9d:ae
+    [1] => prefset
+    [2] => server
+    [3] => replayGainMode
+    [4] => 1
+)
+    14.07.2015 19:22:06 | IODevice DECODE | Array
+(
+    [0] => 00:04:20:2b:9d:ae
+    [1] => playerpref
+    [2] => replayGainMode
+    [3] => 0
+)*/
+   /*     
+        14.07.2015 19:26:48 | IODevice DECODE | Array
+(
+    [0] => 00:04:20:2b:9d:ae
+    [1] => playlist
+    [2] => jump
+    [3] => 5
+    [4] => 
+    [5] => 
+    [6] => 
+)*/
         //Lautstärke bei Änderung aktualisieren
-        if (($array[1] == 'prefset') and ( $array[3] == 'volume'))
+        
+        if (($array[1] == 'mixer') and ( $array[2] == 'volume'))
+        {
+            $this->SetValueInteger($volumeID, (int) urldecode($array[3]));
+        }
+/*        if (($array[1] == 'prefset') and ( $array[3] == 'volume'))
         {
             $this->SetValueInteger($volumeID, (int) urldecode($array[4]));
-        }
+        }*/
         // Repeat bei Änderung aktualisieren
         if (($array[1] == 'prefset') and ( $array[3] == 'repeat'))
         {
             $this->SetValueInteger($repeatID, (int) $array[4]);
         }
         // Shuffle bei Änderung aktualisieren
-        if (($array[1] == 'prefset') and ( $array[3] == 'shuffle'))
+            if (($array[1] == 'prefset') and ( $array[3] == 'shuffle'))
             $this->SetValueInteger($shuffleID, (int) $array[4]);
 
         //Titel-Tag aktualisieren
