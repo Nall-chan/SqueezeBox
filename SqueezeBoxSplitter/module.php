@@ -415,14 +415,19 @@ class LMSSplitter extends IPSModule
                     throw new Exception($isResponse);
                 }
             }
-            elseif ($Data->Device == LMSResponse::isMAC)
+/*            elseif ($Data->Device == LMSResponse::isMAC)
             {
-                $ret = $this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "MAC" => $encoded->MAC, "Payload" => $encoded->Payload)));
+                $ret = $this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "LMS" => $Data)));
             }
             elseif ($Data->Device == LMSResponse::isIP)
             {
-                $ret = $this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "MAC" => $encoded->MAC, "Payload" => $encoded->Payload)));
+                $ret = $this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "LMS" => $Data)));
+            }*/
+            else
+            {
+                $ret = $this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "LMS" => $Data)));
             }
+            
             return $ret;
         }
     }

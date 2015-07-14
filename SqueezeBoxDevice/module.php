@@ -67,14 +67,14 @@ class SqueezeboxDevice extends IPSModule
         $this->RegisterVariableInteger("Tracks", "Playlist Anzahl Tracks", "", 14);
         $this->RegisterVariableString("Genre", "Stilrichtung", "", 15);
         $this->Init();
-        $this->SendDataToParent("listen 1");
+//        $this->SendDataToParent("listen 1");
     }
 
 ################## PRIVATE
 
     public function RawSend($Text)
     {
-        return $this->SendDataToParent($Text);
+//        return $this->SendDataToParent($Text);
     }
 
     private function Init()
@@ -154,87 +154,87 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetValueBoolean($powerID, false);
             }
         }
-/*14.07.2015 19:30:12 | IODevice DECODE | Array
-(
-    [0] => 00:04:20:2b:9d:ae
-    [1] => status
-    [2] => -
-    [3] => 1
-    [4] => subscribe%3A2
-    [5] => player_name%3ASqueezebox%20Family
-    [6] => player_connected%3A1
-    [7] => player_ip%3A192.168.201.83%3A39937
-    [8] => power%3A1
-    [9] => signalstrength%3A100
-    [10] => mode%3Aplay
-    [11] => time%3A110.039440977097
-    [12] => rate%3A1
-    [13] => duration%3A275.85
-    [14] => can_seek%3A1
-    [15] => mixer%20volume%3A16
-    [16] => playlist%20repeat%3A0
-    [17] => playlist%20shuffle%3A0
-    [18] => playlist%20mode%3Aoff
-    [19] => seq_no%3A162
-    [20] => playlist_cur_index%3A5
-    [21] => playlist_timestamp%3A1436894784.2188
-    [22] => playlist_tracks%3A9
-    [23] => playlist%20index%3A5
-    [24] => id%3A20877
-    [25] => title%3A%E5%B0%91%E5%A5%B3%E3%81%9F%E3%81%A1%E3%82%88%20%5BNO%20NAME%20ver.%5D
-    [26] => genre%3ASoundtrack%2FAnime
-    [27] => artist%3ANO%20NAME
-    [28] => album%3AAKB0048%20Complete%20Vocal%20Collection
-    [29] => duration%3A275.85
-)
- * 0 = aus
- * 1 = Titel Normalisierung
- * 2 Album 
- * 3 'Intelligente
- * 
- * 14.07.2015 19:21:49 | IODevice DECODE | Array
-(
-    [0] => 00:04:20:2b:9d:ae
-    [1] => prefset
-    [2] => server
-    [3] => replayGainMode
-    [4] => 1
-)
-    14.07.2015 19:22:06 | IODevice DECODE | Array
-(
-    [0] => 00:04:20:2b:9d:ae
-    [1] => playerpref
-    [2] => replayGainMode
-    [3] => 0
-)*/
-   /*     
-        14.07.2015 19:26:48 | IODevice DECODE | Array
-(
-    [0] => 00:04:20:2b:9d:ae
-    [1] => playlist
-    [2] => jump
-    [3] => 5
-    [4] => 
-    [5] => 
-    [6] => 
-)*/
+        /* 14.07.2015 19:30:12 | IODevice DECODE | Array
+          (
+          [0] => 00:04:20:2b:9d:ae
+          [1] => status
+          [2] => -
+          [3] => 1
+          [4] => subscribe%3A2
+          [5] => player_name%3ASqueezebox%20Family
+          [6] => player_connected%3A1
+          [7] => player_ip%3A192.168.201.83%3A39937
+          [8] => power%3A1
+          [9] => signalstrength%3A100
+          [10] => mode%3Aplay
+          [11] => time%3A110.039440977097
+          [12] => rate%3A1
+          [13] => duration%3A275.85
+          [14] => can_seek%3A1
+          [15] => mixer%20volume%3A16
+          [16] => playlist%20repeat%3A0
+          [17] => playlist%20shuffle%3A0
+          [18] => playlist%20mode%3Aoff
+          [19] => seq_no%3A162
+          [20] => playlist_cur_index%3A5
+          [21] => playlist_timestamp%3A1436894784.2188
+          [22] => playlist_tracks%3A9
+          [23] => playlist%20index%3A5
+          [24] => id%3A20877
+          [25] => title%3A%E5%B0%91%E5%A5%B3%E3%81%9F%E3%81%A1%E3%82%88%20%5BNO%20NAME%20ver.%5D
+          [26] => genre%3ASoundtrack%2FAnime
+          [27] => artist%3ANO%20NAME
+          [28] => album%3AAKB0048%20Complete%20Vocal%20Collection
+          [29] => duration%3A275.85
+          )
+         * 0 = aus
+         * 1 = Titel Normalisierung
+         * 2 Album 
+         * 3 'Intelligente
+         * 
+         * 14.07.2015 19:21:49 | IODevice DECODE | Array
+          (
+          [0] => 00:04:20:2b:9d:ae
+          [1] => prefset
+          [2] => server
+          [3] => replayGainMode
+          [4] => 1
+          )
+          14.07.2015 19:22:06 | IODevice DECODE | Array
+          (
+          [0] => 00:04:20:2b:9d:ae
+          [1] => playerpref
+          [2] => replayGainMode
+          [3] => 0
+          ) */
+        /*
+          14.07.2015 19:26:48 | IODevice DECODE | Array
+          (
+          [0] => 00:04:20:2b:9d:ae
+          [1] => playlist
+          [2] => jump
+          [3] => 5
+          [4] =>
+          [5] =>
+          [6] =>
+          ) */
         //Lautstärke bei Änderung aktualisieren
-        
+
         if (($array[1] == 'mixer') and ( $array[2] == 'volume'))
         {
             $this->SetValueInteger($volumeID, (int) urldecode($array[3]));
         }
-/*        if (($array[1] == 'prefset') and ( $array[3] == 'volume'))
-        {
-            $this->SetValueInteger($volumeID, (int) urldecode($array[4]));
-        }*/
+        /*        if (($array[1] == 'prefset') and ( $array[3] == 'volume'))
+          {
+          $this->SetValueInteger($volumeID, (int) urldecode($array[4]));
+          } */
         // Repeat bei Änderung aktualisieren
         if (($array[1] == 'prefset') and ( $array[3] == 'repeat'))
         {
             $this->SetValueInteger($repeatID, (int) $array[4]);
         }
         // Shuffle bei Änderung aktualisieren
-            if (($array[1] == 'prefset') and ( $array[3] == 'shuffle'))
+        if (($array[1] == 'prefset') and ( $array[3] == 'shuffle'))
             $this->SetValueInteger($shuffleID, (int) $array[4]);
 
         //Titel-Tag aktualisieren
@@ -243,7 +243,7 @@ class SqueezeboxDevice extends IPSModule
             $this->SetValueString($titleID, utf8_decode(urldecode($array[3])));
             $this->SetValueInteger($modusID, 2); // Button auf play
             // Subscribe auf entsprechende Box für Anzeige der Laufzeit
-            $this->SendDataToParent("status - 1 subscribe:".$this->Interval);
+//            $this->SendDataToParent("status - 1 subscribe:".$this->Interval);
 //            $this->SendDataToParent("artist ?");
 //            $this->SendDataToParent("album ?");
 //            IPS_Sleep(10);
@@ -269,27 +269,27 @@ class SqueezeboxDevice extends IPSModule
         if ($array[1] == 'play')
         {
             $this->SetValueInteger($modusID, 2);
-            $this->SendDataToParent("status - 1 subscribe:".$this->Interval);
+//            $this->SendDataToParent("status - 1 subscribe:".$this->Interval);
         }
         if (($array[1] == 'mode') and ( $array[2] == 'play'))
         {
             $this->SetValueInteger($modusID, 2);
-            $this->SendDataToParent("status - 1 subscribe:".$this->Interval);
+//            $this->SendDataToParent("status - 1 subscribe:".$this->Interval);
         }
         if ($array[1] == 'stop')
         {
             $this->SetValueInteger($modusID, 1);
-            $this->SendDataToParent("status - 1 subscribe:0");
+//            $this->SendDataToParent("status - 1 subscribe:0");
         }
         if (($array[1] == 'pause') and ( $array[2] == 1))
         {
             $this->SetValueInteger($modusID, 3);
-            $this->SendDataToParent("status - 1 subscribe:0");
+            //$this->SendDataToParent("status - 1 subscribe:0");
         }
         if (($array[1] == 'pause') and ( $array[2] == 0))
         {
             $this->SetValueInteger($modusID, 2);
-            $this->SendDataToParent("status - 1 subscribe:".$this->Interval);
+//            $this->SendDataToParent("status - 1 subscribe:".$this->Interval);
         }
         if (($array[1] == 'button') and ( $array[2] == 'jump_rew'))
         {
@@ -326,12 +326,12 @@ class SqueezeboxDevice extends IPSModule
                     if ($chunks[1] == 'stop')
                     {
                         $this->SetValueInteger($modusID, 1);
-                        $this->SendDataToParent("status - 1 subscribe:0");
+//                        $this->SendDataToParent("status - 1 subscribe:0");
                     }
                     if ($chunks[1] == 'pause')
                     {
                         $this->SetValueInteger($modusID, 3);
-                        $this->SendDataToParent("status - 1 subscribe:0");
+//                        $this->SendDataToParent("status - 1 subscribe:0");
                     }
                 }
 //rate%3A1 can_seek%3A1  playlist%20mode%3Aoff seq_no%3A91 playlist_cur_index%3A39 playlist_timestamp%3A1415459866.17632 id%3A26977 duration%3A614.034
@@ -403,48 +403,48 @@ class SqueezeboxDevice extends IPSModule
 
     public function Previous()
     {
-        $this->SendDataToParent('button jump_rew');
+//        $this->SendDataToParent('button jump_rew');
     }
 
     public function Stop()
     {
-        $this->SendDataToParent('button stop');
+//        $this->SendDataToParent('button stop');
     }
 
     public function Play()
     {
-        $this->SendDataToParent('button play');
+//        $this->SendDataToParent('button play');
     }
 
     public function Pause()
     {
-        $this->SendDataToParent('button pause');
+//        $this->SendDataToParent('button pause');
     }
 
     public function Next()
     {
-        $this->SendDataToParent('button jump_fwd');
+//        $this->SendDataToParent('button jump_fwd');
     }
 
     public function SetVolume($Value)
     {
-        $this->SendDataToParent('mixer volume ' . $Value);
+//        $this->SendDataToParent('mixer volume ' . $Value);
     }
 
     public function Power($Value)
     {
 
-        $this->SendDataToParent('power ' . (int) $Value);
+        //$this->SendDataToParent('power ' . (int) $Value);
     }
 
     public function Repeat($Value)
     {
-        $this->SendDataToParent('playlist repeat ' . $Value);
+//        $this->SendDataToParent('playlist repeat ' . $Value);
     }
 
     public function Shuffle($Value)
     {
-        $this->SendDataToParent('playlist shuffle ' . $Value);
+//        $this->SendDataToParent('playlist shuffle ' . $Value);
     }
 
     public function RequestAction($Ident, $Value)
@@ -493,19 +493,19 @@ class SqueezeboxDevice extends IPSModule
             default:
                 throw new Exception("Invalid ident");
         }
-        $this->SendDataToParent("listen 1");
+//        $this->SendDataToParent("listen 1");
     }
 
-    public function RequestState()
-    {
-        if ($this->HasActiveParent())
-        {
-            $ret = $this->Send();
-            IPS_LogMessage("RetSend", $ret);
-        }
-    }
+    /*    public function RequestState()
+      {
+      if ($this->HasActiveParent())
+      {
+      $ret = $this->Send();
+      IPS_LogMessage("RetSend", $ret);
+      }
+      } */
 
-################## DataPoints
+    ################## DataPoints
 
     protected function SendDataToParent($Data)
     {
@@ -527,7 +527,9 @@ class SqueezeboxDevice extends IPSModule
         // CB5950B3-593C-4126-9F0F-8655A3944419 ankommend von Splitter
         $data = json_decode($JSONString);
         $this->Init();
+        IPS_LogMessage("IODevice ", print_r($data, 1));
 //        $this->MAC = $this->GetMAC($this->ReadPropertyString('MACAddress'));
+        return true;
         if ($this->MAC === false)
             return false;
         //IPS_LogMessage("IODevice MAC", $data->MAC);
@@ -545,18 +547,19 @@ class SqueezeboxDevice extends IPSModule
 
 ################## DUMMYS / WOARKAROUNDS - protected
 
-    protected function HasActiveParent()
-    {
-        IPS_LogMessage(__CLASS__, __FUNCTION__); //
-        $instance = IPS_GetInstance($this->InstanceID);
-        if ($instance['ConnectionID'] > 0)
-        {
-            $parent = IPS_GetInstance($instance['ConnectionID']);
-            if ($parent['InstanceStatus'] == 102)
-                return true;
-        }
-        return false;
-    }
+    /*    protected function HasActiveParent()
+      {
+      IPS_LogMessage(__CLASS__, __FUNCTION__); //
+      $instance = IPS_GetInstance($this->InstanceID);
+      if ($instance['ConnectionID'] > 0)
+      {
+      $parent = IPS_GetInstance($instance['ConnectionID']);
+      if ($parent['InstanceStatus'] == 102)
+      return true;
+      }
+      return false;
+      }
+     */
 
     protected function GetParent()
     {
@@ -565,30 +568,32 @@ class SqueezeboxDevice extends IPSModule
         return ($instance['ConnectionID'] > 0) ? $instance['ConnectionID'] : false;
     }
 
-    protected function SetStatus($data)
-    {
-        IPS_LogMessage(__CLASS__, __FUNCTION__); //
-    }
+    /*
+      protected function SetStatus($data)
+      {
+      IPS_LogMessage(__CLASS__, __FUNCTION__); //
+      }
 
-    protected function RegisterTimer($data, $cata)
-    {
-        IPS_LogMessage(__CLASS__, __FUNCTION__); //
-    }
+      protected function RegisterTimer($data, $cata)
+      {
+      IPS_LogMessage(__CLASS__, __FUNCTION__); //
+      }
 
-    protected function SetTimerInterval($data, $cata)
-    {
-        IPS_LogMessage(__CLASS__, __FUNCTION__); //
-    }
+      protected function SetTimerInterval($data, $cata)
+      {
+      IPS_LogMessage(__CLASS__, __FUNCTION__); //
+      }
 
-    protected function LogMessage($data, $cata)
-    {
-        
-    }
+      protected function LogMessage($data, $cata)
+      {
 
-    protected function SetSummary($data)
-    {
-        IPS_LogMessage(__CLASS__, __FUNCTION__ . "Data:" . $data); //
-    }
+      }
+
+      protected function SetSummary($data)
+      {
+      IPS_LogMessage(__CLASS__, __FUNCTION__ . "Data:" . $data); //
+      }
+     */
 
     //Remove on next Symcon update
     protected function RegisterProfileInteger($Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, $StepSize)
