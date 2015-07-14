@@ -19,6 +19,40 @@ class LMSCommand extends stdClass
 
 }
 
+class LMSResponse extends stdClass
+{
+
+    const isServer = 0;
+    const isMAC = 1;
+    const isIP = 2;
+
+    public $Device;
+    public $MAC;
+    public $IP;
+    public $Data;
+
+    public function __construct($Data)
+    {
+        $array = explode(' ', $Data); // Antwortstring in Array umwandeln
+        if (strpos($array[0], '%')) //isMAC
+        {
+            $this->Device = LMSResponse::isMAC;
+            $this->MAC = urldecode(array_shift($array));
+        }
+        elseif (strpos($array[0], '.')) //isIP
+        {
+            $this->Device = LMSResponse::isIP;
+            $this->IP = array_shift($array);
+        }
+        else // isServer
+        {
+            $this->Device = LMSResponse::isServer;
+        }
+        $this->Data = $array;
+    }
+
+}
+
 class LMSSplitter extends IPSModule
 {
 
@@ -146,20 +180,20 @@ class LMSSplitter extends IPSModule
         }
     }
 
-    private function encode($raw)
-    {
-        $array = explode(' ', $raw); // Antwortstring in Array umwandeln
-        $Data = new stdClass();
-        $array[0] = urldecode($array[0]);
-        $Data->MAC = $this->GetMAC($array[0]); // MAC in lesbares Format umwandeln
-        $Data->Payload = $array;
-        return $Data;
-    }
+    /*    private function encode($raw)
+      {
+      $array = explode(' ', $raw); // Antwortstring in Array umwandeln
+      $Data = new stdClass();
+      $array[0] = urldecode($array[0]);
+      $Data->MAC = $this->GetMAC($array[0]); // MAC in lesbares Format umwandeln
+      $Data->Payload = $array;
+      return $Data;
+      } */
 
-    private function GetMAC($mac)
-    {
-        return $this->MAC = strtolower(str_replace(array("-", ":"), "", $mac));
-    }
+    /*    private function GetMAC($mac)
+      {
+      return $this->MAC = strtolower(str_replace(array("-", ":"), "", $mac));
+      } */
 
     private function lock($ident)
     {
@@ -233,14 +267,14 @@ class LMSSplitter extends IPSModule
         return false;
     }
 
-    private function WriteResponse($Data)
+    private function WriteResponse($Array)
     {
         $Event = $this->GetIDForIdent('WaitForResponse');
         if (!GetValueBoolean($Event))
             return false;
         $buffer = $this->GetIDForIdent('BufferOUT');
-        $Data[0] = urldecode($Data[0]);
-        $Data = implode(" ", $Data);
+//        $Data[0] = urldecode($Data[0]);
+        $Data = implode(" ", $Array);
         if (!(strpos($Data, GetValueString($buffer)) === false))
         {
             if ($this->lock('BufferOut'))
@@ -271,7 +305,7 @@ class LMSSplitter extends IPSModule
     {
         $ret = $this->SendLMSCommand(new LMSCommand('rescan', LMSCommand::SendCommand));
         IPS_LogMessage('LMS Rescan', print_r($ret, 1));
-        return $ret;        
+        return $ret;
     }
 
     public function Test1()
@@ -300,7 +334,7 @@ class LMSSplitter extends IPSModule
 
     public function GetPlayerInfo($Value)
     {
-        $ret = $this->SendLMSCommand(new LMSCommand('players ' . $Value . ' 1', LMSCommand::SendCommand));
+        $ret = $this->SendLMSCommand(new LMSCommand('players ' . $Value . ' 1', LMSCommand::GetData));
         IPS_LogMessage('LMS GetPlayerInfo', print_r($ret, 1));
         return $ret;
     }
@@ -312,7 +346,7 @@ class LMSSplitter extends IPSModule
         $albums = $this->SendLMSCommand(new LMSCommand('info total albums ?', LMSCommand::GetData));
         $songs = $this->SendLMSCommand(new LMSCommand('info total songs ?', LMSCommand::GetData));
         $ret = array('Geners' => $gernes, 'Artists' => $artists, 'Albums' => $albums, 'Songs' => $songs);
-        IPS_LogMessage('LMS GetLibaryInfo', print_r($ret, 1));        
+        IPS_LogMessage('LMS GetLibaryInfo', print_r($ret, 1));
         return $ret;
     }
 
@@ -328,22 +362,26 @@ class LMSSplitter extends IPSModule
     public function ForwardData($JSONString)
     {
 //EDD ankommend von Device
-        $data = json_decode($JSONString);
-        IPS_LogMessage("IOSplitter FRWD MAC", $data->MAC);
-        IPS_LogMessage("IOSplitter FRWD Payload", $data->Payload);
-        $sendData = implode(":", $mac = str_split($data->MAC, 2)) . " " . $data->Payload;
+//
+//        $data = json_decode($JSONString);
+//        IPS_LogMessage("IOSplitter FRWD MAC", $data->MAC);
+//        IPS_LogMessage("IOSplitter FRWD Payload", $data->Payload);
+//        $sendData = implode(":", $mac = str_split($data->MAC, 2)) . " " . $data->Payload;
 // Daten annehmen und mit MAC codieren. Senden an Parent
 //weiter zu IO  mit Warteschlange 
+//
+//
 //        $ret = $this->SendDataToParent($sendData);
 //        return $ret;
     }
 
     public function ReceiveData($JSONString)
+    // 018EF6B5-AB94-40C6-AA53-46943E824ACF ankommend von ClientSocket-IO            
     {
-// 018EF6B5-AB94-40C6-AA53-46943E824ACF ankommend von IO
         $data = json_decode($JSONString);
-//IPS_LogMessage("IOSplitter RECV", utf8_decode($data->Buffer));
+        //IPS_LogMessage("IOSplitter RECV", utf8_decode($data->Buffer));
         $bufferID = $this->GetIDForIdent("BufferIN");
+
         if (!$this->lock("bufferin"))
         {
             throw new Exception("ReceiveBuffer is locked");
@@ -354,30 +392,38 @@ class LMSSplitter extends IPSModule
         $tail = array_pop($packet);
         SetValueString($bufferID, $tail);
         $this->unlock("bufferin");
+
         foreach ($packet as $part)
         {
-            $encoded = $this->encode($part);
-            $isResponse = $this->WriteResponse($encoded->Payload);
-            IPS_LogMessage("IOSplitter PART", print_r($encoded, 1));
-            if ($isResponse === true)
+            $Data = new LMSResponse($part);
+            IPS_LogMessage("IOSplitter PART", print_r($Data, 1));
+            if ($Data->Device == LMSResponse::isServer)
             {
-                IPS_LogMessage("IOSplitter isResonse", "TRUE");
-// wird von Anfrage-Thread bearbeitet, für uns ist hier schluß
-                continue;
+                $isResponse = $this->WriteResponse($Data->Data);
+                if ($isResponse === true)
+                {
+                    IPS_LogMessage("IOSplitter isResonse", "TRUE");
+                    // wird von Anfrage-Thread bearbeitet, für uns ist hier schluß
+                    continue;
+                }
+                elseif ($isResponse === false)
+                { //Info Daten von Server verarbeiten
+                    // TODO
+                }
+                else
+                {
+                    throw new Exception($isResponse);
+                }
             }
-            elseif ($isResponse === false)
+            elseif ($Data->Device == LMSResponse::isMAC)
             {
-//                IPS_LogMessage("IOSplitter isResonse", "FALSE");
-//                if ($encoded->MAC <> "listen")
-//                {
                 $ret = $this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "MAC" => $encoded->MAC, "Payload" => $encoded->Payload)));
-//                  IPS_LogMessage("IOSplitter ReturnValue", print_r($ret, 1));
-//                }
             }
-            else
+            elseif ($Data->Device == LMSResponse::isIP)
             {
-                throw new Exception($isResponse);
+                $ret = $this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "MAC" => $encoded->MAC, "Payload" => $encoded->Payload)));
             }
+            return $ret;
         }
     }
 
@@ -418,44 +464,44 @@ class LMSSplitter extends IPSModule
     }
 
     /*
-    
-    protected function HasActiveParent($ParentID)
-    {
-        IPS_LogMessage(__CLASS__, __FUNCTION__); //          
-        if ($ParentID > 0)
-        {
-            $parent = IPS_GetInstance($ParentID);
-            if ($parent['InstanceStatus'] == 102)
-                return true;
-        }
-        return false;
-    }
 
-    protected function SetStatus($data)
-    {
-        IPS_LogMessage(__CLASS__, __FUNCTION__); //           
-    }
+      protected function HasActiveParent($ParentID)
+      {
+      IPS_LogMessage(__CLASS__, __FUNCTION__); //
+      if ($ParentID > 0)
+      {
+      $parent = IPS_GetInstance($ParentID);
+      if ($parent['InstanceStatus'] == 102)
+      return true;
+      }
+      return false;
+      }
 
-    protected function RegisterTimer($data, $cata)
-    {
-        IPS_LogMessage(__CLASS__, __FUNCTION__); //           
-    }
+      protected function SetStatus($data)
+      {
+      IPS_LogMessage(__CLASS__, __FUNCTION__); //
+      }
 
-    protected function SetTimerInterval($data, $cata)
-    {
-        IPS_LogMessage(__CLASS__, __FUNCTION__); //           
-    }
+      protected function RegisterTimer($data, $cata)
+      {
+      IPS_LogMessage(__CLASS__, __FUNCTION__); //
+      }
 
-    protected function LogMessage($data, $cata)
-    {
-        
-    }
+      protected function SetTimerInterval($data, $cata)
+      {
+      IPS_LogMessage(__CLASS__, __FUNCTION__); //
+      }
 
-    protected function SetSummary($data)
-    {
-        IPS_LogMessage(__CLASS__, __FUNCTION__ . "Data:" . $data); //                   
-    }
-*/
+      protected function LogMessage($data, $cata)
+      {
+
+      }
+
+      protected function SetSummary($data)
+      {
+      IPS_LogMessage(__CLASS__, __FUNCTION__ . "Data:" . $data); //
+      }
+     */
 }
 
 ?>
