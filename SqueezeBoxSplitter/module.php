@@ -85,11 +85,11 @@ class LMSSplitter extends IPSModule
 
     private function unlock($ident)
     {
-/*        if (!(IPS_SemaphoreEnter("LMS_" . (string) $this->InstanceID . (string) $ident, 1)))
-        {
-            IPS_SemaphoreLeave("LMS_" . (string) $this->InstanceID . (string) $ident);
-        } else {*/
-            IPS_SemaphoreLeave("LMS_" . (string) $this->InstanceID . (string) $ident);
+        /*        if (!(IPS_SemaphoreEnter("LMS_" . (string) $this->InstanceID . (string) $ident, 1)))
+          {
+          IPS_SemaphoreLeave("LMS_" . (string) $this->InstanceID . (string) $ident);
+          } else { */
+        IPS_SemaphoreLeave("LMS_" . (string) $this->InstanceID . (string) $ident);
 //        }
     }
 
@@ -110,10 +110,10 @@ class LMSSplitter extends IPSModule
     private function WaitForResponse()
     {
         $Event = $this->GetIDForIdent('WaitForResponse');
-        for ($i = 0; $i < 5000; $i++)
+        for ($i = 0; $i < 500; $i++)
         {
             if (GetValueBoolean($Event))
-                IPS_Sleep(mt_rand(3, 5));
+                IPS_Sleep(10);
             else
             {
                 if ($this->lock('BufferOut'))
@@ -200,8 +200,8 @@ class LMSSplitter extends IPSModule
 
         for ($i = 0; $i < $players; $i++)
         {
-            $player = $this->SendDataToParent('player id '.$i.' ?');
-            $playerName = $this->SendDataToParent('player name '.$i.' ?');
+            $player = $this->SendDataToParent('player id ' . $i . ' ?');
+            $playerName = $this->SendDataToParent('player name ' . $i . ' ?');
             // Daten zerlegen und Childs anlegen/prüfen
             IPS_LogMessage('PLAYER ID' . $i, print_r($player, 1));
             IPS_LogMessage('PLAYER NAME' . $i, print_r($playerName, 1));
@@ -219,7 +219,7 @@ class LMSSplitter extends IPSModule
         $artists = $this->SendDataToParent('info total artists ?');
         $albums = $this->SendDataToParent('info total albums ?');
         $songs = $this->SendDataToParent('info total songs ?');
-        return array('Geners'=>$gernes,'Artists'=>$artists,'Albums'=>$albums,'Songs'=>$songs);
+        return array('Geners' => $gernes, 'Artists' => $artists, 'Albums' => $albums, 'Songs' => $songs);
     }
 
     public function GetVersion()
@@ -246,7 +246,7 @@ class LMSSplitter extends IPSModule
     {
         // 018EF6B5-AB94-40C6-AA53-46943E824ACF ankommend von IO
         $data = json_decode($JSONString);
-        IPS_LogMessage("IOSplitter RECV", utf8_decode($data->Buffer));
+        //IPS_LogMessage("IOSplitter RECV", utf8_decode($data->Buffer));
         $bufferID = $this->GetIDForIdent("BufferIN");
         if (!$this->lock("bufferin"))
         {
@@ -262,6 +262,7 @@ class LMSSplitter extends IPSModule
         {
             $encoded = $this->encode($part);
             $isResponse = $this->WriteResponse($encoded->Payload);
+            IPS_LogMessage("IOSplitter PART", print_r($encoded, 1));
             if ($isResponse === true)
             {
                 IPS_LogMessage("IOSplitter isResonse", "TRUE");
@@ -270,12 +271,12 @@ class LMSSplitter extends IPSModule
             }
             elseif ($isResponse === false)
             {
-                IPS_LogMessage("IOSplitter isResonse", "FALSE");
-                if ($encoded->MAC <> "listen")
-                {
-                    $ret = $this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "MAC" => $encoded->MAC, "Payload" => $encoded->Payload)));
-                    IPS_LogMessage("IOSplitter ReturnValue", print_r($ret, 1));
-                }
+//                IPS_LogMessage("IOSplitter isResonse", "FALSE");
+//                if ($encoded->MAC <> "listen")
+//                {
+                $ret = $this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "MAC" => $encoded->MAC, "Payload" => $encoded->Payload)));
+                //                  IPS_LogMessage("IOSplitter ReturnValue", print_r($ret, 1));
+//                }
             }
             else
             {
@@ -321,6 +322,9 @@ class LMSSplitter extends IPSModule
             $this->unlock("ToParent");
             if ($ret === false) // Warteschleife lief in Timeout
             {
+                //  Daten in Warteschleife löschen                
+                $this->ResetWaitForResponse();
+                // Fehler
                 throw new Exception("No answer from LMS");
             }
             // Rückgabe ist eine Bestätigung von einem Befehl
