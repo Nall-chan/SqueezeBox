@@ -179,12 +179,7 @@ class LMSSplitter extends IPSModule
 
     private function unlock($ident)
     {
-        /*        if (!(IPS_SemaphoreEnter("LMS_" . (string) $this->InstanceID . (string) $ident, 1)))
-          {
-          IPS_SemaphoreLeave("LMS_" . (string) $this->InstanceID . (string) $ident);
-          } else { */
         IPS_SemaphoreLeave("LMS_" . (string) $this->InstanceID . (string) $ident);
-//        }
     }
 
     private function SetWaitForResponse($Data)
@@ -214,7 +209,6 @@ class LMSSplitter extends IPSModule
                 {
                     $buffer = $this->GetIDForIdent('BufferOUT');
                     $ret = GetValueString($buffer);
-//IPS_LogMessage('FOUND RESPONSE', $ret);
                     SetValueString($buffer, "");
                     $this->unlock('BufferOut');
                     return $ret;
@@ -275,7 +269,9 @@ class LMSSplitter extends IPSModule
 
     public function Rescan()
     {
-//        return $this->SendDataToParent('rescan');
+        $ret = $this->SendLMSCommand(new LMSCommand('rescan', LMSCommand::SendCommand));
+        IPS_LogMessage('LMS Rescan', print_r($ret, 1));
+        return $ret;        
     }
 
     public function Test1()
@@ -290,35 +286,41 @@ class LMSSplitter extends IPSModule
 
     public function CreateAllPlayer()
     {
-/*        $players = $this->SendDataToParent('player count ?');
+        /*        $players = $this->SendDataToParent('player count ?');
 
-        for ($i = 0; $i < $players; $i++)
-        {
-            $player = $this->SendDataToParent('player id ' . $i . ' ?');
-            $playerName = $this->SendDataToParent('player name ' . $i . ' ?');
-// Daten zerlegen und Childs anlegen/prüfen
-            IPS_LogMessage('PLAYER ID' . $i, print_r($player, 1));
-            IPS_LogMessage('PLAYER NAME' . $i, print_r($playerName, 1));
-        }*/
+          for ($i = 0; $i < $players; $i++)
+          {
+          $player = $this->SendDataToParent('player id ' . $i . ' ?');
+          $playerName = $this->SendDataToParent('player name ' . $i . ' ?');
+          // Daten zerlegen und Childs anlegen/prüfen
+          IPS_LogMessage('PLAYER ID' . $i, print_r($player, 1));
+          IPS_LogMessage('PLAYER NAME' . $i, print_r($playerName, 1));
+          } */
     }
 
     public function GetPlayerInfo($Value)
     {
-//        return $this->SendDataToParent('players ' . $Value . ' 1');
+        $ret = $this->SendLMSCommand(new LMSCommand('players ' . $Value . ' 1', LMSCommand::SendCommand));
+        IPS_LogMessage('LMS GetPlayerInfo', print_r($ret, 1));
+        return $ret;
     }
 
     public function GetLibaryInfo()
     {
-/*        $gernes = $this->SendDataToParent('info total genres ?');
-        $artists = $this->SendDataToParent('info total artists ?');
-        $albums = $this->SendDataToParent('info total albums ?');
-        $songs = $this->SendDataToParent('info total songs ?');
-        return array('Geners' => $gernes, 'Artists' => $artists, 'Albums' => $albums, 'Songs' => $songs);*/
+        $gernes = $this->SendLMSCommand(new LMSCommand('info total genres ?', LMSCommand::GetData));
+        $artists = $this->SendLMSCommand(new LMSCommand('info total artists ?', LMSCommand::GetData));
+        $albums = $this->SendLMSCommand(new LMSCommand('info total albums ?', LMSCommand::GetData));
+        $songs = $this->SendLMSCommand(new LMSCommand('info total songs ?', LMSCommand::GetData));
+        $ret = array('Geners' => $gernes, 'Artists' => $artists, 'Albums' => $albums, 'Songs' => $songs);
+        IPS_LogMessage('LMS GetLibaryInfo', print_r($ret, 1));        
+        return $ret;
     }
 
     public function GetVersion()
     {
-       return $this->SendLMSCommand(new LMSCommand('version ?',  LMSCommand::GetData));
+        $ret = $this->SendLMSCommand(new LMSCommand('version ?', LMSCommand::GetData));
+        IPS_LogMessage('LMS GetVersion', print_r($ret, 1));
+        return $ret;
     }
 
 ################## DataPoints
@@ -332,7 +334,6 @@ class LMSSplitter extends IPSModule
         $sendData = implode(":", $mac = str_split($data->MAC, 2)) . " " . $data->Payload;
 // Daten annehmen und mit MAC codieren. Senden an Parent
 //weiter zu IO  mit Warteschlange 
-
 //        $ret = $this->SendDataToParent($sendData);
 //        return $ret;
     }
@@ -398,7 +399,7 @@ class LMSSplitter extends IPSModule
             $this->unlock("ToParent");
             throw new Exception("LMS not reachable");
         }
-        $this->unlock("ToParent");        
+        $this->unlock("ToParent");
         return $ret;
     }
 
@@ -416,23 +417,15 @@ class LMSSplitter extends IPSModule
         return ($instance['ConnectionID'] > 0) ? $instance['ConnectionID'] : false;
     }
 
+    /*
+    
     protected function HasActiveParent($ParentID)
     {
         IPS_LogMessage(__CLASS__, __FUNCTION__); //          
         if ($ParentID > 0)
         {
             $parent = IPS_GetInstance($ParentID);
-            if ($parent['InstanceStatus
-
-             
-
-              
-
-              
-
-             
-
-             '] == 102)
+            if ($parent['InstanceStatus'] == 102)
                 return true;
         }
         return false;
@@ -462,7 +455,7 @@ class LMSSplitter extends IPSModule
     {
         IPS_LogMessage(__CLASS__, __FUNCTION__ . "Data:" . $data); //                   
     }
-
+*/
 }
 
 ?>
