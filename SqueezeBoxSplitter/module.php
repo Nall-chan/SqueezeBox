@@ -398,6 +398,7 @@ class LMSSplitter extends IPSModule
             $this->unlock("ToParent");
             throw new Exception("LMS not reachable");
         }
+        $this->unlock("ToParent");        
         return $ret;
     }
 
