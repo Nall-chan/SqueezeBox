@@ -1,11 +1,12 @@
 <?
+require_once(__DIR__ . "/../SqueezeBoxClass.php");  // diverse Klassen
 
 class SqueezeboxDevice extends IPSModule
 {
     const isMAC = 1;
     const isIP = 2;
     
-    protected $MAC, $Interval;
+    protected $Address, $Interval;
 
     public function __construct($InstanceID)
     {
@@ -14,7 +15,7 @@ class SqueezeboxDevice extends IPSModule
         parent::__construct($InstanceID);
         //These lines are parsed on Symcon Startup or Instance creation
         //You cannot use variables here. Just static values.
-        $this->RegisterPropertyString("MACAddress", "");
+        $this->RegisterPropertyString("Address", "");
         $this->RegisterPropertyInteger("Interval", 2);
         $this->RegisterPropertyString("CoverSize", "cover");
     }
@@ -73,7 +74,7 @@ class SqueezeboxDevice extends IPSModule
         $this->RegisterVariableString("BufferOUT", "BufferOUT");
         $this->RegisterVariableBoolean("WaitForResponse", "WaitForResponse");
 
-        
+        // Addresse prüfen und u.u. mit : oder . eintragen
         $this->Init();
 //        $this->SendDataToParent("listen 1");
     }
@@ -87,7 +88,7 @@ class SqueezeboxDevice extends IPSModule
 
     private function Init()
     {
-        $this->MAC = $this->GetMAC($this->ReadPropertyString('MACAddress'));
+        $this->Address = $this->ReadPropertyString('Address');
         $this->Interval = $this->ReadPropertyInteger("Interval");
     }
 
@@ -109,10 +110,10 @@ class SqueezeboxDevice extends IPSModule
             SetValueString($id, $value);
     }
 
-    private function GetMAC($mac)
+/*    private function GetMAC($mac)
     {
         return strtolower(str_replace(array("-", ":"), "", $mac));
-    }
+    }*/
 
     private function GetCover($player_id)
 // setzt die $var_id mit dem Coverbild von $player_id
@@ -533,7 +534,7 @@ class SqueezeboxDevice extends IPSModule
     public function ReceiveData($JSONString)
     {
         // CB5950B3-593C-4126-9F0F-8655A3944419 ankommend von Splitter
-        $data = json_decode($JSONString);
+        $Data = json_decode($JSONString);
         $this->Init();
 //        IPS_LogMessage("IODevice ", print_r($data, 1));
 /*14.07.2015 22:48:33 | IODevice  | stdClass Object
@@ -553,22 +554,31 @@ class SqueezeboxDevice extends IPSModule
                 )
         )
 )*/
-////        
-//        $this->MAC = $this->GetMAC($this->ReadPropertyString('MACAddress'));
-        return true;
-        if ($this->MAC === false)
+        if ($this->Address === false)
             return false;
-        //IPS_LogMessage("IODevice MAC", $data->MAC);
-        //IPS_LogMessage("IODevice MAC", $this->MAC);
-        if ($this->MAC == $data->MAC)
+
+        if (($this->Address == $Data->LMS->MAC) or ($this->Address == $Data->LMS->IP))
         {
-            //IPS_LogMessage("IODevice DATA", print_r($data->Payload, 1));
-            $this->decode($data->Payload);
-            return true;
+            //Daten prüfen ob Antwort und Buffern und Event setzen
+                $isResponse = $this->WriteResponse($Data->LMS->Data);
+                if ($isResponse === true)
+                {
+                    // wird von Anfrage-Thread bearbeitet, für uns ist hier schluß
+                    return true;
+                }
+                elseif ($isResponse === false)
+                { //Info Daten für Devcie verarbeiten
+                    // TODO
+                    $this->decode($Data->LMS->Data);                                
+                    return true;                    
+                }
+                else
+                {
+                    throw new Exception($isResponse);
+                }
         }
         else
             return false;
-        //We would parse our payload here before sending it further...
     }
 
 ################## DUMMYS / WOARKAROUNDS - protected

@@ -1,10 +1,13 @@
 {
     "elements":
-            [
+            [{
+                    "type": "Label",
+                    "label": "MAC-Adresse für Squeezbox \n IP-Adresse für Andere:"
+                },
                 {
-                    "name": "MACAddress",
+                    "name": "Address",
                     "type": "ValidationTextBox",
-                    "caption": "MAC Adresse"
+                    "caption": "IP/MAC Adresse"
                 },
                 {
                     "name": "CoverSize",

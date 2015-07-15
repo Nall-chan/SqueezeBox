@@ -1,57 +1,6 @@
 <?
+require_once(__DIR__ . "/../SqueezeBoxClass.php");  // diverse Klassen
 
-class LMSCommand extends stdClass
-{
-
-    const SendCommand = 0;
-    const GetData = 1;
-
-    public $Data;
-    public $Typ;
-    public $needResponse;
-
-    public function __construct($Data, $Typ = LMSCommand::SendCommand, $needResponse = true)
-    {
-        $this->Data = $Data;
-        $this->Typ = $Typ;
-        $this->needResponse = $needResponse;
-    }
-
-}
-
-class LMSResponse extends stdClass
-{
-
-    const isServer = 0;
-    const isMAC = 1;
-    const isIP = 2;
-
-    public $Device;
-    public $MAC;
-    public $IP;
-    public $Data;
-
-    public function __construct($Data)
-    {
-        $array = explode(' ', $Data); // Antwortstring in Array umwandeln
-        if (strpos($array[0], '%')) //isMAC
-        {
-            $this->Device = LMSResponse::isMAC;
-            $this->MAC = urldecode(array_shift($array));
-        }
-        elseif (strpos($array[0], '.')) //isIP
-        {
-            $this->Device = LMSResponse::isIP;
-            $this->IP = array_shift($array);
-        }
-        else // isServer
-        {
-            $this->Device = LMSResponse::isServer;
-        }
-        $this->Data = $array;
-    }
-
-}
 
 class LMSSplitter extends IPSModule
 {
@@ -100,50 +49,50 @@ class LMSSplitter extends IPSModule
         $this->RegisterVariableString("BufferIN", "BufferIN");
         $this->RegisterVariableString("BufferOUT", "BufferOUT");
         $this->RegisterVariableBoolean("WaitForResponse", "WaitForResponse");
-        $Data = new LMSCommand("listen 1");
-        $this->SendLMSCommand($Data);
+        $Data = new LMSData("listen 1");
+        $this->SendLMSData($Data);
     }
 
 ################## PRIVATE     
 
-    private function SendLMSCommand($LMSCommand)
+    private function SendLMSData($LMSData)
     {
-        if ($LMSCommand->needResponse)
+        if ($LMSData->needResponse)
         {
 //Semaphore setzen
-            if (!$this->lock("LMSCommand"))
+            if (!$this->lock("LMSData"))
             {
                 throw new Exception("Can not send to LMS");
             }
-            if ($LMSCommand->Typ == LMSCommand::GetData)
+            if ($LMSData->Typ == LMSData::GetData)
             {
-                $WaitData = substr($LMSCommand->Data, 0, -2);
+                $WaitData = substr($LMSData->Data, 0, -2);
             }
             else
             {
-                $WaitData = $LMSCommand->Data;
+                $WaitData = $LMSData->Data;
             }
             // Anfrage für die Warteschleife schreiben
             if (!$this->SetWaitForResponse($WaitData))
             {
-                $this->unlock("LMSCommand");
+                $this->unlock("LMSData");
                 throw new Exception("Can not send to LMS");
             }
             try
             {
-                $this->SendDataToParent($LMSCommand->Data);
+                $this->SendDataToParent($LMSData->Data);
             }
             catch (Exception $exc)
             {
                 //  Daten in Warteschleife löschen
                 $this->ResetWaitForResponse();
-                $this->unlock("LMSCommand");
+                $this->unlock("LMSData");
                 throw $exc;
             }
             // Auf Antwort warten....
             $ret = $this->WaitForResponse();
             // SendeLock  velassen
-            $this->unlock("LMSCommand");
+            $this->unlock("LMSData");
             if ($ret === false) // Warteschleife lief in Timeout
             {
                 //  Daten in Warteschleife löschen                
@@ -152,9 +101,9 @@ class LMSSplitter extends IPSModule
                 throw new Exception("No answer from LMS");
             }
             // Rückgabe ist eine Bestätigung von einem Befehl
-            if ($LMSCommand->Typ == LMSCommand::SendCommand)
+            if ($LMSData->Typ == LMSData::SendCommand)
             {
-                if ($LMSCommand->Data == $ret)
+                if ($LMSData->Data == $ret)
                     return true;
                 else
                     return false;
@@ -171,7 +120,7 @@ class LMSSplitter extends IPSModule
         { // ohne warten raussenden
             try
             {
-                $this->SendDataToParent($LMSCommand->Data);
+                $this->SendDataToParent($LMSData->Data);
             }
             catch (Exception $exc)
             {
