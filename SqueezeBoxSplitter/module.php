@@ -37,9 +37,14 @@ class LMSSplitter extends IPSModule
                 IPS_SetProperty($ParentID, 'Port', $this->ReadPropertyInteger('Port'));
                 $change = true;
             }
-            if (IPS_GetProperty($ParentID, 'Open') <> $this->ReadPropertyBoolean('Open'))
+            $ParentOpen = $this->ReadPropertyBoolean('Open');
+            if ($this->ReadPropertyString('Host') == '')
             {
-                IPS_SetProperty($ParentID, 'Open', $this->ReadPropertyBoolean('Open'));
+                $ParentOpen = false;
+            }
+            if (IPS_GetProperty($ParentID, 'Open') <> $ParentOpen)
+            {
+                IPS_SetProperty($ParentID, 'Open', $ParentOpen);
                 $change = true;
             }
 
