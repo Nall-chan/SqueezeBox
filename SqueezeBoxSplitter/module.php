@@ -49,8 +49,11 @@ class LMSSplitter extends IPSModule
         $this->RegisterVariableString("BufferIN", "BufferIN");
         $this->RegisterVariableString("BufferOUT", "BufferOUT");
         $this->RegisterVariableBoolean("WaitForResponse", "WaitForResponse");
-        $Data = new LMSData("listen 1");
-        $this->SendLMSData($Data);
+        if ($this->ReadPropertyBoolean('Open') and $this->HasActiveParent($ParentID))
+        {
+            $Data = new LMSData("listen 1");
+            $this->SendLMSData($Data);
+        }
     }
 
 ################## PRIVATE     
@@ -316,8 +319,8 @@ class LMSSplitter extends IPSModule
         $Data = json_decode($JSONString);
 //        IPS_LogMessage("IOSplitter FRWD MAC", $data->MAC);
 //        IPS_LogMessage("IOSplitter FRWD Payload", $data->Payload);
-    
-        $LMSData = new LMSData($Data->LSQ->Address.' '.$Data->LSQ->Command.' '.$Data->LSQ->Value, LMSData::SendCommand, false);
+
+        $LMSData = new LMSData($Data->LSQ->Address . ' ' . $Data->LSQ->Command . ' ' . $Data->LSQ->Value, LMSData::SendCommand, false);
 // Daten annehmen und mit MAC codieren. Senden an Parent
 //weiter zu IO  mit Warteschlange 
 //
@@ -419,20 +422,19 @@ class LMSSplitter extends IPSModule
         return ($instance['ConnectionID'] > 0) ? $instance['ConnectionID'] : false;
     }
 
+    protected function HasActiveParent($ParentID)
+    {
+//        IPS_LogMessage(__CLASS__, __FUNCTION__); //
+        if ($ParentID > 0)
+        {
+            $parent = IPS_GetInstance($ParentID);
+            if ($parent['InstanceStatus'] == 102)
+                return true;
+        }
+        return false;
+    }
+
     /*
-
-      protected function HasActiveParent($ParentID)
-      {
-      IPS_LogMessage(__CLASS__, __FUNCTION__); //
-      if ($ParentID > 0)
-      {
-      $parent = IPS_GetInstance($ParentID);
-      if ($parent['InstanceStatus'] == 102)
-      return true;
-      }
-      return false;
-      }
-
       protected function SetStatus($data)
       {
       IPS_LogMessage(__CLASS__, __FUNCTION__); //
