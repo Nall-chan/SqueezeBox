@@ -730,7 +730,7 @@ class SqueezeboxDevice extends IPSModule
           )
           )
           ) */
-        if ($this->Address === false)
+        if ($this->Address === '')
             return false;
 
         if (($this->Address == $Data->LMS->MAC) or ( $this->Address == $Data->LMS->IP))
@@ -748,9 +748,9 @@ class SqueezeboxDevice extends IPSModule
             { //Info Daten für Devcie verarbeiten
                 // TODO
                 //IPS_LogMessage("LSQ Device: Empfang", print_r($Response, 1));
-                if ($Response->Command=='')
+                if ($Response->Command<>'')
                 {
-                IPS_LogMessage("LSQ Device: Command nicht erkannt", print_r($Response, 1));                    
+                IPS_LogMessage("LSQ Device: Daten auswerten:", print_r($Response, 1));                    
                 }
 //                    $this->decode($Data->LMS->Data);                                
                 return true;
