@@ -95,6 +95,7 @@ class LSQResponse extends stdClass
     const irenable = 'irenable';
     const connect = 'connect';
     const status = 'status';
+    const prefset='prefset';
     //mixer
     const volume = 'volume';
     const muting = 'muting';
@@ -215,7 +216,12 @@ class LSQResponse extends stdClass
 //        LSQResponse::show,
 //        LSQResponse::display,
 //        LSQResponse::displaynow,
-//        LSQResponse::playerpref,
+//        LSQResponse::playerpref
+            // 2 = Command 3 = Value             
+            case LSQResponse::prefset:
+                $this->Command = $Data->Data[2];
+                $this->Value = $Data->Data[3];
+                
             default:
 
 
