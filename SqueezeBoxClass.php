@@ -80,6 +80,7 @@ class LSQResponse extends stdClass
     const connected = 'connected';
     const sleep = 'sleep';
     const sync = 'sync';
+    const mode ='mode';
     const power = 'power';
     const    play='play';
     const stop='stop';
@@ -198,6 +199,7 @@ class LSQResponse extends stdClass
             case LSQResponse::play:
             case LSQResponse::pause:
             case LSQResponse::stop:
+            case LSQResponse::mode:
                 $this->Command = $Data->Data[0];
                 $this->Value = $Data->Data[1];
                 break;
