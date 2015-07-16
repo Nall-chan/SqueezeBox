@@ -96,6 +96,7 @@ class LSQResponse extends stdClass
     const connect = 'connect';
     const status = 'status';
     const prefset='prefset';
+    const playlist='playlist';
     //mixer
     const volume = 'volume';
     const muting = 'muting';
@@ -217,6 +218,11 @@ class LSQResponse extends stdClass
 //        LSQResponse::display,
 //        LSQResponse::displaynow,
 //        LSQResponse::playerpref
+            // 1 = Command 2 = Value             
+            case LSQResponse::playlist:
+                $this->Command = $Data->Data[1];
+                if (isset($Data->Data[2])) $this->Value = $Data->Data[2];
+                break;
             // 2 = Command 3 = Value             
             case LSQResponse::prefset:
                 $this->Command = $Data->Data[2];
@@ -243,7 +249,7 @@ class LSQResponse extends stdClass
           [3] => seq_no%3A1332
           )
           ) */
-        // $Data[0] prüfen
+        // $Data[0] pr?fen
     }
 
 }

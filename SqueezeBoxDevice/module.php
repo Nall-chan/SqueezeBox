@@ -469,7 +469,8 @@ class SqueezeboxDevice extends IPSModule
                     $ret = GetValueString($buffer);
                     SetValueString($buffer, "");
                     $this->unlock('BufferOut');
-                    return $ret;
+                    if ($ret == '') return true;
+                    else return $ret;
                 }
                 return false;
             }

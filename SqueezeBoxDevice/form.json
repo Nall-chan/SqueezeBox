@@ -2,7 +2,7 @@
     "elements":
             [{
                     "type": "Label",
-                    "label": "MAC-Adresse für Squeezbox \n IP-Adresse für Andere:"
+                    "label": "MAC-Adresse f?r Squeezbox, IP-Adresse f?r andere Ger?te"
                 },
                 {
                     "name": "Address",
@@ -12,7 +12,7 @@
                 {
                     "name": "CoverSize",
                     "type": "Select",
-                    "caption": "Größe Cover",
+                    "caption": "Gr??e Cover",
                     "options": [
                         {
                             "label": "Original",
