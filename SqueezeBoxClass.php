@@ -19,6 +19,24 @@ class LMSData extends stdClass
 
 }
 
+class LSQData extends stdClass
+{
+
+    public $Address; //DeviceID
+    public $Command;
+    public $Value;
+    public $needResponse;
+
+    public function __construct($Command, $Value, $needResponse = true)
+    {
+        $this->Command = $Command;
+        $this->Value = $Value;
+        $this->needResponse = $needResponse;
+    }
+
+
+}
+
 class LMSResponse extends stdClass
 {
 
@@ -55,28 +73,171 @@ class LMSResponse extends stdClass
 
 class LSQResponse extends stdClass
 {
+
+    //commands
+    const signalstrength = 'signalstrength';
+    const name = 'name';
+    const connected = 'connected';
+    const sleep = 'sleep';
+    const sync = 'sync';
+    const power = 'power';
+    const    play='play';
+    const stop='stop';
+    const pause='pause';
+    const mixer = 'mixer';
+    const show = 'show';
+    const display = 'display';
+    const linesperscreen = 'linesperscreen';
+    const displaynow = 'displaynow';
+    const playerpref = 'playerpref';
+    const button = 'button';
+    const irenable = 'irenable';
+    const connect = 'connect';
+    const status = 'status';
+    //mixer
+    const volume = 'volume';
+    const muting = 'muting';
+    const bass = 'bass';
+    const treble = 'treble';
+    const pitch = 'pitch';
+/*
+    play
+    stop
+    pause
+    mode ?
+    time
+    genre ?
+    artist ?
+    album ?
+    title ?
+    duration ?
+    remote ?
+    current_title ?
+    path ?
+    playlist play
+    playlist add
+    playlist insert
+    playlist deleteitem
+    playlist move
+    playlist delete
+    playlist preview
+    playlist resume
+    playlist save
+    playlist loadalbum
+    playlist addalbum
+    playlist loadtracks
+    playlist addtracks
+    playlist insertalbum
+    playlist deletealbum
+    playlist clear
+    playlist zap
+    playlist name ?
+    playlist url ?
+    playlist modified ?
+    playlist playlistsinfo
+    playlist index
+    playlist genre ?
+    playlist artist ?
+    playlist album ?
+    playlist title ?
+    playlist path ?
+    playlist remote ?
+    playlist duration ?
+    playlist tracks ?
+    playlist shuffle
+    playlist repeat
+    playlistcontrol
+*/
+/*    private $Commands = array(
+        LSQResponse::signalstrength,
+        LSQResponse::name,
+        LSQResponse::connected,
+        LSQResponse::sleep,
+        LSQResponse::sync,
+        LSQResponse::power,
+        LSQResponse::mixer,
+        LSQResponse::show,
+        LSQResponse::display,
+        LSQResponse::linesperscreen,
+        LSQResponse::displaynow,
+        LSQResponse::playerpref,
+        LSQResponse::button,
+        LSQResponse::irenable,
+        LSQResponse::connect,
+        LSQResponse::status);
+    private $Mixer = array(
+        LSQResponse::volume,
+        LSQResponse::muting,
+        LSQResponse::bass,
+        LSQResponse::treble,
+        LSQResponse::pitch);
+    private $Playerpref = array();*/
+    public $Address;
+    public $Command;
+    public $Value;
+
     public function __construct($Data) // LMS->Data
     {
-        $Commands = array('signalstrength','name','connected','sleep','sync','syncgroups','power','mixer','show','display','linesperscreen','displaynow',
-            'playerpref','button','irenable','connect');
-        $Mixer = array ('volume','muting','bass',' treble','pitch');
-        $Playerpref = array();
-    /*
-     * [LMS] => stdClass Object
-        (
-            [Device] => 1
-            [MAC] => 00:04:20:2b:9d:ae
-            [IP] => 
-     * AB HIER
-            [Data] => Array
-                (
-                    [0] => mixer
-                    [1] => muting
-                    [2] => toggle
-                    [3] => seq_no%3A1332
-                )
-        )*/        
-      // $Data[0] prüfen
+        if ($Data->Device == LMSResponse::isMAC)
+            $this->Address = $Data->MAC;
+        elseif ($Data->Device == LMSResponse::isIP)
+            $this->Address = $Data->IP;
+        switch ($Data->Data[0])
+        {
+            // 0 = Command 1 = Value
+            case LSQResponse::signalstrength:
+            case LSQResponse::name:
+            case LSQResponse::connected:
+            case LSQResponse::sleep:
+            case LSQResponse::sync:
+            case LSQResponse::power:
+            case LSQResponse::linesperscreen:
+            case LSQResponse::button:
+            case LSQResponse::irenable:
+            case LSQResponse::connect:
+            case LSQResponse::play:
+            case LSQResponse::pause:
+            case LSQResponse::stop:
+                $this->Command = $Data->Data[0];
+                $this->Value = $Data->Data[1];
+                break;
+            // 0+1 = Command 2 = Value            
+            case LSQResponse::mixer:
+
+                $this->Command = $Data->Data[0] . ' ' . $Data->Data[1];
+                $this->Value = $Data->Data[2];
+                break;
+            // 0 = Command 1=multiValue
+            case LSQResponse::status:
+                break;
+//        LSQResponse::show,
+//        LSQResponse::display,
+//        LSQResponse::displaynow,
+//        LSQResponse::playerpref,
+            default:
+
+
+
+                break;
+        }
+        /*
+         * [LMS] => stdClass Object
+          (
+          [Device] => 1
+          [MAC] => 00:04:20:2b:9d:ae
+          [IP] =>
+         * AB HIER
+          [Data] => Array
+          (
+          [0] => mixer
+          [1] => muting
+          [2] => toggle
+          [3] => seq_no%3A1332
+          )
+          ) */
+        // $Data[0] prüfen
     }
+
 }
+
 ?>

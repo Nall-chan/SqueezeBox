@@ -1,6 +1,6 @@
 <?
-require_once(__DIR__ . "/../SqueezeBoxClass.php");  // diverse Klassen
 
+require_once(__DIR__ . "/../SqueezeBoxClass.php");  // diverse Klassen
 
 class LMSSplitter extends IPSModule
 {
@@ -57,6 +57,7 @@ class LMSSplitter extends IPSModule
 
     private function SendLMSData($LMSData)
     {
+
         if ($LMSData->needResponse)
         {
 //Semaphore setzen
@@ -117,7 +118,7 @@ class LMSSplitter extends IPSModule
             }
         }
         else
-        { // ohne warten raussenden
+        { // ohne Response, also ohne warten raussenden, 
             try
             {
                 $this->SendDataToParent($LMSData->Data);
@@ -312,16 +313,17 @@ class LMSSplitter extends IPSModule
     {
 //EDD ankommend von Device
 //
-//        $data = json_decode($JSONString);
+        $Data = json_decode($JSONString);
 //        IPS_LogMessage("IOSplitter FRWD MAC", $data->MAC);
 //        IPS_LogMessage("IOSplitter FRWD Payload", $data->Payload);
-//        $sendData = implode(":", $mac = str_split($data->MAC, 2)) . " " . $data->Payload;
+    
+        $LMSData = new LMSData($Data->LSQ->Address.' '.$Data->LSQ->Command.' '.$Data->LSQ->Value, LMSData::SendCommand, false);
 // Daten annehmen und mit MAC codieren. Senden an Parent
 //weiter zu IO  mit Warteschlange 
 //
 //
-//        $ret = $this->SendDataToParent($sendData);
-//        return $ret;
+        $ret = $this->SendLMSData($LMSData);
+        return $ret;
     }
 
     public function ReceiveData($JSONString)
@@ -364,19 +366,19 @@ class LMSSplitter extends IPSModule
                     throw new Exception($isResponse);
                 }
             }
-/*            elseif ($Data->Device == LMSResponse::isMAC)
-            {
-                $ret = $this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "LMS" => $Data)));
-            }
-            elseif ($Data->Device == LMSResponse::isIP)
-            {
-                $ret = $this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "LMS" => $Data)));
-            }*/
+            /*            elseif ($Data->Device == LMSResponse::isMAC)
+              {
+              $ret = $this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "LMS" => $Data)));
+              }
+              elseif ($Data->Device == LMSResponse::isIP)
+              {
+              $ret = $this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "LMS" => $Data)));
+              } */
             else
             {
                 $ret = $this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "LMS" => $Data)));
             }
-            
+
             return $ret;
         }
     }
