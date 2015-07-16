@@ -205,12 +205,6 @@ class LSQResponse extends stdClass
                 $this->Command = $Data->Data[0];
                 $this->Value = $Data->Data[1];
                 break;
-            // 0+1 = Command 2 = Value            
-            case LSQResponse::mixer:
-
-                $this->Command = $Data->Data[0] . ' ' . $Data->Data[1];
-                $this->Value = $Data->Data[2];
-                break;
             // 0 = Command 1=multiValue
             case LSQResponse::status:
                 break;
@@ -219,6 +213,7 @@ class LSQResponse extends stdClass
 //        LSQResponse::displaynow,
 //        LSQResponse::playerpref
             // 1 = Command 2 = Value             
+            case LSQResponse::mixer:            
             case LSQResponse::playlist:
                 $this->Command = $Data->Data[1];
                 if (isset($Data->Data[2])) $this->Value = $Data->Data[2];
