@@ -253,7 +253,7 @@ class LMSSplitter extends IPSModule
 
     public function Rescan()
     {
-        $ret = $this->SendLMSCommand(new LMSCommand('rescan', LMSCommand::SendCommand));
+        $ret = $this->SendLMSData(new LMSData('rescan', LMSData::SendCommand));
         IPS_LogMessage('LMS Rescan', print_r($ret, 1));
         return $ret;
     }
@@ -284,17 +284,17 @@ class LMSSplitter extends IPSModule
 
     public function GetPlayerInfo($Value)
     {
-        $ret = $this->SendLMSCommand(new LMSCommand('players ' . $Value . ' 1', LMSCommand::GetData));
+        $ret = $this->SendLMSData(new LMSData('players ' . $Value . ' 1', LMSData::GetData));
         IPS_LogMessage('LMS GetPlayerInfo', print_r($ret, 1));
         return $ret;
     }
 
     public function GetLibaryInfo()
     {
-        $gernes = $this->SendLMSCommand(new LMSCommand('info total genres ?', LMSCommand::GetData));
-        $artists = $this->SendLMSCommand(new LMSCommand('info total artists ?', LMSCommand::GetData));
-        $albums = $this->SendLMSCommand(new LMSCommand('info total albums ?', LMSCommand::GetData));
-        $songs = $this->SendLMSCommand(new LMSCommand('info total songs ?', LMSCommand::GetData));
+        $gernes = $this->SendLMSData(new LMSData('info total genres ?', LMSData::GetData));
+        $artists = $this->SendLMSData(new LMSData('info total artists ?', LMSData::GetData));
+        $albums = $this->SendLMSData(new LMSData('info total albums ?', LMSData::GetData));
+        $songs = $this->SendLMSData(new LMSData('info total songs ?', LMSData::GetData));
         $ret = array('Geners' => $gernes, 'Artists' => $artists, 'Albums' => $albums, 'Songs' => $songs);
         IPS_LogMessage('LMS GetLibaryInfo', print_r($ret, 1));
         return $ret;
@@ -302,7 +302,7 @@ class LMSSplitter extends IPSModule
 
     public function GetVersion()
     {
-        $ret = $this->SendLMSCommand(new LMSCommand('version ?', LMSCommand::GetData));
+        $ret = $this->SendLMSData(new LMSData('version ?', LMSData::GetData));
         IPS_LogMessage('LMS GetVersion', print_r($ret, 1));
         return $ret;
     }

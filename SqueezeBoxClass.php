@@ -10,7 +10,7 @@ class LMSData extends stdClass
     public $Typ;
     public $needResponse;
 
-    public function __construct($Data, $Typ = LMSCommand::SendCommand, $needResponse = true)
+    public function __construct($Data, $Typ = LMSData::SendCommand, $needResponse = true)
     {
         $this->Data = $Data;
         $this->Typ = $Typ;
