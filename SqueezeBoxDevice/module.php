@@ -616,9 +616,9 @@ class SqueezeboxDevice extends IPSModule
     {
 //$this->SendLSQData(new LSQData('button', 'play'));        
         //Play sendet keine direkte Antwort
-        //Umbauen auf 'button play' ?
-//        return $this->SendLSQData(new LSQData('play', '',false));
-        return $this->SendLSQData(new LSQData('button','play'));        
+        //Umbauen auf 'button play' -> schlecht da sonst versehentlich andere Aktionen ausgelöst werden können.
+        return $this->SendLSQData(new LSQData('play', '',false));
+//        return $this->SendLSQData(new LSQData('button','play'));        
     }
 
     public function Pause()
