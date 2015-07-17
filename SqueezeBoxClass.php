@@ -34,7 +34,6 @@ class LSQData extends stdClass
         $this->needResponse = $needResponse;
     }
 
-
 }
 
 class LMSResponse extends stdClass
@@ -80,11 +79,11 @@ class LSQResponse extends stdClass
     const connected = 'connected';
     const sleep = 'sleep';
     const sync = 'sync';
-    const mode ='mode';
+    const mode = 'mode';
     const power = 'power';
-    const    play='play';
-    const stop='stop';
-    const pause='pause';
+    const play = 'play';
+    const stop = 'stop';
+    const pause = 'pause';
     const mixer = 'mixer';
     const show = 'show';
     const display = 'display';
@@ -95,89 +94,95 @@ class LSQResponse extends stdClass
     const irenable = 'irenable';
     const connect = 'connect';
     const status = 'status';
-    const prefset='prefset';
-    const playlist='playlist';
+    const prefset = 'prefset';
+    const playlist = 'playlist';
     //mixer
     const volume = 'volume';
     const muting = 'muting';
     const bass = 'bass';
     const treble = 'treble';
     const pitch = 'pitch';
-/*
-    play
-    stop
-    pause
-    mode ?
-    time
-    genre ?
-    artist ?
-    album ?
-    title ?
-    duration ?
-    remote ?
-    current_title ?
-    path ?
-    playlist play
-    playlist add
-    playlist insert
-    playlist deleteitem
-    playlist move
-    playlist delete
-    playlist preview
-    playlist resume
-    playlist save
-    playlist loadalbum
-    playlist addalbum
-    playlist loadtracks
-    playlist addtracks
-    playlist insertalbum
-    playlist deletealbum
-    playlist clear
-    playlist zap
-    playlist name ?
-    playlist url ?
-    playlist modified ?
-    playlist playlistsinfo
-    playlist index
-    playlist genre ?
-    playlist artist ?
-    playlist album ?
-    playlist title ?
-    playlist path ?
-    playlist remote ?
-    playlist duration ?
-    playlist tracks ?
-    playlist shuffle
-    playlist repeat
-    playlistcontrol
-*/
-/*    private $Commands = array(
-        LSQResponse::signalstrength,
-        LSQResponse::name,
-        LSQResponse::connected,
-        LSQResponse::sleep,
-        LSQResponse::sync,
-        LSQResponse::power,
-        LSQResponse::mixer,
-        LSQResponse::show,
-        LSQResponse::display,
-        LSQResponse::linesperscreen,
-        LSQResponse::displaynow,
-        LSQResponse::playerpref,
-        LSQResponse::button,
-        LSQResponse::irenable,
-        LSQResponse::connect,
-        LSQResponse::status);
-    private $Mixer = array(
-        LSQResponse::volume,
-        LSQResponse::muting,
-        LSQResponse::bass,
-        LSQResponse::treble,
-        LSQResponse::pitch);
-    private $Playerpref = array();*/
+    //playlist oder prefset
+    const repeat = 'repeat';
+    const shuffle = 'shuffle';
+
+    /*
+      play
+      stop
+      pause
+      mode ?
+      time
+      genre ?
+      artist ?
+      album ?
+      title ?
+      duration ?
+      remote ?
+      current_title ?
+      path ?
+      playlist play
+      playlist add
+      playlist insert
+      playlist deleteitem
+      playlist move
+      playlist delete
+      playlist preview
+      playlist resume
+      playlist save
+      playlist loadalbum
+      playlist addalbum
+      playlist loadtracks
+      playlist addtracks
+      playlist insertalbum
+      playlist deletealbum
+      playlist clear
+      playlist zap
+      playlist name ?
+      playlist url ?
+      playlist modified ?
+      playlist playlistsinfo
+      playlist index
+      playlist genre ?
+      playlist artist ?
+      playlist album ?
+      playlist title ?
+      playlist path ?
+      playlist remote ?
+      playlist duration ?
+      playlist tracks ?
+      playlist shuffle
+      playlist repeat
+      playlistcontrol
+     */
+    /*    private $Commands = array(
+      LSQResponse::signalstrength,
+      LSQResponse::name,
+      LSQResponse::connected,
+      LSQResponse::sleep,
+      LSQResponse::sync,
+      LSQResponse::power,
+      LSQResponse::mixer,
+      LSQResponse::show,
+      LSQResponse::display,
+      LSQResponse::linesperscreen,
+      LSQResponse::displaynow,
+      LSQResponse::playerpref,
+      LSQResponse::button,
+      LSQResponse::irenable,
+      LSQResponse::connect,
+      LSQResponse::status);
+      private $Mixer = array(
+      LSQResponse::volume,
+      LSQResponse::muting,
+      LSQResponse::bass,
+      LSQResponse::treble,
+      LSQResponse::pitch);
+      private $Playerpref = array(); */
+
     public $Address;
     public $Command;
     public $Value;
+    private $Modus = Array('jump_rew', LSQResponse::stop, LSQResponse::play, LSQResponse::pause, 'jump_fwd');
 
     public function __construct($Data) // LMS->Data
     {
@@ -213,16 +218,17 @@ class LSQResponse extends stdClass
 //        LSQResponse::displaynow,
 //        LSQResponse::playerpref
             // 1 = Command 2 = Value             
-            case LSQResponse::mixer:            
+            case LSQResponse::mixer:
             case LSQResponse::playlist:
                 $this->Command = $Data->Data[1];
-                if (isset($Data->Data[2])) $this->Value = $Data->Data[2];
+                if (isset($Data->Data[2]))
+                    $this->Value = $Data->Data[2];
                 break;
             // 2 = Command 3 = Value             
             case LSQResponse::prefset:
                 $this->Command = $Data->Data[2];
                 $this->Value = $Data->Data[3];
-                
+
             default:
 
 
@@ -245,6 +251,11 @@ class LSQResponse extends stdClass
           )
           ) */
         // $Data[0] pr?fen
+    }
+
+    public function GetModus()
+    {
+        return $this->Modus[(int) ($this->Value)];
     }
 
 }
