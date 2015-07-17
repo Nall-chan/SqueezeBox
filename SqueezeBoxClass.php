@@ -74,7 +74,7 @@ class LSQResponse extends stdClass
 {
 
     //commands
-    const listen ='listen';
+    const listen = 'listen';
     const signalstrength = 'signalstrength';
     const name = 'name';
     const connected = 'connected';
@@ -257,7 +257,8 @@ class LSQResponse extends stdClass
 
     public function GetModus()
     {
-        return $this->Modus[(int) ($this->Value)];
+
+        return (int) array_keys($this->Modus, $this->Value, true);
     }
 
 }

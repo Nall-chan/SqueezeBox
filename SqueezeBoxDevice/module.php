@@ -194,11 +194,13 @@ class SqueezeboxDevice extends IPSModule
             case LSQResponse::connect:
                 // fehlt noch
                 break;
+            case LSQResponse::pause:
+                if (boolvar($LSQEvent->Value)) $this->SetValueInteger($modusID, 3); 
+                else $this->SetValueInteger($modusID, 2); 
+                  break;
+    
             case LSQResponse::play:
 //                $this->SetValueInteger($modusID, 2);
-//                  break;
-            case LSQResponse::pause:
-  //              $this->SetValueInteger($modusID, 3);
 //                  break;
             case LSQResponse::stop:
 //                $this->SetValueInteger($modusID, 1);
@@ -206,6 +208,7 @@ class SqueezeboxDevice extends IPSModule
                   break;
             case LSQResponse::mode:
                 $this->SetValueInteger($modusID, $LSQEvent->GetModus());                
+                              IPS_LogMessage('decodeLSQEvent', 'LSQResponse::'.$LSQEvent->Command.':' . $LSQEvent->Value.':'.$LSQEvent->GetModus());
                 break;
             case LSQResponse::power:
                 $this->SetValueBoolean($powerID, boolval($LSQEvent->Value));
