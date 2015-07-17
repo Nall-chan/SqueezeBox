@@ -183,7 +183,7 @@ class LSQResponse extends stdClass
     public $Address;
     public $Command;
     public $Value;
-    private $Modus = Array('jump_rew', LSQResponse::stop, LSQResponse::play, LSQResponse::pause, 'jump_fwd');
+    private $Modus = Array(2 => LSQResponse::stop, 3 => LSQResponse::play, 4 => LSQResponse::pause);
 
     public function __construct($Data) // LMS->Data
     {
@@ -210,7 +210,8 @@ class LSQResponse extends stdClass
             case LSQResponse::stop:
             case LSQResponse::mode:
                 $this->Command = $Data->Data[0];
-                $this->Value = $Data->Data[1];
+                if (isset($Data->Data[1]))
+                    $this->Value = $Data->Data[1];
                 break;
             // 0 = Command 1=multiValue
             case LSQResponse::status:

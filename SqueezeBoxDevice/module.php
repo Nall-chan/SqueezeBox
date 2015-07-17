@@ -208,7 +208,7 @@ class SqueezeboxDevice extends IPSModule
                   break;
             case LSQResponse::mode:
                 $this->SetValueInteger($modusID, $LSQEvent->GetModus());                
-                              IPS_LogMessage('decodeLSQEvent', 'LSQResponse::'.$LSQEvent->Command.':' . $LSQEvent->Value.':'.$LSQEvent->GetModus());
+//                              IPS_LogMessage('decodeLSQEvent', 'LSQResponse::'.$LSQEvent->Command.':' . $LSQEvent->Value.':'.$LSQEvent->GetModus());
                 break;
             case LSQResponse::power:
                 $this->SetValueBoolean($powerID, boolval($LSQEvent->Value));
@@ -615,7 +615,10 @@ class SqueezeboxDevice extends IPSModule
     public function Play()
     {
 //$this->SendLSQData(new LSQData('button', 'play'));        
-        return $this->SendLSQData(new LSQData('play', ''));
+        //Play sendet keine direkte Antwort
+        //Umbauen auf 'button play' ?
+//        return $this->SendLSQData(new LSQData('play', '',false));
+        return $this->SendLSQData(new LSQData('button','play'));        
     }
 
     public function Pause()
