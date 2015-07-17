@@ -74,6 +74,7 @@ class LSQResponse extends stdClass
 {
 
     //commands
+    const listen ='listen';
     const signalstrength = 'signalstrength';
     const name = 'name';
     const connected = 'connected';
@@ -197,6 +198,7 @@ class LSQResponse extends stdClass
             case LSQResponse::name:
             case LSQResponse::connected:
             case LSQResponse::sleep:
+            case LSQResponse::listen:
             case LSQResponse::sync:
             case LSQResponse::power:
             case LSQResponse::linesperscreen:
