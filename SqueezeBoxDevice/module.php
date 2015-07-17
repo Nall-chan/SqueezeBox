@@ -794,7 +794,8 @@ class SqueezeboxDevice extends IPSModule
 //IPS_LogMessage("LSQ Device: Empfang", print_r($Response, 1));
                 if ($Response->Command <> '')
                 {
-                    IPS_LogMessage("LSQ Device: Daten auswerten:", print_r($Response, 1));
+                    //IPS_LogMessage("LSQ Device: Daten auswerten:", print_r($Response, 1));
+                    $this->decodeLSQEvent($Response);
                 }
 //                    $this->decode($Data->LMS->Data);                                
                 return true;
