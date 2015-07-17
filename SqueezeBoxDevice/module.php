@@ -521,7 +521,7 @@ class SqueezeboxDevice extends IPSModule
             return false;
         $BufferID = $this->GetIDForIdent('BufferOUT');
 //        $DataIn = json_encode($LSQDataIn);
-
+IPS_LogMessage('checkResponse',print_r($Command,1));
         if ($Command == GetValueString($BufferID))
         {
             if ($this->lock('BufferOut'))
