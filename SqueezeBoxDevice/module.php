@@ -50,7 +50,7 @@ class SqueezeboxDevice extends IPSModule
         $this->EnableAction("Power");
         $this->RegisterVariableInteger("Status", "Status", "Status.Squeezebox", 2);
         $this->EnableAction("Status");
-        $this->RegisterVariableInteger("Mute", "Mute", "~Switch", 1);
+        $this->RegisterVariableBoolean("Mute", "Mute", "~Switch", 1);
         $this->EnableAction("Mute");
 
         $this->RegisterVariableInteger("Volume", "Volume", "~Intensity.100", 3);
