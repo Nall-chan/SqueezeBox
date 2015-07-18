@@ -57,45 +57,45 @@ class SqueezeboxDevice extends IPSModule
 
         $this->RegisterVariableBoolean("Power", "Power", "~Switch", 1);
         $this->EnableAction("Power");
-        $this->RegisterVariableInteger("Status", "Status", "Status.Squeezebox", 2);
+        $this->RegisterVariableInteger("Status", "Status", "Status.Squeezebox", 3);
         $this->EnableAction("Status");
         $this->RegisterVariableInteger("Preset", "Preset", "Preset.Squeezebox", 2);
         $this->EnableAction("Preset");
-        $this->RegisterVariableBoolean("Mute", "Mute", "~Switch", 1);
+        $this->RegisterVariableBoolean("Mute", "Mute", "~Switch", 4);
         $this->EnableAction("Mute");
 
-        $this->RegisterVariableInteger("Volume", "Volume", "Intensity.Squeezebox", 3);
+        $this->RegisterVariableInteger("Volume", "Volume", "Intensity.Squeezebox", 5);
         $this->EnableAction("Volume");
-        $this->RegisterVariableInteger("Bass", "Bass", "Intensity.Squeezebox", 3);
+        $this->RegisterVariableInteger("Bass", "Bass", "Intensity.Squeezebox", 6);
         $this->EnableAction("Bass");
-        $this->RegisterVariableInteger("Treble", "Treble", "Intensity.Squeezebox", 3);
+        $this->RegisterVariableInteger("Treble", "Treble", "Intensity.Squeezebox", 7);
         $this->EnableAction("Treble");
-        $this->RegisterVariableInteger("Pitch", "Pitch", "Intensity.Squeezebox", 3);
+        $this->RegisterVariableInteger("Pitch", "Pitch", "Intensity.Squeezebox", 8);
         $this->EnableAction("Pitch");
 
-        $this->RegisterVariableInteger("Shuffle", "Shuffle", "Shuffle.Squeezebox", 4);
+        $this->RegisterVariableInteger("Shuffle", "Shuffle", "Shuffle.Squeezebox", 9);
         $this->EnableAction("Shuffle");
-        $this->RegisterVariableInteger("Repeat", "Repeat", "Repeat.Squeezebox", 5);
+        $this->RegisterVariableInteger("Repeat", "Repeat", "Repeat.Squeezebox", 10);
         $this->EnableAction("Repeat");
-
-        $this->RegisterVariableString("Interpret", "Interpret", "", 6);
-        $this->RegisterVariableString("Title", "Title", "", 7);
-        $this->RegisterVariableString("Album", "Album", "", 8);
-        $this->RegisterVariableString("Cover", "Cover", "~HTMLBox", 9);
-        $this->RegisterVariableString("Position", "Spielzeit", "", 10);
-        $this->RegisterVariableInteger("Position2", "Position", "Intensity.Squeezebox", 10);
-        $this->EnableAction("Position2");
-        $this->RegisterVariableString("Duration", "Dauer", "", 11);
-
-
+        $this->RegisterVariableInteger("Tracks", "Playlist Anzahl Tracks", "", 11);
         $this->RegisterVariableInteger("Index", "Playlist Position", "", 12);
-        $this->RegisterVariableInteger("Signal", "Signalstärke", "Intensity.Squeezebox", 13);
-        $this->RegisterVariableInteger("Tracks", "Playlist Anzahl Tracks", "", 14);
-        $this->RegisterVariableString("Genre", "Stilrichtung", "", 15);
+
+        
+        $this->RegisterVariableString("Album", "Album", "", 20);
+        $this->RegisterVariableString("Title", "Title", "", 21);
+        $this->RegisterVariableString("Interpret", "Interpret", "", 22);
+        $this->RegisterVariableString("Genre", "Stilrichtung", "", 23);
+        $this->RegisterVariableString("Duration", "Dauer", "", 24);
+        $this->RegisterVariableString("Position", "Spielzeit", "", 25);
+        $this->RegisterVariableInteger("Position2", "Position", "Intensity.Squeezebox", 26);
+        $this->EnableAction("Position2");
+        $this->RegisterVariableString("Cover", "Cover", "~HTMLBox", 27);
+        
+        $this->RegisterVariableInteger("Signal", "Signalstärke", "Intensity.Squeezebox", 30);
 
 //        $this->RegisterVariableString("BufferIN", "BufferIN");
-        $this->RegisterVariableString("BufferOUT", "BufferOUT");
-        $this->RegisterVariableBoolean("WaitForResponse", "WaitForResponse");
+        $this->RegisterVariableString("BufferOUT", "BufferOUT","",-1);
+        $this->RegisterVariableBoolean("WaitForResponse", "WaitForResponse","" -1);
 
 // Addresse pr??fen und u.u. mit : oder . eintragen
         $this->Init();
@@ -236,7 +236,7 @@ class SqueezeboxDevice extends IPSModule
 
             case LSQResponse::mode:
                 $this->SetValueInteger($modusID, $LSQEvent->GetModus());
-//                              IPS_LogMessage('decodeLSQEvent', 'LSQResponse::'.$LSQEvent->Command.':' . $LSQEvent->Value.':'.$LSQEvent->GetModus());
+                IPS_LogMessage('decodeLSQEvent', 'LSQResponse::' . $LSQEvent->Command . ':' . $LSQEvent->Value . ':' . $LSQEvent->GetModus());
                 break;
             case LSQResponse::client:
                 if ($LSQEvent->Value == 'disconnect')
@@ -648,7 +648,7 @@ class SqueezeboxDevice extends IPSModule
 
     public function Previous()
     {
-        return $this->SendLSQData(new LSQData(array('button', 'jump_rew'),''));
+        return $this->SendLSQData(new LSQData(array('button', 'jump_rew'), ''));
     }
 
     public function Stop()
@@ -687,7 +687,7 @@ class SqueezeboxDevice extends IPSModule
 
     public function Next()
     {
-        return $this->SendLSQData(new LSQData(array('button', 'jump_fwd'),''));
+        return $this->SendLSQData(new LSQData(array('button', 'jump_fwd'), ''));
     }
 
     public function SetVolume($Value)
@@ -725,7 +725,7 @@ class SqueezeboxDevice extends IPSModule
 
     public function SetPitch($Value)
     {
-        $ret = $this->SendLSQData(new LSQData(array('mixer', 'pitch'), $Value));   
+        $ret = $this->SendLSQData(new LSQData(array('mixer', 'pitch'), $Value));
         return ($ret == $Value);
         /*
           if ($ret == $Value)
@@ -741,7 +741,7 @@ class SqueezeboxDevice extends IPSModule
 
     public function Mute($Value)
     {
-        $ret = $this->SendLSQData(new LSQData(array('mixer','muting'), intval($Value)));
+        $ret = $this->SendLSQData(new LSQData(array('mixer', 'muting'), intval($Value)));
         return ($ret == $Value);
         /*
           if ($ret == $Value)
@@ -763,7 +763,7 @@ class SqueezeboxDevice extends IPSModule
 
     public function Repeat($Value)
     {
-        $ret = $this->SendLSQData(new LSQData(array('playlist','repeat'), intval($Value)));
+        $ret = $this->SendLSQData(new LSQData(array('playlist', 'repeat'), intval($Value)));
         return ($ret == $Value);
         /*
           if ($ret == $Value)
@@ -774,7 +774,7 @@ class SqueezeboxDevice extends IPSModule
 
     public function Shuffle($Value)
     {
-        $ret = $this->SendLSQData(new LSQData(array('playlist','shuffle'), intval($Value)));
+        $ret = $this->SendLSQData(new LSQData(array('playlist', 'shuffle'), intval($Value)));
         return ($ret == $Value);
         /*
           if ($ret == $Value)
@@ -916,9 +916,11 @@ class SqueezeboxDevice extends IPSModule
 // Objekt erzeugen welches das Command und den/die Value(s) enth?¤lt.
             $Response = new LSQResponse($Data->LMS);
 //Daten pr??fen ob Antwort und nach Buffern das Event setzen
-            $isResponse = $this->WriteResponse($Response->Command, $Response->Value);
-            if (is_bool($isResponse))
+            if ($Response->Command <> false)
             {
+                $isResponse = $this->WriteResponse($Response->Command, $Response->Value);
+                if (is_bool($isResponse))
+                {
 
 //            if ($isResponse === true)
 //            {
@@ -929,17 +931,18 @@ class SqueezeboxDevice extends IPSModule
 //            { //Info Daten f??r Devcie verarbeiten
 // TODO
 //IPS_LogMessage("LSQ Device: Empfang", print_r($Response, 1));
-                if ($Response->Command <> '')
-                {
                     //IPS_LogMessage("LSQ Device: Daten auswerten:", print_r($Response, 1));
                     $this->decodeLSQEvent($Response);
+                    return true;
                 }
-//                    $this->decode($Data->LMS->Data);                                
-                return true;
+                else
+                {
+                    throw new Exception($isResponse);
+                }
             }
             else
             {
-                throw new Exception($isResponse);
+                IPS_LogMessage("LSQDevice: ToDo Datensatz:", print_r($Response->Value, 1));
             }
         }
         else
