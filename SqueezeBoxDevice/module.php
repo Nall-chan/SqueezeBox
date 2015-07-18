@@ -34,7 +34,7 @@ class SqueezeboxDevice extends IPSModule
             Array(3, "Pause", "", -1),
             Array(4, "Next", "", -1)
         ));
-        $this->RegisterProfileInteger("Intensity.Squeezebox", "Intensity", "", " %",0,100,1);        
+        $this->RegisterProfileInteger("Intensity.Squeezebox", "Intensity", "", " %", 0, 100, 1);
         $this->RegisterProfileIntegerEx("Shuffle.Squeezebox", "Shuffle", "", "", Array(
             Array(0, "off", "", -1),
             Array(1, "Title", "", -1),
@@ -106,6 +106,18 @@ class SqueezeboxDevice extends IPSModule
             if ($this->HasActiveParent($ParentID))
             {
                 $Data = new LSQData('listen', '1');
+                $this->SendLSQData($Data);
+                $Data = new LSQData('mixer volume', '?');
+                $this->SendLSQData($Data);
+                $Data = new LSQData('mixer treble', '?');
+                $this->SendLSQData($Data);
+                $Data = new LSQData('mixer bass', '?');
+                $this->SendLSQData($Data);
+                $Data = new LSQData('mixer pitch', '?');
+                $this->SendLSQData($Data);
+                $Data = new LSQData('mixer muting', '?');
+                $this->SendLSQData($Data);
+                $Data = new LSQData('mode', '?');
                 $this->SendLSQData($Data);
             }
             IPS_LogMessage('ApplyChanges', 'Instant:' . $this->InstanceID);
@@ -205,19 +217,21 @@ class SqueezeboxDevice extends IPSModule
             case LSQResponse::connect:
                 // fehlt noch
                 break;
+            case LSQResponse::playlist . ' ' . LSQResponse::pause:
             case LSQResponse::pause:
                 if (boolval($LSQEvent->Value))
                     $this->SetValueInteger($modusID, 3);
                 else
                     $this->SetValueInteger($modusID, 2);
                 break;
-
+            case LSQResponse::playlist . ' ' . LSQResponse::play:
             case LSQResponse::play:
-//                $this->SetValueInteger($modusID, 2);
-//                  break;
+                $this->SetValueInteger($modusID, 2);
+                break;
+            case LSQResponse::playlist . ' ' . LSQResponse::stop:
             case LSQResponse::stop:
-//                $this->SetValueInteger($modusID, 1);
-                IPS_LogMessage('decodeLSQEvent', 'LSQResponse::' . $LSQEvent->Command . ':' . $LSQEvent->Value);
+                $this->SetValueInteger($modusID, 1);
+//                IPS_LogMessage('decodeLSQEvent', 'LSQResponse::' . $LSQEvent->Command . ':' . $LSQEvent->Value);
                 break;
             case LSQResponse::mode:
                 $this->SetValueInteger($modusID, $LSQEvent->GetModus());
@@ -640,7 +654,16 @@ class SqueezeboxDevice extends IPSModule
 //$this->SendLSQData(new LSQData('button', 'play'));        
         //Play sendet keine direkte Antwort
         //Umbauen auf 'button play' -> schlecht da sonst versehentlich andere Aktionen ausgelöst werden können.
-        return $this->SendLSQData(new LSQData('play', ''));
+        if ($this->SendLSQData(new LSQData('play', '')))
+        {
+            $this->SetValueInteger($this->GetIDForIdent('Modus'), 2);
+            return true;
+        }
+        else
+        {
+            $this->SetValueInteger($this->GetIDForIdent('Modus'), 1);
+            return false;
+        }
 //        return $this->SendLSQData(new LSQData('button','play'));        
     }
 
