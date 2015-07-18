@@ -656,12 +656,12 @@ class SqueezeboxDevice extends IPSModule
         //Umbauen auf 'button play' -> schlecht da sonst versehentlich andere Aktionen ausgelöst werden können.
         if ($this->SendLSQData(new LSQData('play', '')))
         {
-            $this->SetValueInteger($this->GetIDForIdent('Modus'), 2);
+            $this->SetValueInteger($this->GetIDForIdent('Status'), 2);
             return true;
         }
         else
         {
-            $this->SetValueInteger($this->GetIDForIdent('Modus'), 1);
+            $this->SetValueInteger($this->GetIDForIdent('Status'), 1);
             return false;
         }
 //        return $this->SendLSQData(new LSQData('button','play'));        
