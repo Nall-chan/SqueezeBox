@@ -95,7 +95,7 @@ class SqueezeboxDevice extends IPSModule
 
 //        $this->RegisterVariableString("BufferIN", "BufferIN");
         $this->RegisterVariableString("BufferOUT", "BufferOUT","",-1);
-        $this->RegisterVariableBoolean("WaitForResponse", "WaitForResponse","" -1);
+        $this->RegisterVariableBoolean("WaitForResponse", "WaitForResponse","", -1);
 
 // Addresse pr??fen und u.u. mit : oder . eintragen
         $this->Init();
