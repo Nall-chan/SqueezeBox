@@ -34,6 +34,7 @@ class SqueezeboxDevice extends IPSModule
             Array(3, "Pause", "", -1),
             Array(4, "Next", "", -1)
         ));
+        $this->RegisterProfileInteger("Intensity.Squeezebox", "Intensity", "", " %",0,100);        
         $this->RegisterProfileIntegerEx("Shuffle.Squeezebox", "Shuffle", "", "", Array(
             Array(0, "off", "", -1),
             Array(1, "Title", "", -1),
@@ -222,6 +223,10 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetValueInteger($modusID, $LSQEvent->GetModus());
 //                              IPS_LogMessage('decodeLSQEvent', 'LSQResponse::'.$LSQEvent->Command.':' . $LSQEvent->Value.':'.$LSQEvent->GetModus());
                 break;
+            case LSQResponse::client:
+                if ($LSQEvent->Value == 'disconnect')
+                    $this->SetValueBoolean($powerID, false);
+                break;
             case LSQResponse::power:
                 $this->SetValueBoolean($powerID, boolval($LSQEvent->Value));
                 break;
@@ -248,7 +253,7 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetValueInteger($trebleID, (int) ($LSQEvent->Value));
                 break;
             case LSQResponse::mixer . ' ' . LSQResponse::bass:
-                case LSQResponse::bass:
+            case LSQResponse::bass:
                 $this->SetValueInteger($bassID, (int) ($LSQEvent->Value));
                 break;
             case LSQResponse::mixer . ' ' . LSQResponse::pitch:
