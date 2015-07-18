@@ -44,12 +44,22 @@ class SqueezeboxDevice extends IPSModule
             Array(1, "Title", "", -1),
             Array(2, "Album", "", -1)
         ));
+        $this->RegisterProfileIntegerEx("Preset.Squeezebox", "Speaker", "", "", Array(
+            Array(1, "1", "", -1),
+            Array(2, "2", "", -1),
+            Array(3, "3", "", -1),
+            Array(4, "4", "", -1),
+            Array(5, "5", "", -1),
+            Array(6, "6", "", -1)
+        ));
 //        $this->RegisterProfileInteger("Volume.Squeezebox", "Intensity", "", " %", 0, 100, 1);
 
         $this->RegisterVariableBoolean("Power", "Power", "~Switch", 1);
         $this->EnableAction("Power");
         $this->RegisterVariableInteger("Status", "Status", "Status.Squeezebox", 2);
         $this->EnableAction("Status");
+        $this->RegisterVariableInteger("Preset", "Preset", "Preset.Squeezebox", 2);
+        $this->EnableAction("Preset");
         $this->RegisterVariableBoolean("Mute", "Mute", "~Switch", 1);
         $this->EnableAction("Mute");
 
@@ -195,19 +205,21 @@ class SqueezeboxDevice extends IPSModule
                 // fehlt noch
                 break;
             case LSQResponse::pause:
-                if (boolval($LSQEvent->Value)) $this->SetValueInteger($modusID, 3); 
-                else $this->SetValueInteger($modusID, 2); 
-                  break;
-    
+                if (boolval($LSQEvent->Value))
+                    $this->SetValueInteger($modusID, 3);
+                else
+                    $this->SetValueInteger($modusID, 2);
+                break;
+
             case LSQResponse::play:
 //                $this->SetValueInteger($modusID, 2);
 //                  break;
             case LSQResponse::stop:
 //                $this->SetValueInteger($modusID, 1);
-              IPS_LogMessage('decodeLSQEvent', 'LSQResponse::'.$LSQEvent->Command.':' . $LSQEvent->Value);
-                  break;
+                IPS_LogMessage('decodeLSQEvent', 'LSQResponse::' . $LSQEvent->Command . ':' . $LSQEvent->Value);
+                break;
             case LSQResponse::mode:
-                $this->SetValueInteger($modusID, $LSQEvent->GetModus());                
+                $this->SetValueInteger($modusID, $LSQEvent->GetModus());
 //                              IPS_LogMessage('decodeLSQEvent', 'LSQResponse::'.$LSQEvent->Command.':' . $LSQEvent->Value.':'.$LSQEvent->GetModus());
                 break;
             case LSQResponse::power:
@@ -216,7 +228,7 @@ class SqueezeboxDevice extends IPSModule
             case LSQResponse::muting:
                 $this->SetValueBoolean($muteID, boolval($LSQEvent->Value));
                 break;
-             
+
             case LSQResponse::volume:
                 $Value = (int) ($LSQEvent->Value);
                 if ($Value < 0)
@@ -240,11 +252,11 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetValueInteger($pitchID, (int) ($LSQEvent->Value));
                 break;
             case LSQResponse::repeat:
-          $this->SetValueInteger($repeatID, (int) ($LSQEvent->Value));
+                $this->SetValueInteger($repeatID, (int) ($LSQEvent->Value));
                 break;
             case LSQResponse::shuffle:
                 $this->SetValueInteger($shuffleID, (int) ($LSQEvent->Value));
-                break;            
+                break;
         }
 
 
@@ -314,7 +326,7 @@ class SqueezeboxDevice extends IPSModule
           [6] =>
           ) */
 
-/*
+        /*
           //Titel-Tag aktualisieren
           if (($array[1] == 'playlist') and ( $array[2] == 'newsong'))
           {
@@ -343,7 +355,7 @@ class SqueezeboxDevice extends IPSModule
           else
           $this->SetValueString($interpretID, '');
           }
-        }
+          }
           if (($array[1] == 'status') and ( isset($array[4]) and ( $array[4] == 'subscribe%3A2')))
           {
           foreach ($array as $item)
@@ -617,7 +629,7 @@ class SqueezeboxDevice extends IPSModule
 //$this->SendLSQData(new LSQData('button', 'play'));        
         //Play sendet keine direkte Antwort
         //Umbauen auf 'button play' -> schlecht da sonst versehentlich andere Aktionen ausgelöst werden können.
-        return $this->SendLSQData(new LSQData('play', '',false));
+        return $this->SendLSQData(new LSQData('play', '', false));
 //        return $this->SendLSQData(new LSQData('button','play'));        
     }
 
@@ -644,6 +656,34 @@ class SqueezeboxDevice extends IPSModule
         else
             return false;
     }
+    public function SetBass($Value)
+    {
+        $ret = $this->SendLSQData(new LSQData('mixer bass', $Value));
+        if ($ret == $Value)
+            return true;
+        else
+            return false;
+    }
+    public function SetTreble($Value)
+    {
+        $ret = $this->SendLSQData(new LSQData('mixer treble', $Value));
+        if ($ret == $Value)
+            return true;
+        else
+            return false;
+    }
+    public function SetPitch($Value)
+    {
+        $ret = $this->SendLSQData(new LSQData('mixer pitch', $Value));
+        if ($ret == $Value)
+            return true;
+        else
+            return false;
+    }
+    public function SelectPreset($Value)
+    {
+        return $this->SendLSQData(new LSQData('button preset_'.(int)$Value.'.single',''));
+    }    
 
     public function Power($Value)
     {
@@ -703,6 +743,22 @@ class SqueezeboxDevice extends IPSModule
                 break;
             case "Volume":
                 $this->SetVolume($Value);
+//                SetValue($this->GetIDForIdent($Ident), $Value);
+                break;
+            case "Bass":
+                $this->SetVolume($Value);
+//                SetValue($this->GetIDForIdent($Ident), $Value);
+                break;
+            case "Treble":
+                $this->SetTreble($Value);
+//                SetValue($this->GetIDForIdent($Ident), $Value);
+                break;
+            case "Pitch":
+                $this->SetPitch($Value);
+//                SetValue($this->GetIDForIdent($Ident), $Value);
+                break;
+            case "Preset":
+                $this->SelectPreset($Value);
 //                SetValue($this->GetIDForIdent($Ident), $Value);
                 break;
             case "Power":

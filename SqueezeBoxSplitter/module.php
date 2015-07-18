@@ -352,7 +352,6 @@ class LMSSplitter extends IPSModule
         $tail = array_pop($packet);
         SetValueString($bufferID, $tail);
         $this->unlock("bufferin");
-
         foreach ($packet as $part)
         {
             $Data = new LMSResponse($part);
@@ -364,7 +363,7 @@ class LMSSplitter extends IPSModule
                 {
 //                    IPS_LogMessage("IOSplitter isResonse", "TRUE");
                     // wird von Anfrage-Thread bearbeitet, für uns ist hier schluß
-                    continue;
+                    continue; // unn�tig, nur damit kein leerer Zweig ist :)
                 }
                 elseif ($isResponse === false)
                 { //Info Daten von Server verarbeiten
@@ -372,7 +371,7 @@ class LMSSplitter extends IPSModule
                 }
                 else
                 {
-                    throw new Exception($isResponse);
+                    $ret= new Exception($isResponse);
                 }
             }
             /*            elseif ($Data->Device == LMSResponse::isMAC)
@@ -385,11 +384,18 @@ class LMSSplitter extends IPSModule
               } */
             else
             {
-                $ret = $this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "LMS" => $Data)));
+                try
+                {
+                    $this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "LMS" => $Data)));                    
+                }
+                catch (Exception $exc)
+                {
+                    $ret= new Exception ($exc);
+                }
             }
-
-            return $ret;
         }
+        if (isset($ret)) throw $ret; // Fehler gesetzt, jetzt werfen
+        return true;        
     }
 
     protected function SendDataToParent($Data)
