@@ -225,11 +225,11 @@ class SqueezeboxDevice extends IPSModule
             case LSQResponse::power:
                 $this->SetValueBoolean($powerID, boolval($LSQEvent->Value));
                 break;
-            case LSQResponse::mixer . LSQResponse::muting:
+            case LSQResponse::mixer . ' ' . LSQResponse::muting:
             case LSQResponse::muting:
                 $this->SetValueBoolean($muteID, boolval($LSQEvent->Value));
                 break;
-            case LSQResponse::mixer . LSQResponse::volume:
+            case LSQResponse::mixer . ' ' . LSQResponse::volume:
             case LSQResponse::volume:
                 $Value = (int) ($LSQEvent->Value);
                 if ($Value < 0)
@@ -243,18 +243,23 @@ class SqueezeboxDevice extends IPSModule
                 }
                 $this->SetValueInteger($volumeID, $Value);
                 break;
+            case LSQResponse::mixer . ' ' . LSQResponse::treble:
             case LSQResponse::treble:
                 $this->SetValueInteger($trebleID, (int) ($LSQEvent->Value));
                 break;
-            case LSQResponse::bass:
+            case LSQResponse::mixer . ' ' . LSQResponse::bass:
+                case LSQResponse::bass:
                 $this->SetValueInteger($bassID, (int) ($LSQEvent->Value));
                 break;
+            case LSQResponse::mixer . ' ' . LSQResponse::pitch:
             case LSQResponse::pitch:
                 $this->SetValueInteger($pitchID, (int) ($LSQEvent->Value));
                 break;
+            case LSQResponse::playlist . ' ' . LSQResponse::repeat:
             case LSQResponse::repeat:
                 $this->SetValueInteger($repeatID, (int) ($LSQEvent->Value));
                 break;
+            case LSQResponse::playlist . ' ' . LSQResponse::shuffle:
             case LSQResponse::shuffle:
                 $this->SetValueInteger($shuffleID, (int) ($LSQEvent->Value));
                 break;
@@ -711,8 +716,6 @@ class SqueezeboxDevice extends IPSModule
         }
         else
             return false;
-
-
     }
 
     public function Repeat($Value)
@@ -763,7 +766,7 @@ class SqueezeboxDevice extends IPSModule
 //                SetValue($this->GetIDForIdent($Ident), $Value);
                 break;
             case "Bass":
-                $this->SetVolume($Value);
+                $this->SetBass($Value);
 //                SetValue($this->GetIDForIdent($Ident), $Value);
                 break;
             case "Treble":
