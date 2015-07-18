@@ -60,6 +60,7 @@ class LMSSplitter extends IPSModule
             $this->SendLMSData($Data);
         }
         IPS_LogMessage('ApplyChanges','Instant:'.$this->InstanceID);
+        IPS_LogMessage('ApplyChanges','Host:'.$this->ReadPropertyString('Host'));        
     }
 
 ################## PRIVATE     
