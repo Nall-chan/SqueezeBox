@@ -654,8 +654,8 @@ class SqueezeboxDevice extends IPSModule
 //$this->SendLSQData(new LSQData('button', 'play'));        
         //Play sendet keine direkte Antwort
         //Umbauen auf 'button play' -> schlecht da sonst versehentlich andere Aktionen ausgelöst werden können.
-        if ($this->SendLSQData(new LSQData('play', '')))
-        {
+        return $this->SendLSQData(new LSQData('play', ''));
+/*        {
             $this->SetValueInteger($this->GetIDForIdent('Status'), 2);
             return true;
         }
@@ -663,18 +663,18 @@ class SqueezeboxDevice extends IPSModule
         {
             $this->SetValueInteger($this->GetIDForIdent('Status'), 1);
             return false;
-        }
+        }*/
 //        return $this->SendLSQData(new LSQData('button','play'));        
     }
 
     public function Pause()
     {
 //        $this->SendLSQData(new LSQData('button', 'pause'));        
-        $ret = $this->SendLSQData(new LSQData('pause', '1'));
-        if ($ret == 1)
+        return boolval($this->SendLSQData(new LSQData('pause', '1')));
+/*        if ($ret == 1)
             return true;
         else
-            return false;
+            return false;*/
     }
 
     public function Next()
@@ -685,37 +685,45 @@ class SqueezeboxDevice extends IPSModule
     public function SetVolume($Value)
     {
         $ret = $this->SendLSQData(new LSQData('mixer volume', $Value));
+        return ($ret == $Value);
+/*
         if ($ret == $Value)
             return true;
         else
-            return false;
+            return false;*/
     }
 
     public function SetBass($Value)
     {
         $ret = $this->SendLSQData(new LSQData('mixer bass', $Value));
+        return ($ret == $Value);
+/*
         if ($ret == $Value)
             return true;
         else
-            return false;
+            return false;*/
     }
 
     public function SetTreble($Value)
     {
         $ret = $this->SendLSQData(new LSQData('mixer treble', $Value));
+         return ($ret == $Value);
+/*
         if ($ret == $Value)
             return true;
         else
-            return false;
+            return false;*/
     }
 
     public function SetPitch($Value)
     {
         $ret = $this->SendLSQData(new LSQData('mixer pitch', $Value));
+        return ($ret == $Value);
+/*
         if ($ret == $Value)
             return true;
         else
-            return false;
+            return false;*/
     }
 
     public function SelectPreset($Value)
@@ -726,44 +734,44 @@ class SqueezeboxDevice extends IPSModule
     public function Mute($Value)
     {
         $ret = $this->SendLSQData(new LSQData('mixer muting', intval($Value)));
+        return ($ret == $Value);
+/*
         if ($ret == $Value)
             return true;
         else
-            return false;
-
-//$this->SendDataToParent('power ' . (int) $Value);
+            return false;*/
     }
 
     public function Power($Value)
     {
         $ret = $this->SendLSQData(new LSQData('power', intval($Value)));
+        return ($ret == $Value);
+/*
         if ($ret == $Value)
-        {
-            $this->SetValueBoolean($this->GetIDForIdent('Power'), boolval($Value));
             return true;
-        }
         else
-            return false;
+            return false;*/
     }
-
     public function Repeat($Value)
     {
         $ret = $this->SendLSQData(new LSQData('playlist repeat', intval($Value)));
+        return ($ret == $Value);
+/*
         if ($ret == $Value)
             return true;
         else
-            return false;
+            return false;*/
     }
-
     public function Shuffle($Value)
     {
         $ret = $this->SendLSQData(new LSQData('playlist shuffle', intval($Value)));
+        return ($ret == $Value);
+/*
         if ($ret == $Value)
             return true;
         else
-            return false;
+            return false;*/
     }
-
     public function RequestAction($Ident, $Value)
     {
 
@@ -898,13 +906,16 @@ class SqueezeboxDevice extends IPSModule
             $Response = new LSQResponse($Data->LMS);
 //Daten pr??fen ob Antwort und nach Buffern das Event setzen
             $isResponse = $this->WriteResponse($Response->Command, $Response->Value);
-            if ($isResponse === true)
+            if (is_bool($isResponse))
             {
+
+//            if ($isResponse === true)
+//            {
 // wird von Anfrage-Thread bearbeitet, f??r uns ist hier schlu??
-                return true;
-            }
-            elseif ($isResponse === false)
-            { //Info Daten f??r Devcie verarbeiten
+//                return true;
+//            }
+//            elseif ($isResponse === false)
+//            { //Info Daten f??r Devcie verarbeiten
 // TODO
 //IPS_LogMessage("LSQ Device: Empfang", print_r($Response, 1));
                 if ($Response->Command <> '')
