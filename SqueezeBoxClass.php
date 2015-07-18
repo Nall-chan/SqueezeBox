@@ -225,7 +225,8 @@ class LSQResponse extends stdClass
             case LSQResponse::button:
             case LSQResponse::mixer:
             case LSQResponse::playlist:
-                $this->Command = $Data->Data[0] . ' ' . $Data->Data[1];
+                $this->Command[0] = $Data->Data[0];
+                $this->Command[1] = $Data->Data[1];
                 if (isset($Data->Data[2]))
                     $this->Value = $Data->Data[2];
                 break;

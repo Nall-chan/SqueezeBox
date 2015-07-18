@@ -201,8 +201,8 @@ class SqueezeboxDevice extends IPSModule
         $bassID = $this->GetIDForIdent("Bass");
         $trebleID = $this->GetIDForIdent("Treble");
         $pitchID = $this->GetIDForIdent("Pitch");
-
-        switch ($LSQEvent->Command)
+        $MainCommand = is_array($LSQEvent->Command) ? $LSQEvent->Command[0] : $LSQEvent->Command;
+        switch ($MainCommand)
         {
             case LSQResponse::signalstrength:
             case LSQResponse::name:
@@ -228,11 +228,12 @@ class SqueezeboxDevice extends IPSModule
             case LSQResponse::play:
                 $this->SetValueInteger($modusID, 2);
                 break;
-            case LSQResponse::playlist . ' ' . LSQResponse::stop:
+            //case LSQResponse::playlist . ' ' . LSQResponse::stop:
             case LSQResponse::stop:
                 $this->SetValueInteger($modusID, 1);
 //                IPS_LogMessage('decodeLSQEvent', 'LSQResponse::' . $LSQEvent->Command . ':' . $LSQEvent->Value);
                 break;
+
             case LSQResponse::mode:
                 $this->SetValueInteger($modusID, $LSQEvent->GetModus());
 //                              IPS_LogMessage('decodeLSQEvent', 'LSQResponse::'.$LSQEvent->Command.':' . $LSQEvent->Value.':'.$LSQEvent->GetModus());
@@ -244,43 +245,46 @@ class SqueezeboxDevice extends IPSModule
             case LSQResponse::power:
                 $this->SetValueBoolean($powerID, boolval($LSQEvent->Value));
                 break;
-            case LSQResponse::mixer . ' ' . LSQResponse::muting:
-            case LSQResponse::muting:
-                $this->SetValueBoolean($muteID, boolval($LSQEvent->Value));
-                break;
-            case LSQResponse::mixer . ' ' . LSQResponse::volume:
-            case LSQResponse::volume:
-                $Value = (int) ($LSQEvent->Value);
-                if ($Value < 0)
+            case LSQResponse::mixer:
+                switch ($LSQEvent->Command[1])
                 {
-                    $Value = $Value - (2 * $Value);
-                    $this->SetValueBoolean($muteID, true);
+                    case LSQResponse::muting:
+                        $this->SetValueBoolean($muteID, boolval($LSQEvent->Value));
+                        break;
+                    case LSQResponse::volume:
+                        $Value = (int) ($LSQEvent->Value);
+                        if ($Value < 0)
+                        {
+                            $Value = $Value - (2 * $Value);
+                            $this->SetValueBoolean($muteID, true);
+                        }
+                        else
+                        {
+                            $this->SetValueBoolean($muteID, false);
+                        }
+                        $this->SetValueInteger($volumeID, $Value);
+                        break;
+                    case LSQResponse::treble:
+                        $this->SetValueInteger($trebleID, (int) ($LSQEvent->Value));
+                        break;
+                    case LSQResponse::bass:
+                        $this->SetValueInteger($bassID, (int) ($LSQEvent->Value));
+                        break;
+                    case LSQResponse::pitch:
+                        $this->SetValueInteger($pitchID, (int) ($LSQEvent->Value));
+                        break;
                 }
-                else
+                break;
+            case LSQResponse::playlist:
+                switch ($LSQEvent->Command[1])
                 {
-                    $this->SetValueBoolean($muteID, false);
+                    case LSQResponse::repeat:
+                        $this->SetValueInteger($repeatID, (int) ($LSQEvent->Value));
+                        break;
+                    case LSQResponse::shuffle:
+                        $this->SetValueInteger($shuffleID, (int) ($LSQEvent->Value));
+                        break;
                 }
-                $this->SetValueInteger($volumeID, $Value);
-                break;
-            case LSQResponse::mixer . ' ' . LSQResponse::treble:
-            case LSQResponse::treble:
-                $this->SetValueInteger($trebleID, (int) ($LSQEvent->Value));
-                break;
-            case LSQResponse::mixer . ' ' . LSQResponse::bass:
-            case LSQResponse::bass:
-                $this->SetValueInteger($bassID, (int) ($LSQEvent->Value));
-                break;
-            case LSQResponse::mixer . ' ' . LSQResponse::pitch:
-            case LSQResponse::pitch:
-                $this->SetValueInteger($pitchID, (int) ($LSQEvent->Value));
-                break;
-            case LSQResponse::playlist . ' ' . LSQResponse::repeat:
-            case LSQResponse::repeat:
-                $this->SetValueInteger($repeatID, (int) ($LSQEvent->Value));
-                break;
-            case LSQResponse::playlist . ' ' . LSQResponse::shuffle:
-            case LSQResponse::shuffle:
-                $this->SetValueInteger($shuffleID, (int) ($LSQEvent->Value));
                 break;
         }
 
@@ -502,6 +506,8 @@ class SqueezeboxDevice extends IPSModule
 
     private function SetWaitForResponse($Data)
     {
+        if (is_array($Data))
+            $Data = implode(' ', $Data);
         if ($this->lock('BufferOut'))
         {
             $buffer = $this->GetIDForIdent('BufferOUT');
@@ -556,6 +562,8 @@ class SqueezeboxDevice extends IPSModule
 
     private function WriteResponse($Command, $Value)
     {
+        if (is_array($Command))
+            $Command = implode(' ', $Command);
         $EventID = $this->GetIDForIdent('WaitForResponse');
         if (!GetValueBoolean($EventID))
             return false;
@@ -655,15 +663,15 @@ class SqueezeboxDevice extends IPSModule
         //Play sendet keine direkte Antwort
         //Umbauen auf 'button play' -> schlecht da sonst versehentlich andere Aktionen ausgelöst werden können.
         return $this->SendLSQData(new LSQData('play', ''));
-/*        {
-            $this->SetValueInteger($this->GetIDForIdent('Status'), 2);
-            return true;
-        }
-        else
-        {
-            $this->SetValueInteger($this->GetIDForIdent('Status'), 1);
-            return false;
-        }*/
+        /*        {
+          $this->SetValueInteger($this->GetIDForIdent('Status'), 2);
+          return true;
+          }
+          else
+          {
+          $this->SetValueInteger($this->GetIDForIdent('Status'), 1);
+          return false;
+          } */
 //        return $this->SendLSQData(new LSQData('button','play'));        
     }
 
@@ -671,10 +679,10 @@ class SqueezeboxDevice extends IPSModule
     {
 //        $this->SendLSQData(new LSQData('button', 'pause'));        
         return boolval($this->SendLSQData(new LSQData('pause', '1')));
-/*        if ($ret == 1)
-            return true;
-        else
-            return false;*/
+        /*        if ($ret == 1)
+          return true;
+          else
+          return false; */
     }
 
     public function Next()
@@ -684,46 +692,46 @@ class SqueezeboxDevice extends IPSModule
 
     public function SetVolume($Value)
     {
-        $ret = $this->SendLSQData(new LSQData('mixer volume', $Value));
+        $ret = $this->SendLSQData(new LSQData(array('mixer', 'volume'), $Value));
         return ($ret == $Value);
-/*
-        if ($ret == $Value)
-            return true;
-        else
-            return false;*/
+        /*
+          if ($ret == $Value)
+          return true;
+          else
+          return false; */
     }
 
     public function SetBass($Value)
     {
         $ret = $this->SendLSQData(new LSQData('mixer bass', $Value));
         return ($ret == $Value);
-/*
-        if ($ret == $Value)
-            return true;
-        else
-            return false;*/
+        /*
+          if ($ret == $Value)
+          return true;
+          else
+          return false; */
     }
 
     public function SetTreble($Value)
     {
         $ret = $this->SendLSQData(new LSQData('mixer treble', $Value));
-         return ($ret == $Value);
-/*
-        if ($ret == $Value)
-            return true;
-        else
-            return false;*/
+        return ($ret == $Value);
+        /*
+          if ($ret == $Value)
+          return true;
+          else
+          return false; */
     }
 
     public function SetPitch($Value)
     {
         $ret = $this->SendLSQData(new LSQData('mixer pitch', $Value));
         return ($ret == $Value);
-/*
-        if ($ret == $Value)
-            return true;
-        else
-            return false;*/
+        /*
+          if ($ret == $Value)
+          return true;
+          else
+          return false; */
     }
 
     public function SelectPreset($Value)
@@ -735,43 +743,46 @@ class SqueezeboxDevice extends IPSModule
     {
         $ret = $this->SendLSQData(new LSQData('mixer muting', intval($Value)));
         return ($ret == $Value);
-/*
-        if ($ret == $Value)
-            return true;
-        else
-            return false;*/
+        /*
+          if ($ret == $Value)
+          return true;
+          else
+          return false; */
     }
 
     public function Power($Value)
     {
         $ret = $this->SendLSQData(new LSQData('power', intval($Value)));
         return ($ret == $Value);
-/*
-        if ($ret == $Value)
-            return true;
-        else
-            return false;*/
+        /*
+          if ($ret == $Value)
+          return true;
+          else
+          return false; */
     }
+
     public function Repeat($Value)
     {
         $ret = $this->SendLSQData(new LSQData('playlist repeat', intval($Value)));
         return ($ret == $Value);
-/*
-        if ($ret == $Value)
-            return true;
-        else
-            return false;*/
+        /*
+          if ($ret == $Value)
+          return true;
+          else
+          return false; */
     }
+
     public function Shuffle($Value)
     {
         $ret = $this->SendLSQData(new LSQData('playlist shuffle', intval($Value)));
         return ($ret == $Value);
-/*
-        if ($ret == $Value)
-            return true;
-        else
-            return false;*/
+        /*
+          if ($ret == $Value)
+          return true;
+          else
+          return false; */
     }
+
     public function RequestAction($Ident, $Value)
     {
 

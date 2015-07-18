@@ -59,8 +59,8 @@ class LMSSplitter extends IPSModule
             $Data = new LMSData("listen 1");
             $this->SendLMSData($Data);
         }
-        IPS_LogMessage('ApplyChanges','Instant:'.$this->InstanceID);
-        IPS_LogMessage('ApplyChanges','Host:'.$this->ReadPropertyString('Host'));        
+        IPS_LogMessage('ApplyChanges', 'Instant:' . $this->InstanceID);
+        IPS_LogMessage('ApplyChanges', 'Host:' . $this->ReadPropertyString('Host'));
     }
 
 ################## PRIVATE     
@@ -326,7 +326,8 @@ class LMSSplitter extends IPSModule
         $Data = json_decode($JSONString);
 //        IPS_LogMessage("IOSplitter FRWD MAC", $data->MAC);
 //        IPS_LogMessage("IOSplitter FRWD Payload", $data->Payload);
-
+        if (is_array($Data->LSQ->Command))
+            $Data->LSQ->Command = implode(' ', $Data->LSQ->Command);
         $LMSData = new LMSData($Data->LSQ->Address . ' ' . $Data->LSQ->Command . ' ' . $Data->LSQ->Value, LMSData::SendCommand, false);
 // Daten annehmen und mit MAC codieren. Senden an Parent
 //weiter zu IO  mit Warteschlange 
@@ -372,7 +373,7 @@ class LMSSplitter extends IPSModule
                 }
                 else
                 {
-                    $ret= new Exception($isResponse);
+                    $ret = new Exception($isResponse);
                 }
             }
             /*            elseif ($Data->Device == LMSResponse::isMAC)
@@ -387,16 +388,17 @@ class LMSSplitter extends IPSModule
             {
                 try
                 {
-                    $this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "LMS" => $Data)));                    
+                    $this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "LMS" => $Data)));
                 }
                 catch (Exception $exc)
                 {
-                    $ret= new Exception ($exc);
+                    $ret = new Exception($exc);
                 }
             }
         }
-        if (isset($ret)) throw $ret; // Fehler gesetzt, jetzt werfen
-        return true;        
+        if (isset($ret))
+            throw $ret; // Fehler gesetzt, jetzt werfen
+        return true;
     }
 
     protected function SendDataToParent($Data)
