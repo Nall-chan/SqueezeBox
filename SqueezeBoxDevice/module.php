@@ -34,7 +34,7 @@ class SqueezeboxDevice extends IPSModule
             Array(3, "Pause", "", -1),
             Array(4, "Next", "", -1)
         ));
-        $this->RegisterProfileInteger("Intensity.Squeezebox", "Intensity", "", " %",0,100);        
+        $this->RegisterProfileInteger("Intensity.Squeezebox", "Intensity", "", " %",0,100,1);        
         $this->RegisterProfileIntegerEx("Shuffle.Squeezebox", "Shuffle", "", "", Array(
             Array(0, "off", "", -1),
             Array(1, "Title", "", -1),
@@ -64,13 +64,13 @@ class SqueezeboxDevice extends IPSModule
         $this->RegisterVariableBoolean("Mute", "Mute", "~Switch", 1);
         $this->EnableAction("Mute");
 
-        $this->RegisterVariableInteger("Volume", "Volume", "~Intensity.100", 3);
+        $this->RegisterVariableInteger("Volume", "Volume", "Intensity.Squeezebox", 3);
         $this->EnableAction("Volume");
-        $this->RegisterVariableInteger("Bass", "Bass", "~Intensity.100", 3);
+        $this->RegisterVariableInteger("Bass", "Bass", "Intensity.Squeezebox", 3);
         $this->EnableAction("Bass");
-        $this->RegisterVariableInteger("Treble", "Treble", "~Intensity.100", 3);
+        $this->RegisterVariableInteger("Treble", "Treble", "Intensity.Squeezebox", 3);
         $this->EnableAction("Treble");
-        $this->RegisterVariableInteger("Pitch", "Pitch", "~Intensity.100", 3);
+        $this->RegisterVariableInteger("Pitch", "Pitch", "Intensity.Squeezebox", 3);
         $this->EnableAction("Pitch");
 
         $this->RegisterVariableInteger("Shuffle", "Shuffle", "Shuffle.Squeezebox", 4);
@@ -83,13 +83,13 @@ class SqueezeboxDevice extends IPSModule
         $this->RegisterVariableString("Album", "Album", "", 8);
         $this->RegisterVariableString("Cover", "Cover", "~HTMLBox", 9);
         $this->RegisterVariableString("Position", "Spielzeit", "", 10);
-        $this->RegisterVariableInteger("Position2", "Position", "~Intensity.100", 10);
+        $this->RegisterVariableInteger("Position2", "Position", "Intensity.Squeezebox", 10);
         $this->EnableAction("Position2");
         $this->RegisterVariableString("Duration", "Dauer", "", 11);
 
 
         $this->RegisterVariableInteger("Index", "Playlist Position", "", 12);
-        $this->RegisterVariableInteger("Signal", "Signalstärke", "~Intensity.100", 13);
+        $this->RegisterVariableInteger("Signal", "Signalstärke", "Intensity.Squeezebox", 13);
         $this->RegisterVariableInteger("Tracks", "Playlist Anzahl Tracks", "", 14);
         $this->RegisterVariableString("Genre", "Stilrichtung", "", 15);
 
