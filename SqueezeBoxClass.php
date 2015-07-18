@@ -203,7 +203,6 @@ class LSQResponse extends stdClass
             case LSQResponse::sync:
             case LSQResponse::power:
             case LSQResponse::linesperscreen:
-            case LSQResponse::button:
             case LSQResponse::irenable:
             case LSQResponse::connect:
             case LSQResponse::play:
@@ -223,6 +222,7 @@ class LSQResponse extends stdClass
 //        LSQResponse::displaynow,
 //        LSQResponse::playerpref
             // 1 = Command 2 = Value             
+            case LSQResponse::button:
             case LSQResponse::mixer:
             case LSQResponse::playlist:
                 $this->Command = $Data->Data[0] . ' ' . $Data->Data[1];
