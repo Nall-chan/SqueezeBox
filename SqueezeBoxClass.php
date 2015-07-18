@@ -222,6 +222,10 @@ class LSQResponse extends stdClass
 //        LSQResponse::playerpref
             // 1 = Command 2 = Value             
             case LSQResponse::mixer:
+                $this->Command = $Data->Data[0].$Data->Data[1];
+                if (isset($Data->Data[2]))
+                    $this->Value = $Data->Data[2];
+                break;
             case LSQResponse::playlist:
                 $this->Command = $Data->Data[1];
                 if (isset($Data->Data[2]))

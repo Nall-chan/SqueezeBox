@@ -225,10 +225,11 @@ class SqueezeboxDevice extends IPSModule
             case LSQResponse::power:
                 $this->SetValueBoolean($powerID, boolval($LSQEvent->Value));
                 break;
+            case LSQResponse::mixer . LSQResponse::muting:
             case LSQResponse::muting:
                 $this->SetValueBoolean($muteID, boolval($LSQEvent->Value));
                 break;
-
+            case LSQResponse::mixer . LSQResponse::volume:
             case LSQResponse::volume:
                 $Value = (int) ($LSQEvent->Value);
                 if ($Value < 0)
@@ -656,6 +657,7 @@ class SqueezeboxDevice extends IPSModule
         else
             return false;
     }
+
     public function SetBass($Value)
     {
         $ret = $this->SendLSQData(new LSQData('mixer bass', $Value));
@@ -664,6 +666,7 @@ class SqueezeboxDevice extends IPSModule
         else
             return false;
     }
+
     public function SetTreble($Value)
     {
         $ret = $this->SendLSQData(new LSQData('mixer treble', $Value));
@@ -672,6 +675,7 @@ class SqueezeboxDevice extends IPSModule
         else
             return false;
     }
+
     public function SetPitch($Value)
     {
         $ret = $this->SendLSQData(new LSQData('mixer pitch', $Value));
@@ -680,20 +684,35 @@ class SqueezeboxDevice extends IPSModule
         else
             return false;
     }
+
     public function SelectPreset($Value)
     {
-        return $this->SendLSQData(new LSQData('button preset_'.(int)$Value.'.single',''));
-    }    
+        return $this->SendLSQData(new LSQData('button preset_' . (int) $Value . '.single', ''));
+    }
 
-    public function Power($Value)
+    public function Mute($Value)
     {
-        $ret = $this->SendLSQData(new LSQData('power', intval($Value)));
+        $ret = $this->SendLSQData(new LSQData('mixer muting', intval($Value)));
         if ($ret == $Value)
             return true;
         else
             return false;
 
 //$this->SendDataToParent('power ' . (int) $Value);
+    }
+
+    public function Power($Value)
+    {
+        $ret = $this->SendLSQData(new LSQData('power', intval($Value)));
+        if ($ret == $Value)
+        {
+            $this->SendDataToParent('power ' . (int) $Value);            
+            return true;
+        }
+        else
+            return false;
+
+
     }
 
     public function Repeat($Value)
@@ -763,6 +782,11 @@ class SqueezeboxDevice extends IPSModule
                 $this->Power($Value);
 //                SetValue($this->GetIDForIdent($Ident), $Value);
                 break;
+            case "Mute":
+                $this->Mute($Value);
+//                SetValue($this->GetIDForIdent($Ident), $Value);
+                break;
+
             case "Repeat":
                 $this->Repeat($Value);
                 break;
