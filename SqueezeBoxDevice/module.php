@@ -730,11 +730,9 @@ class SqueezeboxDevice extends IPSModule
                         break;
                     case 2: //Play
                         $this->Play();
-//                        SetValue($this->GetIDForIdent($Ident), $Value);
                         break;
                     case 3: //Pause
                         $this->Pause();
-//                        SetValue($this->GetIDForIdent($Ident), $Value);
                         break;
                     case 4: //Next
                         $this->Next();
