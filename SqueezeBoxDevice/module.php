@@ -52,7 +52,8 @@ class SqueezeboxDevice extends IPSModule
                             $Address = '';
                             // STATUS config falsch
                         }
-                        $this->ApplyChanges();
+                        IPS_SetProperty($this->InstanceID,'Address',$Address);
+                        IPS_ApplyChanges($this->InstanceID);
                     }
                     else
                     {
@@ -67,7 +68,9 @@ class SqueezeboxDevice extends IPSModule
                             $Address = '';
                             // STATUS config falsch
                         }
-                        $this->ApplyChanges();
+                        IPS_SetProperty($this->InstanceID,'Address',$Address);
+                        IPS_ApplyChanges($this->InstanceID);
+
                     }
                 }
                 else
@@ -77,7 +80,9 @@ class SqueezeboxDevice extends IPSModule
                     {                    //Länge muss 17 sein, sonst löschen
                         $Address = '';
                         // STATUS config falsch
-                        $this->ApplyChanges();
+                        IPS_SetProperty($this->InstanceID,'Address',$Address);
+                        IPS_ApplyChanges($this->InstanceID);
+
                     }
                 }
             }
