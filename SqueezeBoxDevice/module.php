@@ -569,7 +569,8 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetValueInteger('Tracks', $LSQEvent->Value);
                 break;
             case LSQResponse::status:
-                foreach ($LSQEvent->Value as $Data)
+                    IPS_LogMessage('statusLSQEvent', print_r($LSQEvent->Value, 1));                
+/*                foreach ($LSQEvent->Value as $Data)
                 {
                     $Part = explode('%3A',$Data);
                     if (strpos(' ',$Part[0])===false)
@@ -579,7 +580,7 @@ class SqueezeboxDevice extends IPSModule
                         $Command = explode(' ',  $Part[0]);
                     }
                     $this->decodeLSQEvent(new LSQEvent($Command, $Part[1], $LSQEvent->isResponse));
-                   
+  */                 
                 }
                 break;
             default:
