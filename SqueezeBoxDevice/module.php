@@ -578,13 +578,15 @@ class SqueezeboxDevice extends IPSModule
                     $title = $LSQEvent->Value;
                     $currentTrack = 0;
                 }
+                $this->SetValueInteger('Status', 2);                
                 $this->SetValueString('Title', trim(urldecode($title)));
                 $this->SetValueInteger('Index', $currentTrack);
                 $this->SetValueString('Cover', $this->GetCover());
                 $this->SendLSQData(new LSQData(LSQResponse::artist, '?', false));
                 $this->SendLSQData(new LSQData(LSQResponse::album, '?', false));
-
-
+                $this->SendLSQData(new LSQData(LSQResponse::genre, '?', false));
+                $this->SendLSQData(new LSQData(LSQResponse::duration, '?', false));                
+                $this->SendLSQData(new LSQData(array(LSQResponse::playlist,LSQResponse::tracks), '?', false));                                
                 break;
             case LSQResponse::playlist:
                 $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[1], $LSQEvent->Value, $LSQEvent->isResponse));
@@ -611,6 +613,15 @@ class SqueezeboxDevice extends IPSModule
             case LSQResponse::album:
                 $this->SetValueString('Album', trim(urldecode($LSQEvent->Value)));
                 break;
+            case LSQResponse::genre:
+                $this->SetValueString('Genre', trim(urldecode($LSQEvent->Value)));
+                break;
+            case LSQResponse::duration:
+                $this->SetValueString('Duration', @date('i:s',$LSQEvent->Value));
+                break;            
+            case LSQResponse::tracks:
+                $this->SetValueInteger('Tracks', $LSQEvent->Value);
+                break;             
             default:
                 if (is_array($LSQEvent->Value))
                     IPS_LogMessage('defaultLSQEvent', 'LSQResponse::' . $MainCommand . ':' . print_r($LSQEvent->Value, 1));
@@ -694,28 +705,8 @@ class SqueezeboxDevice extends IPSModule
           $this->SetValueInteger($modusID, 2); // Button auf play
           // Subscribe auf entsprechende Box f??r Anzeige der Laufzeit
           //            $this->SendDataToParent("status - 1 subscribe:".$this->Interval);
-          //            $this->SendDataToParent("artist ?");
-          //            $this->SendDataToParent("album ?");
-          //            IPS_Sleep(10);
-          $this->SetValueString($coverID, $this->GetCover($array[0]));
           }
-          // Album aktualisieren
-          if ($array[1] == 'album')
-          {
-          if (isset($array[2]))
 
-          else
-          $this->SetValueString($albumID, '');
-          }
-          // Artist aktualisieren
-          if ($array[1] == 'artist')
-          {
-          if (isset($array[2]))
-
-          else
-          $this->SetValueString($interpretID, '');
-          }
-          }
           if (($array[1] == 'status') and ( isset($array[4]) and ( $array[4] == 'subscribe%3A2')))
           {
           foreach ($array as $item)
@@ -728,84 +719,17 @@ class SqueezeboxDevice extends IPSModule
           $time = $chunks[1];
           //                IPS_LogMessage("Squeeze",date('i:s', $chunks[1]));
           }
-          if ($chunks[0] == "duration")
-          {
-          $this->SetValueString($durationID, @date('i:s', $chunks[1]));
-          $duration = $chunks[1];
-          //                IPS_LogMessage("Squeeze",date('i:s', $chunks[1]));
-          }
-          if ($chunks[0] == "mode")
-          {
-          if ($chunks[1] == 'play')
-          {
-          $this->SetValueInteger($modusID, 2);
-          }
-          if ($chunks[1] == 'stop')
-          {
-          $this->SetValueInteger($modusID, 1);
-          //                        $this->SendDataToParent("status - 1 subscribe:0");
-          }
-          if ($chunks[1] == 'pause')
-          {
-          $this->SetValueInteger($modusID, 3);
-          //                        $this->SendDataToParent("status - 1 subscribe:0");
-          }
+   
           }
           //rate%3A1 can_seek%3A1  playlist%20mode%3Aoff seq_no%3A91 playlist_cur_index%3A39 playlist_timestamp%3A1415459866.17632 id%3A26977 duration%3A614.034
-          if ($chunks[0] == 'album')
-          {
-          $this->SetValueString($albumID, utf8_decode(urldecode($chunks[1])));
-          }
-          if ($chunks[0] == 'genre')
-          {
-          $this->SetValueString($genreID, utf8_decode(urldecode($chunks[1])));
-          }
 
-          if ($chunks[0] == 'artist')
-          {
 
-          $this->SetValueString($interpretID, utf8_decode(urldecode($chunks[1])));
-          }
-          if ($chunks[0] == 'title')
-          {
-          $this->SetValueString($titleID, utf8_decode(urldecode($chunks[1])));
-          }
-
-          if ($chunks[0] == 'playlist_tracks')
-          {
-          $this->SetValueInteger($tracksID, (int) $chunks[1]);
-          }
-          if ($chunks[0] == 'playlist index')
-          {
-          $this->SetValueInteger($indexID, (int) $chunks[1]);
-          }
-
-          if ($chunks[0] == 'mixer volume')
-          {
-          $this->SetValueInteger($volumeID, (int) urldecode($chunks[1]));
-          }
-          if ($chunks[0] == 'playlist repeat')
-          $this->SetValueInteger($repeatID, (int) $chunks[1]);
-          if ($chunks[0] == 'playlist shuffle')
-          $this->SetValueInteger($shuffleID, (int) $chunks[1]);
-          if ($chunks[0] == 'power')
-          {
-          if ($chunks[1] == '1')
-          {
-          $this->SetValueBoolean($powerID, true);
-          }
-          else
-          {
-          $this->SetValueBoolean($powerID, false);
-          }
-          }
-          }
           if (isset($duration) and isset($time))
           {
           $value = (100 / $duration) * $time;
           $this->SetValueInteger($position2ID, round($value));
           }
-          }
+
 
          */
     }

@@ -114,6 +114,8 @@ class LSQResponse extends stdClass
     const power = 'power';
     const album = 'album';
     const artist = 'artist';    
+    const duration='duration';
+    const genre='genre';
     const play = 'play';
     const stop = 'stop';
     const pause = 'pause';
@@ -140,6 +142,8 @@ class LSQResponse extends stdClass
     const repeat = 'repeat';
     const shuffle = 'shuffle';
     const newsong = 'newsong';
+    const tracks ='tracks';
+    
 
     /*
     connected ?
