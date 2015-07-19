@@ -580,8 +580,8 @@ class SqueezeboxDevice extends IPSModule
                         $Command = explode(' ',  $Part[0]);
                     }
                     $this->decodeLSQEvent(new LSQEvent($Command, $Part[1], $LSQEvent->isResponse));
-  */                 
-                }
+    
+                }*/
                 break;
             default:
                 if (is_array($LSQEvent->Value))
