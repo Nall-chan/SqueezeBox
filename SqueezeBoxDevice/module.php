@@ -172,14 +172,11 @@ class SqueezeboxDevice extends IPSModule
 
                     // Dann Status von LMS holen
                     if ($this->SendLSQData($Data) == 1)
-                    {
                         $this->Connected = true;
-                        $this->SyncClient();
-                    }
                     // nicht connected
                     else
                         $this->Connected = false;
-                    $this->SetValueBoolean('Connected', $this->Connected);
+                    $this->SyncClient();
                 }
                 IPS_LogMessage('ApplyChanges', 'Instant:' . $this->InstanceID);
             }
@@ -415,13 +412,10 @@ class SqueezeboxDevice extends IPSModule
         {
             case LSQResponse::connected:
                 if ($LSQEvent->Value == 1)
-                {
                     $this->Connected = true;
-                    $this->SyncClient();
-                }
                 else
                     $this->Connected = false;
-                $this->SetValueBoolean('Connected', $this->Connected);
+                $this->SyncClient();
                 break;
             case LSQResponse::signalstrength:
             case LSQResponse::name:
@@ -459,17 +453,10 @@ class SqueezeboxDevice extends IPSModule
                 break;
             case LSQResponse::client:
                 if ($LSQEvent->Value == 'disconnect')
-                {
-                    $this->SetValueBoolean('Power', false);
                     $this->Connected = false;
-                    $this->SetValueBoolean('Connected', false);
-                }
                 elseif ($LSQEvent->Value == 'new')
-                {
-                    $this->SetValueBoolean('Power', true);
                     $this->Connected = true;
-                    $this->SetValueBoolean('Connected', true);
-                }
+                $this->SyncClient();
                 break;
             case LSQResponse::power:
                 $this->SetValueBoolean('Power', boolval($LSQEvent->Value));
@@ -741,6 +728,10 @@ class SqueezeboxDevice extends IPSModule
 
     private function SyncClient()
     {
+        $this->SetValueBoolean('Connected', $this->Connected);            
+       
+        if ($this->Connected)
+        {
         $this->SendLSQData(
                 new LSQData(LSQResponse::listen, '1')
         );
@@ -762,6 +753,9 @@ class SqueezeboxDevice extends IPSModule
         $this->SendLSQData(
                 new LSQData(LSQResponse::mode, '?')
         );
+        } else {
+            $this->SetValueBoolean('Power', false);            
+        }
     }
 
     private function SetValueBoolean($Ident, $value)
