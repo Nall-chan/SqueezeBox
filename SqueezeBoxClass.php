@@ -1,5 +1,6 @@
 <?
 
+// Klasse mit Daten zum SENDEN an den LMS
 class LMSData extends stdClass
 {
 
@@ -18,7 +19,7 @@ class LMSData extends stdClass
     }
 
 }
-
+// Klasse mit Daten zum SENDEN an ein Device ÜBER den LMS-Splitter
 class LSQData extends stdClass
 {
 
@@ -35,7 +36,7 @@ class LSQData extends stdClass
     }
 
 }
-
+// Klasse mit den Empfangenen Daten vom LMS
 class LMSResponse extends stdClass
 {
 
@@ -69,7 +70,7 @@ class LMSResponse extends stdClass
     }
 
 }
-
+// Klasse mit den Empfangenen Daten vom LMS-Splitter
 class LSQResponse extends stdClass
 {
 
@@ -109,6 +110,7 @@ class LSQResponse extends stdClass
     const shuffle = 'shuffle';
 
     /*
+    connected ?
       play
       stop
       pause
@@ -156,31 +158,6 @@ class LSQResponse extends stdClass
       playlist repeat
       playlistcontrol
      */
-    /*    private $Commands = array(
-      LSQResponse::signalstrength,
-      LSQResponse::name,
-      LSQResponse::connected,
-      LSQResponse::sleep,
-      LSQResponse::sync,
-      LSQResponse::power,
-      LSQResponse::mixer,
-      LSQResponse::show,
-      LSQResponse::display,
-      LSQResponse::linesperscreen,
-      LSQResponse::displaynow,
-      LSQResponse::playerpref,
-      LSQResponse::button,
-      LSQResponse::irenable,
-      LSQResponse::connect,
-      LSQResponse::status);
-      private $Mixer = array(
-      LSQResponse::volume,
-      LSQResponse::muting,
-      LSQResponse::bass,
-      LSQResponse::treble,
-      LSQResponse::pitch);
-      private $Playerpref = array(); */
-
     public $Address;
     public $Command;
     public $Value;
@@ -216,6 +193,9 @@ class LSQResponse extends stdClass
                 break;
             // 0 = Command 1=multiValue
             case LSQResponse::status:
+                $this->Command =false;
+                $this->Value = $Data->Data;
+
                 break;
 //        LSQResponse::show,
 //        LSQResponse::display,
@@ -240,24 +220,8 @@ class LSQResponse extends stdClass
                 $this->Value = $Data->Data;
                 break;
         }
-        /*
-         * [LMS] => stdClass Object
-          (
-          [Device] => 1
-          [MAC] => 00:04:20:2b:9d:ae
-          [IP] =>
-         * AB HIER
-          [Data] => Array
-          (
-          [0] => mixer
-          [1] => muting
-          [2] => toggle
-          [3] => seq_no%3A1332
-          )
-          ) */
-        // $Data[0] pr?fen
     }
-
+    // Liefert den Aktuellen Zustand (play,pause,stop) als integer für die Status-Variable
     public function GetModus()
     {
 
