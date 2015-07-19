@@ -400,7 +400,6 @@ class SqueezeboxDevice extends IPSModule
         $MainCommand = is_array($LSQEvent->Command) ? $LSQEvent->Command[0] : $LSQEvent->Command;
         switch ($MainCommand)
         {
-            case LSQResponse::player_connected:
             case LSQResponse::connected:
                 if (!$LSQEvent->isResponse) //wenn Response, dann macht der Anfrager das selbst
                 {
@@ -442,6 +441,7 @@ class SqueezeboxDevice extends IPSModule
                 $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:' . $this->ReadPropertyInteger('Interval'), false));
                 break;
 
+            case LSQResponse::player_connected:
             case LSQResponse::can_seek:
             case LSQResponse::rate:
             case LSQResponse::seq_no:
