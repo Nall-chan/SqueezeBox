@@ -738,6 +738,7 @@ class SqueezeboxDevice extends IPSModule
 
         if ($this->Connected)
         {
+            IPS_Sleep(1000);
             $this->SendLSQData(
                     new LSQData(LSQResponse::listen, '1')
             );
