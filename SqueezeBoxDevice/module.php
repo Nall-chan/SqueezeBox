@@ -571,7 +571,7 @@ class SqueezeboxDevice extends IPSModule
                 if (is_array($LSQEvent->Value))
                 {
                     $title = $LSQEvent->Value[0];
-                    $currentTrack = $LSQEvent->Value[1];
+                    $currentTrack = $LSQEvent->Value[1]+1;
                 }
                 else
                 {
@@ -609,7 +609,7 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetValueString('Interpret', trim(urldecode($LSQEvent->Value)));
                 break;
             case LSQResponse::album:
-                $this->SetValueString('Album', trim(utf8_decode($LSQEvent->Value)));
+                $this->SetValueString('Album', trim(urldecode($LSQEvent->Value)));
                 break;
             default:
                 if (is_array($LSQEvent->Value))
@@ -820,7 +820,7 @@ class SqueezeboxDevice extends IPSModule
             $Size = $this->ReadPropertyString("CoverSize");
             $PlayerID = urlencode($this->Address);
             return "<table width=\"100%\" cellspacing=\"0\"><tr><td align=\"right\">"
-                    . "<img src=\"http://" . $Host . "/music/current/" . $Size . "png?player=" . $PlayerID . "\"></img>"
+                    . "<img src=\"http://" . $Host . "/music/current/" . $Size . ".png?player=" . $PlayerID . "\"></img>"
                     . "</td></tr></table>";
         }
         else
@@ -1065,6 +1065,9 @@ class SqueezeboxDevice extends IPSModule
     {
         if (is_array($Command))
             $Command = implode(' ', $Command);
+        if (is_array($Value))
+            $Value = $Value[0];
+       
         $EventID = $this->GetIDForIdent('WaitForResponse');
         if (!GetValueBoolean($EventID))
             return false;
