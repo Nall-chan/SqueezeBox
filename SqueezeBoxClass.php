@@ -242,9 +242,11 @@ class LSQResponse extends stdClass
                 break;
             // 2 = Command 3 = Value             
             case LSQResponse::prefset:
-                $this->Command = $Data->Data[2];
-                $this->Value = $Data->Data[3];
-
+                $this->Command[0] = $Data->Data[0];
+                $this->Command[1] = $Data->Data[1];
+                $this->Command[2] = $Data->Data[2];                
+                if (isset($Data->Data[3]))
+                    $this->Value = $Data->Data[3];
             default:
                 $this->Command =false;
                 $this->Value = $Data->Data;

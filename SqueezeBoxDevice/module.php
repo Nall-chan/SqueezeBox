@@ -464,9 +464,9 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetValueInteger('Signalstrength', (int) $LSQEvent->Value);
                 break;
             case LSQResponse::name:
-                if (IPS_GetName($this->InstanceID) <> (string) $LSQEvent->Value)
+                if (IPS_GetName($this->InstanceID) <> urldecode((string) $LSQEvent->Value))
                 {
-                    IPS_SetName($this->InstanceID, (string) $LSQEvent->Value);
+                    IPS_SetName($this->InstanceID, urldecode((string) $LSQEvent->Value));
                 }
                 break;
             case LSQResponse::sleep:
@@ -475,9 +475,9 @@ class SqueezeboxDevice extends IPSModule
             case LSQResponse::sync:
                 IPS_LogMessage('decodeLSQEvent', 'LSQResponse::' . $MainCommand . ':' . $LSQEvent->Value);
                 break;
-            case LSQResponse::linesperscreen:
+//            case LSQResponse::linesperscreen:
 //                        IPS_LogMessage('decodeLSQEvent', 'LSQResponse::'.$MainCommand.':' . $LSQEvent->Value);                
-                break;
+//                break;
             case LSQResponse::button: // sollte nie kommen ?
                 switch ($LSQEvent->Command[1])
                 {
@@ -516,7 +516,6 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetValueInteger('Status', 1);
 //                IPS_LogMessage('decodeLSQEvent', 'LSQResponse::' . $LSQEvent->Command . ':' . $LSQEvent->Value);
                 break;
-
             case LSQResponse::mode:
                 $this->SetValueInteger('Status', $LSQEvent->GetModus());
                 IPS_LogMessage('decodeLSQEvent', 'LSQResponse::' . $LSQEvent->Command . ':' . $LSQEvent->Value . ':' . $LSQEvent->GetModus());
@@ -534,45 +533,40 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetValueBoolean('Power', boolval($LSQEvent->Value));
                 break;
             case LSQResponse::mixer:
-                switch ($LSQEvent->Command[1])
-                {
-                    case LSQResponse::muting:
-                        $this->SetValueBoolean('Mute', boolval($LSQEvent->Value));
-                        break;
-                    case LSQResponse::volume:
-                        $Value = (int) ($LSQEvent->Value);
-                        if ($Value < 0)
-                        {
-                            $Value = $Value - (2 * $Value);
-                            $this->SetValueBoolean('Mute', true);
-                        }
-                        else
-                        {
-                            $this->SetValueBoolean('Mute', false);
-                        }
-                        $this->SetValueInteger('Volume', $Value);
-                        break;
-                    case LSQResponse::treble:
-                        $this->SetValueInteger('Treble', (int) ($LSQEvent->Value));
-                        break;
-                    case LSQResponse::bass:
-                        $this->SetValueInteger('Bass', (int) ($LSQEvent->Value));
-                        break;
-                    case LSQResponse::pitch:
-                        $this->SetValueInteger('Pitch', (int) ($LSQEvent->Value));
-                        break;
-                    default:
-                        IPS_LogMessage('mixerLSQEvent', 'LSQResponse::' . $LSQEvent->Command[1] . ':' . $LSQEvent->Value);
-                        break;
-                }
+                $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[1], $LSQEvent->Value, $LSQEvent->isResponse));
                 break;
+            case LSQResponse::muting:
+                $this->SetValueBoolean('Mute', boolval($LSQEvent->Value));
+                break;
+            case LSQResponse::volume:
+                $Value = (int) ($LSQEvent->Value);
+                if ($Value < 0)
+                {
+                    $Value = $Value - (2 * $Value);
+                    $this->SetValueBoolean('Mute', true);
+                }
+                else
+                {
+                    $this->SetValueBoolean('Mute', false);
+                }
+                $this->SetValueInteger('Volume', $Value);
+                break;
+            case LSQResponse::treble:
+                $this->SetValueInteger('Treble', (int) ($LSQEvent->Value));
+                break;
+            case LSQResponse::bass:
+                $this->SetValueInteger('Bass', (int) ($LSQEvent->Value));
+                break;
+            case LSQResponse::pitch:
+                $this->SetValueInteger('Pitch', (int) ($LSQEvent->Value));
+                break;
+
             case LSQResponse::repeat:
                 $this->SetValueInteger('Repeat', (int) ($LSQEvent->Value));
                 break;
             case LSQResponse::shuffle:
                 $this->SetValueInteger('Shuffle', (int) ($LSQEvent->Value));
                 break;
-
             case LSQResponse::playlist:
                 $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[1], $LSQEvent->Value, $LSQEvent->isResponse));
                 /*                switch ($LSQEvent->Command[1])
@@ -581,6 +575,16 @@ class SqueezeboxDevice extends IPSModule
                   IPS_LogMessage('playlistLSQEvent', 'LSQResponse::' . $LSQEvent->Command[1] . ':' . $LSQEvent->Value);
                   break;
                   } */
+                break;
+            case LSQResponse::prefset:
+                if ($LSQEvent->Command[1] == 'server')
+                {
+                    $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[2], $LSQEvent->Value, $LSQEvent->isResponse));
+                }
+                else
+                {
+                    IPS_LogMessage('prefsetLSQEvent', 'Namespace' . $LSQEvent->Command[1] . ':' . $LSQEvent->Value);
+                }
                 break;
             default:
                 IPS_LogMessage('defaultLSQEvent', 'LSQResponse::' . $MainCommand . ':' . $LSQEvent->Value);
