@@ -394,6 +394,7 @@ class SqueezeboxDevice extends IPSModule
         $MainCommand = is_array($LSQEvent->Command) ? $LSQEvent->Command[0] : $LSQEvent->Command;
         switch ($MainCommand)
         {
+            case LSQResponse::player_connected:
             case LSQResponse::connected:
                 if (!$LSQEvent->isResponse) //wenn Response, dann macht der Anfrager das selbst
                 {
@@ -406,6 +407,10 @@ class SqueezeboxDevice extends IPSModule
             case LSQResponse::signalstrength:
                 $this->SetValueInteger('Signalstrength', (int) $LSQEvent->Value);
                 break;
+            case LSQResponse::player_ip:
+//wegwerfen, solange es keinen SetSummary gibt
+                break;
+            case LSQResponse::player_name:
             case LSQResponse::name:
                 if (IPS_GetName($this->InstanceID) <> trim(urldecode((string) $LSQEvent->Value)))
                 {
@@ -565,33 +570,50 @@ class SqueezeboxDevice extends IPSModule
             case LSQResponse::duration:
                 $this->SetValueString('Duration', @date('i:s', $LSQEvent->Value));
                 break;
+            case LSQResponse::playlist_tracks:
             case LSQResponse::tracks:
                 $this->SetValueInteger('Tracks', $LSQEvent->Value);
                 break;
             case LSQResponse::status:
-                    IPS_LogMessage('statusLSQEvent', print_r($LSQEvent->Value, 1));                
+//                    IPS_LogMessage('statusLSQEvent', print_r($LSQEvent->Value, 1));                
                 foreach ($LSQEvent->Value as $Data)
                 {
-                    $Part = explode(chr(0x3a),urldecode($Data));
+                    $Part = explode(chr(0x3a), urldecode($Data));
 //                  IPS_LogMessage('PartLSQEvent', print_r($Part, 1));                                    
-                    $Command = array_shift($Part);                    
-                    if (!(strpos($Command,chr(0x20)) === false))
+                    $Command = array_shift($Part);
+                    if (!(strpos($Command, chr(0x20)) === false))
                     {
-                        $Command = explode(chr(0x20),  $Command);
+                        $Command = explode(chr(0x20), $Command);
                     }
-  //                IPS_LogMessage('CommandLSQEvent', print_r($Command, 1));                                    
-                    
+                    IPS_LogMessage('CommandLSQEvent', print_r($Command, 1));
+
                     if (isset($Part[1]))
                     {
                         $Value = $Part;
-                    }else
-                    {
-                        $Value = $Part[0];                        
                     }
-    //              IPS_LogMessage('ValueLSQEvent', print_r($Value, 1));                                    
-                    
+                    else
+                    {
+                        $Value = $Part[0];
+                    }
+                    IPS_LogMessage('ValueLSQEvent', print_r($Value, 1));
                     $this->decodeLSQEvent(new LSQEvent($Command, $Value, $LSQEvent->isResponse));
-    
+                }
+                break;
+            case LSQResponse::playlist_cur_index:
+                $this->SetValueInteger('Index', $LSQEvent->Value);                
+                break;
+                    
+            case LSQResponse::time:
+                $this->SetValueString('Position', @date('i:s', $LSQEvent->Value));
+                $duration = GetValueInteger($this->GetIDForIdent('Duration'));
+                if ($duration > 0)
+                {
+                    $Value = (100 / $duration) * $time;
+                    $this->SetValueInteger('Position2', round($Value));
+                }
+                else
+                {
+                    $this->SetValueInteger('Position2', 0);
                 }
                 break;
             default:
@@ -602,34 +624,34 @@ class SqueezeboxDevice extends IPSModule
                 break;
         }
         /*
-00%3A04%3A20%3A2e%3A57%3Aee status - 1
-        subscribe:0
-    player_name:    Squeezebox%20Micha%20
-    player_connected:    1
-    player_ip:    192.168.201.81:    33248
-    power:    1
-    signalstrength:    100
-    mode:    pause
-    time:    18.9179571380615
-    rate:    1
-    duration:    232.759
-    can_seek:    1
-    mixer%20volume:    15
-    playlist%20repeat:    0
-    playlist%20shuffle:    0
-    playlist%20mode:    off
-    seq_no:    3
-    playlist_cur_index:    7
-    playlist_timestamp:    1437328888.71493
-    playlist_tracks:    9
-    playlist%20index:    7
-    id:    20879
-    title:    %E5%88%9D%E6%97%A5%20%5BNO%20NAME%20ver.%5D
-    genre:    Soundtrack%2FAnime
-    artist:    NO%20NAME
-    album:    AKB0048%20Complete%20Vocal%20Collection
-    duration:    232.759
-*/
+          00%3A04%3A20%3A2e%3A57%3Aee status - 1
+          subscribe:0
+          player_name:    Squeezebox%20Micha%20
+          player_connected:    1
+          player_ip:    192.168.201.81:    33248
+          power:    1
+          signalstrength:    100
+          mode:    pause
+          time:    18.9179571380615
+          rate:    1
+          duration:    232.759
+          can_seek:    1
+          mixer%20volume:    15
+          playlist%20repeat:    0
+          playlist%20shuffle:    0
+          playlist%20mode:    off
+          seq_no:    3
+          playlist_cur_index:    7
+          playlist_timestamp:    1437328888.71493
+          playlist_tracks:    9
+          playlist%20index:    7
+          id:    20879
+          title:    %E5%88%9D%E6%97%A5%20%5BNO%20NAME%20ver.%5D
+          genre:    Soundtrack%2FAnime
+          artist:    NO%20NAME
+          album:    AKB0048%20Complete%20Vocal%20Collection
+          duration:    232.759
+         */
 
 
 
@@ -716,7 +738,7 @@ class SqueezeboxDevice extends IPSModule
           $chunks = explode(":", $item);
           if ($chunks[0] == "time")
           {
-          $this->SetValueString($positionID, @date('i:s', $chunks[1]));
+
           $time = $chunks[1];
           //                IPS_LogMessage("Squeeze",date('i:s', $chunks[1]));
           }
@@ -727,8 +749,6 @@ class SqueezeboxDevice extends IPSModule
 
           if (isset($duration) and isset($time))
           {
-          $value = (100 / $duration) * $time;
-          $this->SetValueInteger($position2ID, round($value));
           }
 
 

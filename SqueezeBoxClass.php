@@ -107,6 +107,12 @@ class LSQResponse extends stdClass
     const listen = 'listen';
     const signalstrength = 'signalstrength';
     const name = 'name';
+    const player_name = 'player_name';  
+    const player_connected ='player_connected';
+    const player_ip='player_ip';
+    const time ='time';
+    const playlist_tracks='playlist_tracks';
+    const playlist_cur_index='playlist_cur_index';
     const connected = 'connected';
     const sleep = 'sleep';
     const sync = 'sync';
