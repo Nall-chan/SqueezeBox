@@ -584,9 +584,9 @@ class SqueezeboxDevice extends IPSModule
                 break;
             default:
                 if (is_array($LSQEvent->Value))
-                    IPS_LogMessage('defaultLSQEvent', 'LSQResponse::' . $MainCommand . ':' . print_r($LSQEvent->Value, 1));
+                    IPS_LogMessage('defaultLSQEvent', 'LSQResponse-' . $MainCommand . '-' . print_r($LSQEvent->Value, 1));
                 else
-                    IPS_LogMessage('defaultLSQEvent', 'LSQResponse::' . $MainCommand . ':' . $LSQEvent->Value);
+                    IPS_LogMessage('defaultLSQEvent', 'LSQResponse-' . $MainCommand . '-' . $LSQEvent->Value);
                 break;
         }
 
