@@ -113,6 +113,11 @@ class LSQResponse extends stdClass
     const time ='time';
     const playlist_tracks='playlist_tracks';
     const playlist_cur_index='playlist_cur_index';
+    const can_seek = 'can_seek';
+    const rate = 'rate';
+    const seq_no = 'seq_no';
+    const playlist_timestamp = 'playlist_timestamp';
+    const index='index';    
     const connected = 'connected';
     const sleep = 'sleep';
     const sync = 'sync';

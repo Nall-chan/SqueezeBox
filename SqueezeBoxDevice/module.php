@@ -423,7 +423,6 @@ class SqueezeboxDevice extends IPSModule
             case LSQResponse::sync:
                 IPS_LogMessage('decodeLSQEvent', 'LSQResponse::' . $MainCommand . ':' . $LSQEvent->Value);
                 break;
-//            case LSQResponse::linesperscreen:
 //                        IPS_LogMessage('decodeLSQEvent', 'LSQResponse::'.$MainCommand.':' . $LSQEvent->Value);                
 //                break;
 
@@ -437,10 +436,16 @@ class SqueezeboxDevice extends IPSModule
                 $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:' . $this->ReadPropertyInteger('Interval'), false));
                 break;
 
-//            case LSQResponse::irenable:
-//            case LSQResponse::connect:
-            // fehlt noch
-//                break;
+            case LSQResponse::can_seek:
+            case LSQResponse::rate:
+            case LSQResponse::seq_no:
+            case LSQResponse::playlist_timestamp:
+            case LSQResponse::linesperscreen:
+            case LSQResponse::irenable:
+            case LSQResponse::connect:
+                // fehlt noch
+                //ignore
+                break;
 //                
 //            case LSQResponse::playlist . ' ' . LSQResponse::pause:
             case LSQResponse::pause:
@@ -575,7 +580,7 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetValueInteger('Tracks', $LSQEvent->Value);
                 break;
             case LSQResponse::status:
-                    IPS_LogMessage('statusLSQEvent', print_r($LSQEvent->Value, 1));                
+                IPS_LogMessage('statusLSQEvent', print_r($LSQEvent->Value, 1));
                 foreach ($LSQEvent->Value as $Data)
                 {
                     $Part = explode(chr(0x3a), urldecode($Data));
@@ -595,17 +600,19 @@ class SqueezeboxDevice extends IPSModule
                     {
                         $Value = $Part[0];
                     }
-  //                  IPS_LogMessage('ValueLSQEvent', print_r($Value, 1));
+                    //                  IPS_LogMessage('ValueLSQEvent', print_r($Value, 1));
                     $this->decodeLSQEvent(new LSQEvent($Command, $Value, $LSQEvent->isResponse));
                 }
                 break;
+            case LSQResponse::index:
             case LSQResponse::playlist_cur_index:
-                $this->SetValueInteger('Index', $LSQEvent->Value+1);                
+                $this->SetValueInteger('Index', $LSQEvent->Value + 1);
                 break;
-                    
+
             case LSQResponse::time:
-                $this->SetValueString('Position', @date('i:s', $LSQEvent->Value));
-                $duration = (int)GetValueString($this->GetIDForIdent('Duration'));
+                $time = @date('i:s', $LSQEvent->Value);
+                $this->SetValueString('Position', $time);
+                $duration = (int) GetValueString($this->GetIDForIdent('Duration'));
                 if ($duration > 0)
                 {
                     $Value = (100 / $duration) * $time;
