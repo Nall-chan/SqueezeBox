@@ -570,18 +570,25 @@ class SqueezeboxDevice extends IPSModule
                 break;
             case LSQResponse::status:
                     IPS_LogMessage('statusLSQEvent', print_r($LSQEvent->Value, 1));                
-/*                foreach ($LSQEvent->Value as $Data)
+                foreach ($LSQEvent->Value as $Data)
                 {
-                    $Part = explode('%3A',$Data);
-                    if (strpos(' ',$Part[0])===false)
+                    $Part = explode(":",urldecode($Data));
+                    $Command = array_shift($Part[0]);                    
+                    if (!(strpos(' ',$Command) === false))
                     {
-                        $Command = $Part[0];
-                    }else {
-                        $Command = explode(' ',  $Part[0]);
+                        $Command = explode(' ',  $Command);
                     }
-                    $this->decodeLSQEvent(new LSQEvent($Command, $Part[1], $LSQEvent->isResponse));
+
+                    if (isset($Part[1]))
+                    {
+                        $Value = $Part;
+                    }else
+                    {
+                        $Value = $Part[0];                        
+                    }
+                    $this->decodeLSQEvent(new LSQEvent($Command, $Value, $LSQEvent->isResponse));
     
-                }*/
+                }
                 break;
             default:
                 if (is_array($LSQEvent->Value))
