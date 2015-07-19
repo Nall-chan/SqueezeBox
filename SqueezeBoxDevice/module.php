@@ -173,27 +173,13 @@ class SqueezeboxDevice extends IPSModule
                     // Dann Status von LMS holen
                     if ($this->SendLSQData($Data) == 1)
                     {
-                        $this->SetValueBoolean('Connected', true);
-                        $Data = new LSQData(LSQResponse::listen, '1');
-                        $this->SendLSQData($Data);
-                        $Data = new LSQData(array(LSQResponse::mixer, LSQResponse::volume), '?');
-                        $this->SendLSQData($Data);
-                        $Data = new LSQData(array(LSQResponse::mixer, LSQResponse::pitch), '?');
-                        $this->SendLSQData($Data);
-                        $Data = new LSQData(array(LSQResponse::mixer, LSQResponse::bass), '?');
-                        $this->SendLSQData($Data);
-                        $Data = new LSQData(array(LSQResponse::mixer, LSQResponse::treble), '?');
-                        $this->SendLSQData($Data);
-                        $Data = new LSQData(array(LSQResponse::mixer, LSQResponse::muting), '?');
-                        $this->SendLSQData($Data);
-                        $Data = new LSQData(LSQResponse::mode, '?');
-                        $this->SendLSQData($Data);
+                        $this->Connected = true;
+                        $this->SyncClient();
                     }
                     // nicht connected
                     else
-                    {
-                        $this->SetValueBoolean('Connected', false);
-                    }
+                        $this->Connected = false;
+                    $this->SetValueBoolean('Connected', $this->Connected);
                 }
                 IPS_LogMessage('ApplyChanges', 'Instant:' . $this->InstanceID);
             }
@@ -428,8 +414,13 @@ class SqueezeboxDevice extends IPSModule
         switch ($MainCommand)
         {
             case LSQResponse::connected:
-                
-                $this->Connected = $LSQEvent->Value == 1 ? true : false;
+                if ($LSQEvent->Value == 1)
+                {
+                    $this->Connected = true;
+                    $this->SyncClient();
+                }
+                else
+                    $this->Connected = false;
                 $this->SetValueBoolean('Connected', $this->Connected);
                 break;
             case LSQResponse::signalstrength:
@@ -472,7 +463,12 @@ class SqueezeboxDevice extends IPSModule
                     $this->SetValueBoolean('Power', false);
                     $this->Connected = false;
                     $this->SetValueBoolean('Connected', false);
-                    
+                }
+                elseif ($LSQEvent->Value == 'new')
+                {
+                    $this->SetValueBoolean('Power', true);
+                    $this->Connected = true;
+                    $this->SetValueBoolean('Connected', true);
                 }
                 break;
             case LSQResponse::power:
@@ -743,6 +739,31 @@ class SqueezeboxDevice extends IPSModule
         return true;
     }
 
+    private function SyncClient()
+    {
+        $this->SendLSQData(
+                new LSQData(LSQResponse::listen, '1')
+        );
+        $this->SendLSQData(
+                new LSQData(array(LSQResponse::mixer, LSQResponse::volume), '?')
+        );
+        $this->SendLSQData(
+                new LSQData(array(LSQResponse::mixer, LSQResponse::pitch), '?')
+        );
+        $this->SendLSQData(
+                new LSQData(array(LSQResponse::mixer, LSQResponse::bass), '?')
+        );
+        $this->SendLSQData(
+                new LSQData(array(LSQResponse::mixer, LSQResponse::treble), '?')
+        );
+        $this->SendLSQData(
+                new LSQData(array(LSQResponse::mixer, LSQResponse::muting), '?')
+        );
+        $this->SendLSQData(
+                new LSQData(LSQResponse::mode, '?')
+        );
+    }
+
     private function SetValueBoolean($Ident, $value)
     {
         $id = $this->GetIDForIdent($Ident);
@@ -837,6 +858,7 @@ class SqueezeboxDevice extends IPSModule
 
     private function SendLSQData($LSQData)
     {
+        $this->init();
         // prüfen ob Player connected ?
         // nur senden wenn connected ODER wir eine connected anfrage senden wollen
         if ((!$this->Connected) and ( $LSQData->Command <> LSQResponse::connected))
