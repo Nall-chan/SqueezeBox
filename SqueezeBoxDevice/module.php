@@ -427,9 +427,14 @@ class SqueezeboxDevice extends IPSModule
         $MainCommand = is_array($LSQEvent->Command) ? $LSQEvent->Command[0] : $LSQEvent->Command;
         switch ($MainCommand)
         {
+            case LSQResponse::connected:
+                
+                $this->Connected = $LSQEvent->Value == 1 ? true : false;
+                $this->SetValueBoolean('Connected', $this->Connected);
+                break;
             case LSQResponse::signalstrength:
             case LSQResponse::name:
-            case LSQResponse::connected:
+
             case LSQResponse::sleep:
             case LSQResponse::sync:
             case LSQResponse::linesperscreen:
@@ -463,7 +468,12 @@ class SqueezeboxDevice extends IPSModule
                 break;
             case LSQResponse::client:
                 if ($LSQEvent->Value == 'disconnect')
+                {
                     $this->SetValueBoolean('Power', false);
+                    $this->Connected = false;
+                    $this->SetValueBoolean('Connected', false);
+                    
+                }
                 break;
             case LSQResponse::power:
                 $this->SetValueBoolean('Power', boolval($LSQEvent->Value));
