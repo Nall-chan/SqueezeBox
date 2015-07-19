@@ -232,9 +232,10 @@ class SqueezeboxDevice extends IPSModule
         }
     }
 
-    public function RawSend($Text)
+    public function RawSend($Command, $Value, $needResponse = true)
     {
-//        return $this->SendDataToParent($Text);
+        $LSQData = new LSQData($Command, $Value, $needResponse);
+        return $this->SendDataToParent($LSQData);
     }
 
     public function SetName($Value)
