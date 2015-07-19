@@ -172,11 +172,10 @@ class SqueezeboxDevice extends IPSModule
 
                     // Dann Status von LMS holen
                     if ($this->SendLSQData($Data) == 1)
-                        $this->Connected = true;
+                        $this->SetConnected(true);
                     // nicht connected
                     else
-                        $this->Connected = false;
-                    $this->SyncClient();
+                        $this->SetConnected(false);
                 }
                 IPS_LogMessage('ApplyChanges', 'Instant:' . $this->InstanceID);
             }
@@ -188,6 +187,39 @@ class SqueezeboxDevice extends IPSModule
      * This function will be available automatically after the module is imported with the module control.
      * Using the custom prefix this function will be callable from PHP and JSON-RPC through:
      */
+    public function Sync()
+    {
+        $this->init();
+
+        if ($this->Connected)
+        {
+            $this->SendLSQData(
+                    new LSQData(LSQResponse::listen, '1',false)
+            );
+            $this->SendLSQData(
+                    new LSQData(array(LSQResponse::mixer, LSQResponse::volume), '?',false)
+            );
+            $this->SendLSQData(
+                    new LSQData(array(LSQResponse::mixer, LSQResponse::pitch), '?',false)
+            );
+            $this->SendLSQData(
+                    new LSQData(array(LSQResponse::mixer, LSQResponse::bass), '?',false)
+            );
+            $this->SendLSQData(
+                    new LSQData(array(LSQResponse::mixer, LSQResponse::treble), '?',false)
+            );
+            $this->SendLSQData(
+                    new LSQData(array(LSQResponse::mixer, LSQResponse::muting), '?',false)
+            );
+            $this->SendLSQData(
+                    new LSQData(LSQResponse::mode, '?',false)
+            );
+        }
+        else
+        {
+            $this->SetValueBoolean('Power', false);
+        }
+    }
 
     public function RawSend($Text)
     {
@@ -414,10 +446,9 @@ class SqueezeboxDevice extends IPSModule
                 if (!$LSQEvent->isResponse) //wenn Response, dann macht der Anfrager das selbst
                 {
                     if ($LSQEvent->Value == 1)
-                        $this->Connected = true;
+                        $this->SetConnected(true);
                     else
-                        $this->Connected = false;
-                    $this->SyncClient();
+                        $this->SetConnected(false);
                 }
                 break;
             case LSQResponse::signalstrength:
@@ -458,10 +489,9 @@ class SqueezeboxDevice extends IPSModule
                 if (!$LSQEvent->isResponse) //wenn Response, dann macht der Anfrager das selbst                
                 {
                     if ($LSQEvent->Value == 'disconnect')
-                        $this->Connected = false;
+                        $this->SetConnected(false);
                     elseif (($LSQEvent->Value == 'new') or ($LSQEvent->Value == 'reconnect'))
-                        $this->Connected = true;
-                    $this->SyncClient();
+                        $this->SetConnected(true);
                 }
                 break;
             case LSQResponse::power:
@@ -722,6 +752,15 @@ class SqueezeboxDevice extends IPSModule
             return "";
     }
 
+    private function SetConnected($Status)
+    {
+        $this->SetValueBoolean($this->GetIDForIdent('Connected'),$Status);
+        if ($Status)
+        {
+            $this->Sync();
+        }
+    }
+    
     private function Init()
     {
         $this->Address = $this->ReadPropertyString("Address");
@@ -730,41 +769,6 @@ class SqueezeboxDevice extends IPSModule
         if ($this->Address == '')
             return false;
         return true;
-    }
-
-    private function SyncClient()
-    {
-        $this->SetValueBoolean('Connected', $this->Connected);
-
-        if ($this->Connected)
-        {
-            IPS_Sleep(4000);
-            $this->SendLSQData(
-                    new LSQData(LSQResponse::listen, '1')
-            );
-            $this->SendLSQData(
-                    new LSQData(array(LSQResponse::mixer, LSQResponse::volume), '?')
-            );
-            $this->SendLSQData(
-                    new LSQData(array(LSQResponse::mixer, LSQResponse::pitch), '?')
-            );
-            $this->SendLSQData(
-                    new LSQData(array(LSQResponse::mixer, LSQResponse::bass), '?')
-            );
-            $this->SendLSQData(
-                    new LSQData(array(LSQResponse::mixer, LSQResponse::treble), '?')
-            );
-            $this->SendLSQData(
-                    new LSQData(array(LSQResponse::mixer, LSQResponse::muting), '?')
-            );
-            $this->SendLSQData(
-                    new LSQData(LSQResponse::mode, '?')
-            );
-        }
-        else
-        {
-            $this->SetValueBoolean('Power', false);
-        }
     }
 
     private function SetValueBoolean($Ident, $value)
