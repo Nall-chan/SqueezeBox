@@ -580,7 +580,11 @@ class SqueezeboxDevice extends IPSModule
                 }
                 $this->SetValueString('Title', trim(urldecode($title)));
                 $this->SetValueInteger('Index', $currentTrack);
-                $this->SendLSQData(new LSQData(LSQResponse::cover,'?',false));
+                $this->SetValueString('Cover', $this->GetCover());
+                $this->SendLSQData(new LSQData(LSQResponse::artist, '?', false));
+                $this->SendLSQData(new LSQData(LSQResponse::album, '?', false));
+
+
                 break;
             case LSQResponse::playlist:
                 $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[1], $LSQEvent->Value, $LSQEvent->isResponse));
@@ -601,12 +605,17 @@ class SqueezeboxDevice extends IPSModule
                     IPS_LogMessage('prefsetLSQEvent', 'Namespace' . $LSQEvent->Command[1] . ':' . $LSQEvent->Value);
                 }
                 break;
-                    case LSQResponse::cover:
-                      $this->SetValueString('Cover', $this->GetCover());
-                       
-                        break;
+            case LSQResponse::artist:
+                $this->SetValueString('Interpret', trim(urldecode($LSQEvent->Value)));
+                break;
+            case LSQResponse::album:
+                $this->SetValueString('Album', trim(utf8_decode($LSQEvent->Value)));
+                break;
             default:
-                IPS_LogMessage('defaultLSQEvent', 'LSQResponse::' . $MainCommand . ':' . $LSQEvent->Value);
+                if (is_array($LSQEvent->Value))
+                    IPS_LogMessage('defaultLSQEvent', 'LSQResponse::' . $MainCommand . ':' . print_r($LSQEvent->Value, 1));
+                else
+                    IPS_LogMessage('defaultLSQEvent', 'LSQResponse::' . $MainCommand . ':' . $LSQEvent->Value);
                 break;
         }
 
@@ -694,7 +703,7 @@ class SqueezeboxDevice extends IPSModule
           if ($array[1] == 'album')
           {
           if (isset($array[2]))
-          $this->SetValueString($albumID, utf8_decode(urldecode($array[2])));
+
           else
           $this->SetValueString($albumID, '');
           }
@@ -702,7 +711,7 @@ class SqueezeboxDevice extends IPSModule
           if ($array[1] == 'artist')
           {
           if (isset($array[2]))
-          $this->SetValueString($interpretID, utf8_decode(urldecode($array[2])));
+
           else
           $this->SetValueString($interpretID, '');
           }

@@ -112,12 +112,13 @@ class LSQResponse extends stdClass
     const sync = 'sync';
     const mode = 'mode';
     const power = 'power';
+    const album = 'album';
+    const artist = 'artist';    
     const play = 'play';
     const stop = 'stop';
     const pause = 'pause';
     const mixer = 'mixer';
     const show = 'show';
-    const cover = 'cover';
     const display = 'display';
     const linesperscreen = 'linesperscreen';
     const displaynow = 'displaynow';
@@ -219,6 +220,8 @@ class LSQResponse extends stdClass
             case LSQResponse::stop:
             case LSQResponse::mode:
             case LSQResponse::client:
+            case LSQResponse::album:
+            case LSQResponse::artist:
                 $this->Command = $Data->Data[0];
                 if (isset($Data->Data[1]))
                     $this->Value = $Data->Data[1];
