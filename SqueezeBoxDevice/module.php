@@ -413,7 +413,7 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetValueInteger('Signalstrength', (int) $LSQEvent->Value);
                 break;
             case LSQResponse::player_ip:
-//wegwerfen, solange es keinen SetSummary gibt
+                //wegwerfen, solange es keinen SetSummary gibt
                 break;
             case LSQResponse::player_name:
             case LSQResponse::name:
@@ -425,12 +425,6 @@ class SqueezeboxDevice extends IPSModule
             case LSQResponse::sleep:
                 $this->SetValueInteger('SleepTimeout', (int) $LSQEvent->Value);
                 break;
-            case LSQResponse::sync:
-                IPS_LogMessage('decodeLSQEvent', 'LSQResponse::' . $MainCommand . ':' . $LSQEvent->Value);
-                break;
-//                        IPS_LogMessage('decodeLSQEvent', 'LSQResponse::'.$MainCommand.':' . $LSQEvent->Value);                
-//                break;
-
             case LSQResponse::button:
                 $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[1], $LSQEvent->Value, $LSQEvent->isResponse));
                 break;
@@ -440,7 +434,7 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetValueInteger('Status', 2);
                 $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:' . $this->ReadPropertyInteger('Interval'), false));
                 break;
-
+            case LSQResponse::sync:
             case LSQResponse::player_connected:
             case LSQResponse::can_seek:
             case LSQResponse::rate:
@@ -449,11 +443,8 @@ class SqueezeboxDevice extends IPSModule
             case LSQResponse::linesperscreen:
             case LSQResponse::irenable:
             case LSQResponse::connect:
-                // fehlt noch
-                //ignore
+               //ignore
                 break;
-//                
-//            case LSQResponse::playlist . ' ' . LSQResponse::pause:
             case LSQResponse::pause:
                 if (boolval($LSQEvent->Value))
                 {
@@ -467,16 +458,13 @@ class SqueezeboxDevice extends IPSModule
                     $this->SetValueInteger('Status', 2);
                 }
                 break;
-//            case LSQResponse::playlist . ' ' . LSQResponse::play:
             case LSQResponse::play:
                 $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:' . $this->ReadPropertyInteger('Interval'), false));
                 $this->SetValueInteger('Status', 2);
                 break;
-            //case LSQResponse::playlist . ' ' . LSQResponse::stop:
             case LSQResponse::stop:
                 $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:0', false));
                 $this->SetValueInteger('Status', 1);
-//                IPS_LogMessage('decodeLSQEvent', 'LSQResponse::' . $LSQEvent->Command . ':' . $LSQEvent->Value);
                 break;
             case LSQResponse::mode:
                 $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[1], $LSQEvent->Value, $LSQEvent->isResponse));
@@ -521,7 +509,6 @@ class SqueezeboxDevice extends IPSModule
             case LSQResponse::pitch:
                 $this->SetValueInteger('Pitch', (int) ($LSQEvent->Value));
                 break;
-
             case LSQResponse::repeat:
                 $this->SetValueInteger('Repeat', (int) ($LSQEvent->Value));
                 break;
@@ -552,12 +539,6 @@ class SqueezeboxDevice extends IPSModule
                 break;
             case LSQResponse::playlist:
                 $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[1], $LSQEvent->Value, $LSQEvent->isResponse));
-                /*                switch ($LSQEvent->Command[1])
-                  {
-                  default:
-                  IPS_LogMessage('playlistLSQEvent', 'LSQResponse::' . $LSQEvent->Command[1] . ':' . $LSQEvent->Value);
-                  break;
-                  } */
                 break;
             case LSQResponse::prefset:
                 if ($LSQEvent->Command[1] == 'server')
@@ -603,6 +584,7 @@ class SqueezeboxDevice extends IPSModule
                     }
 //                    IPS_LogMessage('CommandLSQEvent', print_r($Command, 1));
 
+                    // alle playlist_xxx auch zerlegen ?
                     if (isset($Part[1]))
                     {
                         $Value = $Part;
@@ -641,72 +623,8 @@ class SqueezeboxDevice extends IPSModule
                     IPS_LogMessage('defaultLSQEvent', 'LSQResponse-' . $MainCommand . '-' . $LSQEvent->Value);
                 break;*/
         }
-        /*
-          00%3A04%3A20%3A2e%3A57%3Aee status - 1
-          subscribe:0
-          player_name:    Squeezebox%20Micha%20
-          player_connected:    1
-          player_ip:    192.168.201.81:    33248
-          power:    1
-          signalstrength:    100
-          mode:    pause
-          time:    18.9179571380615
-          rate:    1
-          duration:    232.759
-          can_seek:    1
-          mixer%20volume:    15
-          playlist%20repeat:    0
-          playlist%20shuffle:    0
-          playlist%20mode:    off
-          seq_no:    3
-          playlist_cur_index:    7
-          playlist_timestamp:    1437328888.71493
-          playlist_tracks:    9
-          playlist%20index:    7
-          id:    20879
-          title:    %E5%88%9D%E6%97%A5%20%5BNO%20NAME%20ver.%5D
-          genre:    Soundtrack%2FAnime
-          artist:    NO%20NAME
-          album:    AKB0048%20Complete%20Vocal%20Collection
-          duration:    232.759
-         */
-
-
-
-        /* 14.07.2015 19:30:12? | IODevice DECODE? | Array
-          (
-          [0] => 00:04:20:2b:9d:ae
-          [1] => status
-          [2] => -
-          [3] => 1
-          [4] => subscribe%3A2
-          [5] => player_name%3ASqueezebox%20Family
-          [6] => player_connected%3A1
-          [7] => player_ip%3A192.168.201.83%3A39937
-          [8] => power%3A1
-          [9] => signalstrength%3A100
-          [10] => mode%3Aplay
-          [11] => time%3A110.039440977097
-          [12] => rate%3A1
-          [13] => duration%3A275.85
-          [14] => can_seek%3A1
-          [15] => mixer%20volume%3A16
-          [16] => playlist%20repeat%3A0
-          [17] => playlist%20shuffle%3A0
-          [18] => playlist%20mode%3Aoff
-          [19] => seq_no%3A162
-          [20] => playlist_cur_index%3A5
-          [21] => playlist_timestamp%3A1436894784.2188
-          [22] => playlist_tracks%3A9
-          [23] => playlist%20index%3A5
-          [24] => id%3A20877
-          [25] => title%3A%E5%B0%91%E5%A5%B3%E3%81%9F%E3%81%A1%E3%82%88%20%5BNO%20NAME%20ver.%5D
-          [26] => genre%3ASoundtrack%2FAnime
-          [27] => artist%3ANO%20NAME
-          [28] => album%3AAKB0048%20Complete%20Vocal%20Collection
-          [29] => duration%3A275.85
-          )
-         * 0 = aus
+/*
+        * 0 = aus
          * 1 = Titel Normalisierung
          * 2 Album 
          * 3 'Intelligente
@@ -737,44 +655,9 @@ class SqueezeboxDevice extends IPSModule
           [5] =>
           [6] =>
           ) */
-
-        /*
-          //Titel-Tag aktualisieren
-          if (($array[1] == 'playlist') and ( $array[2] == 'newsong'))
-          {
-          $this->SetValueString($titleID, utf8_decode(urldecode($array[3])));
-          $this->SetValueInteger($modusID, 2); // Button auf play
-          // Subscribe auf entsprechende Box f??r Anzeige der Laufzeit
-          //            $this->SendDataToParent("status - 1 subscribe:".$this->Interval);
-          }
-
-          if (($array[1] == 'status') and ( isset($array[4]) and ( $array[4] == 'subscribe%3A2')))
-          {
-          foreach ($array as $item)
-          {
-          $item = utf8_decode(urldecode($item));
-          $chunks = explode(":", $item);
-          if ($chunks[0] == "time")
-          {
-
-          $time = $chunks[1];
-          //                IPS_LogMessage("Squeeze",date('i:s', $chunks[1]));
-          }
-
-          }
-          //rate%3A1 can_seek%3A1  playlist%20mode%3Aoff seq_no%3A91 playlist_cur_index%3A39 playlist_timestamp%3A1415459866.17632 id%3A26977 duration%3A614.034
-
-
-          if (isset($duration) and isset($time))
-          {
-          }
-
-
-         */
     }
 
     private function GetCover()
-// setzt die $var_id mit dem Coverbild von $player_id
     {
         $ParentID = $this->GetParent();
         if (!($ParentID === false))
