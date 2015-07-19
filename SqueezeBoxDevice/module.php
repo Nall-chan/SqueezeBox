@@ -567,6 +567,21 @@ class SqueezeboxDevice extends IPSModule
             case LSQResponse::shuffle:
                 $this->SetValueInteger('Shuffle', (int) ($LSQEvent->Value));
                 break;
+            case LSQResponse::newsong:
+                if (is_array($LSQEvent->Value))
+                {
+                    $title = $LSQEvent->Value[0];
+                    $currentTrack = $LSQEvent->Value[1];
+                }
+                else
+                {
+                    $title = $LSQEvent->Value;
+                    $currentTrack = 0;
+                }
+                $this->SetValueString('Title', trim(urldecode($title)));
+                $this->SetValueInteger('Index', $currentTrack);
+                $this->SendLSQData(new LSQData(LSQResponse::cover,'?',false));
+                break;
             case LSQResponse::playlist:
                 $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[1], $LSQEvent->Value, $LSQEvent->isResponse));
                 /*                switch ($LSQEvent->Command[1])
@@ -586,6 +601,10 @@ class SqueezeboxDevice extends IPSModule
                     IPS_LogMessage('prefsetLSQEvent', 'Namespace' . $LSQEvent->Command[1] . ':' . $LSQEvent->Value);
                 }
                 break;
+                    case LSQResponse::cover:
+                      $this->SetValueString('Cover', $this->GetCover());
+                       
+                        break;
             default:
                 IPS_LogMessage('defaultLSQEvent', 'LSQResponse::' . $MainCommand . ':' . $LSQEvent->Value);
                 break;
@@ -782,17 +801,17 @@ class SqueezeboxDevice extends IPSModule
          */
     }
 
-    private function GetCover($player_id)
+    private function GetCover()
 // setzt die $var_id mit dem Coverbild von $player_id
     {
         $ParentID = $this->GetParent();
         if (!($ParentID === false))
         {
-            $SQserverIP = IPS_GetProperty($ParentID, 'Host') . ":" . IPS_GetProperty($ParentID, 'Webport');
-            $cover = $this->ReadPropertyString("CoverSize");
-//            $player_id = urlencode(implode(":", str_split($this->MAC, 2)));
+            $Host = IPS_GetProperty($ParentID, 'Host') . ":" . IPS_GetProperty($ParentID, 'Webport');
+            $Size = $this->ReadPropertyString("CoverSize");
+            $PlayerID = urlencode($this->Address);
             return "<table width=\"100%\" cellspacing=\"0\"><tr><td align=\"right\">"
-                    . "<img src=\"http://" . $SQserverIP . "/music/current/" . $cover . "png?player=" . $player_id . "\"></img>"
+                    . "<img src=\"http://" . $Host . "/music/current/" . $Size . "png?player=" . $PlayerID . "\"></img>"
                     . "</td></tr></table>";
         }
         else

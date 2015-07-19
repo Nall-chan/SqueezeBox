@@ -117,6 +117,7 @@ class LSQResponse extends stdClass
     const pause = 'pause';
     const mixer = 'mixer';
     const show = 'show';
+    const cover = 'cover';
     const display = 'display';
     const linesperscreen = 'linesperscreen';
     const displaynow = 'displaynow';
@@ -137,6 +138,7 @@ class LSQResponse extends stdClass
     //playlist oder prefset
     const repeat = 'repeat';
     const shuffle = 'shuffle';
+    const newsong = 'newsong';
 
     /*
     connected ?
@@ -237,9 +239,15 @@ class LSQResponse extends stdClass
             case LSQResponse::playlist:
                 $this->Command[0] = $Data->Data[0];
                 $this->Command[1] = $Data->Data[1];
-                if (isset($Data->Data[2]))
+                if (isset($Data->Data[3]))
+                {
+                    $this->Value[0] = $Data->Data[2];
+                    $this->Value[1] = $Data->Data[3];                
+                }
+                elseif (isset($Data->Data[2]))
                     $this->Value = $Data->Data[2];
                 break;
+                
             // 2 = Command 3 = Value             
             case LSQResponse::prefset:
                 $this->Command[0] = $Data->Data[0];
