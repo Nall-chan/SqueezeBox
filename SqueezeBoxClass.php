@@ -235,9 +235,11 @@ class LSQResponse extends stdClass
                 break;
             // 0 = Command 1=multiValue
             case LSQResponse::status:
-                $this->Command =false;
-                $this->Value = $Data->Data;
-
+                
+                $this->Command[0] =array_shift($Data->Data);
+                $this->Command[1] =array_shift($Data->Data);
+                $this->Command[2] =array_shift($Data->Data);
+                $this->Value= array_values($Data->Data);
                 break;
 //        LSQResponse::show,
 //        LSQResponse::display,

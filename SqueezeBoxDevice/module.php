@@ -429,7 +429,7 @@ class SqueezeboxDevice extends IPSModule
             case LSQButton::jump_rew:
                 $this->SetValueBoolean('Power', true);
                 $this->SetValueInteger('Status', 2);
-                $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:' . $this->ReadPropertyInteger('Interval'),false));
+                $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:' . $this->ReadPropertyInteger('Interval'), false));
                 break;
 
 //            case LSQResponse::irenable:
@@ -441,24 +441,24 @@ class SqueezeboxDevice extends IPSModule
             case LSQResponse::pause:
                 if (boolval($LSQEvent->Value))
                 {
-                    $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:0'));
+                    $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:0', false));
                     $this->SetValueInteger('Status', 3);
                 }
                 else
                 {
-                    $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:' . $this->ReadPropertyInteger('Interval'),false));
+                    $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:' . $this->ReadPropertyInteger('Interval'), false));
 
                     $this->SetValueInteger('Status', 2);
                 }
                 break;
 //            case LSQResponse::playlist . ' ' . LSQResponse::play:
             case LSQResponse::play:
-                $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:' . $this->ReadPropertyInteger('Interval'),false));
+                $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:' . $this->ReadPropertyInteger('Interval'), false));
                 $this->SetValueInteger('Status', 2);
                 break;
             //case LSQResponse::playlist . ' ' . LSQResponse::stop:
             case LSQResponse::stop:
-                $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:0'));
+                $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:0', false));
                 $this->SetValueInteger('Status', 1);
 //                IPS_LogMessage('decodeLSQEvent', 'LSQResponse::' . $LSQEvent->Command . ':' . $LSQEvent->Value);
                 break;
@@ -532,7 +532,7 @@ class SqueezeboxDevice extends IPSModule
                 $this->SendLSQData(new LSQData(LSQResponse::genre, '?', false));
                 $this->SendLSQData(new LSQData(LSQResponse::duration, '?', false));
                 $this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::tracks), '?', false));
-                $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:' . $this->ReadPropertyInteger('Interval'),false));
+                $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:' . $this->ReadPropertyInteger('Interval'), false));
                 break;
             case LSQResponse::playlist:
                 $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[1], $LSQEvent->Value, $LSQEvent->isResponse));
@@ -567,6 +567,20 @@ class SqueezeboxDevice extends IPSModule
                 break;
             case LSQResponse::tracks:
                 $this->SetValueInteger('Tracks', $LSQEvent->Value);
+                break;
+            case LSQResponse::status:
+                foreach ($LSQEvent->Data as $Data)
+                {
+                    $Part = explode(':',urldecode($Data));
+                    if (strpos(' ',$Part[0])===false)
+                    {
+                        $Command = $Part[0];
+                    }else {
+                        $Command = explode(' ',  $Part[0]);
+                    }
+                    $this->decodeLSQEvent(new LSQEvent($Command, $Part[1], $LSQEvent->isResponse));
+                   
+                }
                 break;
             default:
                 if (is_array($LSQEvent->Value))
