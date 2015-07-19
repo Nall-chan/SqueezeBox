@@ -571,7 +571,7 @@ class SqueezeboxDevice extends IPSModule
             case LSQResponse::status:
                 foreach ($LSQEvent->Value as $Data)
                 {
-                    $Part = explode(':',urldecode($Data));
+                    $Part = explode('%3A',$Data);
                     if (strpos(' ',$Part[0])===false)
                     {
                         $Command = $Part[0];
@@ -589,6 +589,35 @@ class SqueezeboxDevice extends IPSModule
                     IPS_LogMessage('defaultLSQEvent', 'LSQResponse-' . $MainCommand . '-' . $LSQEvent->Value);
                 break;
         }
+        /*
+00%3A04%3A20%3A2e%3A57%3Aee status - 1
+        subscribe:0
+    player_name:    Squeezebox%20Micha%20
+    player_connected:    1
+    player_ip:    192.168.201.81:    33248
+    power:    1
+    signalstrength:    100
+    mode:    pause
+    time:    18.9179571380615
+    rate:    1
+    duration:    232.759
+    can_seek:    1
+    mixer%20volume:    15
+    playlist%20repeat:    0
+    playlist%20shuffle:    0
+    playlist%20mode:    off
+    seq_no:    3
+    playlist_cur_index:    7
+    playlist_timestamp:    1437328888.71493
+    playlist_tracks:    9
+    playlist%20index:    7
+    id:    20879
+    title:    %E5%88%9D%E6%97%A5%20%5BNO%20NAME%20ver.%5D
+    genre:    Soundtrack%2FAnime
+    artist:    NO%20NAME
+    album:    AKB0048%20Complete%20Vocal%20Collection
+    duration:    232.759
+*/
 
 
 
