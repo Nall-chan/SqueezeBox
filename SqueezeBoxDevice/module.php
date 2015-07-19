@@ -182,6 +182,7 @@ class SqueezeboxDevice extends IPSModule
         }
     }
 
+
 ################## PUBLIC
     /**
      * This function will be available automatically after the module is imported with the module control.
@@ -754,7 +755,7 @@ class SqueezeboxDevice extends IPSModule
 
     private function SetConnected($Status)
     {
-        $this->SetValueBoolean($this->GetIDForIdent('Connected'),$Status);
+        $this->SetValueBoolean('Connected',$Status);
         if ($Status)
         {
             $this->Sync();
