@@ -70,6 +70,35 @@ class LMSResponse extends stdClass
     }
 
 }
+
+class LSQButton extends stdClass
+{
+    const power = 'power';
+    const voldown='voldown';
+    const volup='volup';
+    const preset_1 = 'preset_1.single';
+    const preset_2 = 'preset_2.single';
+    const preset_3 = 'preset_3.single';
+    const preset_4 = 'preset_4.single';
+    const preset_5 = 'preset_5.single';
+    const preset_6 = 'preset_6.single';
+    const jump_rew ='jump_rew';
+    const jump_fwd ='jump_fwd';
+    
+}
+// Klasse mit einem Teil der Empfangenen Daten von einem LSQResponse
+class LSQEvent extends stdClass
+{
+    public $Command;
+    public $Value;
+    public $isResponse = false;
+    public function __construct($Command,$Value,$isResponse)
+    {
+        $this->Command=$Command;
+        $this->Value=$Value;
+        $this->isResponse=$isResponse;
+    }
+}
 // Klasse mit den Empfangenen Daten vom LMS-Splitter
 class LSQResponse extends stdClass
 {

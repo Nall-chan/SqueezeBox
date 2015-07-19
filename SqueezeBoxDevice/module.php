@@ -150,7 +150,8 @@ class SqueezeboxDevice extends IPSModule
         $this->RegisterVariableInteger("Position2", "Position", "Intensity.Squeezebox", 26);
         $this->EnableAction("Position2");
         $this->RegisterVariableString("Cover", "Cover", "~HTMLBox", 27);
-        $this->RegisterVariableInteger("Signal", "Signalstärke", "Intensity.Squeezebox", 30);
+        $this->RegisterVariableInteger("Signalstrength", "Signalstärke", "Intensity.Squeezebox", 30);
+        $this->RegisterVariableInteger("SleepTimeout", "SleepTimeout", "", 31);
 
         // Workaround für persistente Daten der Instanz.
         $this->RegisterVariableString("BufferOUT", "BufferOUT", "", -1);
@@ -182,12 +183,12 @@ class SqueezeboxDevice extends IPSModule
         }
     }
 
-
 ################## PUBLIC
     /**
      * This function will be available automatically after the module is imported with the module control.
      * Using the custom prefix this function will be callable from PHP and JSON-RPC through:
      */
+
     public function Sync()
     {
         $this->init();
@@ -195,25 +196,34 @@ class SqueezeboxDevice extends IPSModule
         if ($this->Connected)
         {
             $this->SendLSQData(
-                    new LSQData(LSQResponse::listen, '1',false)
+                    new LSQData(LSQResponse::listen, '1', false)
             );
             $this->SendLSQData(
-                    new LSQData(array(LSQResponse::mixer, LSQResponse::volume), '?',false)
+                    new LSQData(LSQResponse::power, '?', false)
             );
             $this->SendLSQData(
-                    new LSQData(array(LSQResponse::mixer, LSQResponse::pitch), '?',false)
+                    new LSQData(array(LSQResponse::mixer, LSQResponse::volume), '?', false)
             );
             $this->SendLSQData(
-                    new LSQData(array(LSQResponse::mixer, LSQResponse::bass), '?',false)
+                    new LSQData(array(LSQResponse::mixer, LSQResponse::pitch), '?', false)
             );
             $this->SendLSQData(
-                    new LSQData(array(LSQResponse::mixer, LSQResponse::treble), '?',false)
+                    new LSQData(array(LSQResponse::mixer, LSQResponse::bass), '?', false)
             );
             $this->SendLSQData(
-                    new LSQData(array(LSQResponse::mixer, LSQResponse::muting), '?',false)
+                    new LSQData(array(LSQResponse::mixer, LSQResponse::treble), '?', false)
             );
             $this->SendLSQData(
-                    new LSQData(LSQResponse::mode, '?',false)
+                    new LSQData(array(LSQResponse::mixer, LSQResponse::muting), '?', false)
+            );
+            $this->SendLSQData(
+                    new LSQData(LSQResponse::mode, '?', false)
+            );
+            $this->SendLSQData(
+                    new LSQData(LSQResponse::signalstrength, '?', false)
+            );
+            $this->SendLSQData(
+                    new LSQData(LSQResponse::name, '?', false)
             );
         }
         else
@@ -225,6 +235,16 @@ class SqueezeboxDevice extends IPSModule
     public function RawSend($Text)
     {
 //        return $this->SendDataToParent($Text);
+    }
+
+    public function SetName($Value)
+    {
+        return $this->SendLSQData(new LSQData(LSQResponse::name, (string) $Value));
+    }
+
+    public function SetSleepTimeout($Value)
+    {
+        return $this->SendLSQData(new LSQData(LSQResponse::sleep, (int) $Value));
     }
 
     public function Previous()
@@ -428,18 +448,6 @@ class SqueezeboxDevice extends IPSModule
 
     private function decodeLSQEvent($LSQEvent)
     {
-        /*        $coverID = $this->GetIDForIdent("Cover");
-          $albumID = $this->GetIDForIdent("Album");
-          $interpretID = $this->GetIDForIdent("Interpret");
-          $durationID = $this->GetIDForIdent("Duration");
-          $positionID = $this->GetIDForIdent("Position");
-          $position2ID = $this->GetIDForIdent("Position2");
-          $titleID = $this->GetIDForIdent("Title");
-          $indexID = $this->GetIDForIdent("Index");
-          $signalID = $this->GetIDForIdent("Signal");
-          $tracksID = $this->GetIDForIdent("Tracks");
-          $genreID = $this->GetIDForIdent("Genre");
-         */
         $MainCommand = is_array($LSQEvent->Command) ? $LSQEvent->Command[0] : $LSQEvent->Command;
         switch ($MainCommand)
         {
@@ -453,26 +461,53 @@ class SqueezeboxDevice extends IPSModule
                 }
                 break;
             case LSQResponse::signalstrength:
+                $this->SetValueInteger('Signalstrength', (int) $LSQEvent->Value);
+                break;
             case LSQResponse::name:
-
+                if (IPS_GetName($this->InstanceID) <> (string) $LSQEvent->Value)
+                {
+                    IPS_SetName($this->InstanceID, (string) $LSQEvent->Value);
+                }
+                break;
             case LSQResponse::sleep:
+                $this->SetValueInteger('SleepTimeout', (int) $LSQEvent->Value);
+                break;
             case LSQResponse::sync:
+                IPS_LogMessage('decodeLSQEvent', 'LSQResponse::' . $MainCommand . ':' . $LSQEvent->Value);
+                break;
             case LSQResponse::linesperscreen:
+//                        IPS_LogMessage('decodeLSQEvent', 'LSQResponse::'.$MainCommand.':' . $LSQEvent->Value);                
+                break;
             case LSQResponse::button: // sollte nie kommen ?
-                IPS_LogMessage('decodeLSQEvent', 'LSQResponse::button:' . $LSQEvent->Value);
+                switch ($LSQEvent->Command[1])
+                {
+                    case LSQButton::jump_fwd:
+                    case LSQButton::jump_rew:
+
+                        $this->SetValueBoolean('Power', true);
+                        break;
+                    case LSQButton::stop:
+                    case LSQButton::play:
+                        $this->SetValueInteger('Status', $LSQEvent->GetModus());
+                        break;
+                    default:
+                        IPS_LogMessage('decodeLSQEvent', 'LSQResponse::button:' . $LSQEvent->Command[1]);
+                        break;
+                }
                 break;
-            case LSQResponse::irenable:
-            case LSQResponse::connect:
-                // fehlt noch
-                break;
-            case LSQResponse::playlist . ' ' . LSQResponse::pause:
+//            case LSQResponse::irenable:
+//            case LSQResponse::connect:
+            // fehlt noch
+//                break;
+//                
+//            case LSQResponse::playlist . ' ' . LSQResponse::pause:
             case LSQResponse::pause:
                 if (boolval($LSQEvent->Value))
                     $this->SetValueInteger('Status', 3);
                 else
                     $this->SetValueInteger('Status', 2);
                 break;
-            case LSQResponse::playlist . ' ' . LSQResponse::play:
+//            case LSQResponse::playlist . ' ' . LSQResponse::play:
             case LSQResponse::play:
                 $this->SetValueInteger('Status', 2);
                 break;
@@ -491,7 +526,7 @@ class SqueezeboxDevice extends IPSModule
                 {
                     if ($LSQEvent->Value == 'disconnect')
                         $this->SetConnected(false);
-                    elseif (($LSQEvent->Value == 'new') or ($LSQEvent->Value == 'reconnect'))
+                    elseif (($LSQEvent->Value == 'new') or ( $LSQEvent->Value == 'reconnect'))
                         $this->SetConnected(true);
                 }
                 break;
@@ -526,18 +561,29 @@ class SqueezeboxDevice extends IPSModule
                     case LSQResponse::pitch:
                         $this->SetValueInteger('Pitch', (int) ($LSQEvent->Value));
                         break;
+                    default:
+                        IPS_LogMessage('mixerLSQEvent', 'LSQResponse::' . $LSQEvent->Command[1] . ':' . $LSQEvent->Value);
+                        break;
                 }
                 break;
+            case LSQResponse::repeat:
+                $this->SetValueInteger('Repeat', (int) ($LSQEvent->Value));
+                break;
+            case LSQResponse::shuffle:
+                $this->SetValueInteger('Shuffle', (int) ($LSQEvent->Value));
+                break;
+
             case LSQResponse::playlist:
-                switch ($LSQEvent->Command[1])
-                {
-                    case LSQResponse::repeat:
-                        $this->SetValueInteger('Repeat', (int) ($LSQEvent->Value));
-                        break;
-                    case LSQResponse::shuffle:
-                        $this->SetValueInteger('Shuffle', (int) ($LSQEvent->Value));
-                        break;
-                }
+                $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[1], $LSQEvent->Value, $LSQEvent->isResponse));
+                /*                switch ($LSQEvent->Command[1])
+                  {
+                  default:
+                  IPS_LogMessage('playlistLSQEvent', 'LSQResponse::' . $LSQEvent->Command[1] . ':' . $LSQEvent->Value);
+                  break;
+                  } */
+                break;
+            default:
+                IPS_LogMessage('defaultLSQEvent', 'LSQResponse::' . $MainCommand . ':' . $LSQEvent->Value);
                 break;
         }
 
@@ -701,10 +747,6 @@ class SqueezeboxDevice extends IPSModule
           {
           $this->SetValueInteger($indexID, (int) $chunks[1]);
           }
-          if ($chunks[0] == 'signalstrength')
-          {
-          $this->SetValueInteger($signalID, (int) $chunks[1]);
-          }
 
           if ($chunks[0] == 'mixer volume')
           {
@@ -755,13 +797,13 @@ class SqueezeboxDevice extends IPSModule
 
     private function SetConnected($Status)
     {
-        $this->SetValueBoolean('Connected',$Status);
+        $this->SetValueBoolean('Connected', $Status);
         if ($Status)
         {
             $this->Sync();
         }
     }
-    
+
     private function Init()
     {
         $this->Address = $this->ReadPropertyString("Address");
