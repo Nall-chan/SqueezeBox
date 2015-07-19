@@ -579,14 +579,19 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetValueString('Genre', trim(urldecode($LSQEvent->Value)));
                 break;
             case LSQResponse::duration:
+                if ($LSQEvent->Value == 0)
+                {
+                $this->SetValueString('Duration', '');
+                }else{
                 $this->SetValueString('Duration', @date('i:s', $LSQEvent->Value));
+                }
                 break;
             case LSQResponse::playlist_tracks:
             case LSQResponse::tracks:
                 $this->SetValueInteger('Tracks', $LSQEvent->Value);
                 break;
             case LSQResponse::status:
-                IPS_LogMessage('statusLSQEvent', print_r($LSQEvent->Value, 1));
+//                IPS_LogMessage('statusLSQEvent', print_r($LSQEvent->Value, 1));
                 foreach ($LSQEvent->Value as $Data)
                 {
                     $Part = explode(chr(0x3a), urldecode($Data));
@@ -616,12 +621,12 @@ class SqueezeboxDevice extends IPSModule
                 break;
 
             case LSQResponse::time:
-                $time = @date('i:s', $LSQEvent->Value);
-                $this->SetValueString('Position', $time);
-                $duration = (int) GetValueString($this->GetIDForIdent('Duration'));
-                if ($duration > 0)
+                $this->SetValueString('Position', @date('i:s', $LSQEvent->Value));
+                $duration = GetValueString($this->GetIDForIdent('Duration'));
+                if ($duration <> '')
                 {
-                    $Value = (100 / $duration) * $time;
+                    $duration= strtotime ( $duration , 0);
+                    $Value = (100 / $duration) * $LSQEvent->Value;
                     $this->SetValueInteger('Position2', round($Value));
                 }
                 else
@@ -630,11 +635,11 @@ class SqueezeboxDevice extends IPSModule
                 }
                 break;
             default:
-                if (is_array($LSQEvent->Value))
+/*                if (is_array($LSQEvent->Value))
                     IPS_LogMessage('defaultLSQEvent', 'LSQResponse-' . $MainCommand . '-' . print_r($LSQEvent->Value, 1));
                 else
                     IPS_LogMessage('defaultLSQEvent', 'LSQResponse-' . $MainCommand . '-' . $LSQEvent->Value);
-                break;
+                break;*/
         }
         /*
           00%3A04%3A20%3A2e%3A57%3Aee status - 1
