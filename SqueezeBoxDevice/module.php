@@ -459,7 +459,7 @@ class SqueezeboxDevice extends IPSModule
                 {
                     if ($LSQEvent->Value == 'disconnect')
                         $this->Connected = false;
-                    elseif ($LSQEvent->Value == 'new')
+                    elseif (($LSQEvent->Value == 'new') or ($LSQEvent->Value == 'reconnect'))
                         $this->Connected = true;
                     $this->SyncClient();
                 }
