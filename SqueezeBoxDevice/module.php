@@ -569,7 +569,7 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetValueInteger('Tracks', $LSQEvent->Value);
                 break;
             case LSQResponse::status:
-                foreach ($LSQEvent->Data as $Data)
+                foreach ($LSQEvent->Value as $Data)
                 {
                     $Part = explode(':',urldecode($Data));
                     if (strpos(' ',$Part[0])===false)
