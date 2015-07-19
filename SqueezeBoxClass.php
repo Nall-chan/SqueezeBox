@@ -161,6 +161,7 @@ class LSQResponse extends stdClass
     public $Address;
     public $Command;
     public $Value;
+    public $isResponse = false;
     private $Modus = Array(2 => LSQResponse::stop, 3 => LSQResponse::play, 4 => LSQResponse::pause);
 
     public function __construct($Data) // LMS->Data

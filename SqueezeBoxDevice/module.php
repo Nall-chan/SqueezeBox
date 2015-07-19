@@ -411,11 +411,14 @@ class SqueezeboxDevice extends IPSModule
         switch ($MainCommand)
         {
             case LSQResponse::connected:
-                if ($LSQEvent->Value == 1)
-                    $this->Connected = true;
-                else
-                    $this->Connected = false;
-                $this->SyncClient();
+                if (!$LSQEvent->isResponse) //wenn Response, dann macht der Anfrager das selbst
+                {
+                    if ($LSQEvent->Value == 1)
+                        $this->Connected = true;
+                    else
+                        $this->Connected = false;
+                    $this->SyncClient();
+                }
                 break;
             case LSQResponse::signalstrength:
             case LSQResponse::name:
@@ -452,11 +455,14 @@ class SqueezeboxDevice extends IPSModule
                 IPS_LogMessage('decodeLSQEvent', 'LSQResponse::' . $LSQEvent->Command . ':' . $LSQEvent->Value . ':' . $LSQEvent->GetModus());
                 break;
             case LSQResponse::client:
-                if ($LSQEvent->Value == 'disconnect')
-                    $this->Connected = false;
-                elseif ($LSQEvent->Value == 'new')
-                    $this->Connected = true;
-                $this->SyncClient();
+                if (!$LSQEvent->isResponse) //wenn Response, dann macht der Anfrager das selbst                
+                {
+                    if ($LSQEvent->Value == 'disconnect')
+                        $this->Connected = false;
+                    elseif ($LSQEvent->Value == 'new')
+                        $this->Connected = true;
+                    $this->SyncClient();
+                }
                 break;
             case LSQResponse::power:
                 $this->SetValueBoolean('Power', boolval($LSQEvent->Value));
@@ -728,33 +734,35 @@ class SqueezeboxDevice extends IPSModule
 
     private function SyncClient()
     {
-        $this->SetValueBoolean('Connected', $this->Connected);            
-       
+        $this->SetValueBoolean('Connected', $this->Connected);
+
         if ($this->Connected)
         {
-        $this->SendLSQData(
-                new LSQData(LSQResponse::listen, '1')
-        );
-        $this->SendLSQData(
-                new LSQData(array(LSQResponse::mixer, LSQResponse::volume), '?')
-        );
-        $this->SendLSQData(
-                new LSQData(array(LSQResponse::mixer, LSQResponse::pitch), '?')
-        );
-        $this->SendLSQData(
-                new LSQData(array(LSQResponse::mixer, LSQResponse::bass), '?')
-        );
-        $this->SendLSQData(
-                new LSQData(array(LSQResponse::mixer, LSQResponse::treble), '?')
-        );
-        $this->SendLSQData(
-                new LSQData(array(LSQResponse::mixer, LSQResponse::muting), '?')
-        );
-        $this->SendLSQData(
-                new LSQData(LSQResponse::mode, '?')
-        );
-        } else {
-            $this->SetValueBoolean('Power', false);            
+            $this->SendLSQData(
+                    new LSQData(LSQResponse::listen, '1')
+            );
+            $this->SendLSQData(
+                    new LSQData(array(LSQResponse::mixer, LSQResponse::volume), '?')
+            );
+            $this->SendLSQData(
+                    new LSQData(array(LSQResponse::mixer, LSQResponse::pitch), '?')
+            );
+            $this->SendLSQData(
+                    new LSQData(array(LSQResponse::mixer, LSQResponse::bass), '?')
+            );
+            $this->SendLSQData(
+                    new LSQData(array(LSQResponse::mixer, LSQResponse::treble), '?')
+            );
+            $this->SendLSQData(
+                    new LSQData(array(LSQResponse::mixer, LSQResponse::muting), '?')
+            );
+            $this->SendLSQData(
+                    new LSQData(LSQResponse::mode, '?')
+            );
+        }
+        else
+        {
+            $this->SetValueBoolean('Power', false);
         }
     }
 
@@ -802,6 +810,7 @@ class SqueezeboxDevice extends IPSModule
                 $isResponse = $this->WriteResponse($Response->Command, $Response->Value);
                 if (is_bool($isResponse))
                 {
+                    $Response->isResponse = $isResponse;
                     // Daten dekodieren
                     $this->decodeLSQEvent($Response);
                     return true;
