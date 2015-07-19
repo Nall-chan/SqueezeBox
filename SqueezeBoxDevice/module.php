@@ -574,7 +574,7 @@ class SqueezeboxDevice extends IPSModule
                 {
                     $Part = explode(":",urldecode($Data));
                   IPS_LogMessage('PartLSQEvent', print_r($Part, 1));                                    
-                    $Command = array_shift($Part[0]);                    
+                    $Command = array_shift($Part);                    
                     if (strpos(' ',$Command) !== false)
                     {
                         $Command = explode(' ',  $Command);
