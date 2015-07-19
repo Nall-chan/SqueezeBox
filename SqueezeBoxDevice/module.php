@@ -464,9 +464,9 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetValueInteger('Signalstrength', (int) $LSQEvent->Value);
                 break;
             case LSQResponse::name:
-                if (IPS_GetName($this->InstanceID) <> urldecode((string) $LSQEvent->Value))
+                if (IPS_GetName($this->InstanceID) <> trim(urldecode((string) $LSQEvent->Value)))
                 {
-                    IPS_SetName($this->InstanceID, urldecode((string) $LSQEvent->Value));
+                    IPS_SetName($this->InstanceID, trim(urldecode((string) $LSQEvent->Value)));
                 }
                 break;
             case LSQResponse::sleep:
@@ -518,7 +518,7 @@ class SqueezeboxDevice extends IPSModule
                 break;
             case LSQResponse::mode:
                 $this->SetValueInteger('Status', $LSQEvent->GetModus());
-                IPS_LogMessage('decodeLSQEvent', 'LSQResponse::' . $LSQEvent->Command . ':' . $LSQEvent->Value . ':' . $LSQEvent->GetModus());
+//                IPS_LogMessage('decodeLSQEvent', 'LSQResponse::' . $LSQEvent->Command . ':' . $LSQEvent->Value . ':' . $LSQEvent->GetModus());
                 break;
             case LSQResponse::client:
                 if (!$LSQEvent->isResponse) //wenn Response, dann macht der Anfrager das selbst                

@@ -247,6 +247,7 @@ class LSQResponse extends stdClass
                 $this->Command[2] = $Data->Data[2];                
                 if (isset($Data->Data[3]))
                     $this->Value = $Data->Data[3];
+                break;
             default:
                 $this->Command =false;
                 $this->Value = $Data->Data;
