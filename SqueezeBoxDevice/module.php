@@ -339,7 +339,7 @@ class SqueezeboxDevice extends IPSModule
 
     public function PlayTrack($Value)
     {
-        $ret = $this->SendLSQData(new LSQData(array('playlist', 'index'), intval($Value)));
+        $ret = $this->SendLSQData(new LSQData(array('playlist', 'index'), intval($Value) + 1));
         return ($ret == $Value);
     }
 
@@ -551,6 +551,9 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetValueInteger('Shuffle', (int) ($LSQEvent->Value));
                 break;
             case LSQResponse::newsong:
+                //force Refresh of Browser
+                $this->SetCover();
+                $this->SetValueString('Cover', '');
                 if (is_array($LSQEvent->Value))
                 {
                     $title = $LSQEvent->Value[0];
@@ -564,15 +567,13 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetValueInteger('Status', 2);
                 $this->SetValueString('Title', trim(urldecode($title)));
                 $this->SetValueInteger('Index', $currentTrack);
-                //force Refresh of Browser
-                $this->SetValueString('Cover', '');
-                $this->SetValueString('Cover', $this->GetCover());
                 $this->SendLSQData(new LSQData(LSQResponse::artist, '?', false));
                 $this->SendLSQData(new LSQData(LSQResponse::album, '?', false));
                 $this->SendLSQData(new LSQData(LSQResponse::genre, '?', false));
                 $this->SendLSQData(new LSQData(LSQResponse::duration, '?', false));
                 $this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::tracks), '?', false));
                 $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:' . $this->ReadPropertyInteger('Interval'), false));
+                $this->SetValueString('Cover', $this->GetCover());
                 break;
             case LSQResponse::playlist:
                 $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[1], $LSQEvent->Value, $LSQEvent->isResponse));
@@ -717,6 +718,26 @@ class SqueezeboxDevice extends IPSModule
           [5] =>
           [6] =>
           ) */
+    }
+
+    private function SetCover()
+    {
+        $CoverID = @IPS_GetObjectIDByIdent('CoverIMG', $this->InstanceID);
+        if ($CoverID === false)
+        {
+            $CoverID = IPS_CreateMedia(1);
+            IPS_SetParent($CoverID, $this->InstanceID);
+            IPS_SetIdent($CoverID, 'CoverIMG');
+        }
+        $Host = IPS_GetProperty($ParentID, 'Host') . ":" . IPS_GetProperty($ParentID, 'Webport');
+        $Size = $this->ReadPropertyString("CoverSize");
+        $PlayerID = urlencode($this->Address);        
+        $CoverRAW = @Sys_GetURLContent("http://" . $Host . "/music/current/" . $Size . ".png?player=" . $PlayerID );
+        if (!($CoverRAW === false))
+        {
+            IPS_SetMediaContent($CoverID, base64_encode($CoverRAW));
+        }
+        return;
     }
 
     private function GetCover()
