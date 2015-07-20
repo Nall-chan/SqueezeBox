@@ -8,7 +8,7 @@ class SqueezeboxDevice extends IPSModule
     const isMAC = 1;
     const isIP = 2;
 
-    protected $Address, $Interval, $Connected;
+    protected $Address, $Interval, $Connected, $tempData;
 
     public function __construct($InstanceID)
     {
@@ -144,8 +144,8 @@ class SqueezeboxDevice extends IPSModule
         $this->RegisterVariableInteger("Repeat", "Repeat", "Repeat.Squeezebox", 10);
         $this->EnableAction("Repeat");
         $this->RegisterVariableInteger("Tracks", "Playlist Anzahl Tracks", "", 11);
-        $this->RegisterVariableInteger("Index", "Playlist Position", "", 12);
-
+        $this->RegisterVariableInteger("Index", "Playlist Position", "Tracklist.Squeezebox." . $this->InstanceID, 12);
+        $this->EnableAction("Index");
 
         $this->RegisterVariableString("Album", "Album", "", 20);
         $this->RegisterVariableString("Title", "Title", "", 21);
@@ -160,9 +160,12 @@ class SqueezeboxDevice extends IPSModule
         $this->RegisterVariableInteger("SleepTimeout", "SleepTimeout", "", 31);
 
         // Workaround für persistente Daten der Instanz.
-        $this->RegisterVariableString("BufferOUT", "BufferOUT", "", -1);
-        $this->RegisterVariableBoolean("WaitForResponse", "WaitForResponse", "", -1);
-        $this->RegisterVariableBoolean("Connected", "Connected", "", -1);
+        $this->RegisterVariableString("BufferOUT", "BufferOUT", "", -4);
+        $this->RegisterVariableBoolean("WaitForResponse", "WaitForResponse", "", -5);
+        $this->RegisterVariableBoolean("Connected", "Connected", "", -3);
+
+        $this->RegisterVariableInteger("PositionRAW", "PositionRAW", "", -1);
+        $this->RegisterVariableInteger("DurationRAW", "DurationRAW", "", -2);
 
         // Adresse nicht leer ?
         if ($this->Init())
@@ -443,7 +446,7 @@ class SqueezeboxDevice extends IPSModule
             case LSQResponse::linesperscreen:
             case LSQResponse::irenable:
             case LSQResponse::connect:
-               //ignore
+                //ignore
                 break;
             case LSQResponse::pause:
                 if (boolval($LSQEvent->Value))
@@ -562,14 +565,31 @@ class SqueezeboxDevice extends IPSModule
             case LSQResponse::duration:
                 if ($LSQEvent->Value == 0)
                 {
-                $this->SetValueString('Duration', '');
-                }else{
-                $this->SetValueString('Duration', @date('i:s', $LSQEvent->Value));
+                    $this->SetValueString('Duration', '');
+                    $this->SetValueInteger('DurationRAW', 0);
+                    $this->SetValueInteger('Position2', 0);
+                }
+                else
+                {
+                    $this->tempData['Duration'] = $LSQEvent->Value;
+                    $this->SetValueInteger('DurationRAW', $LSQEvent->Value);
+                    $this->SetValueString('Duration', @date('i:s', $LSQEvent->Value));
                 }
                 break;
             case LSQResponse::playlist_tracks:
             case LSQResponse::tracks:
                 $this->SetValueInteger('Tracks', $LSQEvent->Value);
+                $Name = "Tracklist.Squeezebox." . $this->InstanceID;
+                if (!IPS_VariableProfileExists($Name))
+                {
+                    IPS_CreateVariableProfile($Name, 1);
+                    IPS_SetVariableProfileValues($Name, 1, $LSQEvent->Value, 1);
+                }
+                else
+                {
+                    if (IPS_GetVariableProfile($Name)['MaxValue'] <> $LSQEvent->Value)
+                        IPS_SetVariableProfileValues($Name, 1, $LSQEvent->Value, 1);
+                }
                 break;
             case LSQResponse::status:
 //                IPS_LogMessage('statusLSQEvent', print_r($LSQEvent->Value, 1));
@@ -583,7 +603,6 @@ class SqueezeboxDevice extends IPSModule
                         $Command = explode(chr(0x20), $Command);
                     }
 //                    IPS_LogMessage('CommandLSQEvent', print_r($Command, 1));
-
                     // alle playlist_xxx auch zerlegen ?
                     if (isset($Part[1]))
                     {
@@ -603,28 +622,37 @@ class SqueezeboxDevice extends IPSModule
                 break;
 
             case LSQResponse::time:
+                $this->tempData['Position'] = $LSQEvent->Value;
+                $this->SetValueInteger('PositionRAW', $LSQEvent->Value);
                 $this->SetValueString('Position', @date('i:s', $LSQEvent->Value));
-                $duration = GetValueString($this->GetIDForIdent('Duration'));
-                if ($duration <> '')
-                {
-                    $duration= strtotime ( $duration , 0);
-                    $Value = (100 / $duration) * $LSQEvent->Value;
-                    $this->SetValueInteger('Position2', round($Value));
-                }
-                else
-                {
-                    $this->SetValueInteger('Position2', 0);
-                }
+
+                /*                $duration = GetValueString($this->GetIDForIdent('Duration'));
+                  if ($duration <> '')
+                  {
+                  $duration= strtotime ( $duration , 0);
+                  $Value = (100 / $duration) * $LSQEvent->Value;
+                  $this->SetValueInteger('Position2', round($Value));
+                  }
+                  else
+                  {
+                  $this->SetValueInteger('Position2', 0);
+                  } */
                 break;
             default:
-/*                if (is_array($LSQEvent->Value))
-                    IPS_LogMessage('defaultLSQEvent', 'LSQResponse-' . $MainCommand . '-' . print_r($LSQEvent->Value, 1));
-                else
-                    IPS_LogMessage('defaultLSQEvent', 'LSQResponse-' . $MainCommand . '-' . $LSQEvent->Value);
-                break;*/
+            /*                if (is_array($LSQEvent->Value))
+              IPS_LogMessage('defaultLSQEvent', 'LSQResponse-' . $MainCommand . '-' . print_r($LSQEvent->Value, 1));
+              else
+              IPS_LogMessage('defaultLSQEvent', 'LSQResponse-' . $MainCommand . '-' . $LSQEvent->Value);
+              break; */
         }
-/*
-        * 0 = aus
+        if (isset($this->tempData['Duration']) and isset($this->tempData['Position']))
+        {
+            $Value = (100 / $this->tempData['Duration']) * $this->tempData['Position'];
+            $this->SetValueInteger('Position2', round($Value));
+        }
+
+        /*
+         * 0 = aus
          * 1 = Titel Normalisierung
          * 2 Album 
          * 3 'Intelligente
