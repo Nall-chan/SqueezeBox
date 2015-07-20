@@ -156,8 +156,8 @@ class SqueezeboxDevice extends IPSModule
         $this->RegisterVariableString("Position", "Spielzeit", "", 25);
         $this->RegisterVariableInteger("Position2", "Position", "Intensity.Squeezebox", 26);
         $this->EnableAction("Position2");
-        $this->RegisterVariableString("Cover", "Cover", "~HTMLBox", 27);
-        $this->RegisterVariableInteger("Signalstrength", "Signalstärke", "Intensity.Squeezebox", 30);
+        
+        $this->RegisterVariableInteger("Signalstrength",  utf8_encode("Signalstärke"), "Intensity.Squeezebox", 30);
         $this->RegisterVariableInteger("SleepTimeout", "SleepTimeout", "", 31);
 
         // Workaround für persistente Daten der Instanz.
@@ -339,7 +339,7 @@ class SqueezeboxDevice extends IPSModule
 
     public function PlayTrack($Value)
     {
-        $ret = $this->SendLSQData(new LSQData(array('playlist', 'index'), intval($Value) + 1));
+        $ret = $this->SendLSQData(new LSQData(array('playlist', 'index'), intval($Value) -1));
         return ($ret == $Value);
     }
 
@@ -552,8 +552,6 @@ class SqueezeboxDevice extends IPSModule
                 break;
             case LSQResponse::newsong:
                 //force Refresh of Browser
-                $this->SetCover();
-                $this->SetValueString('Cover', '');
                 if (is_array($LSQEvent->Value))
                 {
                     $title = $LSQEvent->Value[0];
@@ -572,8 +570,8 @@ class SqueezeboxDevice extends IPSModule
                 $this->SendLSQData(new LSQData(LSQResponse::genre, '?', false));
                 $this->SendLSQData(new LSQData(LSQResponse::duration, '?', false));
                 $this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::tracks), '?', false));
+                $this->SetCover();                
                 $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:' . $this->ReadPropertyInteger('Interval'), false));
-                $this->SetValueString('Cover', $this->GetCover());
                 break;
             case LSQResponse::playlist:
                 $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[1], $LSQEvent->Value, $LSQEvent->isResponse));
@@ -729,6 +727,7 @@ class SqueezeboxDevice extends IPSModule
             IPS_SetParent($CoverID, $this->InstanceID);
             IPS_SetIdent($CoverID, 'CoverIMG');
             IPS_SetName($CoverID, 'Cover');
+            IPS_SetPosition($CoverID,27);
             IPS_SetMediaFile($CoverID, "Cover_" . $this->InstanceID . ".png", False);
         }
         $ParentID = $this->GetParent();
@@ -746,21 +745,6 @@ class SqueezeboxDevice extends IPSModule
         return;
     }
 
-    private function GetCover()
-    {
-        $ParentID = $this->GetParent();
-        if (!($ParentID === false))
-        {
-            $Host = IPS_GetProperty($ParentID, 'Host') . ":" . IPS_GetProperty($ParentID, 'Webport');
-            $Size = $this->ReadPropertyString("CoverSize");
-            $PlayerID = urlencode($this->Address);
-            return "<table width=\"100%\" cellspacing=\"0\"><tr><td align=\"right\">"
-                    . "<img src=\"http://" . $Host . "/music/current/" . $Size . ".png?player=" . $PlayerID . "\"></img>"
-                    . "</td></tr></table>";
-        }
-        else
-            return "";
-    }
 
     private function SetConnected($Status)
     {
