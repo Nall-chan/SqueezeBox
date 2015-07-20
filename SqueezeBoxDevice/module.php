@@ -119,6 +119,7 @@ class SqueezeboxDevice extends IPSModule
             Array(5, "5", "", -1),
             Array(6, "6", "", -1)
         ));
+        $this->RegisterProfileInteger("Tracklist.Squeezebox." . $this->InstanceID, "", "", "", 1, 1, 1);
 
         //Status-Variablen anlegen
         $this->RegisterVariableBoolean("Power", "Power", "~Switch", 1);
