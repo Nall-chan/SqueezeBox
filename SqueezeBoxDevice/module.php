@@ -534,7 +534,7 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetValueString('Title', trim(urldecode($title)));
                 $this->SetValueInteger('Index', $currentTrack);
                 
-                SetValueString('Cover', $this->GetCover());
+                SetValueString($this->GetIDForIdent('Cover'), $this->GetCover());
                 $this->SendLSQData(new LSQData(LSQResponse::artist, '?', false));
                 $this->SendLSQData(new LSQData(LSQResponse::album, '?', false));
                 $this->SendLSQData(new LSQData(LSQResponse::genre, '?', false));
