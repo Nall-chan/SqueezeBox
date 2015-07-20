@@ -728,7 +728,8 @@ class SqueezeboxDevice extends IPSModule
             $CoverID = IPS_CreateMedia(1);
             IPS_SetParent($CoverID, $this->InstanceID);
             IPS_SetIdent($CoverID, 'CoverIMG');
-            IPS_SetName($CoverID, 'Cover');            
+            IPS_SetName($CoverID, 'Cover');
+            IPS_SetMediaFile($CoverID, "Cover_" . $this->InstanceID . ".png", False);
         }
         $ParentID = $this->GetParent();
         if (!($ParentID === false))
