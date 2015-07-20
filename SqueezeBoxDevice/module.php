@@ -258,7 +258,7 @@ class SqueezeboxDevice extends IPSModule
         return $this->SendLSQData(new LSQData(LSQResponse::sleep, (int) $Value));
     }
 
-    public function Previous()
+    public function PreviousButton()
     {
         return $this->SendLSQData(new LSQData(array('button', 'jump_rew'), ''));
     }
@@ -279,7 +279,7 @@ class SqueezeboxDevice extends IPSModule
         return boolval($this->SendLSQData(new LSQData('pause', '1')));
     }
 
-    public function Next()
+    public function NextButton()
     {
         return $this->SendLSQData(new LSQData(array('button', 'jump_fwd'), ''));
     }
@@ -337,6 +337,30 @@ class SqueezeboxDevice extends IPSModule
         return ($ret == $Value);
     }
 
+    public function PlayTrack($Value)
+    {
+        $ret = $this->SendLSQData(new LSQData(array('playlist', 'index'), intval($Value)));
+        return ($ret == $Value);
+    }
+
+    public function NextTrack()
+    {
+        $ret = $this->SendLSQData(new LSQData(array('playlist', 'index'), '+1'));
+        return ($ret == '+1');
+    }
+
+    public function PreviousTrack()
+    {
+        $ret = $this->SendLSQData(new LSQData(array('playlist', 'index'), '-1'));
+        return ($ret == '-1');
+    }
+
+    public function SetTime($Value)
+    {
+        $ret = $this->SendLSQData(new LSQData(array('playlist', 'time'), $Value));
+        return ($ret == $Value);
+    }
+
 ################## ActionHandler
 
     public function RequestAction($Ident, $Value)
@@ -347,7 +371,7 @@ class SqueezeboxDevice extends IPSModule
                 switch ($Value)
                 {
                     case 0: //Prev
-                        $this->Previous();
+                        $this->PreviousButton();
                         break;
                     case 1: //Stop
                         $this->Stop();
@@ -359,7 +383,7 @@ class SqueezeboxDevice extends IPSModule
                         $this->Pause();
                         break;
                     case 4: //Next
-                        $this->Next();
+                        $this->NextButton();
                         break;
                 }
                 break;
@@ -391,6 +415,13 @@ class SqueezeboxDevice extends IPSModule
                 $this->Shuffle($Value);
                 break;
             case "Position2":
+                $this->tempData['Duration'] = GetValueInteger($this->GetIDForIdent('DurationRAW'));
+                $this->tempData['Position'] = GetValueInteger($this->GetIDForIdent('PositionRAW'));
+                $Time = ($this->tempData['Duration'] / 100) * $Value;
+                $this->SetTime($Time);
+                break;
+            case "Index":
+                $this->PlayTrack($Value);
                 break;
             default:
                 throw new Exception("Invalid ident");
@@ -533,8 +564,9 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetValueInteger('Status', 2);
                 $this->SetValueString('Title', trim(urldecode($title)));
                 $this->SetValueInteger('Index', $currentTrack);
-                
-                SetValueString($this->GetIDForIdent('Cover'), $this->GetCover());
+                //force Refresh of Browser
+                $this->SetValueString('Cover', '');
+                $this->SetValueString('Cover', $this->GetCover());
                 $this->SendLSQData(new LSQData(LSQResponse::artist, '?', false));
                 $this->SendLSQData(new LSQData(LSQResponse::album, '?', false));
                 $this->SendLSQData(new LSQData(LSQResponse::genre, '?', false));
