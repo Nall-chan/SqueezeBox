@@ -167,7 +167,11 @@ class SqueezeboxDevice extends IPSModule
 
         $this->RegisterVariableInteger("PositionRAW", "PositionRAW", "", -1);
         $this->RegisterVariableInteger("DurationRAW", "DurationRAW", "", -2);
-
+        IPS_SetHidden($this->GetIDForIdent('BufferOUT'),true);
+        IPS_SetHidden($this->GetIDForIdent('WaitForResponse'),true);
+        IPS_SetHidden($this->GetIDForIdent('Connected'),true);
+        IPS_SetHidden($this->GetIDForIdent('PositionRAW'),true);
+        IPS_SetHidden($this->GetIDForIdent('DurationRAW'),true);        
         // Adresse nicht leer ?
         if ($this->Init())
         {
