@@ -728,14 +728,19 @@ class SqueezeboxDevice extends IPSModule
             $CoverID = IPS_CreateMedia(1);
             IPS_SetParent($CoverID, $this->InstanceID);
             IPS_SetIdent($CoverID, 'CoverIMG');
+            IPS_SetName($CoverID, 'Cover');            
         }
-        $Host = IPS_GetProperty($ParentID, 'Host') . ":" . IPS_GetProperty($ParentID, 'Webport');
-        $Size = $this->ReadPropertyString("CoverSize");
-        $PlayerID = urlencode($this->Address);        
-        $CoverRAW = @Sys_GetURLContent("http://" . $Host . "/music/current/" . $Size . ".png?player=" . $PlayerID );
-        if (!($CoverRAW === false))
+        $ParentID = $this->GetParent();
+        if (!($ParentID === false))
         {
-            IPS_SetMediaContent($CoverID, base64_encode($CoverRAW));
+            $Host = IPS_GetProperty($ParentID, 'Host') . ":" . IPS_GetProperty($ParentID, 'Webport');
+            $Size = $this->ReadPropertyString("CoverSize");
+            $PlayerID = urlencode($this->Address);
+            $CoverRAW = @Sys_GetURLContent("http://" . $Host . "/music/current/" . $Size . ".png?player=" . $PlayerID);
+            if (!($CoverRAW === false))
+            {
+                IPS_SetMediaContent($CoverID, base64_encode($CoverRAW));
+            }
         }
         return;
     }
