@@ -429,7 +429,7 @@ class LMSSplitter extends IPSModule
         {
             if (IPS_SemaphoreEnter("LMS_" . (string) $this->InstanceID . (string) $ident, 1))
             {
-                IPS_LogMessage((string)$this->InstanceID,"Lock:LMS_" . (string) $this->InstanceID . (string) $ident);
+//                IPS_LogMessage((string)$this->InstanceID,"Lock:LMS_" . (string) $this->InstanceID . (string) $ident);
                 return true;
             }
             else
@@ -442,7 +442,7 @@ class LMSSplitter extends IPSModule
 
     private function unlock($ident)
     {
-                IPS_LogMessage((string)$this->InstanceID,"Unlock:LMS_" . (string) $this->InstanceID . (string) $ident);
+//                IPS_LogMessage((string)$this->InstanceID,"Unlock:LMS_" . (string) $this->InstanceID . (string) $ident);
         
         IPS_SemaphoreLeave("LMS_" . (string) $this->InstanceID . (string) $ident);
     }

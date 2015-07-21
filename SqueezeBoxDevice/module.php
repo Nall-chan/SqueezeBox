@@ -560,7 +560,7 @@ class SqueezeboxDevice extends IPSModule
                 if (is_array($LSQEvent->Value))
                 {
                     $title = $LSQEvent->Value[0];
-                    $currentTrack = $LSQEvent->Value[1] + 1;
+                    $currentTrack = intval($LSQEvent->Value[1])+1;
                 }
                 else
                 {
@@ -648,7 +648,7 @@ class SqueezeboxDevice extends IPSModule
                 break;
             case LSQResponse::index:
             case LSQResponse::playlist_cur_index:
-                $this->SetValueInteger('Index', $LSQEvent->Value + 1);
+                $this->SetValueInteger('Index', intval($LSQEvent->Value) + 1);
                 break;
 
             case LSQResponse::time:
@@ -824,6 +824,8 @@ class SqueezeboxDevice extends IPSModule
             if ($Response->Command <> false)
             {
                 // Daten prüfen ob Antwort
+            IPS_LogMessage('EMPFANG',print_r($Response,1));
+                
                 $isResponse = $this->WriteResponse($Response->Command, $Response->Value);
                 if (is_bool($isResponse))
                 {
@@ -912,6 +914,7 @@ class SqueezeboxDevice extends IPSModule
             }
 // SendeLock  velassen
             $this->unlock("LSQData");
+            IPS_LogMessage('SENDE',print_r($LSQData,1));
 // Auf Antwort warten....
             $ret = $this->WaitForResponse();
 
@@ -925,7 +928,10 @@ class SqueezeboxDevice extends IPSModule
 // R??ckgabe ist ein Wert auf eine Anfrage, abschneiden der Anfrage.
 //FEHLT NOCH
 //                        $ret = str_replace($WaitData, "", $ret);
-            IPS_LogMessage('FOUND RESPONSE', print_r($ret, 1));
+            if ($ret === true)
+                IPS_LogMessage('FOUND RESPONSE', 'TRUE');
+            else
+                IPS_LogMessage('FOUND RESPONSE', print_r($ret, 1));
             return $ret;
         }
         else
@@ -1004,7 +1010,8 @@ class SqueezeboxDevice extends IPSModule
         if (is_array($Command))
             $Command = implode(' ', $Command);
         if (is_array($Value))
-            $Value = $Value[0];
+            $Value = implode(' ', $Value);            
+//            $Value = $Value[0];
 
         $EventID = $this->GetIDForIdent('WaitForResponse');
         if (!GetValueBoolean($EventID))
@@ -1034,7 +1041,7 @@ class SqueezeboxDevice extends IPSModule
         {
             if (IPS_SemaphoreEnter("LMS_" . (string) $this->InstanceID . (string) $ident, 1))
             {
-                IPS_LogMessage((string) $this->InstanceID, "Lock:LMS_" . (string) $this->InstanceID . (string) $ident);
+    //            IPS_LogMessage((string) $this->InstanceID, "Lock:LMS_" . (string) $this->InstanceID . (string) $ident);
 
                 return true;
             }
@@ -1048,7 +1055,7 @@ class SqueezeboxDevice extends IPSModule
 
     private function unlock($ident)
     {
-        IPS_LogMessage((string) $this->InstanceID, "Unlock:LMS_" . (string) $this->InstanceID . (string) $ident);
+  //      IPS_LogMessage((string) $this->InstanceID, "Unlock:LMS_" . (string) $this->InstanceID . (string) $ident);
 
         IPS_SemaphoreLeave("LMS_" . (string) $this->InstanceID . (string) $ident);
     }
