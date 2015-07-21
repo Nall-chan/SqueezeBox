@@ -117,6 +117,7 @@ class LSQResponse extends stdClass
     const rate = 'rate';
     const seq_no = 'seq_no';
     const playlist_timestamp = 'playlist_timestamp';
+    const title ='title';
     const index='index';    
     const connected = 'connected';
     const sleep = 'sleep';
