@@ -361,7 +361,7 @@ class SqueezeboxDevice extends IPSModule
 
     public function SetTime($Value)
     {
-        $ret = $this->SendLSQData(new LSQData(array('playlist', 'time'), $Value));
+        $ret = $this->SendLSQData(new LSQData('time', $Value));
         return ($ret == $Value);
     }
 
