@@ -301,12 +301,12 @@ class LMSSplitter extends IPSModule
                 $this->unlock("LMSData");
                 throw $exc;
             }
-
+            // Lock der Sende-Routine aufheben.
+            $this->unlock("LMSData");
             // Auf Antwort warten....
             $ret = $this->WaitForResponse();
 
-            // Lock der Sende-Routine aufheben.
-            $this->unlock("LMSData");
+
 
             if ($ret === false) // Response-Warteschleife lief in Timeout
             {

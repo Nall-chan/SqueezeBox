@@ -910,10 +910,11 @@ class SqueezeboxDevice extends IPSModule
                 $this->unlock("LSQData");
                 throw $exc;
             }
-// Auf Antwort warten....
-            $ret = $this->WaitForResponse();
 // SendeLock  velassen
             $this->unlock("LSQData");
+// Auf Antwort warten....
+            $ret = $this->WaitForResponse();
+
             if ($ret === false) // Warteschleife lief in Timeout
             {
 //  Daten in Warteschleife l?¶schen                
