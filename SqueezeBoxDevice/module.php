@@ -350,7 +350,7 @@ class SqueezeboxDevice extends IPSModule
     public function NextTrack()
     {
         $ret = $this->SendLSQData(new LSQData(array('playlist', 'index'), '+1'));
-        return ($ret == '+1');
+        return ($ret == '%2B1');
     }
 
     public function PreviousTrack()
@@ -632,8 +632,10 @@ class SqueezeboxDevice extends IPSModule
                 break;
             case LSQResponse::status:
 //                IPS_LogMessage('statusLSQEvent', print_r($LSQEvent->Value, 1));
-                if (($LSQEvent->Command[1] == '-') and ( $LSQEvent->Command[2] == '1') and ( strpos($LSQEvent->Value[0],'subscribe%3A')>0))
+                $Event = array_shift($LSQEvent->Value);
+                if (($LSQEvent->Command[1] == '-') and ( $LSQEvent->Command[2] == '1') and ( strpos($Event,'subscribe%3A')>0))
                 {
+                    IPS_LogMessage('subscribeLSQEvent', print_r($LSQEvent->Value, 1));                                        
                     foreach ($LSQEvent->Value as $Data)
                     {
                         $LSQPart = $this->decodeLSQTaggingData($Data, $LSQEvent->isResponse);
@@ -641,9 +643,9 @@ class SqueezeboxDevice extends IPSModule
                         $this->decodeLSQEvent($LSQPart);
                     }
                 }
-                if (($LSQEvent->Command[1] == '0') and (strpos( $LSQEvent->Value[0],'tags%3A')>0))
+                if (($LSQEvent->Command[1] == '0') and (strpos($Event,'tags%3A')>0))
                 { //Daten für Playlist dekodieren und zurückgeben
-                IPS_LogMessage('statusLSQEvent', print_r($LSQEvent->Value, 1));                    
+                    IPS_LogMessage('statusLSQEvent', print_r($LSQEvent->Value, 1));                    
                 }
                 break;
             case LSQResponse::index:
@@ -669,7 +671,7 @@ class SqueezeboxDevice extends IPSModule
                   } */
                 break;
             default:
-                          if (is_array($LSQEvent->Value))
+              if (is_array($LSQEvent->Value))
               IPS_LogMessage('defaultLSQEvent', 'LSQResponse-' . $MainCommand . '-' . print_r($LSQEvent->Value, 1));
               else
               IPS_LogMessage('defaultLSQEvent', 'LSQResponse-' . $MainCommand . '-' . $LSQEvent->Value);
