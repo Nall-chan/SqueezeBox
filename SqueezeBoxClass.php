@@ -209,7 +209,7 @@ class LSQResponse extends stdClass
     public $Command;
     public $Value;
     public $isResponse = false;
-    private $Modus = Array(2 => LSQResponse::stop, 3 => LSQResponse::play, 4 => LSQResponse::pause);
+//    private $Modus = Array(2 => LSQResponse::stop, 3 => LSQResponse::play, 4 => LSQResponse::pause);
 
     public function __construct($Data) // LMS->Data
     {
@@ -287,11 +287,11 @@ class LSQResponse extends stdClass
         }
     }
     // Liefert den Aktuellen Zustand (play,pause,stop) als integer für die Status-Variable
-    public function GetModus()
+/*    public function GetModus()
     {
 
         return (int) array_keys($this->Modus, $this->Value, true);
-    }
+    }*/
 
 }
 
