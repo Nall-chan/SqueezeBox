@@ -252,7 +252,7 @@ class LSQResponse extends stdClass
             case LSQResponse::artist:
             case LSQResponse::genre:
             case LSQResponse::duration:
-
+            case LSQResponse::time:
                 $this->Command = $Data->Data[0];
                 if (isset($Data->Data[1]))
                     $this->Value = $Data->Data[1];
