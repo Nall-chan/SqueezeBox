@@ -487,6 +487,8 @@ class SqueezeboxDevice extends IPSModule
             case LSQResponse::linesperscreen:
             case LSQResponse::irenable:
             case LSQResponse::connect:
+            case LSQResponse::waitingToPlay:
+            case LSQResponse::jump:
                 //ignore
                 break;
             case LSQResponse::pause:
@@ -630,9 +632,12 @@ class SqueezeboxDevice extends IPSModule
                     $this->SetValueString('Interpret', '');
                     $this->SetValueString('Album', '');
                     $this->SetValueString('Genre', '');
-                    $this->SetValueString('Duration', '');
+                    $this->SetValueString('Duration', '0:00');
                     $this->SetValueInteger('DurationRAW', 0);
                     $this->SetValueInteger('Position2', 0);
+                    $this->SetValueInteger('PositionRAW', 0);
+                    $this->SetValueString('Position', '0:00');
+                    
                     $this->SetValueInteger('Index', 0);
                     $this->SetCover();
                 }
@@ -787,6 +792,7 @@ class SqueezeboxDevice extends IPSModule
                 break;
             case LSQResponse::index:
             case LSQResponse::playlist_cur_index:
+            case LSQResponse::currentSong:
                 $this->SetValueInteger('Index', intval($LSQEvent->Value) + 1);
                 break;
 

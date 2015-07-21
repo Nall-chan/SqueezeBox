@@ -19,6 +19,7 @@ class LMSData extends stdClass
     }
 
 }
+
 // Klasse mit Daten zum SENDEN an ein Device ÜBER den LMS-Splitter
 class LSQData extends stdClass
 {
@@ -36,6 +37,7 @@ class LSQData extends stdClass
     }
 
 }
+
 // Klasse mit den Empfangenen Daten vom LMS
 class LMSResponse extends stdClass
 {
@@ -73,32 +75,38 @@ class LMSResponse extends stdClass
 
 class LSQButton extends stdClass
 {
+
     const power = 'power';
-    const voldown='voldown';
-    const volup='volup';
+    const voldown = 'voldown';
+    const volup = 'volup';
     const preset_1 = 'preset_1.single';
     const preset_2 = 'preset_2.single';
     const preset_3 = 'preset_3.single';
     const preset_4 = 'preset_4.single';
     const preset_5 = 'preset_5.single';
     const preset_6 = 'preset_6.single';
-    const jump_rew ='jump_rew';
-    const jump_fwd ='jump_fwd';
-    
+    const jump_rew = 'jump_rew';
+    const jump_fwd = 'jump_fwd';
+
 }
+
 // Klasse mit einem Teil der Empfangenen Daten von einem LSQResponse
 class LSQEvent extends stdClass
 {
+
     public $Command;
     public $Value;
     public $isResponse = false;
-    public function __construct($Command,$Value,$isResponse)
+
+    public function __construct($Command, $Value, $isResponse)
     {
-        $this->Command=$Command;
-        $this->Value=$Value;
-        $this->isResponse=$isResponse;
+        $this->Command = $Command;
+        $this->Value = $Value;
+        $this->isResponse = $isResponse;
     }
+
 }
+
 // Klasse mit den Empfangenen Daten vom LMS-Splitter
 class LSQResponse extends stdClass
 {
@@ -107,27 +115,30 @@ class LSQResponse extends stdClass
     const listen = 'listen';
     const signalstrength = 'signalstrength';
     const name = 'name';
-    const player_name = 'player_name';  
-    const player_connected ='player_connected';
-    const player_ip='player_ip';
-    const time ='time';
-    const playlist_tracks='playlist_tracks';
-    const playlist_cur_index='playlist_cur_index';
+    const player_name = 'player_name';
+    const player_connected = 'player_connected';
+    const player_ip = 'player_ip';
+    const time = 'time';
+    const playlist_tracks = 'playlist_tracks';
+    const playlist_cur_index = 'playlist_cur_index';
+    const currentSong = 'currentSong';
+    const waitingToPlay = 'waitingToPlay';
+    const jump = 'jump';    
     const can_seek = 'can_seek';
     const rate = 'rate';
     const seq_no = 'seq_no';
     const playlist_timestamp = 'playlist_timestamp';
-    const title ='title';
-    const index='index';    
+    const title = 'title';
+    const index = 'index';
     const connected = 'connected';
     const sleep = 'sleep';
     const sync = 'sync';
     const mode = 'mode';
     const power = 'power';
     const album = 'album';
-    const artist = 'artist';    
-    const duration='duration';
-    const genre='genre';
+    const artist = 'artist';
+    const duration = 'duration';
+    const genre = 'genre';
     const play = 'play';
     const stop = 'stop';
     const pause = 'pause';
@@ -154,11 +165,10 @@ class LSQResponse extends stdClass
     const repeat = 'repeat';
     const shuffle = 'shuffle';
     const newsong = 'newsong';
-    const tracks ='tracks';
-    
+    const tracks = 'tracks';
 
     /*
-    connected ?
+      connected ?
       play
       stop
       pause
@@ -206,10 +216,12 @@ class LSQResponse extends stdClass
       playlist repeat
       playlistcontrol
      */
+
     public $Address;
     public $Command;
     public $Value;
     public $isResponse = false;
+
 //    private $Modus = Array(2 => LSQResponse::stop, 3 => LSQResponse::play, 4 => LSQResponse::pause);
 
     public function __construct($Data) // LMS->Data
@@ -240,19 +252,19 @@ class LSQResponse extends stdClass
             case LSQResponse::artist:
             case LSQResponse::genre:
             case LSQResponse::duration:
-                
-                    $this->Command = $Data->Data[0];
+
+                $this->Command = $Data->Data[0];
                 if (isset($Data->Data[1]))
                     $this->Value = $Data->Data[1];
                 break;
             // 0 = Command 1=multiValue
             case LSQResponse::status:
-                
-                $this->Command[0] =array_shift($Data->Data);
-                $this->Command[1] =array_shift($Data->Data);
-                $this->Command[2] =array_shift($Data->Data);
+
+                $this->Command[0] = array_shift($Data->Data);
+                $this->Command[1] = array_shift($Data->Data);
+                $this->Command[2] = array_shift($Data->Data);
 //                $this->Command[3] =array_shift($Data->Data);                
-                $this->Value= array_values($Data->Data);
+                $this->Value = array_values($Data->Data);
                 break;
 //        LSQResponse::show,
 //        LSQResponse::display,
@@ -267,33 +279,33 @@ class LSQResponse extends stdClass
                 if (isset($Data->Data[3]))
                 {
                     $this->Value[0] = $Data->Data[2];
-                    $this->Value[1] = $Data->Data[3];                
+                    $this->Value[1] = $Data->Data[3];
                 }
                 elseif (isset($Data->Data[2]))
                     $this->Value = $Data->Data[2];
                 break;
-                
+
             // 2 = Command 3 = Value             
             case LSQResponse::prefset:
                 $this->Command[0] = $Data->Data[0];
                 $this->Command[1] = $Data->Data[1];
-                $this->Command[2] = $Data->Data[2];                
+                $this->Command[2] = $Data->Data[2];
                 if (isset($Data->Data[3]))
                     $this->Value = $Data->Data[3];
                 break;
             default:
-                $this->Command =false;
+                $this->Command = false;
                 $this->Value = $Data->Data;
                 break;
         }
     }
+
     // Liefert den Aktuellen Zustand (play,pause,stop) als integer für die Status-Variable
-/*    public function GetModus()
-    {
+    /*    public function GetModus()
+      {
 
-        return (int) array_keys($this->Modus, $this->Value, true);
-    }*/
-
+      return (int) array_keys($this->Modus, $this->Value, true);
+      } */
 }
 
 ?>
