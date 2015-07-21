@@ -559,7 +559,7 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetValueInteger('Shuffle', (int) ($LSQEvent->Value));
                 break;
             case LSQResponse::title:
-                $this->SetValueString('Title', trim(urldecode($title)));
+                $this->SetValueString('Title', trim(urldecode($LSQEvent->Value)));
                 break;
             case LSQResponse::newsong:
                 if (is_array($LSQEvent->Value))
