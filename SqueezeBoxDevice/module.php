@@ -559,7 +559,6 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetValueInteger('Shuffle', (int) ($LSQEvent->Value));
                 break;
             case LSQResponse::newsong:
-                //force Refresh of Browser
                 if (is_array($LSQEvent->Value))
                 {
                     $title = $LSQEvent->Value[0];
@@ -573,16 +572,17 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetValueInteger('Status', 2);
                 $this->SetValueString('Title', trim(urldecode($title)));
                 $this->SetValueInteger('Index', $currentTrack);
-                $this->SendLSQData(new LSQData(LSQResponse::artist, '?')); //, false)
-                $this->SendLSQData(new LSQData(LSQResponse::album, '?')); //, false)
-                $this->SendLSQData(new LSQData(LSQResponse::genre, '?')); //, false)
-                $this->SendLSQData(new LSQData(LSQResponse::duration, '?')); //, false)
-                $this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::tracks), '?')); //, false)
+                $this->SendLSQData(new LSQData(LSQResponse::artist, '?', false));
+                $this->SendLSQData(new LSQData(LSQResponse::album, '?', false));
+                $this->SendLSQData(new LSQData(LSQResponse::genre, '?', false));
+                $this->SendLSQData(new LSQData(LSQResponse::duration, '?', false));
+                $this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::tracks), '?', false));
                 $this->SetCover();
                 $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:' . $this->ReadPropertyInteger('Interval'), false));
                 break;
             case LSQResponse::playlist:
-//                if ($LSQEvent->Command[1]<>LSQResponse::stop)  //Playlist stop kommt auch bei fwd ?
+                if (($LSQEvent->Command[0]<>LSQResponse::stop)  //Playlist stop kommt auch bei fwd ?
+                        and ($LSQEvent->Command[0]<>LSQResponse::mode))
                 $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[0], $LSQEvent->Value, $LSQEvent->isResponse));
                 break;
             case LSQResponse::prefset:
@@ -639,7 +639,7 @@ class SqueezeboxDevice extends IPSModule
                 if ($LSQEvent->Command[0] == '-')// and ( $LSQEvent->Command[1] == '1') and ( strpos($Event, "subscribe%3A") > 0))
                        
                 {
-                    IPS_LogMessage('subscribeLSQEvent', print_r($LSQEvent->Value, 1));
+//                    IPS_LogMessage('subscribeLSQEvent', print_r($LSQEvent->Value, 1));
                     foreach ($LSQEvent->Value as $Data)
                     {
                         $LSQPart = $this->decodeLSQTaggingData($Data, $LSQEvent->isResponse);
