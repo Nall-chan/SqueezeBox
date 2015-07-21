@@ -632,11 +632,12 @@ class SqueezeboxDevice extends IPSModule
                     if (IPS_GetVariableProfile($Name)['MaxValue'] <> $LSQEvent->Value)
                         IPS_SetVariableProfileValues($Name, 1, $LSQEvent->Value, 1);
                 }
-                break;
+                break;                
             case LSQResponse::status:
-                IPS_LogMessage('statusLSQEvent', print_r($LSQEvent, 1));
+//                IPS_LogMessage('statusLSQEvent', print_r($LSQEvent, 1));
                 $Event = array_shift($LSQEvent->Value);
-                if (($LSQEvent->Command[0] == '-') and ( $LSQEvent->Command[1] == '1') and ( strpos($Event, 'subscribe%3A') > 0))
+                if ($LSQEvent->Command[0] == '-')// and ( $LSQEvent->Command[1] == '1') and ( strpos($Event, "subscribe%3A") > 0))
+                       
                 {
                     IPS_LogMessage('subscribeLSQEvent', print_r($LSQEvent->Value, 1));
                     foreach ($LSQEvent->Value as $Data)
@@ -646,7 +647,7 @@ class SqueezeboxDevice extends IPSModule
                         $this->decodeLSQEvent($LSQPart);
                     }
                 }
-                if (($LSQEvent->Command[0] == '0') and ( strpos($Event, 'tags%3A') > 0))
+                if ($LSQEvent->Command[0] == '0') //and ( strpos($Event, "tags%3A") > 0))
                 { //Daten für Playlist dekodieren und zurückgeben
                     IPS_LogMessage('statusLSQEvent', print_r($LSQEvent->Value, 1));
                 }
