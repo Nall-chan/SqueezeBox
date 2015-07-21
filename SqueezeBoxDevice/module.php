@@ -438,13 +438,10 @@ class SqueezeboxDevice extends IPSModule
 
     private function decodeLSQEvent($LSQEvent)
     {
-        $MainCommand = array_shift($LSQEvent->Command);
-        if ($MainCommand == NULL)
-            $MainCommand = $LSQEvent->Command;
-/*        if (is_array($LSQEvent->Command))
-            $MainCommand = $LSQEvent->Command[0];
+        if (is_array($LSQEvent->Command))
+            $MainCommand = array_shift($LSQEvent->Command);
         else
-            $MainCommand = $LSQEvent->Command;*/
+            $MainCommand = $LSQEvent->Command;
         switch ($MainCommand)
         {
             case LSQResponse::connected:
