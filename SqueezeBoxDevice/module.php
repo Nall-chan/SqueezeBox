@@ -429,17 +429,19 @@ class SqueezeboxDevice extends IPSModule
 
     public function GetSongInfoByTrackIndex($Index)
     {
+        if (is_int($Index)) $Index--;
         $Data = $this->SendLSQData(new LSQData(array('status', (string) $Index, '1'), 'tags:gladiqrRt'));
         $Song = $this->DecodeSongInfo($Data)[0];
+        IPS_LogMessage('SONGINFO', print_r($Song, 1));        
         return $Song;
     }
 
-    public function GetSongInfoByFileID($Index)
+    public function GetSongInfoByFileID($ID)
     {
         
     }
 
-    public function GetSongInfoByFileURL($Index)
+    public function GetSongInfoByFileURL($File)
     {
         
     }
@@ -615,8 +617,11 @@ class SqueezeboxDevice extends IPSModule
             case LSQResponse::pause:
                 if (boolval($LSQEvent->Value))
                 {
+                if (GetValueInteger($this->GetIDForIdent('Status')) <> 3)                    
+                {
                     $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:0', false));
                     $this->SetValueInteger('Status', 3);
+                }
                 }
                 else
                 {
@@ -636,8 +641,11 @@ class SqueezeboxDevice extends IPSModule
                 }
                 break;
             case LSQResponse::stop:
+                if (GetValueInteger($this->GetIDForIdent('Status')) <> 1)                
+                {
                 $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:0', false));
                 $this->SetValueInteger('Status', 1);
+                }
                 break;
             case LSQResponse::mode:
 //                IPS_LogMessage('MODE', print_r($LSQEvent, 1));
@@ -787,7 +795,7 @@ class SqueezeboxDevice extends IPSModule
                 break;
             case LSQResponse::status:
 //                IPS_LogMessage('statusLSQEvent', print_r($LSQEvent, 1));
-                $Event = array_shift($LSQEvent->Value);
+                array_shift($LSQEvent->Value);
                 if ($LSQEvent->Command[0] == '-')// and ( $LSQEvent->Command[1] == '1') and ( strpos($Event, "subscribe%3A") > 0))
                 {
 //                    IPS_LogMessage('subscribeLSQEvent', print_r($LSQEvent->Value, 1));
@@ -798,135 +806,14 @@ class SqueezeboxDevice extends IPSModule
                         $this->decodeLSQEvent($LSQPart);
                     }
                 }
-                if ($LSQEvent->Command[0] == '0') //and ( strpos($Event, "tags%3A") > 0))
+                
+// ALT                 
+/*                if ($LSQEvent->Command[0] == '0') //and ( strpos($Event, "tags%3A") > 0))
                 { //Daten für Playlist dekodieren und zurückgeben
 //                    IPS_LogMessage('statusLSQEvent', print_r($LSQEvent->Value, 1));
                     $Songs = $this->DecodeSongInfo($LSQEvent->Value);
                     IPS_LogMessage('statusLSQEvent', print_r($Songs, 1));
-                    /* 21.07.2015 22:20:40 | statusLSQEvent | Array
-                      (
-                      [0] => player_name%3ASqueezebox%20Micha%20
-                      [1] => player_connected%3A1
-                      [2] => player_ip%3A192.168.201.81%3A53657
-                      [3] => power%3A1
-                      [4] => signalstrength%3A100
-                      [5] => mode%3Aplay
-                      [6] => time%3A54.7751513404846
-                      [7] => rate%3A1
-                      [8] => duration%3A263.506
-                      [9] => can_seek%3A1
-                      [10] => mixer%20volume%3A11
-                      [11] => playlist%20repeat%3A0
-                      [12] => playlist%20shuffle%3A0
-                      [13] => playlist%20mode%3Aoff
-                      [14] => seq_no%3A13
-                      [15] => playlist_cur_index%3A1
-                      [16] => playlist_timestamp%3A1437509974.24247
-                      [17] => playlist_tracks%3A9
-                     * 
-                     * 
-                      [18] => playlist%20index%3A0
-                      [19] => id%3A20872
-                      [20] => title%3A%E5%B8%8C%E6%9C%9B%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6
-                      [21] => genre%3ASoundtrack%2FAnime
-                      [22] => album%3AAKB0048%20Complete%20Vocal%20Collection
-                      [23] => artist%3ANO%20NAME
-                      [24] => duration%3A246.146
-                      [25] => disc%3A4
-                      [26] => disccount%3A4
-                      [27] => bitrate%3A320kb%2Fs%20CBR
-                      [28] => tracknum%3A1
-                     * 
-                      [29] => playlist%20index%3A1
-                      [30] => id%3A20873
-                      [31] => title%3A%E5%A4%A2%E3%81%AF%E4%BD%95%E5%BA%A6%E3%82%82%E7%94%9F%E3%81%BE%E3%82%8C%E5%A4%89%E3%82%8F%E3%82%8B
-                      [32] => genre%3ASoundtrack%2FAnime
-                      [33] => album%3AAKB0048%20Complete%20Vocal%20Collection
-                      [34] => artist%3ANO%20NAME
-                      [35] => duration%3A263.506
-                      [36] => disc%3A4
-                      [37] => disccount%3A4
-                      [38] => bitrate%3A320kb%2Fs%20CBR
-                      [39] => tracknum%3A2
-                      [40] => playlist%20index%3A2
-                      [41] => id%3A20874
-                      [42] => title%3A%E8%99%B9%E3%81%AE%E5%88%97%E8%BB%8A
-                      [43] => genre%3ASoundtrack%2FAnime
-                      [44] => album%3AAKB0048%20Complete%20Vocal%20Collection
-                      [45] => artist%3ANO%20NAME
-                      [46] => duration%3A200.026
-                      [47] => disc%3A4
-                      [48] => disccount%3A4
-                      [49] => bitrate%3A320kb%2Fs%20CBR
-                      [50] => tracknum%3A3
-                      [51] => playlist%20index%3A3
-                      [52] => id%3A20875
-                      [53] => title%3A%E3%81%93%E3%81%AE%E6%B6%99%E3%82%92%E5%90%9B%E3%81%AB%E6%8D%A7%E3%81%90
-                      [54] => genre%3ASoundtrack%2FAnime
-                      [55] => album%3AAKB0048%20Complete%20Vocal%20Collection
-                      [56] => artist%3ANO%20NAME
-                      [57] => duration%3A239.702
-                      [58] => disc%3A4
-                      [59] => disccount%3A4
-                      [60] => bitrate%3A320kb%2Fs%20CBR
-                      [61] => tracknum%3A4
-                      [62] => playlist%20index%3A4
-                      [63] => id%3A20876
-                      [64] => title%3A%E4%B8%BB%E3%81%AA%E3%81%8D%E3%81%9D%E3%81%AE%E5%A3%B0
-                      [65] => genre%3ASoundtrack%2FAnime
-                      [66] => album%3AAKB0048%20Complete%20Vocal%20Collection
-                      [67] => artist%3ANO%20NAME
-                      [68] => duration%3A292.92
-                      [69] => disc%3A4
-                      [70] => disccount%3A4
-                      [71] => bitrate%3A320kb%2Fs%20CBR
-                      [72] => tracknum%3A5
-                      [73] => playlist%20index%3A5
-                      [74] => id%3A20877
-                      [75] => title%3A%E5%B0%91%E5%A5%B3%E3%81%9F%E3%81%A1%E3%82%88%20%5BNO%20NAME%20ver.%5D
-                      [76] => genre%3ASoundtrack%2FAnime
-                      [77] => album%3AAKB0048%20Complete%20Vocal%20Collection
-                      [78] => artist%3ANO%20NAME
-                      [79] => duration%3A275.85
-                      [80] => disc%3A4
-                      [81] => disccount%3A4
-                      [82] => bitrate%3A320kb%2Fs%20CBR
-                      [83] => tracknum%3A6
-                      [84] => playlist%20index%3A6
-                      [85] => id%3A20878
-                      [86] => title%3A%E5%A4%A7%E5%A3%B0%E3%83%80%E3%82%A4%E3%83%A4%E3%83%A2%E3%83%B3%E3%83%89%20%5BNO%20NAME%20ver.%5D
-                      [87] => genre%3ASoundtrack%2FAnime
-                      [88] => album%3AAKB0048%20Complete%20Vocal%20Collection
-                      [89] => artist%3ANO%20NAME
-                      [90] => duration%3A251.917
-                      [91] => disc%3A4
-                      [92] => disccount%3A4
-                      [93] => bitrate%3A320kb%2Fs%20CBR
-                      [94] => tracknum%3A7
-                      [95] => playlist%20index%3A7
-                      [96] => id%3A20879
-                      [97] => title%3A%E5%88%9D%E6%97%A5%20%5BNO%20NAME%20ver.%5D
-                      [98] => genre%3ASoundtrack%2FAnime
-                      [99] => album%3AAKB0048%20Complete%20Vocal%20Collection
-                      [100] => artist%3ANO%20NAME
-                      [101] => duration%3A232.759
-                      [102] => disc%3A4
-                      [103] => disccount%3A4
-                      [104] => bitrate%3A320kb%2Fs%20CBR
-                      [105] => tracknum%3A8
-                      [106] => playlist%20index%3A8
-                      [107] => id%3A20880
-                      [108] => title%3A%E3%81%A6%E3%82%82%E3%81%A7%E3%82%82%E3%81%AE%E6%B6%99%20%5BNO%20NAME%20ver.%5D
-                      [109] => genre%3ASoundtrack%2FAnime
-                      [110] => album%3AAKB0048%20Complete%20Vocal%20Collection
-                      [111] => artist%3ANO%20NAME
-                      [112] => duration%3A223.442
-                      [113] => disc%3A4
-                      [114] => disccount%3A4
-                      [115] => bitrate%3A320kb%2Fs%20CBR
-                      [116] => tracknum%3A9
-                      ) */
-                }
+                }*/
                 break;
             case LSQResponse::index:
             case LSQResponse::playlist_cur_index:
