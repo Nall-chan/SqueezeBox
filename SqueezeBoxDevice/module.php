@@ -409,8 +409,8 @@ class SqueezeboxDevice extends IPSModule
 
     public function SetPosition($Value)
     {
-        if (!is_int($Value))
-            throw new Exception("Value must be integer.".print_r($Value,1));
+        if (!is_float($Value))
+            throw new Exception("Value must be integer.");
         $ret = $this->SendLSQData(new LSQData('time', $Value));
         return ($ret == $Value);
     }
@@ -616,7 +616,10 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetValueInteger('Status', 1);
                 break;
             case LSQResponse::mode:
-                $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[0], $LSQEvent->Value, $LSQEvent->isResponse));
+                if ($LSQEvent->Command[0] <>'')
+                    $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[0], $LSQEvent->Value, $LSQEvent->isResponse));
+                else
+                    $this->decodeLSQEvent(new LSQEvent($LSQEvent->Value,'', $LSQEvent->isResponse));                    
                 break;
             case LSQResponse::client:
                 if (!$LSQEvent->isResponse) //wenn Response, dann macht der Anfrager das selbst                
