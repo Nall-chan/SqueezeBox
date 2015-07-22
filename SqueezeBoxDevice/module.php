@@ -620,13 +620,20 @@ class SqueezeboxDevice extends IPSModule
                 }
                 else
                 {
+                if (GetValueInteger($this->GetIDForIdent('Status')) <> 2)
+                {
+                   
                     $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:' . $this->ReadPropertyInteger('Interval'), false));
                     $this->SetValueInteger('Status', 2);
                 }
+                }
                 break;
             case LSQResponse::play:
-                $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:' . $this->ReadPropertyInteger('Interval'), false));
+                if (GetValueInteger($this->GetIDForIdent('Status')) <> 2)
+                {
+                    $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:' . $this->ReadPropertyInteger('Interval'), false));
                 $this->SetValueInteger('Status', 2);
+                }
                 break;
             case LSQResponse::stop:
                 $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:0', false));
