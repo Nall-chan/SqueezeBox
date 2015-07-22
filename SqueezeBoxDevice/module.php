@@ -410,7 +410,7 @@ class SqueezeboxDevice extends IPSModule
     public function SetPosition($Value)
     {
         if (!is_int($Value))
-            throw new Exception("Value must be integer.");
+            throw new Exception("Value must be integer.".print_r($Value,1));
         $ret = $this->SendLSQData(new LSQData('time', $Value));
         return ($ret == $Value);
     }
@@ -447,8 +447,8 @@ class SqueezeboxDevice extends IPSModule
     private function DecodeSongInfo($Data)
     {
         $id = 0;
-        $Songs = explode(' ', $Data);
-        foreach ($Data as $Line)
+        $Songs = array();
+        foreach (explode(' ',$Data) as $Line)
         {
             $LSQPart = $this->decodeLSQTaggingData($Line);
             if (is_array($LSQPart->Command) and ( $LSQPart->Command[0] == LSQResponse::playlist) and ( $LSQPart->Command[0] == LSQResponse::index))
@@ -973,13 +973,13 @@ class SqueezeboxDevice extends IPSModule
     private function decodeLSQTaggingData($Data, $isResponse)
     {
         $Part = explode(chr(0x3a), urldecode($Data));
-        //IPS_LogMessage('PartLSQEvent', print_r($Part, 1));
+        IPS_LogMessage('PartLSQEvent', print_r($Part, 1));
         $Command = array_shift($Part);
         if (!(strpos($Command, chr(0x20)) === false))
         {
             $Command = explode(chr(0x20), $Command);
         }
-        //IPS_LogMessage('CommandLSQEvent', print_r($Command, 1));
+        IPS_LogMessage('CommandLSQEvent', print_r($Command, 1));
         // alle playlist_xxx auch zerlegen ?
         if (isset($Part[1]))
         {
