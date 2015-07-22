@@ -447,14 +447,14 @@ class SqueezeboxDevice extends IPSModule
     private function DecodeSongInfo($Data)
     {
         $id = 0;
-        $Songs = array();
+        $Songs = explode(' ', $Data);
         foreach ($Data as $Line)
         {
             $LSQPart = $this->decodeLSQTaggingData($Line);
             if (is_array($LSQPart->Command) and ( $LSQPart->Command[0] == LSQResponse::playlist) and ( $LSQPart->Command[0] == LSQResponse::index))
                 $id = (int) $LSQPart->Value;
 
-            $Song[$id][$LSQPart->Command] = $LSQPart->Value;
+            $Song[$id][$LSQPart->Command] = urldecode($LSQPart->Value);
         }
         IPS_LogMessage('SONGINFO',print_r($Songs,1));
         return $Songs;
@@ -507,7 +507,7 @@ class SqueezeboxDevice extends IPSModule
                 $this->Power($Value);
                 break;
             case "Mute":
-                $this->Mute($Value);
+                $this->SetMute($Value);
                 break;
             case "Repeat":
                 $this->Repeat($Value);
@@ -534,9 +534,18 @@ class SqueezeboxDevice extends IPSModule
     private function decodeLSQEvent($LSQEvent)
     {
         if (is_array($LSQEvent->Command))
+        {
             $MainCommand = array_shift($LSQEvent->Command);
+            IPS_LogMessage('CommandLSQEvent', print_r($LSQEvent->Command, 1));            
+        }            
         else
+        {
+            IPS_LogMessage('CommandLSQEvent', $LSQEvent->Command);            
+           
             $MainCommand = $LSQEvent->Command;
+        }            
+            IPS_LogMessage('MAINCommandLSQEvent', $MainCommand);            
+        
         switch ($MainCommand)
         {
             case LSQResponse::connected:
@@ -915,11 +924,11 @@ class SqueezeboxDevice extends IPSModule
                   } */
                 break;
             default:
-                if (is_array($LSQEvent->Value))
+/*                if (is_array($LSQEvent->Value))
                     IPS_LogMessage('defaultLSQEvent', 'LSQResponse-' . $MainCommand . '-' . print_r($LSQEvent->Value, 1));
                 else
                     IPS_LogMessage('defaultLSQEvent', 'LSQResponse-' . $MainCommand . '-' . $LSQEvent->Value);
-                break;
+                break;*/
         }
         if (isset($this->tempData['Duration']) and isset($this->tempData['Position']))
         {
@@ -964,13 +973,13 @@ class SqueezeboxDevice extends IPSModule
     private function decodeLSQTaggingData($Data, $isResponse)
     {
         $Part = explode(chr(0x3a), urldecode($Data));
-        IPS_LogMessage('PartLSQEvent', print_r($Part, 1));
+        //IPS_LogMessage('PartLSQEvent', print_r($Part, 1));
         $Command = array_shift($Part);
         if (!(strpos($Command, chr(0x20)) === false))
         {
             $Command = explode(chr(0x20), $Command);
         }
-        IPS_LogMessage('CommandLSQEvent', print_r($Command, 1));
+        //IPS_LogMessage('CommandLSQEvent', print_r($Command, 1));
         // alle playlist_xxx auch zerlegen ?
         if (isset($Part[1]))
         {
