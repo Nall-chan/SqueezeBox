@@ -100,7 +100,7 @@ class LMSSplitter extends IPSModule
 
     public function CreateAllPlayer()
     {
-        /*        $players = $this->SendDataToParent('player count ?');
+                $players = $this->SendDataToParent('player count ?');
 
           for ($i = 0; $i < $players; $i++)
           {
@@ -109,7 +109,7 @@ class LMSSplitter extends IPSModule
           // Daten zerlegen und Childs anlegen/prüfen
           IPS_LogMessage('PLAYER ID' . $i, print_r($player, 1));
           IPS_LogMessage('PLAYER NAME' . $i, print_r($playerName, 1));
-          } */
+          } 
     }
 
     public function GetPlayerInfo($Value)
