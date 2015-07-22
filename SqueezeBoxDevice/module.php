@@ -519,7 +519,7 @@ class SqueezeboxDevice extends IPSModule
                 $this->tempData['Duration'] = GetValueInteger($this->GetIDForIdent('DurationRAW'));
                 $this->tempData['Position'] = GetValueInteger($this->GetIDForIdent('PositionRAW'));
                 $Time = ($this->tempData['Duration'] / 100) * $Value;
-                $this->SetTime($Time);
+                $this->SetPosition($Time);
                 break;
             case "Index":
                 $this->PlayTrack($Value);
