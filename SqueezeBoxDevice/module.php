@@ -448,15 +448,32 @@ class SqueezeboxDevice extends IPSModule
     {
         $id = 0;
         $Songs = array();
-        foreach (explode(' ',$Data) as $Line)
+        $SongFields = array(
+            'id',
+            'title',
+            'genre',
+            'album',
+            'artist',
+            'duration',
+            'disc',
+            'disccount',
+            'bitrate',
+            'tracknum'
+        );
+        foreach (explode(' ', $Data) as $Line)
         {
-            $LSQPart = $this->decodeLSQTaggingData($Line,false);
-            if (is_array($LSQPart->Command) and ( $LSQPart->Command[0] == LSQResponse::playlist) and ( $LSQPart->Command[0] == LSQResponse::index))
-                $id = (int) $LSQPart->Value;
+            $LSQPart = $this->decodeLSQTaggingData($Line, false);
 
-            $Song[$id][$LSQPart->Command] = urldecode($LSQPart->Value);
+
+            if (is_array($LSQPart->Command) and ( $LSQPart->Command[0] == LSQResponse::playlist) and ( $LSQPart->Command[0] == LSQResponse::index))
+            {
+                $id = (int) $LSQPart->Value;
+                continue;
+            }
+            if (in_array($LSQPart->Command,$SongFields))
+                $Song[$id][$LSQPart->Command] = urldecode($LSQPart->Value);
         }
-        IPS_LogMessage('SONGINFO',print_r($Songs,1));
+        IPS_LogMessage('SONGINFO', print_r($Songs, 1));
         return $Songs;
     }
 
@@ -536,16 +553,16 @@ class SqueezeboxDevice extends IPSModule
         if (is_array($LSQEvent->Command))
         {
             $MainCommand = array_shift($LSQEvent->Command);
-            IPS_LogMessage('CommandLSQEvent', print_r($LSQEvent->Command, 1));            
-        }            
+            IPS_LogMessage('CommandLSQEvent', print_r($LSQEvent->Command, 1));
+        }
         else
         {
-            IPS_LogMessage('CommandLSQEvent', $LSQEvent->Command);            
-           
+            IPS_LogMessage('CommandLSQEvent', $LSQEvent->Command);
+
             $MainCommand = $LSQEvent->Command;
-        }            
-            IPS_LogMessage('MAINCommandLSQEvent', $MainCommand);            
-        
+        }
+        IPS_LogMessage('MAINCommandLSQEvent', $MainCommand);
+
         switch ($MainCommand)
         {
             case LSQResponse::connected:
@@ -616,11 +633,11 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetValueInteger('Status', 1);
                 break;
             case LSQResponse::mode:
-                IPS_LogMessage('MODE',print_r($LSQEvent,1));
+                IPS_LogMessage('MODE', print_r($LSQEvent, 1));
                 if (is_array($LSQEvent->Command))
                     $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[0], $LSQEvent->Value, $LSQEvent->isResponse));
                 else
-                    $this->decodeLSQEvent(new LSQEvent($LSQEvent->Value,'', $LSQEvent->isResponse));                    
+                    $this->decodeLSQEvent(new LSQEvent($LSQEvent->Value, '', $LSQEvent->isResponse));
                 break;
             case LSQResponse::client:
                 if (!$LSQEvent->isResponse) //wenn Response, dann macht der Anfrager das selbst                
@@ -928,11 +945,11 @@ class SqueezeboxDevice extends IPSModule
                   } */
                 break;
             default:
-/*                if (is_array($LSQEvent->Value))
-                    IPS_LogMessage('defaultLSQEvent', 'LSQResponse-' . $MainCommand . '-' . print_r($LSQEvent->Value, 1));
-                else
-                    IPS_LogMessage('defaultLSQEvent', 'LSQResponse-' . $MainCommand . '-' . $LSQEvent->Value);
-                break;*/
+            /*                if (is_array($LSQEvent->Value))
+              IPS_LogMessage('defaultLSQEvent', 'LSQResponse-' . $MainCommand . '-' . print_r($LSQEvent->Value, 1));
+              else
+              IPS_LogMessage('defaultLSQEvent', 'LSQResponse-' . $MainCommand . '-' . $LSQEvent->Value);
+              break; */
         }
         if (isset($this->tempData['Duration']) and isset($this->tempData['Position']))
         {
