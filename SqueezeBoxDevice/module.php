@@ -354,7 +354,7 @@ class SqueezeboxDevice extends IPSModule
 
     public function SetMute($Value)
     {
-        if (!is_bool)
+        if (!is_bool($Value))
             throw new Exception("Value must boolean.");
         $ret = $this->SendLSQData(new LSQData(array('mixer', 'muting'), intval($Value)));
         return ($ret == $Value);
@@ -616,6 +616,7 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetValueInteger('Status', 1);
                 break;
             case LSQResponse::mode:
+                IPS_LogMessage('MODE',print_r($LSQEvent,1));
                 if ($LSQEvent->Command[0] <>'')
                     $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[0], $LSQEvent->Value, $LSQEvent->isResponse));
                 else
