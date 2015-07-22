@@ -450,7 +450,7 @@ class SqueezeboxDevice extends IPSModule
         $Songs = array();
         foreach (explode(' ',$Data) as $Line)
         {
-            $LSQPart = $this->decodeLSQTaggingData($Line);
+            $LSQPart = $this->decodeLSQTaggingData($Line,false);
             if (is_array($LSQPart->Command) and ( $LSQPart->Command[0] == LSQResponse::playlist) and ( $LSQPart->Command[0] == LSQResponse::index))
                 $id = (int) $LSQPart->Value;
 
@@ -617,7 +617,7 @@ class SqueezeboxDevice extends IPSModule
                 break;
             case LSQResponse::mode:
                 IPS_LogMessage('MODE',print_r($LSQEvent,1));
-                if ($LSQEvent->Command[0] <>'')
+                if (is_array($LSQEvent->Command))
                     $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[0], $LSQEvent->Value, $LSQEvent->isResponse));
                 else
                     $this->decodeLSQEvent(new LSQEvent($LSQEvent->Value,'', $LSQEvent->isResponse));                    
