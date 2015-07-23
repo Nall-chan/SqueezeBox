@@ -98,6 +98,17 @@ class LMSSplitter extends IPSModule
         return json_encode(array(1, 5, 7.9, 'footo' => 2, 'foo' => 'bar'));
     }
 
+    
+    public function GetSongInfoByFileID($ID)
+    {
+        
+    }
+
+    public function GetSongInfoByFileURL($File)
+    {
+        
+    }
+    
     public function CreateAllPlayer()
     {
                 $players = $this->SendDataToParent('player count ?');
