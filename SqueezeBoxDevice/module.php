@@ -760,7 +760,7 @@ class SqueezeboxDevice extends IPSModule
                 }
                 elseif (boolval($LSQEvent->Value))
                 {
-                    $this->_SetPlay();
+                    $this->_SetPause();
                     /* if (GetValueInteger($this->GetIDForIdent('Status')) <> 3)
                       {
                       $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:0', false));
@@ -769,7 +769,7 @@ class SqueezeboxDevice extends IPSModule
                 }
                 else
                 {
-                    $this->_SetPause();
+                    $this->_SetPlay();
                     /* if (GetValueInteger($this->GetIDForIdent('Status')) <> 2)
                       {
 
@@ -860,14 +860,14 @@ class SqueezeboxDevice extends IPSModule
                     $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[0], $LSQEvent->Value, $LSQEvent->isResponse));
                 break;
             case LSQResponse::prefset:
-                if ($LSQEvent->Command[0] == 'server')
+/*                if ($LSQEvent->Command[0] == 'server')
                 {
                     $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[1], $LSQEvent->Value, $LSQEvent->isResponse));
                 }
                 else
                 {
                     IPS_LogMessage('prefsetLSQEvent', 'Namespace' . $LSQEvent->Command[0] . ':' . $LSQEvent->Value);
-                }
+                }*/
                 break;
             case LSQResponse::title:
                 $this->SetValueString('Title', trim(urldecode($LSQEvent->Value)));
@@ -979,7 +979,7 @@ class SqueezeboxDevice extends IPSModule
                   } */
                 break;
             case LSQResponse::can_seek:
-                if (IPS_GetValueBoolean($this->GetIDForIdent('can_ssek')) <> boolval($LSQEvent->Value))
+                if (GetValueBoolean($this->GetIDForIdent('can_ssek')) <> boolval($LSQEvent->Value))
                 {
                     $this->_SetSeekable(boolval($LSQEvent->Value));
 //                    $this->SetValueBoolean('can_seek', boolval($LSQEvent->Value));
