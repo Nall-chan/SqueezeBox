@@ -1140,7 +1140,7 @@ class SqueezeboxDevice extends IPSModule
 
     public function ReceiveData($JSONString)
     {
-        $Data = utf8_decode(json_decode($JSONString));
+        $Data = json_decode($JSONString);
         $this->Init();
         if ($this->Address === '') //Keine Adresse Daten nicht verarbeiten
             return false;
@@ -1194,7 +1194,7 @@ class SqueezeboxDevice extends IPSModule
         // Daten senden
         try
         {
-            $ret = IPS_SendDataToParent($this->InstanceID, json_encode(Array("DataID" => "{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}", "LSQ" => utf8_encode($LSQData))));
+            $ret = IPS_SendDataToParent($this->InstanceID, json_encode(Array("DataID" => "{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}", "LSQ" => $LSQData)));
         }
         catch (Exception $exc)
         {
