@@ -568,7 +568,7 @@ class SqueezeboxDevice extends IPSModule
         $this->SetValueInteger('Volume', $Value);
     }
 
-    private function __SetSeekable($Value)
+    private function _SetSeekable($Value)
     {
         $this->SetValueBoolean('can_seek', boolval($LSQEvent->Value));
         if (boolval($LSQEvent->Value))
