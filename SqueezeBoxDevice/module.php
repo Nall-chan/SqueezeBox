@@ -570,8 +570,8 @@ class SqueezeboxDevice extends IPSModule
 
     private function _SetSeekable($Value)
     {
-        $this->SetValueBoolean('can_seek', boolval($LSQEvent->Value));
-        if (boolval($LSQEvent->Value))
+        $this->SetValueBoolean('can_seek', boolval($Value));
+        if (boolval($Value))
             $this->EnableAction("Position2");
         else
             $this->DisableAction('Position2');
