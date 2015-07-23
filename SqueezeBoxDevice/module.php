@@ -198,17 +198,16 @@ class SqueezeboxDevice extends IPSModule
             }
         }
     }
+
     /**
      * This function will be available automatically after the module is imported with the module control.
      * Using the custom prefix this function will be callable from PHP and JSON-RPC through:
      */
-
 ################## PUBLIC
     /**
      * This function will be available automatically after the module is imported with the module control.
      * Using the custom prefix this function will be callable from PHP and JSON-RPC through:
      */
-
     public function RequestState()
     {
         $this->init();
@@ -700,6 +699,12 @@ class SqueezeboxDevice extends IPSModule
         switch ($MainCommand)
         {
             case LSQResponse::player_connected:
+                if (GetValueBoolean($this->GetIDForIdent('Connected')) <> boolvar($LSQEvent->Value))
+                {
+                    $this->SetConnected(true);
+                }
+
+                break;
             case LSQResponse::connected:
                 if (!$LSQEvent->isResponse) //wenn Response, dann macht der Anfrager das selbst
                 {
@@ -1101,14 +1106,8 @@ class SqueezeboxDevice extends IPSModule
 
     private function SetConnected($Status)
     {
-        if (GetValueBoolean($this->GetIDForIdent('Connected')) <> $Status)
-        {
-            $this->SetValueBoolean('Connected', $Status);
-            if ($Status)
-            {
-                $this->RequestState();
-            }
-        }
+        $this->SetValueBoolean('Connected', $Status);
+        $this->RequestState();
     }
 
     private function Init()
