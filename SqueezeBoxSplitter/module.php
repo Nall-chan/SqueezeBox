@@ -142,7 +142,7 @@ class LMSSplitter extends IPSModule
 
     public function ForwardData($JSONString)
     {
-        $Data = json_decode($JSONString);
+        $Data = utf8_decode(json_decode($JSONString));
 
         // Daten annehmen und Command zusammenfügen wenn Array
         if (is_array($Data->LSQ->Command))
@@ -159,7 +159,7 @@ class LMSSplitter extends IPSModule
     // Ankommend von Parent-ClientSocket
     public function ReceiveData($JSONString)
     {
-        $data = json_decode($JSONString);
+        $data = utf8_decode(json_decode($JSONString));
         $bufferID = $this->GetIDForIdent("BufferIN");
 
         // Empfangs Lock setzen
@@ -211,7 +211,7 @@ class LMSSplitter extends IPSModule
             {
                 try
                 {
-                    if (!$this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "LMS" => $Data))))
+                    if (!$this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "LMS" => utf8_encode($Data)))))
                         $ReceiveOK = false;
                 }
                 catch (Exception $exc)
@@ -237,7 +237,7 @@ class LMSSplitter extends IPSModule
         // Daten senden
         try
         {
-            $ret = IPS_SendDataToParent($this->InstanceID, json_encode(Array("DataID" => "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}", "Buffer" => $Data . chr(0x0d))));
+            $ret = IPS_SendDataToParent($this->InstanceID, json_encode(Array("DataID" => "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}", "Buffer" => utf8_encode($Data . chr(0x0d)))));
         }
         catch (Exception $exc)
         {
