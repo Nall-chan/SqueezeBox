@@ -526,10 +526,10 @@ class SqueezeboxDevice extends IPSModule
     private function _SetPlay()
     {
         $this->SetValueBoolean('Power', true);
-        if (GetValueInteger($this->GetIDForIdent('Status')) <> 3)
+        if (GetValueInteger($this->GetIDForIdent('Status')) <> 2)
         {
 
-            $this->SetValueInteger('Status', 3);
+            $this->SetValueInteger('Status', 2);
             $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:' . $this->ReadPropertyInteger('Interval'), false));
         }
     }
@@ -699,7 +699,7 @@ class SqueezeboxDevice extends IPSModule
         switch ($MainCommand)
         {
             case LSQResponse::player_connected:
-                if (GetValueBoolean($this->GetIDForIdent('Connected')) <> boolvar($LSQEvent->Value))
+                if (GetValueBoolean($this->GetIDForIdent('Connected')) <> boolval($LSQEvent->Value))
                 {
                     $this->SetConnected(true);
                 }
