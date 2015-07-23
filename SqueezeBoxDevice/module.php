@@ -789,7 +789,10 @@ class SqueezeboxDevice extends IPSModule
                 $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[0], $LSQEvent->Value, $LSQEvent->isResponse));
                 break;
             case LSQResponse::volume:
-                $this->_NewVolume((int) $LSQEvent->Value);
+                if (is_array($LSQEvent->Value))
+                    $this->_NewVolume((int) $LSQEvent->Value[0]);
+                else
+                    $this->_NewVolume((int) $LSQEvent->Value);
                 break;
             case LSQResponse::treble:
                 $this->SetValueInteger('Treble', (int) ($LSQEvent->Value));
@@ -860,14 +863,14 @@ class SqueezeboxDevice extends IPSModule
                     $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[0], $LSQEvent->Value, $LSQEvent->isResponse));
                 break;
             case LSQResponse::prefset:
-/*                if ($LSQEvent->Command[0] == 'server')
-                {
-                    $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[1], $LSQEvent->Value, $LSQEvent->isResponse));
-                }
-                else
-                {
-                    IPS_LogMessage('prefsetLSQEvent', 'Namespace' . $LSQEvent->Command[0] . ':' . $LSQEvent->Value);
-                }*/
+                /*                if ($LSQEvent->Command[0] == 'server')
+                  {
+                  $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[1], $LSQEvent->Value, $LSQEvent->isResponse));
+                  }
+                  else
+                  {
+                  IPS_LogMessage('prefsetLSQEvent', 'Namespace' . $LSQEvent->Command[0] . ':' . $LSQEvent->Value);
+                  } */
                 break;
             case LSQResponse::title:
                 $this->SetValueString('Title', trim(urldecode($LSQEvent->Value)));
