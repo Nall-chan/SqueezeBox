@@ -469,7 +469,7 @@ class SqueezeboxDevice extends IPSModule
 
     public function Power($Value)
     {
-        if (!is_bool)
+        if (!is_bool($Value))
             throw new Exception("Value must boolean.");
         $ret = $this->SendLSQData(new LSQData('power', intval($Value)));
         return ($ret == $Value);
