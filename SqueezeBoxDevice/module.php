@@ -979,7 +979,7 @@ class SqueezeboxDevice extends IPSModule
                   } */
                 break;
             case LSQResponse::can_seek:
-                if (GetValueBoolean($this->GetIDForIdent('can_ssek')) <> boolval($LSQEvent->Value))
+                if (GetValueBoolean($this->GetIDForIdent('can_seek')) <> boolval($LSQEvent->Value))
                 {
                     $this->_SetSeekable(boolval($LSQEvent->Value));
 //                    $this->SetValueBoolean('can_seek', boolval($LSQEvent->Value));
