@@ -545,11 +545,11 @@ class SqueezeboxDevice extends IPSModule
 
     private function _SetPause()
     {
-        if (GetValueInteger($this->GetIDForIdent('Status')) <> 2)
+        if (GetValueInteger($this->GetIDForIdent('Status')) <> 3)
         {
 
             $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:' . $this->ReadPropertyInteger('Interval'), false));
-            $this->SetValueInteger('Status', 2);
+            $this->SetValueInteger('Status', 3);
         }
     }
 
