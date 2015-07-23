@@ -1097,10 +1097,13 @@ class SqueezeboxDevice extends IPSModule
 
     private function SetConnected($Status)
     {
-        $this->SetValueBoolean('Connected', $Status);
-        if ($Status)
+        if (GetValueBoolean($this->GetIDForIdent('Connected') <> $Status))
         {
-            $this->Sync();
+            $this->SetValueBoolean('Connected', $Status);
+            if ($Status)
+            {
+                $this->Sync();
+            }
         }
     }
 
