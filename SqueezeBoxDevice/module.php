@@ -548,7 +548,7 @@ class SqueezeboxDevice extends IPSModule
         if (GetValueInteger($this->GetIDForIdent('Status')) <> 3)
         {
 
-            $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:' . $this->ReadPropertyInteger('Interval'), false));
+            $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:0', false));
             $this->SetValueInteger('Status', 3);
         }
     }
