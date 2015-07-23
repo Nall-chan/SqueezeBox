@@ -198,6 +198,10 @@ class SqueezeboxDevice extends IPSModule
             }
         }
     }
+    /**
+     * This function will be available automatically after the module is imported with the module control.
+     * Using the custom prefix this function will be callable from PHP and JSON-RPC through:
+     */
 
 ################## PUBLIC
     /**
@@ -205,7 +209,7 @@ class SqueezeboxDevice extends IPSModule
      * Using the custom prefix this function will be callable from PHP and JSON-RPC through:
      */
 
-    public function Sync()
+    public function RequestState()
     {
         $this->init();
 
@@ -1102,7 +1106,7 @@ class SqueezeboxDevice extends IPSModule
             $this->SetValueBoolean('Connected', $Status);
             if ($Status)
             {
-                $this->Sync();
+                $this->RequestState();
             }
         }
     }
