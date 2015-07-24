@@ -220,6 +220,7 @@ class LMSSplitter extends IPSModule
             // Nicht Server antworten zu den Devices weiter senden.
             else
             {
+                IPS_LogMessage('Splitter',print_r($Data,1));
                 try
                 {
                     if (!$this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "LMS" => $Data))))
