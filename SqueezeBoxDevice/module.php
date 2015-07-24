@@ -242,6 +242,7 @@ class SqueezeboxDevice extends IPSModule
               $this->SendLSQData(
               new LSQData(array(LSQResponse::mixer, LSQResponse::muting), '?', false)
               ); */
+            SetValueInteger($this->GetIDForIdent('Status'),1);
             $this->SendLSQData(
                     new LSQData(LSQResponse::mode, '?', false)
             );
