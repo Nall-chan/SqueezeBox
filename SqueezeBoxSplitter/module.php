@@ -170,6 +170,7 @@ class LMSSplitter extends IPSModule
     // Ankommend von Parent-ClientSocket
     public function ReceiveData($JSONString)
     {
+        IPS_LogMessage('SplitterRAW','bevorJson');     
         $data = json_decode($JSONString);
         IPS_LogMessage('SplitterRAW',print_r($data,1));     
         return;
