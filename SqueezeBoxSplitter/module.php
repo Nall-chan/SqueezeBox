@@ -171,7 +171,8 @@ class LMSSplitter extends IPSModule
     public function ReceiveData($JSONString)
     {
         $data = json_decode($JSONString);
-        IPS_LogMessage('SplitterRAW',print_r($data,1));        
+        IPS_LogMessage('SplitterRAW',print_r($data,1));     
+        return;
         $bufferID = $this->GetIDForIdent("BufferIN");
 
         // Empfangs Lock setzen
