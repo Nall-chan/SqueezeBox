@@ -1206,7 +1206,7 @@ class SqueezeboxDevice extends IPSModule
     public function ReceiveData($JSONString)
     {
         $Data = json_decode($JSONString);
-                IPS_LogMessage('Splitter',print_r($Data,1));
+                IPS_LogMessage('DeviceRAW',print_r($Data,1));
         
         $this->Init();
         if ($this->Address === '') //Keine Adresse Daten nicht verarbeiten
@@ -1231,7 +1231,7 @@ class SqueezeboxDevice extends IPSModule
                     // Daten dekodieren
                     if (!$isResponse)
                     {
-                                        IPS_LogMessage('Splitter',print_r($Response,1));
+                                        IPS_LogMessage('DeviceLSQ',print_r($Response,1));
 
                         $this->decodeLSQEvent($Response);
                     }

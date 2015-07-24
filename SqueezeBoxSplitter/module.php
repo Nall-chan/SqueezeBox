@@ -171,6 +171,7 @@ class LMSSplitter extends IPSModule
     public function ReceiveData($JSONString)
     {
         $data = json_decode($JSONString);
+        IPS_LogMessage('SplitterRAW',print_r($data,1));        
         $bufferID = $this->GetIDForIdent("BufferIN");
 
         // Empfangs Lock setzen
@@ -220,7 +221,7 @@ class LMSSplitter extends IPSModule
             // Nicht Server antworten zu den Devices weiter senden.
             else
             {
-                IPS_LogMessage('Splitter',print_r($Data,1));
+                IPS_LogMessage('SplitterLMS',print_r($Data,1));
                 try
                 {
                     if (!$this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "LMS" => $Data))))
