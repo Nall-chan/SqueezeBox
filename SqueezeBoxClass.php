@@ -126,7 +126,8 @@ class LSQResponse extends stdClass
     const waitingToPlay = 'waitingToPlay';
     const jump = 'jump';    
     const can_seek = 'can_seek';
-    const remote = 'remote';    
+    const remote = 'remote';   
+    const newmetadata ='newmetadata';
     const rate = 'rate';
     const seq_no = 'seq_no';
     const playlist_timestamp = 'playlist_timestamp';
@@ -256,6 +257,7 @@ class LSQResponse extends stdClass
             case LSQResponse::genre:
             case LSQResponse::duration:
             case LSQResponse::time:
+            case LSQResponse::newmetadata:
                 $this->Command = $Data->Data[0];
                 if (isset($Data->Data[1]))
                     $this->Value = $Data->Data[1];
