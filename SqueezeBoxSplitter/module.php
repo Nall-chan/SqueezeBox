@@ -184,7 +184,7 @@ class LMSSplitter extends IPSModule
         SetValueString($bufferID, '');
 
         // Stream in einzelne Pakete schneiden
-        $packet = explode(chr(0x0d), $head . $data->Buffer);
+        $packet = explode(chr(0x0d), $head . utf8_decode($data->Buffer));
 
         // Rest vom Stream wieder in den Empfangsbuffer schieben
         $tail = array_pop($packet);
@@ -248,7 +248,7 @@ class LMSSplitter extends IPSModule
         // Daten senden
         try
         {
-            $ret = IPS_SendDataToParent($this->InstanceID, json_encode(Array("DataID" => "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}", "Buffer" => $Data . chr(0x0d))));
+            $ret = IPS_SendDataToParent($this->InstanceID, json_encode(Array("DataID" => "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}", "Buffer" => utf8_encode($Data . chr(0x0d)))));
         }
         catch (Exception $exc)
         {
