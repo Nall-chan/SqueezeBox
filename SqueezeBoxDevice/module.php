@@ -778,6 +778,7 @@ class SqueezeboxDevice extends IPSModule
                       } */
                 }
                 break;
+              
             case LSQResponse::mode:
 //                IPS_LogMessage('MODE', print_r($LSQEvent, 1));
                 if (is_array($LSQEvent->Command))
@@ -854,7 +855,9 @@ class SqueezeboxDevice extends IPSModule
                 $this->SendLSQData(new LSQData(LSQResponse::duration, '?', false));
                 $this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::tracks), '?', false));
                 $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:' . $this->ReadPropertyInteger('Interval'), false));
+                IPS_Sleep(500);
                 $this->SetCover();                
+                
                 break;
             case LSQResponse::playlist:
                 if (($LSQEvent->Command[0] <> LSQResponse::stop)  //Playlist stop kommt auch bei fwd ?
@@ -871,13 +874,13 @@ class SqueezeboxDevice extends IPSModule
                   IPS_LogMessage('prefsetLSQEvent', 'Namespace' . $LSQEvent->Command[0] . ':' . $LSQEvent->Value);
                   } */
                 break;
-            case LSQResponse::current_title:
             case LSQResponse::title:
                 $this->SetValueString('Title', trim(urldecode($LSQEvent->Value)));
                 break;
             case LSQResponse::artist:
                 $this->SetValueString('Interpret', trim(urldecode($LSQEvent->Value)));
                 break;
+            case LSQResponse::current_title:            
             case LSQResponse::album:
                 $this->SetValueString('Album', trim(urldecode($LSQEvent->Value)));
                 break;
