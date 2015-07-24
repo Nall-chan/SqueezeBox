@@ -1122,7 +1122,6 @@ class SqueezeboxDevice extends IPSModule
         {
             $Command = explode(chr(0x20), $Command);
         }
-//        IPS_LogMessage('CommandLSQEvent', print_r($Command, 1));
         // alle playlist_xxx auch zerlegen ?
         if (isset($Part[1]))
         {
@@ -1132,6 +1131,8 @@ class SqueezeboxDevice extends IPSModule
         {
             $Value = $Part[0];
         }
+        IPS_LogMessage('decodeLSQTaggingData',print_r($Command, 1). print_r($Value, 1));
+        
         return new LSQEvent($Command, $Value, $isResponse);
     }
 
