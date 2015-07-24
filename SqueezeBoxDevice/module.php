@@ -907,7 +907,13 @@ class SqueezeboxDevice extends IPSModule
                 break;
             case LSQResponse::current_title:
             case LSQResponse::album:
-                $this->SetValueString('Album', trim(urldecode($LSQEvent->Value)));
+
+                if (is_array($LSQEvent->Value))
+                $this->SetValueString('Album', trim(urldecode($LSQEvent->Value[0])));                    
+                    IPS_LogMessage('album/title',  $MainCommand . '-' . print_r($LSQEvent->Value, 1));
+                else
+                $this->SetValueString('Album', trim(urldecode($LSQEvent->Value)));                    
+                    IPS_LogMessage('album/title', $MainCommand . '-' . $LSQEvent->Value);                        
                 break;
             case LSQResponse::genre:
                 $this->SetValueString('Genre', trim(urldecode($LSQEvent->Value)));
