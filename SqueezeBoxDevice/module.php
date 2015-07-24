@@ -860,7 +860,7 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetCover();
                 break;
             case LSQResponse::newmetadata:
-                $this->SetCover();
+                //$this->SetCover();
                 break;
             case LSQResponse::playlist:
                 if (($LSQEvent->Command[0] <> LSQResponse::stop)  //Playlist stop kommt auch bei fwd ?
