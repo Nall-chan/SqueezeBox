@@ -831,10 +831,9 @@ class SqueezeboxDevice extends IPSModule
             case LSQResponse::connect:
             case LSQResponse::waitingToPlay:
             case LSQResponse::jump:
+            case LSQResponse::open:
                 //ignore
                 break;
-
-
             case LSQResponse::newsong:
                 if (is_array($LSQEvent->Value))
                 {
@@ -854,8 +853,8 @@ class SqueezeboxDevice extends IPSModule
                 $this->SendLSQData(new LSQData(LSQResponse::genre, '?', false));
                 $this->SendLSQData(new LSQData(LSQResponse::duration, '?', false));
                 $this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::tracks), '?', false));
-                $this->SetCover();
                 $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:' . $this->ReadPropertyInteger('Interval'), false));
+                $this->SetCover();                
                 break;
             case LSQResponse::playlist:
                 if (($LSQEvent->Command[0] <> LSQResponse::stop)  //Playlist stop kommt auch bei fwd ?
@@ -872,6 +871,7 @@ class SqueezeboxDevice extends IPSModule
                   IPS_LogMessage('prefsetLSQEvent', 'Namespace' . $LSQEvent->Command[0] . ':' . $LSQEvent->Value);
                   } */
                 break;
+            case LSQResponse::current_title:
             case LSQResponse::title:
                 $this->SetValueString('Title', trim(urldecode($LSQEvent->Value)));
                 break;
@@ -988,6 +988,13 @@ class SqueezeboxDevice extends IPSModule
 //                    $this->SetValueBoolean('can_seek', boolval($LSQEvent->Value));
                 }
                 break;
+            case LSQResponse::remote:
+                if (GetValueBoolean($this->GetIDForIdent('can_seek')) == boolval($LSQEvent->Value))
+                {
+                    $this->_SetSeekable(!boolval($LSQEvent->Value));
+//                    $this->SetValueBoolean('can_seek', boolval($LSQEvent->Value));
+                }
+                break;                
             case LSQResponse::index:
             case LSQResponse::playlist_cur_index:
             case LSQResponse::currentSong:

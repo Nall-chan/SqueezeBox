@@ -118,6 +118,7 @@ class LSQResponse extends stdClass
     const player_name = 'player_name';
     const player_connected = 'player_connected';
     const player_ip = 'player_ip';
+    const open ='open';
     const time = 'time';
     const playlist_tracks = 'playlist_tracks';
     const playlist_cur_index = 'playlist_cur_index';
@@ -125,10 +126,12 @@ class LSQResponse extends stdClass
     const waitingToPlay = 'waitingToPlay';
     const jump = 'jump';    
     const can_seek = 'can_seek';
+    const remote = 'remote';    
     const rate = 'rate';
     const seq_no = 'seq_no';
     const playlist_timestamp = 'playlist_timestamp';
     const title = 'title';
+    const current_title ='current_title';
     const index = 'index';
     const connected = 'connected';
     const sleep = 'sleep';
