@@ -416,7 +416,7 @@ class LMSSplitter extends IPSModule
         if (!GetValueBoolean($Event))
             return false;
         $buffer = $this->GetIDForIdent('BufferOUT');
-        $Data = implode(" ", $Array);
+        $Data = utf8_decode(implode(" ", $Array));
         if (!(strpos($Data, GetValueString($buffer)) === false))
         {
             if ($this->lock('BufferOut'))

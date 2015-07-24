@@ -859,6 +859,28 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetCover();
 
                 break;
+/*00%3A04%3A20%3A2e%3A57%3Aee status - 1 subscribe%3A0 player_name%3ASqueezebox%20Micha%20 
+                player_connected%3A1 player_ip%3A192.168.201.81%3A40828 power%3A1
+                signalstrength%3A90 
+                mode%3Astop 
+                remote%3A1 
+                current_title%3AJapan-A-Radio%20-%20Japan's%20best%20music%20mix!
+                    time%3A0 
+                    rate%3A1
+                    mixer%20volume%3A21
+                    playlist%20repeat%3A0 
+                    playlist%20shuffle%3A0
+                    playlist%20mode%3Aoff
+                    seq_no%3A25 
+                    playlist_cur_index%3A0
+                    playlist_timestamp%3A1437752078.38823 
+                    playlist_tracks%3A1 
+                    remoteMeta%3AHASH(0xb6530c4) 
+                    playlist%20index%3A0 
+                    id%3A-168804412 
+                    title%3AI%20Miss%20You%20(GT%20Ver.%20aoi%20solo)
+                    artist%3AVeil duration%3A0*/
+                
             case LSQResponse::newmetadata:
                 $this->SetCover();
                 break;

@@ -68,7 +68,10 @@ class LMSResponse extends stdClass
         {
             $this->Device = LMSResponse::isServer;
         }
-        $this->Data = $array;
+        foreach ($array as $Part)
+        {
+            $this->Data[] = utf8_encode($Part);
+        }
     }
 
 }
@@ -234,6 +237,10 @@ class LSQResponse extends stdClass
             $this->Address = $Data->MAC;
         elseif ($Data->Device == LMSResponse::isIP)
             $this->Address = $Data->IP;
+        foreach ($Data->Data as $Key => $Value)
+        {
+            $Data->Data[$Key] = utf8_decode($Value);
+        }        
         switch ($Data->Data[0])
         {
             // 0 = Command 1 = Value
