@@ -1229,10 +1229,9 @@ class SqueezeboxDevice extends IPSModule
                 {
                     $Response->isResponse = $isResponse;
                     // Daten dekodieren
+                        IPS_LogMessage('DeviceLSQ',print_r($Response,1));                    
                     if (!$isResponse)
                     {
-                                        IPS_LogMessage('DeviceLSQ',print_r($Response,1));
-
                         $this->decodeLSQEvent($Response);
                     }
                     return true;
@@ -1246,9 +1245,10 @@ class SqueezeboxDevice extends IPSModule
             else
             {
                 IPS_LogMessage("LSQDevice: ToDo Datensatz:", print_r($Response->Value, 1));
+                return true;
             }
         }
-        else
+        IPS_LogMessage("LSQDevice", 'Falsches Device');
         // Daten waren nicht für uns
             return false;
     }
