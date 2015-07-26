@@ -425,7 +425,7 @@ class LMSSplitter extends IPSModule
         {
             if ($this->lock('BufferOut'))
             {
-                $Event = $this->GetIDForIdent('WaitForResponse');
+//                $Event = $this->GetIDForIdent('WaitForResponse');
                 SetValueString($buffer, $Data);
                 SetValueBoolean($Event, false);
                 $this->unlock('BufferOut');
