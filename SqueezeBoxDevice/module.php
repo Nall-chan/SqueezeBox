@@ -854,6 +854,7 @@ class SqueezeboxDevice extends IPSModule
             case LSQResponse::waitingToPlay:
             case LSQResponse::jump:
             case LSQResponse::open:
+            case LSQResponse::displaynotify:
             case LSQResponse::remoteMeta:
             case LSQResponse::id:
                 //ignore

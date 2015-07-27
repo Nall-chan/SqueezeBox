@@ -132,6 +132,7 @@ class LSQResponse extends stdClass
     const remote = 'remote';   
     const newmetadata ='newmetadata';
     const remoteMeta='remoteMeta';
+    const displaynotify='displaynotify';
     const id='id';
     const rate = 'rate';
     const seq_no = 'seq_no';
