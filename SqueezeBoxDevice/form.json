@@ -88,5 +88,28 @@
                     "onChange": "LSQ_SetVolume($id, $Slider);"
                 }
 
+            ],
+    "status":
+            [
+                {
+                    "code": 102,
+                    "icon": "active",
+                    "caption": "Konfiguration gültig."
+                },
+                {
+                    "code": 104,
+                    "icon": "inactive",
+                    "caption": "LMS is inactive."
+                },
+                {
+                    "code": 202,
+                    "icon": "error",
+                    "caption": "MAC/IP Adresse ungültig."
+                },
+                {
+                    "code": 203,
+                    "icon": "error",
+                    "caption": "Verbindung zu LMS verloren."
+                }
             ]
 }

@@ -53,6 +53,7 @@ class LMSSplitter extends IPSModule
             // Keine Verbindung erzwingen wenn Host leer ist, sonst folgt später Exception.
             if ($this->ReadPropertyString('Host') == '')
             {
+                $this->SetStatus(202);                
                 $ParentOpen = false;
             }
             if (IPS_GetProperty($ParentID, 'Open') <> $ParentOpen)
@@ -88,25 +89,15 @@ class LMSSplitter extends IPSModule
 
     public function SendEx($Text)
     {
-//        return $this->SendDataToParent($Text);
+        return $this->SendDataToParent($Text);
     }
 
     public function Rescan()
     {
         $ret = $this->SendLMSData(new LMSData('rescan', LMSData::SendCommand));
-        IPS_LogMessage('LMS Rescan', print_r($ret, 1));
         return $ret;
     }
 
-    public function Test1()
-    {
-        return "Test";
-    }
-
-    public function Test2()
-    {
-        return json_encode(array(1, 5, 7.9, 'footo' => 2, 'foo' => 'bar'));
-    }
 
     public function GetSongInfoByFileID($ID)
     {
@@ -346,7 +337,7 @@ class LMSSplitter extends IPSModule
             // Rückgabe ist eine Bestätigung von einem Befehl
             if ($LMSData->Typ == LMSData::SendCommand)
             {
-                if ($LMSData->Data == $ret)
+                if (trim($LMSData->Data) == trim($ret))
                     return true;
                 else
                     return false;
@@ -488,17 +479,16 @@ class LMSSplitter extends IPSModule
         {
             $parent = IPS_GetInstance($ParentID);
             if ($parent['InstanceStatus'] == 102)
+            {
+                $this->SetStatus(102);
                 return true;
+            }
         }
+        $this->SetStatus(203);
         return false;
     }
 
     /*
-      protected function SetStatus($data)
-      {
-      IPS_LogMessage(__CLASS__, __FUNCTION__); //
-      }
-
       protected function RegisterTimer($data, $cata)
       {
       IPS_LogMessage(__CLASS__, __FUNCTION__); //

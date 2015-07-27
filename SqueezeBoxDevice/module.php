@@ -62,6 +62,7 @@ class SqueezeboxDevice extends IPSModule
                         else
                         {
                             $Address = '';
+                            $this->SetStatus(202);
                             // STATUS config falsch
                         }
                         IPS_SetProperty($this->InstanceID, 'Address', $Address);
@@ -78,6 +79,8 @@ class SqueezeboxDevice extends IPSModule
                         }
                         else
                         {                    //Länge muss 17 sein, sonst löschen
+                            $this->SetStatus(202);
+
                             $Address = '';
                             // STATUS config falsch
                         }
@@ -91,6 +94,8 @@ class SqueezeboxDevice extends IPSModule
                     //Länge muss 17 sein, sonst löschen                
                     if (strlen($Address) <> 17)
                     {                    //Länge muss 17 sein, sonst löschen
+                        $this->SetStatus(202);
+
                         $Address = '';
                         // STATUS config falsch
                         IPS_SetProperty($this->InstanceID, 'Address', $Address);
@@ -269,7 +274,7 @@ class SqueezeboxDevice extends IPSModule
     public function RawSend($Command, $Value, $needResponse)
     {
         $this->Init();
-        
+
         $LSQData = new LSQData($Command, $Value, $needResponse);
         return $this->SendDataToParent($LSQData);
     }
@@ -277,7 +282,7 @@ class SqueezeboxDevice extends IPSModule
     public function SetName($Name)
     {
         $this->Init();
-        
+
         $ret = $this->SendLSQData(new LSQData(LSQResponse::name, urlencode((string) $Name)));
         if ($ret == $Name)
         {
@@ -290,7 +295,7 @@ class SqueezeboxDevice extends IPSModule
     public function GetName()
     {
         $this->Init();
-        
+
         $Name = urldecode($this->SendLSQData(new LSQData(LSQResponse::name, '?')));
         $this->_NewName($Name);
         return $Name;
@@ -311,7 +316,7 @@ class SqueezeboxDevice extends IPSModule
     public function PreviousButton()
     {
         $this->Init();
-        
+
         if ($this->SendLSQData(new LSQData(array('button', 'jump_rew'), '')))
         {
             $this->_SetPlay();
@@ -323,7 +328,7 @@ class SqueezeboxDevice extends IPSModule
     public function NextButton()
     {
         $this->Init();
-        
+
         if ($this->SendLSQData(new LSQData(array('button', 'jump_fwd'), '')))
         {
             $this->_SetPlay();
@@ -335,7 +340,7 @@ class SqueezeboxDevice extends IPSModule
     public function Play()
     {
         $this->Init();
-        
+
         if ($this->SendLSQData(new LSQData('play', '')))
         {
             $this->_SetPlay();
@@ -347,7 +352,7 @@ class SqueezeboxDevice extends IPSModule
     public function Stop()
     {
         $this->Init();
-        
+
         if ($this->SendLSQData(new LSQData('stop', '')))
         {
             $this->_SetStop();
@@ -359,7 +364,7 @@ class SqueezeboxDevice extends IPSModule
     public function Pause()
     {
         $this->Init();
-        
+
         if (boolval($this->SendLSQData(new LSQData('pause', '1'))))
         {
             $this->_SetPause();
@@ -371,7 +376,7 @@ class SqueezeboxDevice extends IPSModule
     public function SetVolume($Value)
     {
         $this->Init();
-        
+
         if (($Value < 0) or ( $Value > 100))
             throw new Exception("Value invalid.");
         $ret = $this->SendLSQData(new LSQData(array('mixer', 'volume'), $Value));
@@ -382,7 +387,7 @@ class SqueezeboxDevice extends IPSModule
     public function GetVolume()
     {
         $this->Init();
-        
+
         $ret = $this->SendLSQData(new LSQData(array('mixer', 'volume'), '?'));
         $this->_NewVolume($ret);
         return $ret;
@@ -391,7 +396,7 @@ class SqueezeboxDevice extends IPSModule
     public function SetBass($Value)
     {
         $this->Init();
-        
+
         $ret = $this->SendLSQData(new LSQData(array('mixer', 'bass'), $Value));
         $this->SetValueInteger('Bass', ($ret));
         return ($ret == $Value);
@@ -569,6 +574,7 @@ class SqueezeboxDevice extends IPSModule
         IPS_LogMessage('SONGINFO', print_r($Song, 1));
         return $Song;
     }
+
 ################## ActionHandler
 
     public function RequestAction($Ident, $Value)
@@ -1227,28 +1233,40 @@ class SqueezeboxDevice extends IPSModule
 
     private function Init($throwException = true)
     {
-        if ($this->Connected <> 'noInit') return true;
-        
+        if ($this->Connected <> 'noInit')
+            return true;
+
         $this->Address = $this->ReadPropertyString("Address");
         $this->Interval = $this->ReadPropertyInteger("Interval");
         $this->Connected = GetValueBoolean($this->GetIDForIdent('Connected'));
         if ($this->Address == '')
+        {
+            $this->SetStatus(202);
             if ($throwException)
                 throw new Exception('Address not set.');
             else
                 return false;
+        }
         $ParentID = $this->GetParent();
         if ($ParentID === false)
+        {
+            $this->SetStatus(104);
             if ($throwException)
                 throw new Exception('Instance has no parent.');
             else
                 return false;
+        }
         else
         if (!$this->HasActiveParent($ParentID))
+        {
+            $this->SetStatus(203);
             if ($throwException)
                 throw new Exception('Instance has no active parent.');
             else
                 return false;
+        }
+        $this->SetStatus(102);
+
         return true;
     }
 
