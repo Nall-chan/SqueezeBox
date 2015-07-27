@@ -22,7 +22,7 @@ class SqueezeboxDevice extends IPSModule
     public function Create()
     {
         //Never delete this line!
-        parent::__Create();
+        parent::Create();
         IPS_LogMessage(__CLASS__, __FUNCTION__);
 
         // LMS-Splitter wird benötigt
