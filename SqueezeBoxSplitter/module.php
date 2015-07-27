@@ -285,7 +285,7 @@ class LMSSplitter extends IPSModule
         if ($ParentID === false)
             throw new Exception('Instance has no parent.');
         else
-        if (!HasActiveParent($ParentID))
+        if (!$this->HasActiveParent($ParentID))
             throw new Exception('Instance has no active parent.');
         if ($LMSData->needResponse)
         {
