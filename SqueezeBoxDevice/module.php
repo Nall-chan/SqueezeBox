@@ -10,22 +10,12 @@ class SqueezeboxDevice extends IPSModule
 
     private $Address, $Interval, $Connected = 'noInit', $tempData;
 
-    public function __construct($InstanceID)
-    {
-        //Never delete this line!
-        parent::__construct($InstanceID);
-        IPS_LogMessage(__CLASS__, __FUNCTION__);
-        //These lines are parsed on Symcon Startup or Instance creation
-        //You cannot use variables here. Just static values.
-    }
-
     public function Create()
     {
         //Never delete this line!
         parent::Create();
-        IPS_LogMessage(__CLASS__, __FUNCTION__);
 
-        // LMS-Splitter wird benötigt
+        // 1. Verfügbarer LMS-Splitter wird verbunden oder neu erzeugt, wenn nicht vorhanden.
         $this->ConnectParent("{61051B08-5B92-472B-AFB2-6D971D9B99EE}");
 
         $this->RegisterPropertyString("Address", "");
@@ -37,7 +27,6 @@ class SqueezeboxDevice extends IPSModule
     {
         //Never delete this line!
         parent::ApplyChanges();
-        IPS_LogMessage(__CLASS__, __FUNCTION__);
 
         // Addresse prüfen
         $Address = $this->ReadPropertyString('Address');
@@ -204,7 +193,9 @@ class SqueezeboxDevice extends IPSModule
             else
                 $this->SetConnected(false);
         }
-        IPS_LogMessage('ApplyChanges', 'Instant:' . $this->InstanceID);
+        $this->_SetSeekable(boolval(GetValueBoolean($this->GetIDForIdent('can_seek'))));
+        
+  
     }
 
     /**
@@ -218,7 +209,6 @@ class SqueezeboxDevice extends IPSModule
      */
     public function RequestState()
     {
-        IPS_LogMessage(__CLASS__, __FUNCTION__);
         $this->Init();
         /*        $this->init();
 
@@ -571,7 +561,6 @@ class SqueezeboxDevice extends IPSModule
             $Index--;
         $Data = $this->SendLSQData(new LSQData(array('status', (string) $Index, '1'), 'tags:gladiqrRt'));
         $Song = $this->DecodeSongInfo($Data)[0];
-        IPS_LogMessage('SONGINFO', print_r($Song, 1));
         return $Song;
     }
 
@@ -625,10 +614,10 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetMute($Value);
                 break;
             case "Repeat":
-                $this->Repeat($Value);
+                $this->SetRepeat($Value);
                 break;
             case "Shuffle":
-                $this->Shuffle($Value);
+                $this->SetShuffle($Value);
                 break;
             case "Position2":
                 $this->tempData['Duration'] = GetValueInteger($this->GetIDForIdent('DurationRAW'));
@@ -738,7 +727,6 @@ class SqueezeboxDevice extends IPSModule
             if (in_array($LSQPart->Command, $SongFields))
                 $Songs[$id][$LSQPart->Command] = urldecode($LSQPart->Value);
         }
-        IPS_LogMessage('SONGINFO', print_r($Songs, 1));
         return $Songs;
     }
 
@@ -747,15 +735,11 @@ class SqueezeboxDevice extends IPSModule
         if (is_array($LSQEvent->Command))
         {
             $MainCommand = array_shift($LSQEvent->Command);
-//            IPS_LogMessage('CommandLSQEvent', print_r($LSQEvent->Command, 1));
         }
         else
         {
-//            IPS_LogMessage('CommandLSQEvent', $LSQEvent->Command);
-
             $MainCommand = $LSQEvent->Command;
         }
-//        IPS_LogMessage('MAINCommandLSQEvent', $MainCommand);
 
         switch ($MainCommand)
         {
@@ -800,18 +784,8 @@ class SqueezeboxDevice extends IPSModule
 
             case LSQResponse::play:
                 $this->_SetPlay();
-                /* if (GetValueInteger($this->GetIDForIdent('Status')) <> 2)
-                  {
-                  $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:' . $this->ReadPropertyInteger('Interval'), false));
-                  $this->SetValueInteger('Status', 2);
-                  } */
                 break;
             case LSQResponse::stop:
-                /* if (GetValueInteger($this->GetIDForIdent('Status')) <> 1)
-                  {
-                  $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:0', false));
-                  $this->SetValueInteger('Status', 1);
-                  } */
                 $this->_SetStop();
                 break;
             case LSQResponse::pause:
@@ -822,26 +796,14 @@ class SqueezeboxDevice extends IPSModule
                 elseif (boolval($LSQEvent->Value))
                 {
                     $this->_SetPause();
-                    /* if (GetValueInteger($this->GetIDForIdent('Status')) <> 3)
-                      {
-                      $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:0', false));
-                      $this->SetValueInteger('Status', 3);
-                      } */
                 }
                 else
                 {
                     $this->_SetPlay();
-                    /* if (GetValueInteger($this->GetIDForIdent('Status')) <> 2)
-                      {
-
-                      $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:' . $this->ReadPropertyInteger('Interval'), false));
-                      $this->SetValueInteger('Status', 2);
-                      } */
                 }
                 break;
 
             case LSQResponse::mode:
-//                IPS_LogMessage('MODE', print_r($LSQEvent, 1));
                 if (is_array($LSQEvent->Command))
                     $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[0], $LSQEvent->Value, $LSQEvent->isResponse));
                 else
@@ -920,7 +882,7 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetCover();
                 break;
             case LSQResponse::newmetadata:
-                //$this->SetCover();
+                $this->SetCover();
                 break;
             case LSQResponse::playlist:
                 if (($LSQEvent->Command[0] <> LSQResponse::stop)  //Playlist stop kommt auch bei fwd ?
@@ -945,39 +907,7 @@ class SqueezeboxDevice extends IPSModule
                 break;
             case LSQResponse::current_title:
             case LSQResponse::album:
-                /*
-                  00%3A04%3A20%3A2e%3A57%3Aee
-                  status
-                  -
-                  1
-                  subscribe%3A0
-                  player_name%3ASqueezebox%20Micha%20
-                  player_connected%3A1
-                  player_ip%3A192.168.201.81%3A40828
-                  power%3A1
-                  signalstrength%3A83
-                  mode%3Apause
-                  remote%3A1
-                  current_title%3AJapan-A-Radio%20-%20Japan's%20best%20music%20mix!
-                  time%3A399.420708084106
-                  rate%3A1
-                  mixer%20volume%3A19
-                  playlist%20repeat%3A0
-                  playlist%20shuffle%3A0
-                  playlist%20mode%3Aoff
-                  seq_no%3A81
-                  playlist_cur_index%3A0
-                  playlist_timestamp%3A1437755193.00634
-                  playlist_tracks%3A1
-                  remoteMeta%3AHASH(0xb64e9ac)
-                  playlist%20index%3A0
-                  id%3A-168804412
-                  title%3AGenius...!%3F
-                  artist%3Ahoukago%20ti%20taimu
-                  duration%3A0
-                 */
-
-                /*
+                
                   if (is_array($LSQEvent->Value))
                   {
                   IPS_LogMessage('album/title',  $MainCommand . '-' . print_r($LSQEvent->Value, 1));
@@ -987,7 +917,7 @@ class SqueezeboxDevice extends IPSModule
                   {
                   IPS_LogMessage('album/title', $MainCommand . '-' . $LSQEvent->Value);
                   $this->SetValueString('Album', trim(urldecode($LSQEvent->Value)));
-                  } */
+                  } 
                 break;
             case LSQResponse::genre:
                 $this->SetValueString('Genre', trim(urldecode($LSQEvent->Value)));
@@ -1021,7 +951,6 @@ class SqueezeboxDevice extends IPSModule
                     $this->SetValueInteger('Position2', 0);
                     $this->SetValueInteger('PositionRAW', 0);
                     $this->SetValueString('Position', '0:00');
-
                     $this->SetValueInteger('Index', 0);
                     $this->SetCover();
                 }
@@ -1037,70 +966,26 @@ class SqueezeboxDevice extends IPSModule
                 }
                 break;
             case LSQResponse::status:
-//                IPS_LogMessage('statusLSQEvent', print_r($LSQEvent, 1));
                 array_shift($LSQEvent->Value);
                 if ($LSQEvent->Command[0] == '-')// and ( $LSQEvent->Command[1] == '1') and ( strpos($Event, "subscribe%3A") > 0))
                 {
-//                    IPS_LogMessage('subscribeLSQEvent', print_r($LSQEvent->Value, 1));
-                    /*        $SongFields = array(
-                      'id',
-                      'title',
-                      'genre',
-                      'album',
-                      'artist',
-                      'duration',
-                      'player_connected',
-                      'power',
-                      'signalstrength',
-                      'mode',
-                      'time',
-                      'can_seek',
-                      'mixer%20volume',
-
-                      );
-                      'playlist%20repeat'
-                      'playlist%20shuffle'
-                      'playlist_cur_index'
-                      'playlist_tracks'
-                      'playlist%20index'
-
-                      'id'
-                      'title'
-                      'genre'
-                      'artist'
-                      'album'
-                      'duration' */
-
                     foreach ($LSQEvent->Value as $Data)
                     {
-
                         $LSQPart = $this->decodeLSQTaggingData($Data, $LSQEvent->isResponse);
-                        //                  IPS_LogMessage('ValueLSQEvent', print_r($Value, 1));
-                        //                      if (in_array($LSQPart->Command, $SongFields))                        
                         $this->decodeLSQEvent($LSQPart);
                     }
                 }
-
-// ALT                 
-                /*                if ($LSQEvent->Command[0] == '0') //and ( strpos($Event, "tags%3A") > 0))
-                  { //Daten für Playlist dekodieren und zurückgeben
-                  //                    IPS_LogMessage('statusLSQEvent', print_r($LSQEvent->Value, 1));
-                  $Songs = $this->DecodeSongInfo($LSQEvent->Value);
-                  IPS_LogMessage('statusLSQEvent', print_r($Songs, 1));
-                  } */
                 break;
             case LSQResponse::can_seek:
                 if (GetValueBoolean($this->GetIDForIdent('can_seek')) <> boolval($LSQEvent->Value))
                 {
                     $this->_SetSeekable(boolval($LSQEvent->Value));
-//                    $this->SetValueBoolean('can_seek', boolval($LSQEvent->Value));
                 }
                 break;
             case LSQResponse::remote:
                 if (GetValueBoolean($this->GetIDForIdent('can_seek')) == boolval($LSQEvent->Value))
                 {
                     $this->_SetSeekable(!boolval($LSQEvent->Value));
-//                    $this->SetValueBoolean('can_seek', boolval($LSQEvent->Value));
                 }
                 break;
             case LSQResponse::index:
@@ -1113,18 +998,6 @@ class SqueezeboxDevice extends IPSModule
                 $this->tempData['Position'] = $LSQEvent->Value;
                 $this->SetValueInteger('PositionRAW', $LSQEvent->Value);
                 $this->SetValueString('Position', @date('i:s', $LSQEvent->Value));
-
-                /*                $duration = GetValueString($this->GetIDForIdent('Duration'));
-                  if ($duration <> '')
-                  {
-                  $duration= strtotime ( $duration , 0);
-                  $Value = (100 / $duration) * $LSQEvent->Value;
-                  $this->SetValueInteger('Position2', round($Value));
-                  }
-                  else
-                  {
-                  $this->SetValueInteger('Position2', 0);
-                  } */
                 break;
             default:
                 if (is_array($LSQEvent->Value))
@@ -1138,46 +1011,11 @@ class SqueezeboxDevice extends IPSModule
             $Value = (100 / $this->tempData['Duration']) * $this->tempData['Position'];
             $this->SetValueInteger('Position2', round($Value));
         }
-
-        /*
-         * 0 = aus
-         * 1 = Titel Normalisierung
-         * 2 Album 
-         * 3 'Intelligente
-         * 
-         * 14.07.2015 19:21:49? | IODevice DECODE? | Array
-          (
-          [0] => 00:04:20:2b:9d:ae
-          [1] => prefset
-          [2] => server
-          [3] => replayGainMode
-          [4] => 1
-          )
-          14.07.2015 19:22:06? | IODevice DECODE? | Array
-          (
-          [0] => 00:04:20:2b:9d:ae
-          [1] => playerpref
-          [2] => replayGainMode
-          [3] => 0
-          ) */
-        /*
-          14.07.2015 19:26:48? | IODevice DECODE? | Array
-          (
-          [0] => 00:04:20:2b:9d:ae
-          [1] => playlist
-          [2] => jump
-          [3] => 5
-          [4] =>
-          [5] =>
-          [6] =>
-          ) */
     }
 
     private function decodeLSQTaggingData($Data, $isResponse)
     {
-//        $Part = explode(chr(0x3a), urldecode($Data));
         $Part = explode('%3A', $Data); //        
-//        IPS_LogMessage('PartLSQEvent', print_r($Part, 1));
         $Command = urldecode(array_shift($Part));
         if (!(strpos($Command, chr(0x20)) === false))
         {
@@ -1192,7 +1030,6 @@ class SqueezeboxDevice extends IPSModule
         {
             $Value = $Part[0];
         }
-        IPS_LogMessage('decodeLSQTaggingData', print_r($Command, 1) . print_r($Value, 1));
 
         return new LSQEvent($Command, $Value, $isResponse);
     }
@@ -1296,10 +1133,7 @@ class SqueezeboxDevice extends IPSModule
 
     public function ReceiveData($JSONString)
     {
-        IPS_LogMessage(__CLASS__, __FUNCTION__); //
-
         $Data = json_decode($JSONString);
-//                IPS_LogMessage('DeviceRAW',print_r($Data,1));
 
         $this->Init(false);
         if ($this->Address === '') //Keine Adresse Daten nicht verarbeiten
@@ -1315,16 +1149,13 @@ class SqueezeboxDevice extends IPSModule
             if ($Response->Command <> false)
             {
                 // Daten prüfen ob Antwort
-//                IPS_LogMessage('EMPFANG', print_r($Response, 1));
-
                 $isResponse = $this->WriteResponse($Response->Command, $Response->Value);
                 if (is_bool($isResponse))
                 {
                     $Response->isResponse = $isResponse;
-                    // Daten dekodieren
-                    IPS_LogMessage('DeviceLSQ', print_r($Response, 1));
                     if (!$isResponse)
                     {
+                        // Daten dekodieren
                         $this->decodeLSQEvent($Response);
                     }
                     return true;
@@ -1341,7 +1172,6 @@ class SqueezeboxDevice extends IPSModule
                 return true;
             }
         }
-        IPS_LogMessage("LSQDevice", 'Falsches Device');
         // Daten waren nicht für uns
         return false;
     }
@@ -1418,7 +1248,6 @@ class SqueezeboxDevice extends IPSModule
             }
 // SendeLock  velassen
             $this->unlock("LSQData");
-//            IPS_LogMessage('SENDE', print_r($LSQData, 1));
 // Auf Antwort warten....
             $ret = $this->WaitForResponse();
 
@@ -1429,13 +1258,6 @@ class SqueezeboxDevice extends IPSModule
 // Fehler
                 throw new Exception("No answer from LMS");
             }
-// R??ckgabe ist ein Wert auf eine Anfrage, abschneiden der Anfrage.
-//FEHLT NOCH
-//                        $ret = str_replace($WaitData, "", $ret);
-            /*            if ($ret === true)
-              IPS_LogMessage('FOUND RESPONSE', 'TRUE');
-              else
-              IPS_LogMessage('FOUND RESPONSE', print_r($ret, 1)); */
             return $ret;
         }
         else
@@ -1515,14 +1337,11 @@ class SqueezeboxDevice extends IPSModule
             $Command = implode(' ', $Command);
         if (is_array($Value))
             $Value = implode(' ', $Value);
-//            $Value = $Value[0];
 
         $EventID = $this->GetIDForIdent('WaitForResponse');
         if (!GetValueBoolean($EventID))
             return false;
         $BufferID = $this->GetIDForIdent('BufferOUT');
-//        $DataIn = json_encode($LSQDataIn);
-//IPS_LogMessage('checkResponse',print_r($Command,1));
         if ($Command == GetValueString($BufferID))
         {
             if ($this->lock('BufferOut'))
@@ -1544,23 +1363,15 @@ class SqueezeboxDevice extends IPSModule
         for ($i = 0; $i < 100; $i++)
         {
             if (IPS_SemaphoreEnter("LMS_" . (string) $this->InstanceID . (string) $ident, 1))
-            {
-                //            IPS_LogMessage((string) $this->InstanceID, "Lock:LMS_" . (string) $this->InstanceID . (string) $ident);
-
                 return true;
-            }
             else
-            {
                 IPS_Sleep(mt_rand(1, 5));
-            }
         }
         return false;
     }
 
     private function unlock($ident)
     {
-        //      IPS_LogMessage((string) $this->InstanceID, "Unlock:LMS_" . (string) $this->InstanceID . (string) $ident);
-
         IPS_SemaphoreLeave("LMS_" . (string) $this->InstanceID . (string) $ident);
     }
 
@@ -1585,11 +1396,6 @@ class SqueezeboxDevice extends IPSModule
     }
 
     /*
-      protected function SetStatus($data)
-      {
-      IPS_LogMessage(__CLASS__, __FUNCTION__); //
-      }
-
       protected function RegisterTimer($data, $cata)
       {
       IPS_LogMessage(__CLASS__, __FUNCTION__); //

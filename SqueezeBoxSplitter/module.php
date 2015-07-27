@@ -4,18 +4,7 @@ require_once(__DIR__ . "/../SqueezeBoxClass.php");  // diverse Klassen
 
 class LMSSplitter extends IPSModule
 {
-    /*    public function __construct($InstanceID)
-      {
-      //Never delete this line!
-      parent::__construct($InstanceID);
-      //These lines are parsed on Symcon Startup or Instance creation
-      //You cannot use variables here. Just static values.
-      $this->RegisterPropertyString("Host", "");
-      $this->RegisterPropertyBoolean("Open", true);
-      $this->RegisterPropertyInteger("Port", 9090);
-      $this->RegisterPropertyInteger("Webport", 9000);
-      } */
-
+    
     public function Create()
     {
         //Never delete this line!
@@ -126,7 +115,6 @@ class LMSSplitter extends IPSModule
     public function GetPlayerInfo($Value)
     {
         $ret = $this->SendLMSData(new LMSData('players ' . $Value . ' 1', LMSData::GetData));
-        IPS_LogMessage('LMS GetPlayerInfo', print_r($ret, 1));
         return $ret;
     }
 
@@ -137,14 +125,12 @@ class LMSSplitter extends IPSModule
         $albums = $this->SendLMSData(new LMSData('info total albums ?', LMSData::GetData));
         $songs = $this->SendLMSData(new LMSData('info total songs ?', LMSData::GetData));
         $ret = array('Geners' => $gernes, 'Artists' => $artists, 'Albums' => $albums, 'Songs' => $songs);
-        IPS_LogMessage('LMS GetLibaryInfo', print_r($ret, 1));
         return $ret;
     }
 
     public function GetVersion()
     {
         $ret = $this->SendLMSData(new LMSData('version ?', LMSData::GetData));
-        IPS_LogMessage('LMS GetVersion', print_r($ret, 1));
         return $ret;
     }
 
@@ -220,7 +206,6 @@ class LMSSplitter extends IPSModule
             // Nicht Server antworten zu den Devices weiter senden.
             else
             {
-                IPS_LogMessage('SplitterLMS', print_r($Data, 1));
                 try
                 {
                     if (!$this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "LMS" => $Data))))
@@ -447,7 +432,6 @@ class LMSSplitter extends IPSModule
         {
             if (IPS_SemaphoreEnter("LMS_" . (string) $this->InstanceID . (string) $ident, 1))
             {
-//                IPS_LogMessage((string)$this->InstanceID,"Lock:LMS_" . (string) $this->InstanceID . (string) $ident);
                 return true;
             }
             else
@@ -460,8 +444,6 @@ class LMSSplitter extends IPSModule
 
     private function unlock($ident)
     {
-//                IPS_LogMessage((string)$this->InstanceID,"Unlock:LMS_" . (string) $this->InstanceID . (string) $ident);
-
         IPS_SemaphoreLeave("LMS_" . (string) $this->InstanceID . (string) $ident);
     }
 
