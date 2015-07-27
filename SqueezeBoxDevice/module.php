@@ -194,8 +194,6 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetConnected(false);
         }
         $this->_SetSeekable(boolval(GetValueBoolean($this->GetIDForIdent('can_seek'))));
-        
-  
     }
 
     /**
@@ -856,6 +854,8 @@ class SqueezeboxDevice extends IPSModule
             case LSQResponse::waitingToPlay:
             case LSQResponse::jump:
             case LSQResponse::open:
+            case LSQResponse::remoteMeta:
+            case LSQResponse::id:
                 //ignore
                 break;
             case LSQResponse::newsong:
@@ -907,17 +907,15 @@ class SqueezeboxDevice extends IPSModule
                 break;
             case LSQResponse::current_title:
             case LSQResponse::album:
-                
-                  if (is_array($LSQEvent->Value))
-                  {
-                  IPS_LogMessage('album/title',  $MainCommand . '-' . print_r($LSQEvent->Value, 1));
-                  $this->SetValueString('Album', trim(urldecode($LSQEvent->Value[0])));
-                  }
-                  else
-                  {
-                  IPS_LogMessage('album/title', $MainCommand . '-' . $LSQEvent->Value);
-                  $this->SetValueString('Album', trim(urldecode($LSQEvent->Value)));
-                  } 
+
+                if (is_array($LSQEvent->Value))
+                {
+                    $this->SetValueString('Album', trim(urldecode($LSQEvent->Value[0])));
+                }
+                else
+                {
+                    $this->SetValueString('Album', trim(urldecode($LSQEvent->Value)));
+                }
                 break;
             case LSQResponse::genre:
                 $this->SetValueString('Genre', trim(urldecode($LSQEvent->Value)));
@@ -1001,9 +999,9 @@ class SqueezeboxDevice extends IPSModule
                 break;
             default:
                 if (is_array($LSQEvent->Value))
-                    IPS_LogMessage('defaultLSQEvent', 'LSQResponse-' . $MainCommand . '-' . print_r($LSQEvent->Value, 1));
+                    IPS_LogMessage('ToDoLSQEvent', 'LSQResponse-' . $MainCommand . '-' . print_r($LSQEvent->Value, 1));
                 else
-                    IPS_LogMessage('defaultLSQEvent', 'LSQResponse-' . $MainCommand . '-' . $LSQEvent->Value);
+                    IPS_LogMessage('ToDoLSQEvent', 'LSQResponse-' . $MainCommand . '-' . $LSQEvent->Value);
                 break;
         }
         if (isset($this->tempData['Duration']) and isset($this->tempData['Position']))
@@ -1168,7 +1166,7 @@ class SqueezeboxDevice extends IPSModule
             // Unbekanntes Command loggen
             else
             {
-                IPS_LogMessage("LSQDevice: ToDo Datensatz:", print_r($Response->Value, 1));
+                IPS_LogMessage("ToDoLSQDevice: Unbekannter Datensatz:", print_r($Response->Value, 1));
                 return true;
             }
         }

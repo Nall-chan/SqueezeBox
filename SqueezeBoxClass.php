@@ -131,6 +131,8 @@ class LSQResponse extends stdClass
     const can_seek = 'can_seek';
     const remote = 'remote';   
     const newmetadata ='newmetadata';
+    const remoteMeta='remoteMeta';
+    const id='id';
     const rate = 'rate';
     const seq_no = 'seq_no';
     const playlist_timestamp = 'playlist_timestamp';
