@@ -8,15 +8,26 @@ class SqueezeboxDevice extends IPSModule
     const isMAC = 1;
     const isIP = 2;
 
-    protected $Address, $Interval, $Connected, $tempData;
+    private $Address, $Interval, $Connected = 'noInit', $tempData;
 
     public function __construct($InstanceID)
     {
-
         //Never delete this line!
         parent::__construct($InstanceID);
+        IPS_LogMessage(__CLASS__, __FUNCTION__);
         //These lines are parsed on Symcon Startup or Instance creation
         //You cannot use variables here. Just static values.
+    }
+
+    public function Create()
+    {
+        //Never delete this line!
+        parent::__Create();
+        IPS_LogMessage(__CLASS__, __FUNCTION__);
+
+        // LMS-Splitter wird benötigt
+        $this->ConnectParent("{61051B08-5B92-472B-AFB2-6D971D9B99EE}");
+
         $this->RegisterPropertyString("Address", "");
         $this->RegisterPropertyInteger("Interval", 2);
         $this->RegisterPropertyString("CoverSize", "cover");
@@ -26,6 +37,7 @@ class SqueezeboxDevice extends IPSModule
     {
         //Never delete this line!
         parent::ApplyChanges();
+        IPS_LogMessage(__CLASS__, __FUNCTION__);
 
         // Addresse prüfen
         $Address = $this->ReadPropertyString('Address');
@@ -89,8 +101,6 @@ class SqueezeboxDevice extends IPSModule
             }
         }
 
-        // LMS-Splitter wird benötigt
-        $this->RequireParent("{61051B08-5B92-472B-AFB2-6D971D9B99EE}");
 
         // Profile anlegen
         $this->RegisterProfileIntegerEx("Status.Squeezebox", "Information", "", "", Array(
@@ -175,28 +185,21 @@ class SqueezeboxDevice extends IPSModule
         IPS_SetHidden($this->GetIDForIdent('PositionRAW'), true);
         IPS_SetHidden($this->GetIDForIdent('DurationRAW'), true);
         // Adresse nicht leer ?
-        if ($this->Init())
+        // Parent vorhanden und nicht in Fehlerstatus ?
+        if ($this->Init(false))
         {
-            // Parent vorhanden ?
-            $ParentID = $this->GetParent();
-            if (!($ParentID === false))
-            {
-                // Parent aktiv ?
-                if ($this->HasActiveParent($ParentID))
-                {
-                    // Ist Device (Player) connected ?
-                    $Data = new LSQData(LSQResponse::connected, '?');
 
-                    // Dann Status von LMS holen
-                    if ($this->SendLSQData($Data) == 1)
-                        $this->SetConnected(true);
-                    // nicht connected
-                    else
-                        $this->SetConnected(false);
-                }
-                IPS_LogMessage('ApplyChanges', 'Instant:' . $this->InstanceID);
-            }
+            // Ist Device (Player) connected ?
+            $Data = new LSQData(LSQResponse::connected, '?');
+
+            // Dann Status von LMS holen
+            if ($this->SendLSQData($Data) == 1)
+                $this->SetConnected(true);
+            // nicht connected
+            else
+                $this->SetConnected(false);
         }
+        IPS_LogMessage('ApplyChanges', 'Instant:' . $this->InstanceID);
     }
 
     /**
@@ -210,54 +213,56 @@ class SqueezeboxDevice extends IPSModule
      */
     public function RequestState()
     {
-        $this->init();
+        IPS_LogMessage(__CLASS__, __FUNCTION__);
+        /*        $this->init();
 
-        if ($this->Connected)
-        {
-            $this->SendLSQData(
-                    new LSQData(LSQResponse::listen, '1')//, false)
-            );
-            $this->SendLSQData(
-                    new LSQData(LSQResponse::power, '?', false)
-            );
-            $this->GetVolume();
-            $this->GetPitch();
-            $this->GetBass();
-            $this->GetTreble();
-            $this->GetMute();
-            $this->GetRepeat();
-            $this->GetShuffle();
-            /*            $this->SendLSQData(
-              new LSQData(array(LSQResponse::mixer, LSQResponse::volume), '?', false)
-              );
-              $this->SendLSQData(
-              new LSQData(array(LSQResponse::mixer, LSQResponse::pitch), '?', false)
-              );
-              $this->SendLSQData(
-              new LSQData(array(LSQResponse::mixer, LSQResponse::bass), '?', false)
-              );
-              $this->SendLSQData(
-              new LSQData(array(LSQResponse::mixer, LSQResponse::treble), '?', false)
-              );
-              $this->SendLSQData(
-              new LSQData(array(LSQResponse::mixer, LSQResponse::muting), '?', false)
-              ); */
-            SetValueInteger($this->GetIDForIdent('Status'),1);
-            $this->SendLSQData(
-                    new LSQData(LSQResponse::mode, '?', false)
-            );
-            $this->SendLSQData(
-                    new LSQData(LSQResponse::signalstrength, '?', false)
-            );
-            $this->SendLSQData(
-                    new LSQData(LSQResponse::name, '?', false)
-            );
-            // Playlist holen
-        }
-        else
-        {
-            $this->SetValueBoolean('Power', false);
-        }
+          if ($this->Connected)
+          { */
+
+        $this->SendLSQData(
+                new LSQData(LSQResponse::listen, '1')//, false)
+        );
+        $this->SendLSQData(
+                new LSQData(LSQResponse::power, '?', false)
+        );
+        $this->GetVolume();
+        $this->GetPitch();
+        $this->GetBass();
+        $this->GetTreble();
+        $this->GetMute();
+        $this->GetRepeat();
+        $this->GetShuffle();
+        /*            $this->SendLSQData(
+          new LSQData(array(LSQResponse::mixer, LSQResponse::volume), '?', false)
+          );
+          $this->SendLSQData(
+          new LSQData(array(LSQResponse::mixer, LSQResponse::pitch), '?', false)
+          );
+          $this->SendLSQData(
+          new LSQData(array(LSQResponse::mixer, LSQResponse::bass), '?', false)
+          );
+          $this->SendLSQData(
+          new LSQData(array(LSQResponse::mixer, LSQResponse::treble), '?', false)
+          );
+          $this->SendLSQData(
+          new LSQData(array(LSQResponse::mixer, LSQResponse::muting), '?', false)
+          ); */
+        SetValueInteger($this->GetIDForIdent('Status'), 1);
+        $this->SendLSQData(
+                new LSQData(LSQResponse::mode, '?', false)
+        );
+        $this->SendLSQData(
+                new LSQData(LSQResponse::signalstrength, '?', false)
+        );
+        $this->SendLSQData(
+                new LSQData(LSQResponse::name, '?', false)
+        );
+        // Playlist holen
+        /*        }
+          else
+          {
+          $this->SetValueBoolean('Power', false);
+          } */
     }
 
     public function RawSend($Command, $Value, $needResponse)
@@ -275,15 +280,6 @@ class SqueezeboxDevice extends IPSModule
             return true;
         }
         return false;
-    }
-
-    private function _NewName($Name)
-    {
-
-        if (IPS_GetName($this->InstanceID) <> trim($Name))
-        {
-            IPS_SetName($this->InstanceID, trim($Name));
-        }
     }
 
     public function GetName()
@@ -522,6 +518,15 @@ class SqueezeboxDevice extends IPSModule
         $Song = $this->DecodeSongInfo($Data)[0];
         IPS_LogMessage('SONGINFO', print_r($Song, 1));
         return $Song;
+    }
+
+    private function _NewName($Name)
+    {
+
+        if (IPS_GetName($this->InstanceID) <> trim($Name))
+        {
+            IPS_SetName($this->InstanceID, trim($Name));
+        }
     }
 
     private function _SetPlay()
@@ -886,48 +891,48 @@ class SqueezeboxDevice extends IPSModule
             case LSQResponse::current_title:
             case LSQResponse::album:
                 /*
-                00%3A04%3A20%3A2e%3A57%3Aee
-                status
-                -
-                1
-                subscribe%3A0
-                player_name%3ASqueezebox%20Micha%20
-                player_connected%3A1
-                player_ip%3A192.168.201.81%3A40828
-                power%3A1
-                signalstrength%3A83
-                mode%3Apause
-                remote%3A1
-                current_title%3AJapan-A-Radio%20-%20Japan's%20best%20music%20mix!
-                time%3A399.420708084106
-                rate%3A1
-                mixer%20volume%3A19
-                playlist%20repeat%3A0
-                playlist%20shuffle%3A0
-                playlist%20mode%3Aoff
-                seq_no%3A81
-                playlist_cur_index%3A0
-                playlist_timestamp%3A1437755193.00634
-                playlist_tracks%3A1
-                remoteMeta%3AHASH(0xb64e9ac)
-                playlist%20index%3A0
-                id%3A-168804412
-                title%3AGenius...!%3F
-                artist%3Ahoukago%20ti%20taimu
-                duration%3A0
-                */
-                
-/*
-                if (is_array($LSQEvent->Value))
-                {
-                    IPS_LogMessage('album/title',  $MainCommand . '-' . print_r($LSQEvent->Value, 1));
-                $this->SetValueString('Album', trim(urldecode($LSQEvent->Value[0])));                    
-                }
-                else
-                {
-                    IPS_LogMessage('album/title', $MainCommand . '-' . $LSQEvent->Value);                        
-                $this->SetValueString('Album', trim(urldecode($LSQEvent->Value)));                    
-                }*/
+                  00%3A04%3A20%3A2e%3A57%3Aee
+                  status
+                  -
+                  1
+                  subscribe%3A0
+                  player_name%3ASqueezebox%20Micha%20
+                  player_connected%3A1
+                  player_ip%3A192.168.201.81%3A40828
+                  power%3A1
+                  signalstrength%3A83
+                  mode%3Apause
+                  remote%3A1
+                  current_title%3AJapan-A-Radio%20-%20Japan's%20best%20music%20mix!
+                  time%3A399.420708084106
+                  rate%3A1
+                  mixer%20volume%3A19
+                  playlist%20repeat%3A0
+                  playlist%20shuffle%3A0
+                  playlist%20mode%3Aoff
+                  seq_no%3A81
+                  playlist_cur_index%3A0
+                  playlist_timestamp%3A1437755193.00634
+                  playlist_tracks%3A1
+                  remoteMeta%3AHASH(0xb64e9ac)
+                  playlist%20index%3A0
+                  id%3A-168804412
+                  title%3AGenius...!%3F
+                  artist%3Ahoukago%20ti%20taimu
+                  duration%3A0
+                 */
+
+                /*
+                  if (is_array($LSQEvent->Value))
+                  {
+                  IPS_LogMessage('album/title',  $MainCommand . '-' . print_r($LSQEvent->Value, 1));
+                  $this->SetValueString('Album', trim(urldecode($LSQEvent->Value[0])));
+                  }
+                  else
+                  {
+                  IPS_LogMessage('album/title', $MainCommand . '-' . $LSQEvent->Value);
+                  $this->SetValueString('Album', trim(urldecode($LSQEvent->Value)));
+                  } */
                 break;
             case LSQResponse::genre:
                 $this->SetValueString('Genre', trim(urldecode($LSQEvent->Value)));
@@ -1116,7 +1121,7 @@ class SqueezeboxDevice extends IPSModule
     private function decodeLSQTaggingData($Data, $isResponse)
     {
 //        $Part = explode(chr(0x3a), urldecode($Data));
-        $Part = explode('%3A',$Data);//        
+        $Part = explode('%3A', $Data); //        
 //        IPS_LogMessage('PartLSQEvent', print_r($Part, 1));
         $Command = urldecode(array_shift($Part));
         if (!(strpos($Command, chr(0x20)) === false))
@@ -1132,8 +1137,8 @@ class SqueezeboxDevice extends IPSModule
         {
             $Value = $Part[0];
         }
-        IPS_LogMessage('decodeLSQTaggingData',print_r($Command, 1). print_r($Value, 1));
-        
+        IPS_LogMessage('decodeLSQTaggingData', print_r($Command, 1) . print_r($Value, 1));
+
         return new LSQEvent($Command, $Value, $isResponse);
     }
 
@@ -1167,16 +1172,32 @@ class SqueezeboxDevice extends IPSModule
     private function SetConnected($Status)
     {
         $this->SetValueBoolean('Connected', $Status);
-        $this->RequestState();
+        if ($Status === true)
+            $this->RequestState();
     }
 
-    private function Init()
+    private function Init($throwException = true)
     {
         $this->Address = $this->ReadPropertyString("Address");
         $this->Interval = $this->ReadPropertyInteger("Interval");
         $this->Connected = GetValueBoolean($this->GetIDForIdent('Connected'));
         if ($this->Address == '')
-            return false;
+            if ($throwException)
+                throw new Exception('Address not set.');
+            else
+                return false;
+        $ParentID = $this->GetParent();
+        if ($ParentID === false)
+            if ($throwException)
+                throw new Exception('Instance has no parent.');
+            else
+                return false;
+        else
+        if (!$this->HasActiveParent($ParentID))
+            if ($throwException)
+                throw new Exception('Instance has no active parent.');
+            else
+                return false;
         return true;
     }
 
@@ -1206,10 +1227,12 @@ class SqueezeboxDevice extends IPSModule
 
     public function ReceiveData($JSONString)
     {
+        IPS_LogMessage(__CLASS__, __FUNCTION__); //
+
         $Data = json_decode($JSONString);
-                IPS_LogMessage('DeviceRAW',print_r($Data,1));
-        
-        $this->Init();
+//                IPS_LogMessage('DeviceRAW',print_r($Data,1));
+
+        $this->Init(false);
         if ($this->Address === '') //Keine Adresse Daten nicht verarbeiten
             return false;
 
@@ -1230,7 +1253,7 @@ class SqueezeboxDevice extends IPSModule
                 {
                     $Response->isResponse = $isResponse;
                     // Daten dekodieren
-                        IPS_LogMessage('DeviceLSQ',print_r($Response,1));                    
+                    IPS_LogMessage('DeviceLSQ', print_r($Response, 1));
                     if (!$isResponse)
                     {
                         $this->decodeLSQEvent($Response);
@@ -1251,7 +1274,7 @@ class SqueezeboxDevice extends IPSModule
         }
         IPS_LogMessage("LSQDevice", 'Falsches Device');
         // Daten waren nicht für uns
-            return false;
+        return false;
     }
 
     // Sende-Routine an den Parent
@@ -1284,13 +1307,22 @@ class SqueezeboxDevice extends IPSModule
 
     private function SendLSQData($LSQData)
     {
-        $this->init();
+        if ($this->Connected == 'noInit')
+            $this->init(true);
         // prüfen ob Player connected ?
         // nur senden wenn connected ODER wir eine connected anfrage senden wollen
         if ((!$this->Connected) and ( $LSQData->Command <> LSQResponse::connected))
         {
             throw new Exception("Device not connected");
         }
+        $ParentID = $this->GetParent();
+        if (!($ParentID === false))
+        {
+            if (!$this->HasActiveParent($ParentID))
+                return;
+        }
+        else
+            return;
 
         if ($LSQData->needResponse)
         {

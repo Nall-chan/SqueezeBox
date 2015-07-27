@@ -4,13 +4,25 @@ require_once(__DIR__ . "/../SqueezeBoxClass.php");  // diverse Klassen
 
 class LMSSplitter extends IPSModule
 {
+    /*    public function __construct($InstanceID)
+      {
+      //Never delete this line!
+      parent::__construct($InstanceID);
+      //These lines are parsed on Symcon Startup or Instance creation
+      //You cannot use variables here. Just static values.
+      $this->RegisterPropertyString("Host", "");
+      $this->RegisterPropertyBoolean("Open", true);
+      $this->RegisterPropertyInteger("Port", 9090);
+      $this->RegisterPropertyInteger("Webport", 9000);
+      } */
 
-    public function __construct($InstanceID)
+    public function Create()
     {
         //Never delete this line!
-        parent::__construct($InstanceID);
-        //These lines are parsed on Symcon Startup or Instance creation
-        //You cannot use variables here. Just static values.
+        parent::Create();
+        //These lines are parsed on Instance creation
+        // ClientSocket benˆtigt
+        $this->RequireParent("{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}");
         $this->RegisterPropertyString("Host", "");
         $this->RegisterPropertyBoolean("Open", true);
         $this->RegisterPropertyInteger("Port", 9090);
@@ -22,8 +34,6 @@ class LMSSplitter extends IPSModule
         //Never delete this line!
         parent::ApplyChanges();
         $change = false;
-        // ClientSocket benˆtigt
-        $this->RequireParent("{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}");
 
         // Zwangskonfiguration des ClientSocket
         $ParentID = $this->GetParent();
@@ -98,7 +108,6 @@ class LMSSplitter extends IPSModule
         return json_encode(array(1, 5, 7.9, 'footo' => 2, 'foo' => 'bar'));
     }
 
-    
     public function GetSongInfoByFileID($ID)
     {
         
@@ -108,19 +117,19 @@ class LMSSplitter extends IPSModule
     {
         
     }
-    
+
     public function CreateAllPlayer()
     {
-                $players = $this->SendDataToParent('player count ?');
+        $players = $this->SendDataToParent('player count ?');
 
-          for ($i = 0; $i < $players; $i++)
-          {
-          $player = $this->SendDataToParent('player id ' . $i . ' ?');
-          $playerName = $this->SendDataToParent('player name ' . $i . ' ?');
-          // Daten zerlegen und Childs anlegen/pr√ºfen
-          IPS_LogMessage('PLAYER ID' . $i, print_r($player, 1));
-          IPS_LogMessage('PLAYER NAME' . $i, print_r($playerName, 1));
-          } 
+        for ($i = 0; $i < $players; $i++)
+        {
+            $player = $this->SendDataToParent('player id ' . $i . ' ?');
+            $playerName = $this->SendDataToParent('player name ' . $i . ' ?');
+            // Daten zerlegen und Childs anlegen/pr¸fen
+            IPS_LogMessage('PLAYER ID' . $i, print_r($player, 1));
+            IPS_LogMessage('PLAYER NAME' . $i, print_r($playerName, 1));
+        }
     }
 
     public function GetPlayerInfo($Value)
@@ -170,10 +179,7 @@ class LMSSplitter extends IPSModule
     // Ankommend von Parent-ClientSocket
     public function ReceiveData($JSONString)
     {
-        IPS_LogMessage('SplitterRAW','bevorJson');     
         $data = json_decode($JSONString);
-        IPS_LogMessage('SplitterRAW',print_r($data,1));     
-        return;
         $bufferID = $this->GetIDForIdent("BufferIN");
 
         // Empfangs Lock setzen
@@ -223,7 +229,7 @@ class LMSSplitter extends IPSModule
             // Nicht Server antworten zu den Devices weiter senden.
             else
             {
-                IPS_LogMessage('SplitterLMS',print_r($Data,1));
+                IPS_LogMessage('SplitterLMS', print_r($Data, 1));
                 try
                 {
                     if (!$this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "LMS" => $Data))))
@@ -240,7 +246,7 @@ class LMSSplitter extends IPSModule
             throw $ret; // dann erst jetzt werfen
         return $ReceiveOK;
     }
-    
+
     // Sende-Routine an den Parent
     protected function SendDataToParent($Data)
     {
@@ -263,7 +269,7 @@ class LMSSplitter extends IPSModule
         $this->unlock("ToParent");
         return $ret;
     }
-    
+
     // Sende-Routine an den Child
     protected function SendDataToChildren($Data)
     {
@@ -275,6 +281,12 @@ class LMSSplitter extends IPSModule
 
     private function SendLMSData($LMSData)
     {
+        $ParentID = $this->GetParent();
+        if ($ParentID === false)
+            throw new Exception('Instance has no parent.');
+        else
+        if (!HasActiveParent($ParentID))
+            throw new Exception('Instance has no active parent.');
         if ($LMSData->needResponse)
         {
             //Semaphore setzen f¸r Sende-Routine
@@ -458,7 +470,7 @@ class LMSSplitter extends IPSModule
     private function unlock($ident)
     {
 //                IPS_LogMessage((string)$this->InstanceID,"Unlock:LMS_" . (string) $this->InstanceID . (string) $ident);
-        
+
         IPS_SemaphoreLeave("LMS_" . (string) $this->InstanceID . (string) $ident);
     }
 
