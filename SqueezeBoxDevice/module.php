@@ -226,7 +226,9 @@ class SqueezeboxDevice extends IPSModule
         $this->GetMute();
         $this->GetRepeat();
         $this->GetShuffle();
-        /*            $this->SendLSQData(
+
+        /*
+          $this->SendLSQData(
           new LSQData(array(LSQResponse::mixer, LSQResponse::volume), '?', false)
           );
           $this->SendLSQData(
@@ -241,6 +243,9 @@ class SqueezeboxDevice extends IPSModule
           $this->SendLSQData(
           new LSQData(array(LSQResponse::mixer, LSQResponse::muting), '?', false)
           ); */
+        $this->SendLSQData(
+                new LSQData(array('status', 0, '1'), 'tags:gladiqrRt')
+        );
         SetValueInteger($this->GetIDForIdent('Status'), 1);
         $this->SendLSQData(
                 new LSQData(LSQResponse::mode, '?', false)
@@ -558,7 +563,7 @@ class SqueezeboxDevice extends IPSModule
         if (is_int($Index))
             $Index--;
         $Data = $this->SendLSQData(new LSQData(array('status', (string) $Index, '1'), 'tags:gladiqrRt'));
-        $Song = $this->DecodeSongInfo($Data); //[0];
+        $Song = $this->DecodeSongInfo($Data)[0];
         return $Song;
     }
 
@@ -1020,14 +1025,13 @@ class SqueezeboxDevice extends IPSModule
         {
             $Command = explode(chr(0x20), $Command);
         }
-        // alle playlist_xxx auch zerlegen ?
         if (isset($Part[1]))
         {
             $Value = $Part;
         }
         else
         {
-            $Value = $Part[0];
+            $Value = implode('%3A',$Part);
         }
 
         return new LSQEvent($Command, $Value, $isResponse);
