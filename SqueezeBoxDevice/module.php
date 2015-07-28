@@ -1025,14 +1025,13 @@ class SqueezeboxDevice extends IPSModule
         {
             $Command = explode(chr(0x20), $Command);
         }
-        IPS_LogMessage('decode', print_r($Part, 1));
         if (isset($Part[1]))
         {
             $Value = implode('%3A', $Part);
         }
         else
         {
-            $Value = $Part;
+            $Value = $Part[0];
         }
 
         return new LSQEvent($Command, $Value, $isResponse);
