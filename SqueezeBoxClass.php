@@ -268,6 +268,7 @@ class LSQResponse extends stdClass
             case LSQResponse::duration:
             case LSQResponse::time:
             case LSQResponse::newmetadata:
+            case LSQResponse::title:
                 $this->Command = $Data->Data[0];
                 if (isset($Data->Data[1]))
                     $this->Value = $Data->Data[1];

@@ -153,7 +153,7 @@ class SqueezeboxDevice extends IPSModule
         $this->EnableAction("Index");
 
         $this->RegisterVariableString("Album", "Album", "", 20);
-        $this->RegisterVariableString("Title", "Title", "", 21);
+        $this->RegisterVariableString("Title", "Titel", "", 21);
         $this->RegisterVariableString("Interpret", "Interpret", "", 22);
         $this->RegisterVariableString("Genre", "Stilrichtung", "", 23);
         $this->RegisterVariableString("Duration", "Dauer", "", 24);
@@ -558,7 +558,7 @@ class SqueezeboxDevice extends IPSModule
         if (is_int($Index))
             $Index--;
         $Data = $this->SendLSQData(new LSQData(array('status', (string) $Index, '1'), 'tags:gladiqrRt'));
-        $Song = $this->DecodeSongInfo($Data)[0];
+        $Song = $this->DecodeSongInfo($Data);//[0];
         return $Song;
     }
 
@@ -878,7 +878,7 @@ class SqueezeboxDevice extends IPSModule
                 $this->SendLSQData(new LSQData(LSQResponse::genre, '?', false));
                 $this->SendLSQData(new LSQData(LSQResponse::duration, '?', false));
                 $this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::tracks), '?', false));
-                $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:' . $this->ReadPropertyInteger('Interval'), false));
+                //$this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:' . $this->ReadPropertyInteger('Interval'), false));
 //                IPS_Sleep(500);
                 $this->SetCover();
                 break;
