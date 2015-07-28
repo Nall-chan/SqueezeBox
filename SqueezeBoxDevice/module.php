@@ -549,6 +549,7 @@ class SqueezeboxDevice extends IPSModule
     /**
      * Schaltet das Gerät ein oder aus.
      *
+     * @access public
      * @param boolean $Value 
      * false  = ausschalten
      * true = einschalten
