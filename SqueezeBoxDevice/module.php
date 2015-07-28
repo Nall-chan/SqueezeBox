@@ -723,7 +723,7 @@ class SqueezeboxDevice extends IPSModule
                 continue;
             }
             if (in_array($LSQPart->Command, $SongFields))
-                $Songs[$id][$LSQPart->Command] = urldecode($LSQPart->Value);
+                $Songs[$id][$LSQPart->Command] = utf8_decode(urldecode($LSQPart->Value));
         }
         return $Songs;
     }
