@@ -4,14 +4,14 @@ require_once(__DIR__ . "/../SqueezeBoxClass.php");  // diverse Klassen
 
 class LMSSplitter extends IPSModule
 {
-    
+
     public function Create()
     {
         //Never delete this line!
         parent::Create();
         //These lines are parsed on Instance creation
         // ClientSocket benötigt
-        $this->RequireParent("{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}");
+        $this->RequireParent("{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}","Logitech Media Server");
         $this->RegisterPropertyString("Host", "");
         $this->RegisterPropertyBoolean("Open", true);
         $this->RegisterPropertyInteger("Port", 9090);
@@ -42,7 +42,7 @@ class LMSSplitter extends IPSModule
             // Keine Verbindung erzwingen wenn Host leer ist, sonst folgt später Exception.
             if ($this->ReadPropertyString('Host') == '')
             {
-                $this->SetStatus(202);                
+                $this->SetStatus(202);
                 $ParentOpen = false;
             }
             if (IPS_GetProperty($ParentID, 'Open') <> $ParentOpen)
@@ -86,7 +86,6 @@ class LMSSplitter extends IPSModule
         $ret = $this->SendLMSData(new LMSData('rescan', LMSData::SendCommand));
         return $ret;
     }
-
 
     public function GetSongInfoByFileID($ID)
     {
@@ -468,6 +467,23 @@ class LMSSplitter extends IPSModule
         }
         $this->SetStatus(203);
         return false;
+    }
+
+    protected function RequireParent($ModuleID, $Name = '')
+    {
+
+        $instance = IPS_GetInstance($this->InstanceID);
+        if ($instance['ConnectionID'] == 0)
+        {
+
+            $parentID = IPS_CreateInstance($ModuleID);
+            $instance = IPS_GetInstance($parentID);
+            if ($Name == '')
+                IPS_SetName($parentID, $instance['ModuleInfo']['ModuleName']);
+            else
+                IPS_SetName($parentID, $Name);
+            IPS_ConnectInstance($this->InstanceID, $parentID);
+        }
     }
 
     /*
