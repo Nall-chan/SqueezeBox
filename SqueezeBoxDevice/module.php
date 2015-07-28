@@ -558,7 +558,7 @@ class SqueezeboxDevice extends IPSModule
         if (is_int($Index))
             $Index--;
         $Data = $this->SendLSQData(new LSQData(array('status', (string) $Index, '1'), 'tags:gladiqrRt'));
-        $Song = $this->DecodeSongInfo($Data);//[0];
+        $Song = $this->DecodeSongInfo($Data); //[0];
         return $Song;
     }
 
@@ -1063,6 +1063,8 @@ class SqueezeboxDevice extends IPSModule
     private function SetConnected($Status)
     {
         $this->SetValueBoolean('Connected', $Status);
+        $this->Connected = $Status;
+        $this->Init(false);
         if ($Status === true)
             $this->RequestState();
     }
