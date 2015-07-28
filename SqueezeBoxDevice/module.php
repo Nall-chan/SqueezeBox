@@ -205,6 +205,12 @@ class SqueezeboxDevice extends IPSModule
      * This function will be available automatically after the module is imported with the module control.
      * Using the custom prefix this function will be callable from PHP and JSON-RPC through:
      */
+
+    /**
+     * Aktuellen Status des Devices ermitteln und, wenn verbunden, abfragen..
+     *
+     * @return boolean
+     */
     public function RequestState()
     {
         $this->Init();
@@ -262,6 +268,7 @@ class SqueezeboxDevice extends IPSModule
           {
           $this->SetValueBoolean('Power', false);
           } */
+        return true;
     }
 
     public function RawSend($Command, $Value, $needResponse)
@@ -272,6 +279,12 @@ class SqueezeboxDevice extends IPSModule
         return $this->SendDataToParent($LSQData);
     }
 
+    /**
+     * Setzten den Namen in dem Device.
+     *
+     * @param string $Name 
+     * @return boolean
+     */
     public function SetName($Name)
     {
         $this->Init();
@@ -366,6 +379,12 @@ class SqueezeboxDevice extends IPSModule
         return false;
     }
 
+    /**
+     * Setzten der Lautstärke.
+     *
+     * @param integer $Value 
+     * @return boolean
+     */
     public function SetVolume($Value)
     {
         $this->Init();
@@ -435,6 +454,12 @@ class SqueezeboxDevice extends IPSModule
         return $ret;
     }
 
+    /**
+     * Setzten der Stummschaltung.
+     *
+     * @param bolean $Value 
+     * @return boolean
+     */
     public function SetMute($Value)
     {
         $this->Init();
@@ -453,6 +478,15 @@ class SqueezeboxDevice extends IPSModule
         return boolval($ret);
     }
 
+    /**
+     * Setzen des Wiederholungsmodus.
+     *
+     * @param integer $Value 
+     * 0 = aus
+     * 1 = Titel
+     * 2 = Album
+     * @return boolean
+     */
     public function SetRepeat($Value)
     {
         $this->Init();
@@ -471,6 +505,15 @@ class SqueezeboxDevice extends IPSModule
         return $ret;
     }
 
+    /**
+     * Setzen des Zufallsmodus.
+     *
+     * @param integer $Value 
+     * 0 = aus
+     * 1 = Titel
+     * 2 = Album
+     * @return boolean
+     */
     public function SetShuffle($Value)
     {
         $this->Init();
@@ -489,6 +532,12 @@ class SqueezeboxDevice extends IPSModule
         return $ret;
     }
 
+    /**
+     * Simuliert einen Tastendruck der Preset-Tasten.
+     *
+     * @param integer $Value 
+     * @return boolean
+     */
     public function SelectPreset($Value)
     {
         $this->Init();
@@ -497,6 +546,14 @@ class SqueezeboxDevice extends IPSModule
         return $this->SendLSQData(new LSQData(array('button', 'preset_' . (int) $Value . '.single'), ''));
     }
 
+    /**
+     * Schaltet das Gerät ein oder aus.
+     *
+     * @param boolean $Value 
+     * false  = ausschalten
+     * true = einschalten
+     * @return boolean
+     */
     public function Power($Value)
     {
         $this->Init();
@@ -506,6 +563,13 @@ class SqueezeboxDevice extends IPSModule
         return ($ret == $Value);
     }
 
+    /**
+     * Springt in der aktuellen Wiedergabeliste auf einen Titel.
+     *
+     * @param integer $Value 
+     * Track in der Wiedergabeliste auf welchen gesprungen werden soll.
+     * @return boolean
+     */
     public function PlayTrack($Value)
     {
         $this->Init();
@@ -527,6 +591,13 @@ class SqueezeboxDevice extends IPSModule
         return ($ret == '%2D1');
     }
 
+    /**
+     * Setzt eine absolute Zeit-Position des aktuellen Titels.
+     *
+     * @param integer $Value 
+     * Zeit in Sekunden.
+     * @return boolean
+     */
     public function SetPosition($Value)
     {
         $this->Init();
@@ -543,6 +614,13 @@ class SqueezeboxDevice extends IPSModule
         return $ret;
     }
 
+    /**
+     * Speichert die aktuelle Wiedergabeliste vom Gerät in einer unter $Name angegebenen Wiedergabelisten-Datei auf dem LMS-Server.
+     *
+     * @param string $Name
+     * Der Name der Wiedergabeliste. Ist diese Liste auf dem Server schon vorhanden, wird sie überschrieben.
+     * @return boolean
+     */
     public function SavePlaylist($Name)
     {
         $this->Init();
@@ -550,6 +628,13 @@ class SqueezeboxDevice extends IPSModule
         return ($ret == urldecode($Name));
     }
 
+    /**
+     * Lädt eine Wiedergabelisten-Datei aus dem LMS-Server und startet die Wiedergabe derselben auf dem Gerät.
+     *
+     * @param string $Name
+     * Der Name der Wiedergabeliste.
+     * @return boolean
+     */
     public function LoadPlaylist($Name)
     {
         $this->Init();
@@ -557,6 +642,14 @@ class SqueezeboxDevice extends IPSModule
         return ($ret == urldecode($Name));
     }
 
+    /**
+     * Liefert Informationen über einen Song aus der aktuelle Wiedergabeliste.
+     *
+     * @param string $Index
+     * '-' für den aktuellen Titel
+     * integer für die absolute Position des Titels in der Wiedergabeliste.
+     * @return array
+     */
     public function GetSongInfoByTrackIndex($Index)
     {
         $this->Init();
