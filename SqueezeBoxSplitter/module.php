@@ -87,12 +87,12 @@ class LMSSplitter extends IPSModule
         return $ret;
     }
 
-    public function GetSongInfoByFileID($ID)
+    public function GetSongInfoByFileID(integer $ID)
     {
         
     }
 
-    public function GetSongInfoByFileURL($File)
+    public function GetSongInfoByFileURL(string $File)
     {
         
     }
@@ -111,9 +111,11 @@ class LMSSplitter extends IPSModule
         }
     }
 
-    public function GetPlayerInfo($Value)
+    public function GetPlayerInfo(integer $Index)
     {
-        $ret = $this->SendLMSData(new LMSData('players ' . $Value . ' 1', LMSData::GetData));
+        if (!is_int($Index))
+            throw new Exception("Index must be integer.");
+        $ret = $this->SendLMSData(new LMSData('players ' . $Index . ' 1', LMSData::GetData));
         return $ret;
     }
 

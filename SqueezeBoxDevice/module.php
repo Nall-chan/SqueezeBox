@@ -23,6 +23,15 @@ class SqueezeboxDevice extends IPSModule
         $this->RegisterPropertyString("CoverSize", "cover");
     }
 
+    public function Destroy()
+    {
+        parent::Destroy();
+    
+        $CoverID = @IPS_GetObjectIDByIdent('CoverIMG', $this->InstanceID);
+        if ($CoverID !== false)
+        @IPS_DeleteMedia($CoverID,true);
+    }
+
     public function ApplyChanges()
     {
         //Never delete this line!
@@ -285,7 +294,7 @@ class SqueezeboxDevice extends IPSModule
      * @param string $Name 
      * @return boolean
      */
-    public function SetName($Name)
+    public function SetName(string $Name)
     {
         $this->Init();
 
@@ -385,7 +394,7 @@ class SqueezeboxDevice extends IPSModule
      * @param integer $Value 
      * @return boolean
      */
-    public function SetVolume($Value)
+    public function SetVolume(integer $Value)
     {
         $this->Init();
 
@@ -405,7 +414,7 @@ class SqueezeboxDevice extends IPSModule
         return $ret;
     }
 
-    public function SetBass($Value)
+    public function SetBass(integer $Value)
     {
         $this->Init();
 
@@ -422,7 +431,7 @@ class SqueezeboxDevice extends IPSModule
         return $ret;
     }
 
-    public function SetTreble($Value)
+    public function SetTreble(integer $Value)
     {
         $this->Init();
         $ret = $this->SendLSQData(new LSQData(array('mixer', 'treble'), $Value));
@@ -438,7 +447,7 @@ class SqueezeboxDevice extends IPSModule
         return $ret;
     }
 
-    public function SetPitch($Value)
+    public function SetPitch(integer $Value)
     {
         $this->Init();
         $ret = $this->SendLSQData(new LSQData(array('mixer', 'pitch'), $Value));
@@ -460,7 +469,7 @@ class SqueezeboxDevice extends IPSModule
      * @param bolean $Value 
      * @return boolean
      */
-    public function SetMute($Value)
+    public function SetMute(boolean $Value)
     {
         $this->Init();
         if (!is_bool($Value))
@@ -487,7 +496,7 @@ class SqueezeboxDevice extends IPSModule
      * 2 = Album
      * @return boolean
      */
-    public function SetRepeat($Value)
+    public function SetRepeat(integer $Value)
     {
         $this->Init();
         if (($Value < 0) or ( $Value > 2))
@@ -514,7 +523,7 @@ class SqueezeboxDevice extends IPSModule
      * 2 = Album
      * @return boolean
      */
-    public function SetShuffle($Value)
+    public function SetShuffle(integer $Value)
     {
         $this->Init();
         if (($Value < 0) or ( $Value > 2))
@@ -538,7 +547,7 @@ class SqueezeboxDevice extends IPSModule
      * @param integer $Value 
      * @return boolean
      */
-    public function SelectPreset($Value)
+    public function SelectPreset(integer $Value)
     {
         $this->Init();
         if (($Value < 1) or ( $Value > 6))
@@ -555,7 +564,7 @@ class SqueezeboxDevice extends IPSModule
      * true = einschalten
      * @return boolean
      */
-    public function Power($Value)
+    public function Power(boolean $Value)
     {
         $this->Init();
         if (!is_bool($Value))
@@ -571,7 +580,7 @@ class SqueezeboxDevice extends IPSModule
      * Track in der Wiedergabeliste auf welchen gesprungen werden soll.
      * @return boolean
      */
-    public function PlayTrack($Value)
+    public function PlayTrack(integer $Value)
     {
         $this->Init();
         $ret = $this->SendLSQData(new LSQData(array('playlist', 'index'), intval($Value) - 1));
@@ -599,10 +608,10 @@ class SqueezeboxDevice extends IPSModule
      * Zeit in Sekunden.
      * @return boolean
      */
-    public function SetPosition($Value)
+    public function SetPosition(integer $Value)
     {
         $this->Init();
-        if (!is_float($Value))
+        if (!is_int($Value))
             throw new Exception("Value must be integer.");
         $ret = $this->SendLSQData(new LSQData('time', $Value));
         return ($ret == $Value);
@@ -622,7 +631,7 @@ class SqueezeboxDevice extends IPSModule
      * Der Name der Wiedergabeliste. Ist diese Liste auf dem Server schon vorhanden, wird sie überschrieben.
      * @return boolean
      */
-    public function SavePlaylist($Name)
+    public function SavePlaylist(string $Name)
     {
         $this->Init();
         $ret = $this->SendLSQData(new LSQData(array('playlist', 'save'), urlencode($Name) . ' silent:1'));
@@ -636,7 +645,7 @@ class SqueezeboxDevice extends IPSModule
      * Der Name der Wiedergabeliste.
      * @return boolean
      */
-    public function LoadPlaylist($Name)
+    public function LoadPlaylist(string $Name)
     {
         $this->Init();
         $ret = $this->SendLSQData(new LSQData(array('playlist', 'load'), urlencode($Name) . ' silent:1'));
@@ -651,11 +660,15 @@ class SqueezeboxDevice extends IPSModule
      * integer für die absolute Position des Titels in der Wiedergabeliste.
      * @return array
      */
-    public function GetSongInfoByTrackIndex($Index)
+    public function GetSongInfoByTrackIndex(integer $Index)
     {
         $this->Init();
         if (is_int($Index))
             $Index--;
+        else
+            throw new Exception("Index must be integer.");
+        if ($Index == -1)
+            $Index = '-';
         $Data = $this->SendLSQData(new LSQData(array('status', (string) $Index, '1'), 'tags:gladiqrRt'));
         $Song = $this->DecodeSongInfo($Data)[0];
         return $Song;
