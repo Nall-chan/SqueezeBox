@@ -115,7 +115,7 @@ class LMSSplitter extends IPSModule
     {
         if (!is_int($Index))
             throw new Exception("Index must be integer.");
-        $ret = $this->SendLMSData(new LMSData('players ' . $Index . ' 1', LMSData::GetData));
+        $ret = $this->SendLMSData(new LMSData('players ' . (string)$Index . ' 1', LMSData::GetData));
         return $ret;
     }
 
