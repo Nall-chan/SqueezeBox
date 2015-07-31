@@ -643,13 +643,15 @@ class SqueezeboxDevice extends IPSModule
      *
      * @param string $Name
      * Der Name der Wiedergabeliste.
-     * @return boolean
+     * @return string
+     * Kompletter Pfad der Wiedergabeliste.
      */
     public function LoadPlaylist(string $Name)
     {
         $this->Init();
-        $ret = $this->SendLSQData(new LSQData(array('playlist', 'load'), urlencode($Name) . ' silent:1'));
-        return ($ret == urldecode($Name));
+        $raw = $this->SendLSQData(new LSQData(array('playlist', 'load'), urlencode($Name) . ' silent:1'));
+        $ret = explode(' ', $raw);
+        return urldecode($ret[0]);
     }
 
     /**
@@ -678,6 +680,7 @@ class SqueezeboxDevice extends IPSModule
 
     public function RequestAction($Ident, $Value)
     {
+        
         switch ($Ident)
         {
             case "Status":
