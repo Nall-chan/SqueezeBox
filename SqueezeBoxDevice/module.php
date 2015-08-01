@@ -300,7 +300,7 @@ class SqueezeboxDevice extends IPSModule
     {
         $this->Init();
 
-        $ret = $this->SendLSQData(new LSQData(LSQResponse::name, rawurlencode((string) $Name)));
+        $ret = rawurldecode($this->SendLSQData(new LSQData(LSQResponse::name, rawurlencode((string) $Name))));
         IPS_LogMessage('SetName',print_r($ret,1));
         if ($ret == $Name)
         {
@@ -319,7 +319,7 @@ class SqueezeboxDevice extends IPSModule
     {
         $this->Init();
 
-        $Name = $this->SendLSQData(new LSQData(LSQResponse::name, '?'));
+        $Name = rawurldecode($this->SendLSQData(new LSQData(LSQResponse::name, '?')));
         IPS_LogMessage('SetName',print_r($Name,1));
         $this->_NewName($Name);
         return trim($Name);
