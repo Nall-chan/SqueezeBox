@@ -750,11 +750,9 @@ class SqueezeboxDevice extends IPSModule
     /**
      * Setzt eine absolute Zeit-Position des aktuellen Titels.
      *
-     * @param integer $Value 
-     * Zeit in Sekunden.
-     * @return boolean
-     * true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception 
+     * @param integer $Value Zeit in Sekunden.
+     * @return boolean true bei erfolgreicher Ausführung und Rückmeldung.
+     * @exception Wenn Befehl nicht ausgeführt werden konnte.
      */
     public function SetPosition(integer $Value)
     {
@@ -859,61 +857,65 @@ class SqueezeboxDevice extends IPSModule
                 {
                     case 0: //Prev
                         //$this->PreviousButton();
-                        $this->PreviousTrack();
+                        $result = $this->PreviousTrack();
                         break;
                     case 1: //Stop
-                        $this->Stop();
+                        $result = $this->Stop();
                         break;
                     case 2: //Play
-                        $this->Play();
+                        $result = $this->Play();
                         break;
                     case 3: //Pause
-                        $this->Pause();
+                        $result = $this->Pause();
                         break;
                     case 4: //Next
                         //$this->NextButton();
-                        $this->NextTrack();
+                        $result = $this->NextTrack();
                         break;
                 }
                 break;
             case "Volume":
-                $this->SetVolume($Value);
+                $result = $this->SetVolume($Value);
                 break;
             case "Bass":
-                $this->SetBass($Value);
+                $result = $this->SetBass($Value);
                 break;
             case "Treble":
-                $this->SetTreble($Value);
+                $result = $this->SetTreble($Value);
                 break;
             case "Pitch":
-                $this->SetPitch($Value);
+                $result = $this->SetPitch($Value);
                 break;
             case "Preset":
-                $this->SelectPreset($Value);
+                $result = $this->SelectPreset($Value);
                 break;
             case "Power":
-                $this->Power($Value);
+                $result = $this->Power($Value);
                 break;
             case "Mute":
-                $this->SetMute($Value);
+                $result = $this->SetMute($Value);
                 break;
             case "Repeat":
-                $this->SetRepeat($Value);
+                $result = $this->SetRepeat($Value);
                 break;
             case "Shuffle":
-                $this->SetShuffle($Value);
+                $result = $this->SetShuffle($Value);
                 break;
             case "Position2":
                 $this->tempData['Duration'] = GetValueInteger($this->GetIDForIdent('DurationRAW'));
-                $this->tempData['Position'] = GetValueInteger($this->GetIDForIdent('PositionRAW'));
+//                $this->tempData['Position'] = GetValueInteger($this->GetIDForIdent('PositionRAW'));
                 $Time = ($this->tempData['Duration'] / 100) * $Value;
-                $this->SetPosition($Time);
+                $result = $this->SetPosition(intval($Time));
                 break;
             case "Index":
-                $this->PlayTrack($Value);
+                $result = $this->PlayTrack($Value);
                 break;
             default:
                 throw new Exception("Invalid ident");
+        }
+        if ($result == false)
+        {
+            throw new Exception("Error on RequestAction for ident ".$Ident);
         }
     }
 
