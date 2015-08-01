@@ -26,10 +26,10 @@ class SqueezeboxDevice extends IPSModule
     public function Destroy()
     {
         parent::Destroy();
-    
+
         $CoverID = @IPS_GetObjectIDByIdent('CoverIMG', $this->InstanceID);
         if ($CoverID !== false)
-        @IPS_DeleteMedia($CoverID,true);
+            @IPS_DeleteMedia($CoverID, true);
     }
 
     public function ApplyChanges()
@@ -301,7 +301,6 @@ class SqueezeboxDevice extends IPSModule
         $this->Init();
 
         $ret = rawurldecode($this->SendLSQData(new LSQData(LSQResponse::name, rawurlencode((string) $Name))));
-        IPS_LogMessage('SetName',print_r($ret,1));
         if ($ret == $Name)
         {
             $this->_NewName($Name);
@@ -309,6 +308,7 @@ class SqueezeboxDevice extends IPSModule
         }
         return false;
     }
+
     /**
      * Liefert den Namen von dem Device.
      *
@@ -320,7 +320,6 @@ class SqueezeboxDevice extends IPSModule
         $this->Init();
 
         $Name = rawurldecode($this->SendLSQData(new LSQData(LSQResponse::name, '?')));
-        IPS_LogMessage('SetName',print_r($Name,1));
         $this->_NewName($Name);
         return trim($Name);
     }
@@ -462,7 +461,7 @@ class SqueezeboxDevice extends IPSModule
         $this->_NewVolume($ret);
         return $ret;
     }
-    
+
     /**
      * Setzt den Bass-Wert.
      *
@@ -479,7 +478,7 @@ class SqueezeboxDevice extends IPSModule
         $this->SetValueInteger('Bass', $ret);
         return ($ret == $Value);
     }
-    
+
     /**
      * Liefert den aktuellen Bass-Wert.
      *
@@ -493,7 +492,7 @@ class SqueezeboxDevice extends IPSModule
         $this->SetValueInteger('Bass', $ret);
         return $ret;
     }
-  
+
     /**
      * Setzt den Treble-Wert.
      *
@@ -509,7 +508,7 @@ class SqueezeboxDevice extends IPSModule
         $this->SetValueInteger('Treble', $ret);
         return ($ret == $Value);
     }
-  
+
     /**
      * Liefert den aktuellen Treble-Wert.
      *
@@ -523,7 +522,7 @@ class SqueezeboxDevice extends IPSModule
         $this->SetValueInteger('Treble', $ret);
         return $ret;
     }
-   
+
     /**
      * Setzt den Pitch-Wert.
      *
@@ -539,7 +538,7 @@ class SqueezeboxDevice extends IPSModule
         $this->SetValueInteger('Pitch', $ret);
         return ($ret == $Value);
     }
-   
+
     /**
      * Liefert den aktuellen Pitch-Wert.
      *
@@ -573,7 +572,7 @@ class SqueezeboxDevice extends IPSModule
         $this->SetValueBoolean('Mute', $ret);
         return ($ret == $Value);
     }
-    
+
     /**
      * Liefert den Status der Stummschaltung.
      *
@@ -610,7 +609,7 @@ class SqueezeboxDevice extends IPSModule
         $this->SetValueInteger('Repeat', $ret);
         return ($ret == $Value);
     }
-    
+
     /**
      * Liefert den Wiederholungsmodus.
      *
@@ -715,7 +714,7 @@ class SqueezeboxDevice extends IPSModule
     public function PlayTrack(integer $Value)
     {
         $this->Init();
-        $ret = intval($this->SendLSQData(new LSQData(array('playlist', 'index'), intval($Value) - 1)))+1;
+        $ret = intval($this->SendLSQData(new LSQData(array('playlist', 'index'), intval($Value) - 1))) + 1;
         return ($ret == $Value);
     }
 
@@ -790,7 +789,7 @@ class SqueezeboxDevice extends IPSModule
     {
         $this->Init();
         $raw = $this->SendLSQData(new LSQData(array('playlist', 'save'), $Name . ' silent:1'));
-        $ret = explode(' ', $raw);        
+        $ret = explode(' ', $raw);
         return (rawurldecode($ret[0]) == $Name);
     }
 
@@ -849,7 +848,7 @@ class SqueezeboxDevice extends IPSModule
 
     public function RequestAction($Ident, $Value)
     {
-        
+
         switch ($Ident)
         {
             case "Status":
@@ -915,7 +914,7 @@ class SqueezeboxDevice extends IPSModule
         }
         if ($result == false)
         {
-            throw new Exception("Error on RequestAction for ident ".$Ident);
+            throw new Exception("Error on RequestAction for ident " . $Ident);
         }
     }
 
@@ -989,16 +988,16 @@ class SqueezeboxDevice extends IPSModule
         $id = 0;
         $Songs = array();
         $SongFields = array(
-            'id',
-            'title',
-            'genre',
-            'album',
-            'artist',
-            'duration',
-            'disc',
-            'disccount',
-            'bitrate',
-            'tracknum'
+            'id' => 0,
+            'title' => 1,
+            'genre' => 1,
+            'album' => 1,
+            'artist' => 1,
+            'duration' => 0,
+            'disc' => 0,
+            'disccount' => 0,
+            'bitrate' => 1,
+            'tracknum' => 0
         );
         foreach (explode(' ', $Data) as $Line)
         {
@@ -1010,8 +1009,13 @@ class SqueezeboxDevice extends IPSModule
                 $id = (int) $LSQPart->Value;
                 continue;
             }
-            if (in_array($LSQPart->Command, $SongFields))
-                $Songs[$id][$LSQPart->Command] = utf8_decode(rawurldecode($LSQPart->Value));
+            if (array_key_exists($LSQPart->Command, $SongFields))
+            {
+                if ($SongFields[$LSQPart->Command] == 0)
+                    $Songs[$id][$LSQPart->Command] = intval($LSQPart->Value);
+                else
+                    $Songs[$id][$LSQPart->Command] = utf8_decode(rawurldecode($LSQPart->Value));
+            }
         }
         return $Songs;
     }
