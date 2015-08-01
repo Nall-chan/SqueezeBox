@@ -300,7 +300,8 @@ class SqueezeboxDevice extends IPSModule
     {
         $this->Init();
 
-        $ret = urldecode($this->SendLSQData(new LSQData(LSQResponse::name, (string) $Name)));
+        $ret = $this->SendLSQData(new LSQData(LSQResponse::name, urlencode((string) $Name)));
+        IPS_LogMessage('SetName',print_r($ret,1));
         if ($ret == $Name)
         {
             $this->_NewName($Name);
@@ -318,9 +319,10 @@ class SqueezeboxDevice extends IPSModule
     {
         $this->Init();
 
-        $Name = trim(urldecode($this->SendLSQData(new LSQData(LSQResponse::name, '?'))));
+        $Name = $this->SendLSQData(new LSQData(LSQResponse::name, '?'));
+        IPS_LogMessage('SetName',print_r($Name,1));
         $this->_NewName($Name);
-        return $Name;
+        return trim($Name);
     }
 
     /*
@@ -720,14 +722,17 @@ class SqueezeboxDevice extends IPSModule
     public function NextTrack()
     {
         $this->Init();
-        $ret = urldecode($this->SendLSQData(new LSQData(array('playlist', 'index'), '+1')));
+        $ret = trim(urldecode($this->SendLSQData(new LSQData(array('playlist', 'index'), '+1'))));
+        IPS_LogMessage('SetName',print_r($ret,1));
         return ($ret == "+1");
     }
 
     public function PreviousTrack()
     {
         $this->Init();
-        $ret = urldecode($this->SendLSQData(new LSQData(array('playlist', 'index'), '-1')));
+        $ret = trim(urldecode($this->SendLSQData(new LSQData(array('playlist', 'index'), '-1'))));
+        IPS_LogMessage('SetName',print_r($ret,1));
+        
         return ($ret == "-1");
     }
 
@@ -769,6 +774,8 @@ class SqueezeboxDevice extends IPSModule
      * @param string $Name
      * Der Name der Wiedergabeliste. Ist diese Liste auf dem Server schon vorhanden, wird sie überschrieben.
      * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception 
      */
     public function SavePlaylist(string $Name)
     {
