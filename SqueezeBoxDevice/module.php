@@ -300,7 +300,7 @@ class SqueezeboxDevice extends IPSModule
     {
         $this->Init();
 
-        $ret = $this->SendLSQData(new LSQData(LSQResponse::name, urlencode((string) $Name)));
+        $ret = $this->SendLSQData(new LSQData(LSQResponse::name, rawurlencode((string) $Name)));
         IPS_LogMessage('SetName',print_r($ret,1));
         if ($ret == $Name)
         {
@@ -719,20 +719,31 @@ class SqueezeboxDevice extends IPSModule
         return ($ret == $Value);
     }
 
+    /**
+     * Springt in der aktuellen Wiedergabeliste auf den nächsten Titel.
+     *
+     * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception 
+     */
     public function NextTrack()
     {
         $this->Init();
-        $ret = trim(urldecode($this->SendLSQData(new LSQData(array('playlist', 'index'), '+1'))));
-        IPS_LogMessage('SetName',print_r($ret,1));
+        $ret = trim(rawurldecode($this->SendLSQData(new LSQData(array('playlist', 'index'), '+1'))));
         return ($ret == "+1");
     }
 
+    /**
+     * Springt in der aktuellen Wiedergabeliste auf den vorherigen Titel.
+     *
+     * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception 
+     */
     public function PreviousTrack()
     {
         $this->Init();
-        $ret = trim(urldecode($this->SendLSQData(new LSQData(array('playlist', 'index'), '-1'))));
-        IPS_LogMessage('SetName',print_r($ret,1));
-        
+        $ret = trim(rawurldecode($this->SendLSQData(new LSQData(array('playlist', 'index'), '-1'))));
         return ($ret == "-1");
     }
 
@@ -782,7 +793,7 @@ class SqueezeboxDevice extends IPSModule
         $this->Init();
         $raw = $this->SendLSQData(new LSQData(array('playlist', 'save'), $Name . ' silent:1'));
         $ret = explode(' ', $raw);        
-        return (urldecode($ret[0]) == $Name);
+        return (rawurldecode($ret[0]) == $Name);
     }
 
     /**
@@ -799,7 +810,7 @@ class SqueezeboxDevice extends IPSModule
         $this->Init();
         $raw = $this->SendLSQData(new LSQData(array('playlist', 'load'), $Name . ' silent:1'));
         $ret = explode(' ', $raw);
-        return urldecode($ret[0]);
+        return rawurldecode($ret[0]);
     }
 
     /**
@@ -998,7 +1009,7 @@ class SqueezeboxDevice extends IPSModule
                 continue;
             }
             if (in_array($LSQPart->Command, $SongFields))
-                $Songs[$id][$LSQPart->Command] = utf8_decode(urldecode($LSQPart->Value));
+                $Songs[$id][$LSQPart->Command] = utf8_decode(rawurldecode($LSQPart->Value));
         }
         return $Songs;
     }
@@ -1043,7 +1054,7 @@ class SqueezeboxDevice extends IPSModule
                 break;
             case LSQResponse::player_name:
             case LSQResponse::name:
-                $this->_NewName(urldecode((string) $LSQEvent->Value));
+                $this->_NewName(rawurldecode((string) $LSQEvent->Value));
                 break;
             case LSQResponse::signalstrength:
                 $this->SetValueInteger('Signalstrength', (int) $LSQEvent->Value);
@@ -1146,7 +1157,7 @@ class SqueezeboxDevice extends IPSModule
                     $currentTrack = 0;
                 }
                 $this->SetValueInteger('Status', 2);
-                $this->SetValueString('Title', trim(urldecode($title)));
+                $this->SetValueString('Title', trim(rawurldecode($title)));
                 $this->SetValueInteger('Index', $currentTrack);
                 $this->SendLSQData(new LSQData(LSQResponse::artist, '?', false));
                 $this->SendLSQData(new LSQData(LSQResponse::album, '?', false));
@@ -1176,25 +1187,25 @@ class SqueezeboxDevice extends IPSModule
                   } */
                 break;
             case LSQResponse::title:
-                $this->SetValueString('Title', trim(urldecode($LSQEvent->Value)));
+                $this->SetValueString('Title', trim(rawurldecode($LSQEvent->Value)));
                 break;
             case LSQResponse::artist:
-                $this->SetValueString('Interpret', trim(urldecode($LSQEvent->Value)));
+                $this->SetValueString('Interpret', trim(rawurldecode($LSQEvent->Value)));
                 break;
             case LSQResponse::current_title:
             case LSQResponse::album:
 
                 if (is_array($LSQEvent->Value))
                 {
-                    $this->SetValueString('Album', trim(urldecode($LSQEvent->Value[0])));
+                    $this->SetValueString('Album', trim(rawurldecode($LSQEvent->Value[0])));
                 }
                 else
                 {
-                    $this->SetValueString('Album', trim(urldecode($LSQEvent->Value)));
+                    $this->SetValueString('Album', trim(rawurldecode($LSQEvent->Value)));
                 }
                 break;
             case LSQResponse::genre:
-                $this->SetValueString('Genre', trim(urldecode($LSQEvent->Value)));
+                $this->SetValueString('Genre', trim(rawurldecode($LSQEvent->Value)));
                 break;
             case LSQResponse::duration:
                 if ($LSQEvent->Value == 0)
@@ -1290,7 +1301,7 @@ class SqueezeboxDevice extends IPSModule
     private function decodeLSQTaggingData($Data, $isResponse)
     {
         $Part = explode('%3A', $Data); //        
-        $Command = urldecode(array_shift($Part));
+        $Command = rawurldecode(array_shift($Part));
         if (!(strpos($Command, chr(0x20)) === false))
         {
             $Command = explode(chr(0x20), $Command);
@@ -1324,7 +1335,7 @@ class SqueezeboxDevice extends IPSModule
         {
             $Host = IPS_GetProperty($ParentID, 'Host') . ":" . IPS_GetProperty($ParentID, 'Webport');
             $Size = $this->ReadPropertyString("CoverSize");
-            $PlayerID = urlencode($this->Address);
+            $PlayerID = rawurlencode($this->Address);
             $CoverRAW = @Sys_GetURLContent("http://" . $Host . "/music/current/" . $Size . ".png?player=" . $PlayerID);
             if (!($CoverRAW === false))
             {

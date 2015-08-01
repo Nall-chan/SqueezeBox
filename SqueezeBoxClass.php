@@ -57,7 +57,7 @@ class LMSResponse extends stdClass
         if (strpos($array[0], '%')) //isMAC
         {
             $this->Device = LMSResponse::isMAC;
-            $this->MAC = urldecode(array_shift($array));
+            $this->MAC = rawurldecode(array_shift($array));
         }
         elseif (strpos($array[0], '.')) //isIP
         {
