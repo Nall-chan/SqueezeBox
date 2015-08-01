@@ -293,12 +293,14 @@ class SqueezeboxDevice extends IPSModule
      *
      * @param string $Name 
      * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception 
      */
     public function SetName(string $Name)
     {
         $this->Init();
 
-        $ret = $this->SendLSQData(new LSQData(LSQResponse::name, urlencode((string) $Name)));
+        $ret = urldecode($this->SendLSQData(new LSQData(LSQResponse::name, (string) $Name)));
         if ($ret == $Name)
         {
             $this->_NewName($Name);
@@ -306,12 +308,17 @@ class SqueezeboxDevice extends IPSModule
         }
         return false;
     }
-
+    /**
+     * Liefert den Namen von dem Device.
+     *
+     * @return string
+     * @exception 
+     */
     public function GetName()
     {
         $this->Init();
 
-        $Name = urldecode($this->SendLSQData(new LSQData(LSQResponse::name, '?')));
+        $Name = trim(urldecode($this->SendLSQData(new LSQData(LSQResponse::name, '?'))));
         $this->_NewName($Name);
         return $Name;
     }
@@ -328,6 +335,13 @@ class SqueezeboxDevice extends IPSModule
       return $this->SendLSQData(new LSQData(LSQResponse::sleep, '?'));
       } */
 
+    /**
+     * Simuliert einen Tastendruck.
+     *
+     * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception 
+     */
     public function PreviousButton()
     {
         $this->Init();
@@ -340,6 +354,13 @@ class SqueezeboxDevice extends IPSModule
         return false;
     }
 
+    /**
+     * Simuliert einen Tastendruck.
+     *
+     * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception 
+     */
     public function NextButton()
     {
         $this->Init();
@@ -352,6 +373,12 @@ class SqueezeboxDevice extends IPSModule
         return false;
     }
 
+    /**
+     * Startet die Wiedergabe
+     * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception 
+     */
     public function Play()
     {
         $this->Init();
@@ -364,6 +391,12 @@ class SqueezeboxDevice extends IPSModule
         return false;
     }
 
+    /**
+     * Stoppt die Wiedergabe
+     * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception 
+     */
     public function Stop()
     {
         $this->Init();
@@ -376,6 +409,12 @@ class SqueezeboxDevice extends IPSModule
         return false;
     }
 
+    /**
+     * Pausiert die Wiedergabe
+     * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception 
+     */
     public function Pause()
     {
         $this->Init();
@@ -393,6 +432,8 @@ class SqueezeboxDevice extends IPSModule
      *
      * @param integer $Value 
      * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception 
      */
     public function SetVolume(integer $Value)
     {
@@ -405,6 +446,12 @@ class SqueezeboxDevice extends IPSModule
         return ($ret == $Value);
     }
 
+    /**
+     * Liefert die aktuelle Lautstärke von dem Device.
+     *
+     * @return integer
+     * @exception 
+     */
     public function GetVolume()
     {
         $this->Init();
@@ -413,7 +460,15 @@ class SqueezeboxDevice extends IPSModule
         $this->_NewVolume($ret);
         return $ret;
     }
-
+    
+    /**
+     * Setzt den Bass-Wert.
+     *
+     * @param integer $Value 
+     * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception 
+     */
     public function SetBass(integer $Value)
     {
         $this->Init();
@@ -422,7 +477,13 @@ class SqueezeboxDevice extends IPSModule
         $this->SetValueInteger('Bass', $ret);
         return ($ret == $Value);
     }
-
+    
+    /**
+     * Liefert den aktuellen Bass-Wert.
+     *
+     * @return integer
+     * @exception 
+     */
     public function GetBass()
     {
         $this->Init();
@@ -430,7 +491,15 @@ class SqueezeboxDevice extends IPSModule
         $this->SetValueInteger('Bass', $ret);
         return $ret;
     }
-
+  
+    /**
+     * Setzt den Treble-Wert.
+     *
+     * @param integer $Value 
+     * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception 
+     */
     public function SetTreble(integer $Value)
     {
         $this->Init();
@@ -438,7 +507,13 @@ class SqueezeboxDevice extends IPSModule
         $this->SetValueInteger('Treble', $ret);
         return ($ret == $Value);
     }
-
+  
+    /**
+     * Liefert den aktuellen Treble-Wert.
+     *
+     * @return integer
+     * @exception 
+     */
     public function GetTreble()
     {
         $this->Init();
@@ -446,7 +521,15 @@ class SqueezeboxDevice extends IPSModule
         $this->SetValueInteger('Treble', $ret);
         return $ret;
     }
-
+   
+    /**
+     * Setzt den Pitch-Wert.
+     *
+     * @param integer $Value 
+     * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception 
+     */
     public function SetPitch(integer $Value)
     {
         $this->Init();
@@ -454,7 +537,13 @@ class SqueezeboxDevice extends IPSModule
         $this->SetValueInteger('Pitch', $ret);
         return ($ret == $Value);
     }
-
+   
+    /**
+     * Liefert den aktuellen Pitch-Wert.
+     *
+     * @return integer
+     * @exception 
+     */
     public function GetPitch()
     {
         $this->Init();
@@ -467,7 +556,11 @@ class SqueezeboxDevice extends IPSModule
      * Setzten der Stummschaltung.
      *
      * @param bolean $Value 
+     * true = Stumm an
+     * false = Stumm aus
      * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception 
      */
     public function SetMute(boolean $Value)
     {
@@ -478,7 +571,15 @@ class SqueezeboxDevice extends IPSModule
         $this->SetValueBoolean('Mute', $ret);
         return ($ret == $Value);
     }
-
+    
+    /**
+     * Liefert den Status der Stummschaltung.
+     *
+     * @return boolean
+     * true = Stumm an
+     * false = Stumm aus
+     * @exception 
+     */
     public function GetMute()
     {
         $this->Init();
@@ -495,6 +596,8 @@ class SqueezeboxDevice extends IPSModule
      * 1 = Titel
      * 2 = Album
      * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception 
      */
     public function SetRepeat(integer $Value)
     {
@@ -505,7 +608,16 @@ class SqueezeboxDevice extends IPSModule
         $this->SetValueInteger('Repeat', $ret);
         return ($ret == $Value);
     }
-
+    
+    /**
+     * Liefert den Wiederholungsmodus.
+     *
+     * @return integer
+     * 0 = aus
+     * 1 = Titel
+     * 2 = Album
+     * @exception 
+     */
     public function GetRepeat()
     {
         $this->Init();
@@ -522,6 +634,8 @@ class SqueezeboxDevice extends IPSModule
      * 1 = Titel
      * 2 = Album
      * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception 
      */
     public function SetShuffle(integer $Value)
     {
@@ -533,6 +647,15 @@ class SqueezeboxDevice extends IPSModule
         return ($ret == $Value);
     }
 
+    /**
+     * Liefert den Zufallsmodus.
+     *
+     * @return integer
+     * 0 = aus
+     * 1 = Titel
+     * 2 = Album
+     * @exception 
+     */
     public function GetShuffle()
     {
         $this->Init();
@@ -542,10 +665,13 @@ class SqueezeboxDevice extends IPSModule
     }
 
     /**
-     * Simuliert einen Tastendruck der Preset-Tasten.
+     * Simuliert einen Tastendruck auf einen der Preset-Tasten.
      *
      * @param integer $Value 
+     * 1 - 6 = Taste 1 bis 6
      * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception 
      */
     public function SelectPreset(integer $Value)
     {
@@ -563,6 +689,8 @@ class SqueezeboxDevice extends IPSModule
      * false  = ausschalten
      * true = einschalten
      * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception 
      */
     public function Power(boolean $Value)
     {
@@ -579,6 +707,8 @@ class SqueezeboxDevice extends IPSModule
      * @param integer $Value 
      * Track in der Wiedergabeliste auf welchen gesprungen werden soll.
      * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception 
      */
     public function PlayTrack(integer $Value)
     {
@@ -590,15 +720,15 @@ class SqueezeboxDevice extends IPSModule
     public function NextTrack()
     {
         $this->Init();
-        $ret = $this->SendLSQData(new LSQData(array('playlist', 'index'), '+1'));
-        return ($ret == '%2B1');
+        $ret = urldecode($this->SendLSQData(new LSQData(array('playlist', 'index'), '+1')));
+        return ($ret == "+1");
     }
 
     public function PreviousTrack()
     {
         $this->Init();
-        $ret = $this->SendLSQData(new LSQData(array('playlist', 'index'), '-1'));
-        return ($ret == '%2D1');
+        $ret = urldecode($this->SendLSQData(new LSQData(array('playlist', 'index'), '-1')));
+        return ($ret == "-1");
     }
 
     /**
@@ -607,6 +737,8 @@ class SqueezeboxDevice extends IPSModule
      * @param integer $Value 
      * Zeit in Sekunden.
      * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception 
      */
     public function SetPosition(integer $Value)
     {
@@ -617,6 +749,13 @@ class SqueezeboxDevice extends IPSModule
         return ($ret == $Value);
     }
 
+    /**
+     * Liest die aktuelle Zeit-Position des aktuellen Titels.
+     *
+     * @return integer
+     * Zeit in Sekunden.
+     * @exception 
+     */
     public function GetPosition()
     {
         $this->Init();
@@ -634,8 +773,9 @@ class SqueezeboxDevice extends IPSModule
     public function SavePlaylist(string $Name)
     {
         $this->Init();
-        $ret = $this->SendLSQData(new LSQData(array('playlist', 'save'), urlencode($Name) . ' silent:1'));
-        return ($ret == urldecode($Name));
+        $raw = $this->SendLSQData(new LSQData(array('playlist', 'save'), $Name . ' silent:1'));
+        $ret = explode(' ', $raw);        
+        return (urldecode($ret[0]) == $Name);
     }
 
     /**
@@ -645,11 +785,12 @@ class SqueezeboxDevice extends IPSModule
      * Der Name der Wiedergabeliste.
      * @return string
      * Kompletter Pfad der Wiedergabeliste.
+     * @exception 
      */
     public function LoadPlaylist(string $Name)
     {
         $this->Init();
-        $raw = $this->SendLSQData(new LSQData(array('playlist', 'load'), urlencode($Name) . ' silent:1'));
+        $raw = $this->SendLSQData(new LSQData(array('playlist', 'load'), $Name . ' silent:1'));
         $ret = explode(' ', $raw);
         return urldecode($ret[0]);
     }
@@ -657,10 +798,22 @@ class SqueezeboxDevice extends IPSModule
     /**
      * Liefert Informationen über einen Song aus der aktuelle Wiedergabeliste.
      *
-     * @param string $Index
-     * '-' für den aktuellen Titel
-     * integer für die absolute Position des Titels in der Wiedergabeliste.
+     * @param integer $Index
+     * $Index für die absolute Position des Titels in der Wiedergabeliste.
+     * 0 für den aktuellen Titel
+     *  
      * @return array
+     *  ["duration"]=>string
+     *  ["id"]=>string
+     *  ["title"]=>string
+     *  ["genre"]=>string
+     *  ["album"]=>string
+     *  ["artist"]=>string
+     *  ["disc"]=> string
+     *  ["disccount"]=>string
+     *  ["bitrate"]=>string
+     *  ["tracknum"]=>string
+     * @exception 
      */
     public function GetSongInfoByTrackIndex(integer $Index)
     {
