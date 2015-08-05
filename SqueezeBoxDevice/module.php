@@ -333,10 +333,9 @@ class SqueezeboxDevice extends IPSModule
             throw new Exception('SlaveInstance in not a LSQ_PlayerInstanz');
         $ClientMac = IPS_GetProperty($SlaveInstanceID, 'Address');
 //        IPS_LogMessage('DoSync',$ClientMac);
-        if (($ClientMac === '') or ($ClientMac === false))
+        if (($ClientMac === '') or ( $ClientMac === false))
         {
             throw new Exception('SlaveInstance Address is not set.');
-            
         }
         $ret = $this->SendLSQData(new LSQData(LSQResponse::sync, $ClientMac));
         return (rawurldecode($ret) == $ClientMac);
@@ -344,20 +343,35 @@ class SqueezeboxDevice extends IPSModule
 
     public function GetSync() // ToDo Instanz suchen
     {
-        /* $id = @IPS_GetInstance($SlaveInstanceID);
-          if ($id === FALSE)
-          throw new Exception('Unknown LSQ_PlayerInstanz');
-          if ($id['ModuleInfo']['ModuleID'] <> '{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}')
-          throw new Exception('SlaveInstance in not a LSQ_PlayerInstanz');
-          $ClientMac = IPS_GetProperty($id, 'Address'); */
+        $Addresses = array();
+        $FoundInstanzIDs = array();
+        $AllPlayerIDs = IPS_GetInstanceListByModuleID('{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}');
+
+        foreach ($AllPlayerIDs as $DeviceID)
+        {
+            $Addresses[$DeviceID] = IPS_GetProperty($DeviceID, 'Address');
+        }
+
         $ret = $this->SendLSQData(new LSQData(LSQResponse::sync, '?'));
         if (strpos($ret, ',') === false)
         {
-            return $ret;
+            $FoundInstanzIDs[0] = array_search(rawurldecode($ret), $Addresses);
         }
         else
         {
-            return explode(',', $ret);
+            $Search = explode(',', $ret);
+            foreach ($Search as $Value)
+            {
+                $FoundInstanzIDs[] = array_search(rawurldecode($Value), $Addresses);
+            }
+        }
+        if (count($FoundInstanzIDs) > 0)
+        {
+            return $FoundInstanzIDs;
+        }
+        else
+        {
+            return false;
         }
     }
 
