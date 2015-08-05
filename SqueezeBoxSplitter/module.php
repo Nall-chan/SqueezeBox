@@ -159,10 +159,10 @@ class LMSSplitter extends IPSModule
         return $ret;
     }
 
-    public function AddFileToPlaylist(integer $PlayListId, string $SongUrl, integer $Track = NULL)
+    public function AddFileToPlaylist(integer $PlayListId, string $SongUrl, integer $Track)
     {
         $ret = $this->SendLMSData(new LMSData('playlists edit cmd%3Aadd playlist_id%3A' . $PlayListId . ' url%3A' . $SongUrl, LMSData::GetData));
-        if ($Track <> NULL)
+        if ($Track > 0)
         {
 //            $ret = $this->SendLMSData(new LMSData('playlists edit cmd%3Amove playlist_id%3A'.$PlayListId.' url%3A'.$SongUrl, LMSData::GetData));
             // index  toindex

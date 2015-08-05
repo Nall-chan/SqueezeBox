@@ -888,11 +888,9 @@ class SqueezeboxDevice extends IPSModule
      *  ["tracknum"]=>string
      * @exception 
      */
-    public function GetSongInfoByTrackIndex(integer $Index = null)
+    public function GetSongInfoByTrackIndex(integer $Index)
     {
         $this->Init();
-        if ($Index == null)
-            $Index = 0;
         if (is_int($Index))
             $Index--;
         else
