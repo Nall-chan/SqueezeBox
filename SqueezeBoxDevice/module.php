@@ -353,6 +353,7 @@ class SqueezeboxDevice extends IPSModule
         }
 
         $ret = $this->SendLSQData(new LSQData(LSQResponse::sync, '?'));
+        if ($ret === true) return false;
         if (strpos($ret, ',') === false)
         {
             $FoundInstanzIDs[0] = array_search(rawurldecode($ret), $Addresses);
