@@ -339,7 +339,7 @@ class SqueezeboxDevice extends IPSModule
             
         }
         $ret = $this->SendLSQData(new LSQData(LSQResponse::sync, $ClientMac));
-        return ($ret == rawurldecode($ClientMac));
+        return (rawurldecode($ret) == $ClientMac);
     }
 
     public function GetSync() // ToDo Instanz suchen
