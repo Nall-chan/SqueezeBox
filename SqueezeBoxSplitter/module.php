@@ -11,7 +11,7 @@ class LMSSplitter extends IPSModule
         parent::Create();
         //These lines are parsed on Instance creation
         // ClientSocket benötigt
-        $this->RequireParent("{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}","Logitech Media Server");
+        $this->RequireParent("{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}", "Logitech Media Server");
         $this->RegisterPropertyString("Host", "");
         $this->RegisterPropertyBoolean("Open", true);
         $this->RegisterPropertyInteger("Port", 9090);
@@ -87,6 +87,12 @@ class LMSSplitter extends IPSModule
         return $ret;
     }
 
+    public function GetRescanProgress()
+    {
+        $ret = $this->SendLMSData(new LMSData('rescanprogress', LMSData::SendCommand));
+        return $ret;
+    }
+
     public function GetSongInfoByFileID(integer $ID)
     {
         
@@ -115,7 +121,7 @@ class LMSSplitter extends IPSModule
     {
         if (!is_int($Index))
             throw new Exception("Index must be integer.");
-        $ret = $this->SendLMSData(new LMSData('players ' . (string)$Index . ' 1', LMSData::GetData));
+        $ret = $this->SendLMSData(new LMSData('players ' . (string) $Index . ' 1', LMSData::GetData));
         return $ret;
     }
 
@@ -132,6 +138,41 @@ class LMSSplitter extends IPSModule
     public function GetVersion()
     {
         $ret = $this->SendLMSData(new LMSData('version ?', LMSData::GetData));
+        return $ret;
+    }
+
+    public function GetSyncGroups()
+    {
+        $ret = $this->SendLMSData(new LMSData('syncgroups ?', LMSData::GetData));
+        return $ret;
+    }
+
+    public function CreatePlaylist(string $Name) // ToDo antwort zerlegen
+    {
+        $ret = $this->SendLMSData(new LMSData('playlists new name%3A' . $Name, LMSData::GetData));
+        return $ret;
+    }
+
+    public function DeletePlaylist(integer $PlayListId) // ToDo antwort zerlegen
+    {
+        $ret = $this->SendLMSData(new LMSData('playlists delete playlist_id%3A' . $PlayListId, LMSData::GetData));
+        return $ret;
+    }
+
+    public function AddFileToPlaylist(integer $PlayListId, string $SongUrl, integer $Track = -1)
+    {
+        $ret = $this->SendLMSData(new LMSData('playlists edit cmd%3Aadd playlist_id%3A' . $PlayListId . ' url%3A' . $SongUrl, LMSData::GetData));
+        if ($Track >= 0)
+        {
+//            $ret = $this->SendLMSData(new LMSData('playlists edit cmd%3Amove playlist_id%3A'.$PlayListId.' url%3A'.$SongUrl, LMSData::GetData));
+            // index  toindex
+        }
+        return $ret;
+    }
+
+    public function DeleteFileFromPlaylist(integer $PlayListId, integer $SongId)
+    {
+        $ret = $this->SendLMSData(new LMSData('playlists edit cmd%3Adelete playlist_id%3A' . $PlayListId . ' index%3A' . $SongId, LMSData::GetData));
         return $ret;
     }
 

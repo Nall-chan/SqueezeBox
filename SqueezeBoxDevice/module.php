@@ -324,17 +324,53 @@ class SqueezeboxDevice extends IPSModule
         return trim($Name);
     }
 
-    /*
-      public function SetSleep($Value)
-      {
-      $ret = $this->SendLSQData(new LSQData(LSQResponse::sleep, (int) $Value));
-      return ($ret == $Value);
-      }
+    public function SetSync(integer $SlaveInstanceID)
+    {
+        $id = @IPS_GetInstance($SlaveInstanceID);
+        if ($id === FALSE)
+            throw new Exception('Unknown LSQ_PlayerInstanz');
+        if ($id['ModuleInfo']['ModuleID'] <> '{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}')
+            throw new Exception('SlaveInstance in not a LSQ_PlayerInstanz');
+        $ClientMac = IPS_GetProperty($id, 'Address');
+        $ret = $this->SendLSQData(new LSQData(LSQResponse::sync, $ClientMac));
+        return ($ret == $ClientMac);
+    }
 
-      public function GetSleep()
-      {
-      return $this->SendLSQData(new LSQData(LSQResponse::sleep, '?'));
-      } */
+    public function GetSync() // ToDo Instanz suchen
+    {
+        /* $id = @IPS_GetInstance($SlaveInstanceID);
+          if ($id === FALSE)
+          throw new Exception('Unknown LSQ_PlayerInstanz');
+          if ($id['ModuleInfo']['ModuleID'] <> '{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}')
+          throw new Exception('SlaveInstance in not a LSQ_PlayerInstanz');
+          $ClientMac = IPS_GetProperty($id, 'Address'); */
+        $ret = $this->SendLSQData(new LSQData(LSQResponse::sync, '?'));
+        if (strpos($ret, ',') === false)
+        {
+            return $ret;
+        }
+        else
+        {
+            return explode(',', $ret);
+        }
+    }
+
+    public function SetUnSync()
+    {
+        $ret = $this->SendLSQData(new LSQData(LSQResponse::sync, '-'));
+        return ($ret == '-');
+    }
+
+    public function SetSleep(integer $Seconds)
+    {
+        $ret = $this->SendLSQData(new LSQData(LSQResponse::sleep, $Seconds));
+        return ($ret == $Seconds);
+    }
+
+    public function GetSleep()
+    {
+        return intval($this->SendLSQData(new LSQData(LSQResponse::sleep, '?')));
+    }
 
     /**
      * Simuliert einen Tastendruck.
