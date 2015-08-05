@@ -333,6 +333,11 @@ class SqueezeboxDevice extends IPSModule
             throw new Exception('SlaveInstance in not a LSQ_PlayerInstanz');
         $ClientMac = IPS_GetProperty($SlaveInstanceID, 'Address');
 //        IPS_LogMessage('DoSync',$ClientMac);
+        if (($ClientMac === '') or ($ClientMac === false))
+        {
+            throw new Exception('SlaveInstance Address is not set.');
+            
+        }
         $ret = $this->SendLSQData(new LSQData(LSQResponse::sync, $ClientMac));
         return ($ret == $ClientMac);
     }
