@@ -353,7 +353,8 @@ class SqueezeboxDevice extends IPSModule
         }
 
         $ret = $this->SendLSQData(new LSQData(LSQResponse::sync, '?'));
-        if ($ret == '-') return false;
+        if ($ret == '-')
+            return false;
         if (strpos($ret, ',') === false)
         {
             $FoundInstanzIDs[0] = array_search(rawurldecode($ret), $Addresses);
@@ -887,9 +888,11 @@ class SqueezeboxDevice extends IPSModule
      *  ["tracknum"]=>string
      * @exception 
      */
-    public function GetSongInfoByTrackIndex(integer $Index)
+    public function GetSongInfoByTrackIndex(integer $Index = null)
     {
         $this->Init();
+        if ($Index == null)
+            $Index = 0;
         if (is_int($Index))
             $Index--;
         else
@@ -1045,33 +1048,33 @@ class SqueezeboxDevice extends IPSModule
         $id = 0;
         $Songs = array();
         $SongFields = array(
-            'id' => 0,
-            'title' => 1,
-            'genre' => 1,
-            'album' => 1,
-            'artist' => 1,
-            'duration' => 0,
-            'disc' => 0,
-            'disccount' => 0,
-            'bitrate' => 1,
-            'tracknum' => 0
+            'Id' => 0,
+            'Title' => 1,
+            'Genre' => 1,
+            'Album' => 1,
+            'Artist' => 1,
+            'Duration' => 0,
+            'Disc' => 0,
+            'Disccount' => 0,
+            'Bitrate' => 1,
+            'Tracknum' => 0
         );
         foreach (explode(' ', $Data) as $Line)
         {
             $LSQPart = $this->decodeLSQTaggingData($Line, false);
-
 
             if (is_array($LSQPart->Command) and ( $LSQPart->Command[0] == LSQResponse::playlist) and ( $LSQPart->Command[0] == LSQResponse::index))
             {
                 $id = (int) $LSQPart->Value;
                 continue;
             }
-            if (array_key_exists($LSQPart->Command, $SongFields))
+            $Index = ucfirst($LSQPart->Command);
+            if (array_key_exists($Index, $SongFields))
             {
-                if ($SongFields[$LSQPart->Command] == 0)
-                    $Songs[$id][$LSQPart->Command] = intval($LSQPart->Value);
+                if ($SongFields[$Index] == 0)
+                    $Songs[$id][$Index] = intval($LSQPart->Value);
                 else
-                    $Songs[$id][$LSQPart->Command] = utf8_decode(rawurldecode($LSQPart->Value));
+                    $Songs[$id][$Index] = utf8_decode(rawurldecode($LSQPart->Value));
             }
         }
         return $Songs;

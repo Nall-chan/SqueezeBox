@@ -127,11 +127,11 @@ class LMSSplitter extends IPSModule
 
     public function GetLibaryInfo()
     {
-        $gernes = $this->SendLMSData(new LMSData('info total genres ?', LMSData::GetData));
-        $artists = $this->SendLMSData(new LMSData('info total artists ?', LMSData::GetData));
-        $albums = $this->SendLMSData(new LMSData('info total albums ?', LMSData::GetData));
-        $songs = $this->SendLMSData(new LMSData('info total songs ?', LMSData::GetData));
-        $ret = array('Geners' => $gernes, 'Artists' => $artists, 'Albums' => $albums, 'Songs' => $songs);
+        $genres = intval($this->SendLMSData(new LMSData('info total genres ?', LMSData::GetData)));
+        $artists = intval($this->SendLMSData(new LMSData('info total artists ?', LMSData::GetData)));
+        $albums = intval($this->SendLMSData(new LMSData('info total albums ?', LMSData::GetData)));
+        $songs = intval($this->SendLMSData(new LMSData('info total songs ?', LMSData::GetData)));
+        $ret = array('Genres' => $genres, 'Artists' => $artists, 'Albums' => $albums, 'Songs' => $songs);
         return $ret;
     }
 
