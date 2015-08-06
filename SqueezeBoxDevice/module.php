@@ -898,7 +898,9 @@ class SqueezeboxDevice extends IPSModule
         if ($Index == -1)
             $Index = '-';
         $Data = $this->SendLSQData(new LSQData(array('status', (string) $Index, '1'), 'tags:gladiqrRt'));
-        $Song = $this->DecodeSongInfo($Data)[0];
+        $SongInfo = new LSMSongInfo($Data);
+        $Song = $SongInfo->GetSong(0);
+//        $Song = $this->DecodeSongInfo($Data)[0];
         return $Song;
     }
 
@@ -1059,7 +1061,8 @@ class SqueezeboxDevice extends IPSModule
         );
         foreach (explode(' ', $Data) as $Line)
         {
-            $LSQPart = $this->decodeLSQTaggingData($Line, false);
+//            $LSQPart = $this->decodeLSQTaggingData($Line, false);
+            $LSQPart = new LSQTaggingData($Line, false);                        
 
             if (is_array($LSQPart->Command) and ( $LSQPart->Command[0] == LSQResponse::playlist) and ( $LSQPart->Command[0] == LSQResponse::index))
             {
@@ -1320,7 +1323,8 @@ class SqueezeboxDevice extends IPSModule
                 {
                     foreach ($LSQEvent->Value as $Data)
                     {
-                        $LSQPart = $this->decodeLSQTaggingData($Data, $LSQEvent->isResponse);
+//                        $LSQPart = $this->decodeLSQTaggingData($Data, $LSQEvent->isResponse);
+                        $LSQPart = new LSQTaggingData($Data, $LSQEvent->isResponse);                        
                         $this->decodeLSQEvent($LSQPart);
                     }
                 }
@@ -1362,7 +1366,7 @@ class SqueezeboxDevice extends IPSModule
         }
     }
 
-    private function decodeLSQTaggingData($Data, $isResponse)
+/*    private function decodeLSQTaggingData($Data, $isResponse)
     {
         $Part = explode('%3A', $Data); //        
         $Command = rawurldecode(array_shift($Part));
@@ -1380,7 +1384,7 @@ class SqueezeboxDevice extends IPSModule
         }
 
         return new LSQEvent($Command, $Value, $isResponse);
-    }
+    }*/
 
     private function SetCover()
     {

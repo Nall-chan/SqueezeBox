@@ -109,7 +109,83 @@ class LSQEvent extends stdClass
     }
 
 }
+class LSQTaggingData extends LSQEvent
+{
+   
+    public function __construct($Data, $isResponse)
+    {
+        $Part = explode('%3A', $Data); //        
+        $Command = rawurldecode(array_shift($Part));
+        if (!(strpos($Command, chr(0x20)) === false))
+        {
+            $Command = explode(chr(0x20), $Command);
+        }
+        if (isset($Part[1]))
+        {
+            $Value = implode('%3A', $Part);
+        }
+        else
+        {
+            $Value = $Part[0];
+        }
+        parent::__construct($Command, $Value, $isResponse);
+        //return new LSQEvent($Command, $Value, $isResponse);
+    }
+    
+}
 
+class LSMSongInfo extends stdClass
+{
+    private $SongArray;
+        public function __construct($TaggedDataLine)
+    {
+        $id = 0;
+        $Songs = array();
+        $SongFields = array(
+            'Id' => 0,
+            'Title' => 1,
+            'Genre' => 1,
+            'Album' => 1,
+            'Artist' => 1,
+            'Duration' => 0,
+            'Disc' => 0,
+            'Disccount' => 0,
+            'Bitrate' => 1,
+            'Tracknum' => 0
+        );
+        foreach (explode(' ', $TaggedDataLine) as $Line)
+        {
+//            $LSQPart = $this->decodeLSQTaggingData($Line, false);
+            $LSQPart = new LSQTaggingData($Line, false);                        
+
+            if (is_array($LSQPart->Command) and ( $LSQPart->Command[0] == LSQResponse::playlist) and ( $LSQPart->Command[0] == LSQResponse::index))
+            {
+                $id = (int) $LSQPart->Value;
+                continue;
+            }
+            $Index = ucfirst($LSQPart->Command);
+            if (array_key_exists($Index, $SongFields))
+            {
+                if ($SongFields[$Index] == 0)
+                    $Songs[$id][$Index] = intval($LSQPart->Value);
+                else
+                    $Songs[$id][$Index] = utf8_decode(rawurldecode($LSQPart->Value));
+            }
+        }
+        $this->SongArray= $Songs;
+    }
+    
+    public function GetSong($Index)
+    {
+        return $this->SongArray[$Index];
+    }
+
+    public function GetAllSongs()
+    {
+        return $this->SongArray;
+    }
+    
+}
 // Klasse mit den Empfangenen Daten vom LMS-Splitter
 class LSQResponse extends stdClass
 {
