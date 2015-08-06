@@ -153,8 +153,9 @@ class LSMSongInfo extends stdClass
             'Bitrate' => 1,
             'Tracknum' => 0
         );
-        foreach (explode(' ', $TaggedDataLine) as $Line)
+        foreach (explode(' ', $TaggedDataLine) as $Key => $Line)
         {
+            IPS_LogMessage('LMSSongInfo','ROW: '.$Key);
 //            $LSQPart = $this->decodeLSQTaggingData($Line, false);
             $LSQPart = new LSQTaggingData($Line, false);                        
 
