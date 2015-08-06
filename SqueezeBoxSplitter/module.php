@@ -65,9 +65,6 @@ class LMSSplitter extends IPSModule
             $this->SendLMSData($Data);
         }
 
-        // Debug-Ausgabe
-//        IPS_LogMessage('ApplyChanges', 'Instant:' . $this->InstanceID);
-//        IPS_LogMessage('ApplyChanges', 'Host:' . $this->ReadPropertyString('Host'));
     }
 
 ################## PUBLIC
@@ -528,28 +525,6 @@ class LMSSplitter extends IPSModule
             IPS_ConnectInstance($this->InstanceID, $parentID);
         }
     }
-
-    /*
-      protected function RegisterTimer($data, $cata)
-      {
-      IPS_LogMessage(__CLASS__, __FUNCTION__); //
-      }
-
-      protected function SetTimerInterval($data, $cata)
-      {
-      IPS_LogMessage(__CLASS__, __FUNCTION__); //
-      }
-
-      protected function LogMessage($data, $cata)
-      {
-
-      }
-
-      protected function SetSummary($data)
-      {
-      IPS_LogMessage(__CLASS__, __FUNCTION__ . "Data:" . $data); //
-      }
-     */
 }
 
 ?>
