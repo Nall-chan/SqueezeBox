@@ -340,7 +340,12 @@ class SqueezeboxDevice extends IPSModule
         $ret = $this->SendLSQData(new LSQData(LSQResponse::sync, $ClientMac));
         return (rawurldecode($ret) == $ClientMac);
     }
-
+/**
+     * Gibt alle mit diesem Gerät syncronisierte Instanzen zurück
+     *
+     * @return string|array
+     * @exception 
+     */
     public function GetSync() // ToDo Instanz suchen
     {
         $Addresses = array();
@@ -377,11 +382,24 @@ class SqueezeboxDevice extends IPSModule
         }
     }
 
+    /**
+     * Sync dieses Gerätes aufheben
+     *
+     * @return boolean true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception 
+     */
     public function SetUnSync()
     {
         $ret = $this->SendLSQData(new LSQData(LSQResponse::sync, '-'));
         return ($ret == '-');
     }
+    /**
+     * Restzeit bis zum Sleep setzen.
+     *
+     * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception 
+     */
 
     public function SetSleep(integer $Seconds)
     {
@@ -389,6 +407,12 @@ class SqueezeboxDevice extends IPSModule
         return ($ret == $Seconds);
     }
 
+    /**
+     * Restzeit bis zum Sleep lesen.
+     *
+     * @return integer
+     * @exception 
+     */
     public function GetSleep()
     {
         return intval($this->SendLSQData(new LSQData(LSQResponse::sleep, '?')));
@@ -850,7 +874,22 @@ class SqueezeboxDevice extends IPSModule
         $ret = explode(' ', $raw);
         return (rawurldecode($ret[0]) == $Name);
     }
-
+    
+    /**
+     * Speichert die aktuelle Wiedergabeliste vom Gerät in einer festen Wiedergabelisten-Datei auf dem LMS-Server.
+     *
+     * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception 
+     */
+    public function SaveTempPlaylist()
+    {
+        $this->Init();
+        $raw = $this->SendLSQData(new LSQData(array('playlist', 'save'), (string)$this->InstanceID . ' silent:1'));
+        $ret = explode(' ', $raw);
+        return (rawurldecode($ret[0]) == $Name);
+    }
+    
     /**
      * Lädt eine Wiedergabelisten-Datei aus dem LMS-Server und startet die Wiedergabe derselben auf dem Gerät.
      *
@@ -864,6 +903,21 @@ class SqueezeboxDevice extends IPSModule
     {
         $this->Init();
         $raw = $this->SendLSQData(new LSQData(array('playlist', 'load'), $Name . ' silent:1'));
+        $ret = explode(' ', $raw);
+        return rawurldecode($ret[0]);
+    }
+
+    /**
+     * Lädt eine zuvor gespeicherte Wiedergabelisten-Datei und setzt die Wiedergabe fort.
+     *
+     * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception 
+     */
+    public function LoadTempPlaylist()
+    {
+        $this->Init();
+        $raw = $this->SendLSQData(new LSQData(array('playlist', 'resume'), (string)$this->InstanceID . ' wipePlaylist:1'));
         $ret = explode(' ', $raw);
         return rawurldecode($ret[0]);
     }
@@ -903,6 +957,17 @@ class SqueezeboxDevice extends IPSModule
 //        $Song = $this->DecodeSongInfo($Data)[0];
         return $Song;
     }
+ 
+    public function GetSongInfoOfCurrentPlaylist()
+    {
+        $max = GetValueInteger($this->GetIDForIdent('Tracks'));
+        $Data = $this->SendLSQData(new LSQData(array('status', '0' , (string)$max), 'tags:gladiqrRt'));
+        $SongInfo = new LSMSongInfo($Data);
+        $Song = $SongInfo->GetAllSongs();
+//        $Song = $this->DecodeSongInfo($Data)[0];
+        return $Song;
+    }
+
 
 ################## ActionHandler
 
@@ -1042,7 +1107,7 @@ class SqueezeboxDevice extends IPSModule
         else
             $this->DisableAction('Position2');
     }
-
+/*
     private function DecodeSongInfo($Data)
     {
         $id = 0;
@@ -1081,6 +1146,7 @@ class SqueezeboxDevice extends IPSModule
         return $Songs;
     }
 
+*/
     private function decodeLSQEvent($LSQEvent)
     {
         if (is_array($LSQEvent->Command))
