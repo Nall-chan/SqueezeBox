@@ -155,13 +155,14 @@ class LSMSongInfo extends stdClass
         );
         foreach (explode(' ', $TaggedDataLine) as $Key => $Line)
         {
-            IPS_LogMessage('LMSSongInfo','ROW: '.$Key);
+
 //            $LSQPart = $this->decodeLSQTaggingData($Line, false);
             $LSQPart = new LSQTaggingData($Line, false);                        
 
             if (is_array($LSQPart->Command) and ( $LSQPart->Command[0] == LSQResponse::playlist) and ( $LSQPart->Command[0] == LSQResponse::index))
             {
                 $id = (int) $LSQPart->Value;
+                IPS_LogMessage('LMSSongInfo','ROW: '.$Key.' ID: '.$id);                
                 continue;
             }
             $Index = ucfirst($LSQPart->Command);
