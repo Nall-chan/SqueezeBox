@@ -111,6 +111,41 @@ SlaveInstanzID wird als Client dem InstanzID zugeordnet.
 L√∂st $InstanzID aus der Syncronisierung von dem Master.
 
 **mixed (array or boolean) LSQ_GetSync(integer $InstanzID)**  
-Liefert alle InstanzIDs der mit $InstanzID gesyncten Ger√§te als Array.
+Liefert alle InstanzIDs der mit $InstanzID gesyncten Ger√§te als Array.  
 false wenn kein Sync aktiv ist.
+
+### Konfiguration:
+
+#### LMSSplitter:
+
+GUID: {61051B08-5B92-472B-AFB2-6D971D9B99EE}  
+
+**Datenempfang vom Child:**  
+Interface-GUI:{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}  
+Objekt vom Typ LSQData  
+
+| Eigenschaft | Typ     | Standardwert | Funktion                           |
+| :---------: | :-----: | :----------: | :--------------------------------: |
+| Open        | boolean | true         | Verbindung zum LMS aktiv / deaktiv |
+| Host        | string  |              | Adresse des LMS                    |
+| Port        | integer | 9090         | CLI-Port des LMS                   |
+| Webport     | integer | 9000         | Port des LMS-Webserver             |
+
+
+#### LSQDevice:  
+
+GUID: {118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}  
+
+**Datenempfang vom Splitter:**  
+Interface-GUI:{CB5950B3-593C-4126-9F0F-8655A3944419}  
+Objekt vom Typ LMSResponse  
+
+| Eigenschaft | Typ     | Standardwert | Funktion                                                              |
+| :---------: | :-----: | :----------: | :-------------------------------------------------------------------: |
+| Address     | string  |              | MAC [inkl. : ] bei SqueezeBox-Ger‰ten IP-Adresse bei Anderen          |
+| CoverSize   | string  | cover        | Grˆﬂe vom Cover:                                                      |
+cover  
+cover150x150  
+cover300x300  
+| Interval    | integer | 2            | Abstand in welchen der LMS aktuelle Daten bei der Wiedergabe liefert. |
 
