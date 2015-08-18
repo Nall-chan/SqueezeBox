@@ -143,9 +143,6 @@ Objekt vom Typ LMSResponse
 | Eigenschaft | Typ     | Standardwert | Funktion                                                              |
 | :---------: | :-----: | :----------: | :-------------------------------------------------------------------: |
 | Address     | string  |              | MAC [inkl. : ] bei SqueezeBox-Geräten IP-Adresse bei Anderen          |
-| CoverSize   | string  | cover        | Größe vom Cover:                                                      
-cover  
-cover150x150  
-cover300x300  |
+| CoverSize   | string  | cover        | Größe vom Cover:  cover  cover150x150  cover300x300                   |
 | Interval    | integer | 2            | Abstand in welchen der LMS aktuelle Daten bei der Wiedergabe liefert. |
 
