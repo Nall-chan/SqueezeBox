@@ -1,12 +1,12 @@
 # IPSSqueezeBox
-ErmÃ¶glich die Steuerung und Darstellung der ZustÃ¤nde
-von SqueezeBox GerÃ¤ten in IPS, in Verbindung mit dem
+Ermöglich die Steuerung und Darstellung der ZustÃ¤nde
+von SqueezeBox Geräten in IPS, in Verbindung mit dem
 Logitech Media Server.
 
 ## Doku:
 
 ### Funktionsreferenz LMSSplitter / Logitech Media Server:
-FÃ¼r alle Befehle gilt: Tritt ein Fehler auf, wird eine Exception geworfen.
+Für alle Befehle gilt: Tritt ein Fehler auf, wird eine Exception geworfen.
 
 #### Datenbank:
 
@@ -26,8 +26,8 @@ FÃ¼r alle Befehle gilt: Tritt ein Fehler auf, wird eine Exception geworfen.
 FÃ¼r alle Befehle gilt: Tritt ein Fehler auf, wird eine Exception geworfen.
 
 #### Steuerung:
-Alle Befehle liefern einen boolean als RÃ¼ckgabewert.
-true wenn der Befehl vom Server bestÃ¤tigt wurde.
+Alle Befehle liefern einen boolean als Rückgabewert.
+true wenn der Befehl vom Server bestätigt wurde.
 Wird der Befehl nicht bestÃ¤tigt, so ist die ein Fehler (Exception wird erzeugt).
 
 **boolean LSQ_Power (integer $InstanzID, boolean $Value)  
@@ -45,7 +45,7 @@ Index kann 0 fÃ¼r aktueller Titel oder Index der Playlist sein.
 
 | Index     | Typ     | Beschreibung                       |
 | :-------: | :-----: | :--------------------------------: |
-| Duration  | integer | LÃ¤nge in Sekunden                  |
+| Duration  | integer | Länge in Sekunden                  |
 | Id        | integer | UID der Datei in der LMS-Datenbank |
 | Title     | string  | Titel                              |
 | Genre     | string  | Genre                              |
@@ -54,9 +54,9 @@ Index kann 0 fÃ¼r aktueller Titel oder Index der Playlist sein.
 | Disc      | integer | Aktuelles Medium                   |
 | Disccount | integer | Anzahl aller Medien dieses Albums  |
 | Bitrate   | string  | Bitrate in Klartext                |
-Alle anderen Befehle liefern einen boolean als RÃ¼ckgabewert.
-true wenn der Befehl vom Server bestÃ¤tigt wurde.
-Wird der Befehl nicht bestÃ¤tigt, so ist die ein Fehler (Exception wird erzeugt).
+Alle anderen Befehle liefern einen boolean als Rückgabewert.
+true wenn der Befehl vom Server bestätigt wurde.
+Wird der Befehl nicht bestätigt, so ist die ein Fehler (Exception wird erzeugt).
 
 **boolean LSQ_SavePlaylist (integer $InstanzID, string $Name)  
 boolean LSQ_PlayTrack (integer $InstanzID, integer $Value)  
@@ -68,10 +68,10 @@ boolean LSQ_PreviousButton (integer $InstanzID)**
 
 #### Setzen von Eigenschaften:
 
-Alle LSQ_Set* - Befehle liefern einen boolean als RÃ¼ckgabewert.
-true wenn der gleiche Wert vom Server bestÃ¤tigt wurde.
-false wenn der bestÃ¤tigte Wert abweicht.
-Wird der Befehl nicht bestÃ¤tigt, so ist die ein Fehler (Exception wird erzeugt).
+Alle LSQ_Set* - Befehle liefern einen boolean als Rückgabewert.
+true wenn der gleiche Wert vom Server bestätigt wurde.
+false wenn der bestätigte Wert abweicht.
+Wird der Befehl nicht bestätigt, so ist die ein Fehler (Exception wird erzeugt).
 
 **boolean LSQ_SetBass (integer $InstanzID, integer $Value)  
 boolean LSQ_SetMute (integer $InstanzID, boolean $Value)  
@@ -86,9 +86,9 @@ boolean LSQ_SetSleep(integer $InstanzID, integer $Seconds)**
 
 #### Lesen von Eigenschaften:
 
-Alle LSQ_Set* - Befehle liefern einen boolean als RÃ¼ckgabewert.
-true wenn der gleiche Wert vom Server bestÃ¤tigt wurde.
-false wenn der bestÃ¤tigte Wert abweicht.
+Alle LSQ_Set* - Befehle liefern einen boolean als Rückgabewert.
+true wenn der gleiche Wert vom Server bestätigt wurde.
+false wenn der bestätigte Wert abweicht.
 
 **integer LSQ_GetBass (integer $InstanzID)  
 boolean LSQ_GetMute (integer $InstanzID)  
@@ -108,10 +108,10 @@ integer LSQ_GetSleep(integer $InstanzID)**
 SlaveInstanzID wird als Client dem InstanzID zugeordnet.
 
 **boolean LSQ_SetUnSync(integer $InstanzID)**  
-LÃ¶st $InstanzID aus der Syncronisierung von dem Master.
+Löst $InstanzID aus der Syncronisierung von dem Master.
 
 **mixed (array or boolean) LSQ_GetSync(integer $InstanzID)**  
-Liefert alle InstanzIDs der mit $InstanzID gesyncten GerÃ¤te als Array.  
+Liefert alle InstanzIDs der mit $InstanzID gesyncten Geräte als Array.  
 false wenn kein Sync aktiv ist.
 
 ### Konfiguration:
@@ -143,9 +143,9 @@ Objekt vom Typ LMSResponse
 | Eigenschaft | Typ     | Standardwert | Funktion                                                              |
 | :---------: | :-----: | :----------: | :-------------------------------------------------------------------: |
 | Address     | string  |              | MAC [inkl. : ] bei SqueezeBox-Geräten IP-Adresse bei Anderen          |
-| CoverSize   | string  | cover        | Größe vom Cover:                                                      |
+| CoverSize   | string  | cover        | Größe vom Cover:                                                      
 cover  
 cover150x150  
-cover300x300  
+cover300x300  |
 | Interval    | integer | 2            | Abstand in welchen der LMS aktuelle Daten bei der Wiedergabe liefert. |
 
