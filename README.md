@@ -13,6 +13,7 @@ Für alle Befehle gilt: Tritt ein Fehler auf, wird eine Exception geworfen.
 `array LMS_GetLibaryInfo (integer $InstanzID)`  
 Liefert Informationen über die Datenbank des LMS.  
 **Array:**  
+
 | Index   | Typ     | Beschreibung                |
 | :-----: | :-----: | :-------------------------: |
 | Genres  | integer | Anzahl verschiedener Genres |
@@ -58,6 +59,7 @@ Liefert Informationen über den aktuellen Song.
 Liefert Informationen über den Song mit dem `$Index` der aktuellen Playlist.  
 Wird als `$Index` 0 übergeben, so wird der aktuelle Song genutzt.  
 **Array:**  
+
 | Index     | Typ     | Beschreibung                       |
 | :-------: | :-----: | :--------------------------------: |
 | Duration  | integer | Länge in Sekunden                  |
@@ -217,7 +219,7 @@ Liefert alle InstanzIDs der mit `$InstanzID` gesyncten Geräte als Array.
 
 GUID: `{61051B08-5B92-472B-AFB2-6D971D9B99EE}`  
 
-**Datenempfang vom Child:**  
+**Datenempfang vom LSQDevice:**  
 Interface-GUI:`{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}`  
 Objekt vom Typ `LSQData`  
 
@@ -233,7 +235,7 @@ Objekt vom Typ `LSQData`
 
 GUID: `{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}`  
 
-**Datenempfang vom Splitter:**  
+**Datenempfang vom LMSSplitter:**  
 Interface-GUI:`{CB5950B3-593C-4126-9F0F-8655A3944419}`  
 Objekt vom Typ `LMSResponse`  
 
