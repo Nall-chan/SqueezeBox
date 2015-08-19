@@ -11,7 +11,7 @@ Für alle Befehle gilt: Tritt ein Fehler auf, wird eine Exception geworfen.
 #### Datenbank:
 
 `array LMS_GetLibaryInfo (integer $InstanzID)`
-
+Liefert Informationen über die Datenbank des LMS.  
 
 | Index   | Typ     | Beschreibung                |
 | :-----: | :-----: | :-------------------------: |
@@ -32,17 +32,25 @@ Alle Befehle liefern einen `boolean` als Rückgabewert.
 Wird der Befehl nicht bestätigt, so ist die ein Fehler (Exception wird erzeugt).
 
 `boolean LSQ_Power (integer $InstanzID, boolean $Value)`  
+Schaltet das Gerät ein `true` oder aus `false`.  
 `boolean LSQ_SelectPreset(integer $InstanzID, integer $Value)`  
+Simuliert einen Tastendruck der Preset-Tasten 1-6 `$Value`.  
 `boolean LSQ_Play (integer $InstanzID)`  
+Startet die Wiedergabe.  
 `boolean LSQ_Pause (integer $InstanzID)`  
+Pausiert die Wiedergabe.  
 `boolean LSQ_Stop (integer $InstanzID)`  
+Stoppt die Wiedergabe.  
 
 #### Playlist:
 
 `string LSQ_LoadPlaylist (integer $InstanzID, string $Name)`  
+Lädt die unter `$Name`übergebene Playlist.  
 `array LSQ_GetSongInfoOfCurrentPlaylist (integer $InstanzID)`  
+Liefert Informationen über den aktuellen Song.  
 `array LSQ_GetSongInfoByTrackIndex (integer $InstanzID, integer $Index)`  
-Index kann 0 für aktueller Titel, oder Index der Playlist sein.  
+Liefert Informationen über den Song mit dem `$Index` der aktuellen Playlist.  
+Wird als `$Index` 0 übergeben, so wird der aktuelle Song genutzt.  
 
 | Index     | Typ     | Beschreibung                       |
 | :-------: | :-----: | :--------------------------------: |
@@ -55,17 +63,23 @@ Index kann 0 für aktueller Titel, oder Index der Playlist sein.
 | Disc      | integer | Aktuelles Medium                   |
 | Disccount | integer | Anzahl aller Medien dieses Albums  |
 | Bitrate   | string  | Bitrate in Klartext                |
-Alle anderen Befehle liefern einen `boolean` als Rückgabewert.
-`true` wenn der Befehl vom Server bestätigt wurde.
-Wird der Befehl nicht bestätigt, so ist die ein Fehler (Exception wird erzeugt).
+
+Alle anderen Befehle liefern einen `boolean` als Rückgabewert.  
+`true` wenn der Befehl vom Server bestätigt wurde.  
+Wird der Befehl nicht bestätigt, so ist die ein Fehler (Exception wird erzeugt).  
 
 `boolean LSQ_SavePlaylist (integer $InstanzID, string $Name)`  
-`boolean LSQ_PlayTrack (integer $InstanzID, integer $Value)`  
+Speichert eine Playlist unter den mit `$Name` übergebenen Namen.  
+`boolean LSQ_PlayTrack (integer $InstanzID, integer $Index)`  
+Springt in der Playlist auf den mit `$Index` übergebe Position.  
 `boolean LSQ_NextTrack (integer $InstanzID)`  
+Springt in der Playlist auf den nächsten Track.  
 `boolean LSQ_PreviousTrack (integer $InstanzID)`  
+Springt in der Playlist auf den vorherigen Track.  
 `boolean LSQ_NextButton (integer $InstanzID)`  
+Simuliert einen Tastendruck auf den Vorwärts-Button des Gerätes.  
 `boolean LSQ_PreviousButton (integer $InstanzID)`  
-
+Simuliert einen Tastendruck auf den Rückwerts-Button des Gerätes.  
 
 #### Setzen von Eigenschaften:
 
@@ -75,45 +89,77 @@ Alle LSQ_Set* - Befehle liefern einen `boolean` als Rückgabewert.
 Wird der Befehl nicht bestätigt, so ist die ein Fehler (Exception wird erzeugt).
 
 `boolean LSQ_SetBass (integer $InstanzID, integer $Value)`  
+Setzt den Bass auf `$Value`. (Nur SliMP3 & SqueezeBox1 / SB1 )  
 `boolean LSQ_SetMute (integer $InstanzID, boolean $Value)`  
+Stummschaltung aktiv `true`oder deaktiv `false`.  
 `boolean LSQ_SetName (integer $InstanzID, string $Name)`  
+Setzt den Namen des Gerätes auf `$Name`.  
 `boolean LSQ_SetPitch (integer $InstanzID, integer $Value)`  
+Setzt den Tonhöhe auf `$Value`. (Nur SqueezeBox1 / SB1 )  
 `boolean LSQ_SetPosition (integer $InstanzID, integer $Value)`  
+Springt im aktuellen Track auf die Zeit in Sekunden von `$Value`.  
 `boolean LSQ_SetRepeat (integer $InstanzID, integer $Value)`  
+Setzt dem Modus für Wiederholungen. `$Value` kann die Werte 0 für aus,  
+1 für den aktuellen Titel, oder 2 für das aktuelle Album/Playlist enthalten.  
 `boolean LSQ_SetShuffle (integer $InstanzID, integer $Value)`  
+Setzt dem Modus für die zufällige Wiedergabe. `$Value` kann die Werte 0 für aus,  
+1 für den aktuellen ?Titel?, oder 2 für das aktuelle Album/Playlist enthalten.  
 `boolean LSQ_SetTreble (integer $InstanzID, integer $Value)`  
+Setzt die Höhen auf `$Value`. (Nur SliMP3 & SqueezeBox1 / SB1 )  
 `boolean LSQ_SetVolume (integer $InstanzID, integer $Value)`  
+Setzt die Lautstärke auf `$Value`.  
 `boolean LSQ_SetSleep(integer $InstanzID, integer $Seconds)`  
+Aktiviert den (Ein)Schlafmodus mit der unter `$Seconds`angegeben Sekunden.  
+0 deaktiviert den zuvor gesetzten Schlafmodus.  
 
 #### Lesen von Eigenschaften:
+
+Alle LSQ_Get* - Befehle liefern einen jeweils beschriebenen Rückgabewert.  
+Antwortet das Gerät nicht auf die Anfrage, so ist die ein Fehler und eine Exception wird erzeugt.  
+
+`integer LSQ_GetBass (integer $InstanzID)`  
+Liefert den aktuellen Wert vom Bass. (Nur SliMP3 & SqueezeBox1 / SB1 )  
+`boolean LSQ_GetMute (integer $InstanzID)`  
+Liefert `true` wenn Stummschaltung aktiv ist. Sonst `false`.  
+`string LSQ_GetName (integer $InstanzID)`  
+Liefert den aktuellen Names des Gerätes.  
+`integer LSQ_GetPitch (integer $InstanzID)`  
+Liefert den aktuellen Wert der eingestellten Tonhöhe. (Nur SqueezeBox1 / SB1 )  
+`integer LSQ_GetPosition (integer $InstanzID)`  
+Liefert die Zeit in Sekunden welche vom aktuellen Track schon gespielt wurde.  
+`integer LSQ_GetRepeat (integer $InstanzID)`  
+Liefert den aktuellen Modus für Wiederholungen. Es werden die Werte 0 für aus,  
+1 für den aktuellen Titel, oder 2 für das aktuelle Album/Playlist gemeldet.  
+`integer LSQ_GetShuffle (integer $InstanzID)`  
+Liefert den aktuellen Modus für sie zufällige Wiedergabe. Es werden die Werte 0 für aus,  
+1 für den aktuellen ?Titel?, oder 2 für das aktuelle Album/Playlist gemeldet.  
+`integer LSQ_GetTreble (integer $InstanzID)`  
+Liefert den aktuellen Wert der eingestellten Tonhöhe. (Nur SliMP3 & SqueezeBox1 / SB1 )  
+`integer LSQ_GetVolume (integer $InstanzID)`  
+ Liefert den aktuellen Wert der Lautstärke.  
+`integer LSQ_GetSleep(integer $InstanzID)`  
+Liefert die verbleibende Zeit bis zum ausschalten des Gerätes bei aktivem Schlafmodus.  
+Ist der Schlafmodus nicht aktiv, wird 0 gemeldet.  
+
+#### Syncronisieren:
 
 Alle LSQ_Set* - Befehle liefern einen `boolean` als Rückgabewert.
 `true` wenn der gleiche Wert vom Server bestätigt wurde.
 `false` wenn der bestätigte Wert abweicht.
-
-`integer LSQ_GetBass (integer $InstanzID)`  
-`boolean LSQ_GetMute (integer $InstanzID)`  
-`string LSQ_GetName (integer $InstanzID)`  
-`integer LSQ_GetPitch (integer $InstanzID)`  
-`integer LSQ_GetPosition (integer $InstanzID)`  
-`integer LSQ_GetRepeat (integer $InstanzID)`  
-`integer LSQ_GetShuffle (integer $InstanzID)`  
-`integer LSQ_GetTreble (integer $InstanzID)`  
-`integer LSQ_GetVolume (integer $InstanzID)`  
-`integer LSQ_GetSleep(integer $InstanzID)`  
-
-
-#### Syncronisieren:
+Wird der Befehl nicht bestätigt, so ist die ein Fehler (Exception wird erzeugt).
 
 `boolean LSQ_SetSync(integer $InstanzID, integer $SlaveInstanzID)`  
-SlaveInstanzID wird als Client dem InstanzID zugeordnet.
+`$SlaveInstanzID` wird als Client der `$InstanzID` zugeordnet.
 
 `boolean LSQ_SetUnSync(integer $InstanzID)`  
-Löst $InstanzID aus der Syncronisierung von dem Master.
+Löst `$InstanzID` aus der Syncronisierung von dem Master.
+
+Alle LSQ_Get* - Befehle liefern einen jeweils beschriebenen Rückgabewert.  
+Antwortet das Gerät nicht auf die Anfrage, so ist die ein Fehler und eine Exception wird erzeugt.  
 
 `mixed (array or boolean) LSQ_GetSync(integer $InstanzID)`  
-Liefert alle InstanzIDs der mit $InstanzID gesyncten Geräte als Array.  
-false wenn kein Sync aktiv ist.
+Liefert alle InstanzIDs der mit `$InstanzID` gesyncten Geräte als Array.  
+`false` wenn kein Sync aktiv ist.  
 
 ### Konfiguration:
 
