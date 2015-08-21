@@ -1,5 +1,5 @@
 # IPSSqueezeBox
-Ermöglich die Steuerung und Darstellung der Zustände
+Ermöglich die Steuerung sowie die Darstellung der Zustände
 von SqueezeBox Geräten in IPS, in Verbindung mit dem
 Logitech Media Server.
 
