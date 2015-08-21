@@ -217,7 +217,7 @@ Liefert alle InstanzIDs der mit `$InstanzID` gesyncten Geräte als Array.
 
 #### LMSSplitter:
 
-GUID: `{61051B08-5B92-472B-AFB2-6D971D9B99EE}`  
+GUID: `{96A9AB3A-2538-42C5-A130-FC34205A706A}`  
 
 **Datenempfang vom LSQDevice:**  
 Interface-GUI:`{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}`  

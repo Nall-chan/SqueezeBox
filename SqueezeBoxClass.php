@@ -4,17 +4,18 @@
 class LMSData extends stdClass
 {
 
-    const SendCommand = 0;
-    const GetData = 1;
+//    const SendCommand = 0;
+//    const GetData = 1;
 
     public $Data;
     public $Typ;
     public $needResponse;
 
-    public function __construct($Data, $Typ = LMSData::SendCommand, $needResponse = true)
+    public function __construct($Command, $Data = '',/* $Typ = LMSData::SendCommand,*/ $needResponse = true)
     {
+        $this->Command = $Command;
         $this->Data = $Data;
-        $this->Typ = $Typ;
+//        $this->Typ = $Typ;
         $this->needResponse = $needResponse;
     }
 

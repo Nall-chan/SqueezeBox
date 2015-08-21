@@ -61,7 +61,7 @@ class LMSSplitter extends IPSModule
         // Wenn wir verbunden sind, am LMS mit listen anmelden für Events
         if ($this->ReadPropertyBoolean('Open') and $this->HasActiveParent($ParentID))
         {
-            $Data = new LMSData("listen 1");
+            $Data = new LMSData("listen","1");
             $this->SendLMSData($Data);
         }
 
@@ -73,20 +73,22 @@ class LMSSplitter extends IPSModule
      * Using the custom prefix this function will be callable from PHP and JSON-RPC through:
      */
 
-    public function SendEx($Text)
+    public function SendRaw($Coammnd, $Value, $needResponse)
     {
-        return $this->SendDataToParent($Text);
+        $LMSData = new LMSData($Command, $Value, $needResponse);
+        return $this->SendLMSData($LMSData);
+        //return $this->SendDataToParent($Text);
     }
 
     public function Rescan()
     {
-        $ret = $this->SendLMSData(new LMSData('rescan', LMSData::SendCommand));
+        $ret = $this->SendLMSData(new LMSData('rescan'));
         return $ret;
     }
 
     public function GetRescanProgress()
     {
-        $ret = $this->SendLMSData(new LMSData('rescanprogress', LMSData::SendCommand));
+        $ret = $this->SendLMSData(new LMSData('rescanprogress'));
         return $ret;
     }
 
@@ -118,29 +120,29 @@ class LMSSplitter extends IPSModule
     {
         if (!is_int($Index))
             throw new Exception("Index must be integer.");
-        $ret = $this->SendLMSData(new LMSData('players ' . (string) $Index . ' 1', LMSData::GetData));
+        $ret = $this->SendLMSData(new LMSData(array('players',(string) $Index , '1')));
         return $ret;
     }
 
     public function GetLibaryInfo()
     {
-        $genres = intval($this->SendLMSData(new LMSData('info total genres ?', LMSData::GetData)));
-        $artists = intval($this->SendLMSData(new LMSData('info total artists ?', LMSData::GetData)));
-        $albums = intval($this->SendLMSData(new LMSData('info total albums ?', LMSData::GetData)));
-        $songs = intval($this->SendLMSData(new LMSData('info total songs ?', LMSData::GetData)));
+        $genres = intval($this->SendLMSData(new LMSData(array('info','total','genres'),'?')));
+        $artists = intval($this->SendLMSData(new LMSData(array('info','total','artists'),'?')));
+        $albums = intval($this->SendLMSData(new LMSData(array('info','total','albums'),'?')));
+        $songs = intval($this->SendLMSData(new LMSData(array('info','total','songs'),'?')));
         $ret = array('Genres' => $genres, 'Artists' => $artists, 'Albums' => $albums, 'Songs' => $songs);
         return $ret;
     }
 
     public function GetVersion()
     {
-        $ret = $this->SendLMSData(new LMSData('version ?', LMSData::GetData));
+        $ret = $this->SendLMSData(new LMSData('version','?'));
         return $ret;
     }
-
+/*
     public function GetSyncGroups()
     {
-        $ret = $this->SendLMSData(new LMSData('syncgroups ?', LMSData::GetData));
+        $ret = $this->SendLMSData(new LMSData('syncgroups','?'));
         return $ret;
     }
 
@@ -172,7 +174,7 @@ class LMSSplitter extends IPSModule
         $ret = $this->SendLMSData(new LMSData('playlists edit cmd%3Adelete playlist_id%3A' . $PlayListId . ' index%3A' . $SongId, LMSData::GetData));
         return $ret;
     }
-
+*/
 ################## DataPoints
     //Ankommend von Child-Device
 
@@ -185,7 +187,7 @@ class LMSSplitter extends IPSModule
             $Data->LSQ->Command = implode(' ', $Data->LSQ->Command);
 
         // LMS-Objekt erzeugen und Daten mit Adresse ergänzen.
-        $LMSData = new LMSData($Data->LSQ->Address . ' ' . $Data->LSQ->Command . ' ' . $Data->LSQ->Value, LMSData::SendCommand, false);
+        $LMSData = new LMSData($Data->LSQ->Address . ' ' . $Data->LSQ->Command,$Data->LSQ->Value, false);
 
         // Senden über die Warteschlange
         $ret = $this->SendLMSData($LMSData);
@@ -263,8 +265,10 @@ class LMSSplitter extends IPSModule
     }
 
     // Sende-Routine an den Parent
-    protected function SendDataToParent($Data)
+    protected function SendDataToParent(LMSData $LMSData)
     {
+        $Commands = implode(' ', $LMSData->Command);
+        $Data = $Commands.' '.$LMSData->$Data;
         //Semaphore setzen
         if (!$this->lock("ToParent"))
         {
@@ -294,7 +298,7 @@ class LMSSplitter extends IPSModule
     ################## Datenaustausch      
     // Sende-Routine des LMSData-Objektes an den Parent
 
-    private function SendLMSData($LMSData)
+    private function SendLMSData(LMSData $LMSData)
     {
         $ParentID = $this->GetParent();
         if ($ParentID === false)
@@ -311,17 +315,17 @@ class LMSSplitter extends IPSModule
             }
 
             // Noch Umbauen wie das Device ?!?!
-            if ($LMSData->Typ == LMSData::GetData)
+/*            if ($LMSData->Typ == LMSData::GetData)
             {
                 $WaitData = substr($LMSData->Data, 0, -2);
             }
             else
             {
                 $WaitData = $LMSData->Data;
-            }
+            }*/
 
             // Anfrage für die Warteschleife schreiben
-            if (!$this->SetWaitForResponse($WaitData))
+            if (!$this->SetWaitForResponse($LMSData->Command))
             {
                 // Konnte Daten nicht in den ResponseBuffer schreiben
                 // Lock der Sende-Routine aufheben.
@@ -332,7 +336,7 @@ class LMSSplitter extends IPSModule
             try
             {
                 // Senden an Parent
-                $this->SendDataToParent($LMSData->Data);
+                $this->SendDataToParent($LMSData);
             }
             catch (Exception $exc)
             {
@@ -359,7 +363,7 @@ class LMSSplitter extends IPSModule
             }
 
             // Rückgabe ist eine Bestätigung von einem Befehl
-            if ($LMSData->Typ == LMSData::SendCommand)
+/*            if ($LMSData->Typ == LMSData::SendCommand)
             {
                 if (trim($LMSData->Data) == trim($ret))
                     return true;
@@ -367,19 +371,21 @@ class LMSSplitter extends IPSModule
                     return false;
             }
             // Rückgabe ist ein Wert auf eine Anfrage
+            
             else
             {
                 // Abschneiden der Anfrage.
                 $ret = str_replace($WaitData, "", $ret);
                 return $ret;
-            }
+            }*/
+            return $ret;
         }
         // ohne Response, also ohne warten raussenden, 
         else
         {
             try
             {
-                $this->SendDataToParent($LMSData->Data);
+                $this->SendDataToParent($LMSData);
             }
             catch (Exception $exc)
             {

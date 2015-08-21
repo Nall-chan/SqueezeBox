@@ -16,7 +16,7 @@ class SqueezeboxDevice extends IPSModule
         parent::Create();
 
         // 1. Verfügbarer LMS-Splitter wird verbunden oder neu erzeugt, wenn nicht vorhanden.
-        $this->ConnectParent("{61051B08-5B92-472B-AFB2-6D971D9B99EE}");
+        $this->ConnectParent("{96A9AB3A-2538-42C5-A130-FC34205A706A}");
 
         $this->RegisterPropertyString("Address", "");
         $this->RegisterPropertyInteger("Interval", 2);
@@ -285,7 +285,8 @@ class SqueezeboxDevice extends IPSModule
         $this->Init();
 
         $LSQData = new LSQData($Command, $Value, $needResponse);
-        return $this->SendDataToParent($LSQData);
+        return $this->SendLSQData($LSQData)        ;
+        //return $this->SendDataToParent($LSQData);
     }
 
     /**
@@ -793,11 +794,11 @@ class SqueezeboxDevice extends IPSModule
      * true bei erfolgreicher Ausführung und Rückmeldung
      * @exception 
      */
-    public function PlayTrack(integer $Value)
+    public function PlayTrack(integer $Index)
     {
         $this->Init();
-        $ret = intval($this->SendLSQData(new LSQData(array('playlist', 'index'), intval($Value) - 1))) + 1;
-        return ($ret == $Value);
+        $ret = intval($this->SendLSQData(new LSQData(array('playlist', 'index'), intval($Index) - 1))) + 1;
+        return ($ret == $Index);
     }
 
     /**
@@ -902,11 +903,27 @@ class SqueezeboxDevice extends IPSModule
     public function LoadPlaylist(string $Name)
     {
         $this->Init();
-        $raw = $this->SendLSQData(new LSQData(array('playlist', 'load'), $Name . ' silent:1'));
+        $raw = $this->SendLSQData(new LSQData(array('playlist', 'load'), $Name . ' noplay:1'));
         $ret = explode(' ', $raw);
         return rawurldecode($ret[0]);
     }
-
+    /**
+     * Lädt eine Wiedergabelisten-Datei aus dem LMS-Server und spring an die zuletzt abgespielten Track.
+     *
+     * @param string $Name
+     * Der Name der Wiedergabeliste.
+     * @return string
+     * Kompletter Pfad der Wiedergabeliste.
+     * @exception 
+     */
+    public function ResumePlaylist(string $Name)
+    {
+        $this->Init();
+        $raw = $this->SendLSQData(new LSQData(array('playlist', 'resume'), $Name . ' noplay:1'));
+        $ret = explode(' ', $raw);
+        return rawurldecode($ret[0]);
+    }
+    
     /**
      * Lädt eine zuvor gespeicherte Wiedergabelisten-Datei und setzt die Wiedergabe fort.
      *
@@ -917,7 +934,7 @@ class SqueezeboxDevice extends IPSModule
     public function LoadTempPlaylist()
     {
         $this->Init();
-        $raw = $this->SendLSQData(new LSQData(array('playlist', 'resume'), (string)$this->InstanceID . ' wipePlaylist:1'));
+        $raw = $this->SendLSQData(new LSQData(array('playlist', 'resume'), (string)$this->InstanceID . ' wipePlaylist:1 noplay:1'));
         $ret = explode(' ', $raw);
         return rawurldecode($ret[0]);
     }
