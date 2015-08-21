@@ -268,7 +268,7 @@ class LMSSplitter extends IPSModule
     protected function SendDataToParent(LMSData $LMSData)
     {
         $Commands = implode(' ', $LMSData->Command);
-        $Data = $Commands.' '.$LMSData->$Data;
+        $Data = $Commands.' '.$LMSData->Data;
         //Semaphore setzen
         if (!$this->lock("ToParent"))
         {

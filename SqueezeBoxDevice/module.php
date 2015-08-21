@@ -202,7 +202,7 @@ class SqueezeboxDevice extends IPSModule
             else
                 $this->SetConnected(false);
         }
-        $this->_SetSeekable(boolval(GetValueBoolean($this->GetIDForIdent('can_seek'))));
+        $this->_SetSeekable((bool)GetValueBoolean($this->GetIDForIdent('can_seek')));
     }
 
     /**
@@ -503,7 +503,7 @@ class SqueezeboxDevice extends IPSModule
     {
         $this->Init();
 
-        if (boolval($this->SendLSQData(new LSQData('pause', '1'))))
+        if ((bool)$this->SendLSQData(new LSQData('pause', '1')))
         {
             $this->_SetPause();
             return true;
@@ -651,7 +651,7 @@ class SqueezeboxDevice extends IPSModule
         $this->Init();
         if (!is_bool($Value))
             throw new Exception("Value must boolean.");
-        $ret = boolval($this->SendLSQData(new LSQData(array('mixer', 'muting'), intval($Value))));
+        $ret = (bool)$this->SendLSQData(new LSQData(array('mixer', 'muting'), intval($Value)));
         $this->SetValueBoolean('Mute', $ret);
         return ($ret == $Value);
     }
@@ -667,7 +667,7 @@ class SqueezeboxDevice extends IPSModule
     public function GetMute()
     {
         $this->Init();
-        $ret = boolval($this->SendLSQData(new LSQData(array('mixer', 'muting'), '?')));
+        $ret = (bool)$this->SendLSQData(new LSQData(array('mixer', 'muting'), '?'));
         $this->SetValueBoolean('Mute', $ret);
         return $ret;
     }
@@ -762,7 +762,7 @@ class SqueezeboxDevice extends IPSModule
         $this->Init();
         if (($Value < 1) or ( $Value > 6))
             throw new Exception("Value invalid.");
-        return boolval($this->SendLSQData(new LSQData(array('button', 'preset_' . intval($Value) . '.single'), '')));
+        return (bool)$this->SendLSQData(new LSQData(array('button', 'preset_' . intval($Value) . '.single'), ''));
     }
 
     /**
@@ -781,7 +781,7 @@ class SqueezeboxDevice extends IPSModule
         $this->Init();
         if (!is_bool($Value))
             throw new Exception("Value must boolean.");
-        $ret = boolval($this->SendLSQData(new LSQData('power', intval($Value))));
+        $ret = (bool)$this->SendLSQData(new LSQData('power', intval($Value)));
         return ($ret == $Value);
     }
 
@@ -1132,8 +1132,8 @@ class SqueezeboxDevice extends IPSModule
 
     private function _SetSeekable($Value)
     {
-        $this->SetValueBoolean('can_seek', boolval($Value));
-        if (boolval($Value))
+        $this->SetValueBoolean('can_seek', (bool)$Value);
+        if ((bool)$Value)
             $this->EnableAction("Position2");
         else
             $this->DisableAction('Position2');
@@ -1153,7 +1153,7 @@ class SqueezeboxDevice extends IPSModule
         switch ($MainCommand)
         {
             case LSQResponse::player_connected:
-                if (GetValueBoolean($this->GetIDForIdent('Connected')) <> boolval($LSQEvent->Value))
+                if (GetValueBoolean($this->GetIDForIdent('Connected')) <> (bool)$LSQEvent->Value)
                 {
                     $this->SetConnected(true);
                 }
@@ -1188,7 +1188,7 @@ class SqueezeboxDevice extends IPSModule
                 //wegwerfen, solange es keinen SetSummary gibt
                 break;
             case LSQResponse::power:
-                $this->SetValueBoolean('Power', boolval($LSQEvent->Value));
+                $this->SetValueBoolean('Power', (bool)$LSQEvent->Value);
                 break;
 
             case LSQResponse::play:
@@ -1202,7 +1202,7 @@ class SqueezeboxDevice extends IPSModule
                 {
                     $this->_SetPause();
                 }
-                elseif (boolval($LSQEvent->Value))
+                elseif ((bool)$LSQEvent->Value)
                 {
                     $this->_SetPause();
                 }
@@ -1237,7 +1237,7 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetValueInteger('Pitch', (int) ($LSQEvent->Value));
                 break;
             case LSQResponse::muting:
-                $this->SetValueBoolean('Mute', boolval($LSQEvent->Value));
+                $this->SetValueBoolean('Mute', (bool)$LSQEvent->Value);
                 break;
             case LSQResponse::repeat:
                 $this->SetValueInteger('Repeat', (int) ($LSQEvent->Value));
@@ -1379,15 +1379,15 @@ class SqueezeboxDevice extends IPSModule
                 }
                 break;
             case LSQResponse::can_seek:
-                if (GetValueBoolean($this->GetIDForIdent('can_seek')) <> boolval($LSQEvent->Value))
+                if (GetValueBoolean($this->GetIDForIdent('can_seek')) <> (bool)$LSQEvent->Value)
                 {
-                    $this->_SetSeekable(boolval($LSQEvent->Value));
+                    $this->_SetSeekable((bool)$LSQEvent->Value);
                 }
                 break;
             case LSQResponse::remote:
-                if (GetValueBoolean($this->GetIDForIdent('can_seek')) == boolval($LSQEvent->Value))
+                if (GetValueBoolean($this->GetIDForIdent('can_seek')) == (bool)$LSQEvent->Value)
                 {
-                    $this->_SetSeekable(!boolval($LSQEvent->Value));
+                    $this->_SetSeekable(!(bool)$LSQEvent->Value);
                 }
                 break;
             case LSQResponse::index:
