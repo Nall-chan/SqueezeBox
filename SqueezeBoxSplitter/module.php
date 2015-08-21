@@ -271,7 +271,11 @@ class LMSSplitter extends IPSModule
             $Commands = implode(' ', $LMSData->Command);
         else
             $Commands = $LMSData->Command;
-        $Data = $Commands . ' ' . $LMSData->Data;
+        if (is_array($LMSData->Command))
+            $Data = $Commands . ' '.implode(' ', $LMSData->Data);
+        else
+            $Data = $Commands . ' ' . $LMSData->Data;
+        $Data = trim($Data);
         //Semaphore setzen
         if (!$this->lock("ToParent"))
         {
@@ -444,7 +448,10 @@ class LMSSplitter extends IPSModule
                     $ret = GetValueString($buffer);
                     SetValueString($buffer, "");
                     $this->unlock('BufferOut');
-                    return $ret;
+                    if ($ret == '')
+                        return true;
+                    else
+                        return $ret;                    
                 }
                 return false;
             }
@@ -461,13 +468,15 @@ class LMSSplitter extends IPSModule
         if (!GetValueBoolean($Event))
             return false;
         $BufferID = $this->GetIDForIdent('BufferOUT');
+        $BufferOut=GetValueString($BufferID);
         $Data = utf8_decode($Array /*implode(" ", $Array)*/);
-        if (!(strpos($Data, GetValueString($BufferID)) === false))
+        $DataPos = strpos($Data, $BufferOut);
+        if (!$DataPos === false)
         {
             if ($this->lock('BufferOut'))
             {
 //                $Event = $this->GetIDForIdent('WaitForResponse');
-                SetValueString($BufferID, $Data);
+                SetValueString($BufferID, trim(substr($Data,$DataPos+strlen($BufferOut))));
                 SetValueBoolean($Event, false);
                 $this->unlock('BufferOut');
                 return true;
