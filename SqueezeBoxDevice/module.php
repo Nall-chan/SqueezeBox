@@ -1560,7 +1560,7 @@ class SqueezeboxDevice extends IPSModule
     }
 
     // Sende-Routine an den Parent
-    protected function SendDataToParent($LSQData)
+    protected function SendDataToParent(LSQData $LSQData)
     {
         $LSQData->Address = $this->ReadPropertyString('Address');
         // Sende Lock setzen

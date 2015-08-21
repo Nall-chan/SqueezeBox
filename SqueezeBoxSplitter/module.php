@@ -61,10 +61,9 @@ class LMSSplitter extends IPSModule
         // Wenn wir verbunden sind, am LMS mit listen anmelden für Events
         if ($this->ReadPropertyBoolean('Open') and $this->HasActiveParent($ParentID))
         {
-            $Data = new LMSData("listen","1");
+            $Data = new LMSData("listen", "1");
             $this->SendLMSData($Data);
         }
-
     }
 
 ################## PUBLIC
@@ -73,7 +72,7 @@ class LMSSplitter extends IPSModule
      * Using the custom prefix this function will be callable from PHP and JSON-RPC through:
      */
 
-    public function SendRaw($Coammnd, $Value, $needResponse)
+    public function SendRaw($Command, $Value, $needResponse)
     {
         $LMSData = new LMSData($Command, $Value, $needResponse);
         return $this->SendLMSData($LMSData);
@@ -120,61 +119,62 @@ class LMSSplitter extends IPSModule
     {
         if (!is_int($Index))
             throw new Exception("Index must be integer.");
-        $ret = $this->SendLMSData(new LMSData(array('players',(string) $Index , '1')));
+        $ret = $this->SendLMSData(new LMSData(array('players', (string) $Index, '1')));
         return $ret;
     }
 
     public function GetLibaryInfo()
     {
-        $genres = intval($this->SendLMSData(new LMSData(array('info','total','genres'),'?')));
-        $artists = intval($this->SendLMSData(new LMSData(array('info','total','artists'),'?')));
-        $albums = intval($this->SendLMSData(new LMSData(array('info','total','albums'),'?')));
-        $songs = intval($this->SendLMSData(new LMSData(array('info','total','songs'),'?')));
+        $genres = intval($this->SendLMSData(new LMSData(array('info', 'total', 'genres'), '?')));
+        $artists = intval($this->SendLMSData(new LMSData(array('info', 'total', 'artists'), '?')));
+        $albums = intval($this->SendLMSData(new LMSData(array('info', 'total', 'albums'), '?')));
+        $songs = intval($this->SendLMSData(new LMSData(array('info', 'total', 'songs'), '?')));
         $ret = array('Genres' => $genres, 'Artists' => $artists, 'Albums' => $albums, 'Songs' => $songs);
         return $ret;
     }
 
     public function GetVersion()
     {
-        $ret = $this->SendLMSData(new LMSData('version','?'));
-        return $ret;
-    }
-/*
-    public function GetSyncGroups()
-    {
-        $ret = $this->SendLMSData(new LMSData('syncgroups','?'));
+        $ret = $this->SendLMSData(new LMSData('version', '?'));
         return $ret;
     }
 
-    public function CreatePlaylist(string $Name) // ToDo antwort zerlegen
-    {
-        $ret = $this->SendLMSData(new LMSData('playlists new name%3A' . $Name, LMSData::GetData));
-        return $ret;
-    }
+    /*
+      public function GetSyncGroups()
+      {
+      $ret = $this->SendLMSData(new LMSData('syncgroups','?'));
+      return $ret;
+      }
 
-    public function DeletePlaylist(integer $PlayListId) // ToDo antwort zerlegen
-    {
-        $ret = $this->SendLMSData(new LMSData('playlists delete playlist_id%3A' . $PlayListId, LMSData::GetData));
-        return $ret;
-    }
+      public function CreatePlaylist(string $Name) // ToDo antwort zerlegen
+      {
+      $ret = $this->SendLMSData(new LMSData('playlists new name%3A' . $Name, LMSData::GetData));
+      return $ret;
+      }
 
-    public function AddFileToPlaylist(integer $PlayListId, string $SongUrl, integer $Track)
-    {
-        $ret = $this->SendLMSData(new LMSData('playlists edit cmd%3Aadd playlist_id%3A' . $PlayListId . ' url%3A' . $SongUrl, LMSData::GetData));
-        if ($Track > 0)
-        {
-//            $ret = $this->SendLMSData(new LMSData('playlists edit cmd%3Amove playlist_id%3A'.$PlayListId.' url%3A'.$SongUrl, LMSData::GetData));
-            // index  toindex
-        }
-        return $ret;
-    }
+      public function DeletePlaylist(integer $PlayListId) // ToDo antwort zerlegen
+      {
+      $ret = $this->SendLMSData(new LMSData('playlists delete playlist_id%3A' . $PlayListId, LMSData::GetData));
+      return $ret;
+      }
 
-    public function DeleteFileFromPlaylist(integer $PlayListId, integer $SongId)
-    {
-        $ret = $this->SendLMSData(new LMSData('playlists edit cmd%3Adelete playlist_id%3A' . $PlayListId . ' index%3A' . $SongId, LMSData::GetData));
-        return $ret;
-    }
-*/
+      public function AddFileToPlaylist(integer $PlayListId, string $SongUrl, integer $Track)
+      {
+      $ret = $this->SendLMSData(new LMSData('playlists edit cmd%3Aadd playlist_id%3A' . $PlayListId . ' url%3A' . $SongUrl, LMSData::GetData));
+      if ($Track > 0)
+      {
+      //            $ret = $this->SendLMSData(new LMSData('playlists edit cmd%3Amove playlist_id%3A'.$PlayListId.' url%3A'.$SongUrl, LMSData::GetData));
+      // index  toindex
+      }
+      return $ret;
+      }
+
+      public function DeleteFileFromPlaylist(integer $PlayListId, integer $SongId)
+      {
+      $ret = $this->SendLMSData(new LMSData('playlists edit cmd%3Adelete playlist_id%3A' . $PlayListId . ' index%3A' . $SongId, LMSData::GetData));
+      return $ret;
+      }
+     */
 ################## DataPoints
     //Ankommend von Child-Device
 
@@ -187,7 +187,7 @@ class LMSSplitter extends IPSModule
             $Data->LSQ->Command = implode(' ', $Data->LSQ->Command);
 
         // LMS-Objekt erzeugen und Daten mit Adresse ergänzen.
-        $LMSData = new LMSData($Data->LSQ->Address . ' ' . $Data->LSQ->Command,$Data->LSQ->Value, false);
+        $LMSData = new LMSData($Data->LSQ->Address . ' ' . $Data->LSQ->Command, $Data->LSQ->Value, false);
 
         // Senden über die Warteschlange
         $ret = $this->SendLMSData($LMSData);
@@ -267,8 +267,11 @@ class LMSSplitter extends IPSModule
     // Sende-Routine an den Parent
     protected function SendDataToParent(LMSData $LMSData)
     {
-        $Commands = implode(' ', $LMSData->Command);
-        $Data = $Commands.' '.$LMSData->Data;
+        if (is_array($LMSData->Command))
+            $Commands = implode(' ', $LMSData->Command);
+        else
+            $Commands = $LMSData->Command;
+        $Data = $Commands . ' ' . $LMSData->Data;
         //Semaphore setzen
         if (!$this->lock("ToParent"))
         {
@@ -315,14 +318,14 @@ class LMSSplitter extends IPSModule
             }
 
             // Noch Umbauen wie das Device ?!?!
-/*            if ($LMSData->Typ == LMSData::GetData)
-            {
-                $WaitData = substr($LMSData->Data, 0, -2);
-            }
-            else
-            {
-                $WaitData = $LMSData->Data;
-            }*/
+            /*            if ($LMSData->Typ == LMSData::GetData)
+              {
+              $WaitData = substr($LMSData->Data, 0, -2);
+              }
+              else
+              {
+              $WaitData = $LMSData->Data;
+              } */
 
             // Anfrage für die Warteschleife schreiben
             if (!$this->SetWaitForResponse($LMSData->Command))
@@ -363,21 +366,21 @@ class LMSSplitter extends IPSModule
             }
 
             // Rückgabe ist eine Bestätigung von einem Befehl
-/*            if ($LMSData->Typ == LMSData::SendCommand)
-            {
-                if (trim($LMSData->Data) == trim($ret))
-                    return true;
-                else
-                    return false;
-            }
-            // Rückgabe ist ein Wert auf eine Anfrage
-            
-            else
-            {
-                // Abschneiden der Anfrage.
-                $ret = str_replace($WaitData, "", $ret);
-                return $ret;
-            }*/
+            /*            if ($LMSData->Typ == LMSData::SendCommand)
+              {
+              if (trim($LMSData->Data) == trim($ret))
+              return true;
+              else
+              return false;
+              }
+              // Rückgabe ist ein Wert auf eine Anfrage
+
+              else
+              {
+              // Abschneiden der Anfrage.
+              $ret = str_replace($WaitData, "", $ret);
+              return $ret;
+              } */
             return $ret;
         }
         // ohne Response, also ohne warten raussenden, 
@@ -398,6 +401,8 @@ class LMSSplitter extends IPSModule
 
     private function SetWaitForResponse($Data)
     {
+        if (is_array($Data))
+            $Data = implode(' ', $Data);
         if ($this->lock('BufferOut'))
         {
             $buffer = $this->GetIDForIdent('BufferOUT');
@@ -449,17 +454,20 @@ class LMSSplitter extends IPSModule
 
     private function WriteResponse($Array)
     {
+                if (is_array($Array))
+            $Array = implode(' ', $Array);
+
         $Event = $this->GetIDForIdent('WaitForResponse');
         if (!GetValueBoolean($Event))
             return false;
-        $buffer = $this->GetIDForIdent('BufferOUT');
-        $Data = utf8_decode(implode(" ", $Array));
-        if (!(strpos($Data, GetValueString($buffer)) === false))
+        $BufferID = $this->GetIDForIdent('BufferOUT');
+        $Data = utf8_decode($Array /*implode(" ", $Array)*/);
+        if (!(strpos($Data, GetValueString($BufferID)) === false))
         {
             if ($this->lock('BufferOut'))
             {
 //                $Event = $this->GetIDForIdent('WaitForResponse');
-                SetValueString($buffer, $Data);
+                SetValueString($BufferID, $Data);
                 SetValueBoolean($Event, false);
                 $this->unlock('BufferOut');
                 return true;
@@ -531,6 +539,7 @@ class LMSSplitter extends IPSModule
             IPS_ConnectInstance($this->InstanceID, $parentID);
         }
     }
+
 }
 
 ?>
