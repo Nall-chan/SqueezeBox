@@ -271,7 +271,7 @@ class LMSSplitter extends IPSModule
             $Commands = implode(' ', $LMSData->Command);
         else
             $Commands = $LMSData->Command;
-        if (is_array($LMSData->Command))
+        if (is_array($LMSData->Data))
             $Data = $Commands . ' '.implode(' ', $LMSData->Data);
         else
             $Data = $Commands . ' ' . $LMSData->Data;
