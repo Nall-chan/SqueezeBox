@@ -471,7 +471,7 @@ class LMSSplitter extends IPSModule
         $BufferOut=GetValueString($BufferID);
         $Data = utf8_decode($Array /*implode(" ", $Array)*/);
         $DataPos = strpos($Data, $BufferOut);
-        if (!$DataPos === false)
+        if (!($DataPos === false))
         {
             if ($this->lock('BufferOut'))
             {
