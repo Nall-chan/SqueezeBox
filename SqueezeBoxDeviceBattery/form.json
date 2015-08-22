@@ -53,7 +53,7 @@
                 {
                     "code": 203,
                     "icon": "error",
-                    "caption": "Interval zu klein (<5)."
+                    "caption": "Interval zu klein (<30)."
                 }
             ]
 }

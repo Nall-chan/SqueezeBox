@@ -11,7 +11,7 @@ class SqueezeboxBattery extends IPSModule
         parent::Create();
 
         $this->RegisterPropertyString("Address", "");
-        $this->RegisterPropertyInteger("Interval", 5);
+        $this->RegisterPropertyInteger("Interval", 30);
         $this->RegisterPropertyString("Password", "1234");
         $this->RegisterTimer("RequestState", 0, 'LSQB_RequestState($_IPS[\'TARGET\']);');
     }
@@ -37,7 +37,7 @@ class SqueezeboxBattery extends IPSModule
             if (strpos($Address, '.')) // IP ?
             {
                 $this->SetStatus(102);
-                if ($this->ReadPropertyInteger("Interval") < 5)
+                if ($this->ReadPropertyInteger("Interval") < 30)
                     $this->SetStatus(203);
             }
         }
@@ -73,7 +73,7 @@ class SqueezeboxBattery extends IPSModule
         $this->RegisterVariableInteger("BatteryCapacity", "Akkukapazität", "mAh.Squeezebox", 8); // float?
         if ($this->Init(false))
         {
-            if ($this->ReadPropertyInteger("Interval") >= 5)
+            if ($this->ReadPropertyInteger("Interval") >= 30)
             {
                 $this->SetTimerInterval("RequestState", $this->ReadPropertyInteger("Interval"));
             }
