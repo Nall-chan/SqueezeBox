@@ -42,6 +42,7 @@ class SqueezeboxDevice extends IPSModule
         if ($Address == '')
         {
             // Status inaktiv
+            $this->SetStatus(104);
         }
         else
         {
@@ -55,6 +56,7 @@ class SqueezeboxDevice extends IPSModule
                         if (strlen($Address) == 12)
                         {
                             $Address = implode(":", str_split($Address, 2));
+                            $this->SetStatus(102);
                             // STATUS config OK
                         }
                         else
@@ -73,6 +75,7 @@ class SqueezeboxDevice extends IPSModule
                         {
                             //- gegen : ersetzen                    
                             $Address = str_replace('-', ':', $Address);
+                            $this->SetStatus(102);
                             // STATUS config OK
                         }
                         else
@@ -102,6 +105,7 @@ class SqueezeboxDevice extends IPSModule
                     }
                 }
             }
+            // TODO IP-Adresse prüfen fehlt !!!!
         }
 
 
@@ -1816,6 +1820,53 @@ class SqueezeboxDevice extends IPSModule
         foreach ($Associations as $Association)
         {
             IPS_SetVariableProfileAssociation($Name, $Association[0], $Association[1], $Association[2], $Association[3]);
+        }
+    }
+    
+    protected function RegisterTimer($Name, $Interval, $Script)
+    {
+        $id = @IPS_GetObjectIDByIdent($Name, $this->InstanceID);
+        if ($id === false)
+        {
+            $id = IPS_CreateEvent(1);
+            IPS_SetParent($id, $this->InstanceID);
+            IPS_SetIdent($id, $Name);
+        }
+        IPS_SetName($id, $Name);
+        IPS_SetHidden($id, true);
+        IPS_SetEventScript($id, $Script);
+        if ($Interval > 0)
+        {
+            IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, $Interval);
+
+            IPS_SetEventActive($id, true);
+        }
+        else
+        {
+            IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, 1);
+
+            IPS_SetEventActive($id, false);
+        }
+    }
+
+    protected function SetTimerInterval($Name, $Interval)
+    {
+        $id = @IPS_GetObjectIDByIdent($Name, $this->InstanceID);
+        if ($id === false)
+            throw new Exception('Timer not present');
+        $Event = IPS_GetEvent($id);
+
+        if ($Interval < 1)
+        {
+            if ($Event['EventActive'])
+                IPS_SetEventActive($id, false);
+        }
+        else
+        {
+            if ($Event['CyclicTimeValue'] <> $Interval)
+                IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, $Interval);
+            if (!$Event['EventActive'])
+                IPS_SetEventActive($id, true);
         }
     }
 

@@ -1,0 +1,11 @@
+{
+    "id": "{718158BB-B247-4A71-9440-9C2FF1378752}",
+    "name": "SqueezeboxBattery",
+    "type": 3,
+    "vendor": "Logitech",
+    "aliases": ["Squeezebox Battery"],
+    "parentRequirements": [],
+    "childRequirements": [],
+    "implemented": [],
+    "prefix": "LSQB"
+}

@@ -1,0 +1,59 @@
+{
+    "elements":
+            [
+                {
+                    "type": "Label",
+                    "label": "IP-Adresse für Squeezbox"
+                },
+                {
+                    "name": "Address",
+                    "type": "PasswordTextBox",
+                    "caption": "IP Adresse"
+                },
+                {
+                    "type": "Label",
+                    "label": "Default Passwort: 1234"
+                },
+                {
+                    "name": "Password",
+                    "type": "PasswordTextBox",
+                    "caption": "Passwort"
+                },
+                {
+                    "name": "Interval",
+                    "type": "NumberSpinner",
+                    "caption": "Interval"
+                }
+            ],
+    "actions":
+            [
+                {
+                    "type": "Button",
+                    "label": "Request State",
+                    "onClick": "LSQB_RequestState($id);"
+                }
+            ],
+    "status":
+            [
+                {
+                    "code": 102,
+                    "icon": "active",
+                    "caption": "Konfiguration gültig."
+                },
+                {
+                    "code": 104,
+                    "icon": "inactive",
+                    "caption": "LMS is inactive."
+                },
+                {
+                    "code": 202,
+                    "icon": "error",
+                    "caption": "IP Adresse ungültig."
+                },
+                {
+                    "code": 203,
+                    "icon": "error",
+                    "caption": "Interval zu klein (<5)."
+                }
+            ]
+}
