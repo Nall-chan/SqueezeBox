@@ -143,12 +143,10 @@ class LMSSplitter extends IPSModule
 //        $LSQEvent = new LSQTaggingData($ret, true);
         $Data = new LMSResponse($ret);
         $LSQEvent = array();
-        foreach ($Data->Data as $index => $Part)
+        foreach ($Data->Data as $Part)
         {
             $Pair = new LSQTaggingData($Part, true);
-
-            $LSQEvent[$index]['Command'] = $Pair->Command;
-            $LSQEvent[$index]['Value'] = $Pair->Value;
+            $LSQEvent[$Pair->Command] =$Pair->Value;
         }        
         return $LSQEvent;
     }
