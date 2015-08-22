@@ -64,11 +64,12 @@ class SqueezeboxBattery extends IPSModule
         $this->RegisterVariableInteger("State", "Status", "Power.Squeezebox", 1);
         $this->RegisterVariableFloat("WallVoltage", "Netzspannung", "~Volt", 2);
         $this->RegisterVariableInteger("ChargeState", "Ladestatus", "Charge.Squeezebox", 2);
-        $this->RegisterVariableInteger("BatteryLevel", "Akkukapazität", "Intensity.Squeezebox", 3); // float?
+        $this->RegisterVariableFloat("BatteryLevel", "Akkuladekapazität", "~Intensity", 3); // float?
         $this->RegisterVariableFloat("BatteryTemperature", "Akkutemperatur", "~Temperature", 4);
         $this->RegisterVariableFloat("BatteryVoltage", "Akkuspannung", "~Volt", 5);
         $this->RegisterVariableFloat("BatteryVMon1", "Akku vmon1", "~Volt", 6);
         $this->RegisterVariableFloat("BatteryVMon2", "Akku vmon2", "~Volt", 7);
+        $this->RegisterVariableInteger("BatteryCapacity", "Akkukapazität", "Intensity.Squeezebox", 8); // float?
         if ($this->Init(false))
         {
             if ($this->ReadPropertyInteger("Interval") >= 5)
@@ -114,15 +115,54 @@ class SqueezeboxBattery extends IPSModule
         $ssh = new Net_SSH2($this->ReadPropertyString("Address"));
         if (!$ssh->login('root', $this->ReadPropertyString("Password")))
         {
-           IPS_LogMessage("Batterie", $ssh->errors);
             return false;
         }
-//SSH Ende
-        $battery_charge = $ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_charge");
-        IPS_LogMessage("Batterie", $battery_charge);
+        $PowerMode = (int) $ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/power_mode");
+        $this->SetValueInteger('State', $PowerMode);
+        if ($PowerMode == 5)
+            $this->SetValueFloat("WallVoltage", 0);
+        else
+        {
+            $WallVoltage = round((int) $ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/wall_voltage") / 1000, 1);
+            $this->SetValueFloat("WallVoltage", $WallVoltage);
+        }
+        
+//var_dump($ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/sys_voltage"));
+        
+        $ChargeState = (int) $ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/charger_state");
+        $this->SetValueInteger('ChargeState', $ChargeState);
+        if ($ChargeState <> 1)
+        {
+            $BatteryLevel = (int) $ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_charge") / 10;
+            $this->SetValueFloat('BatteryLevel', $BatteryLevel);
+            $BatteryCapacity = (int) $ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_capacity");
+            $this->SetValueInteger('BatteryCapacity', $BatteryCapacity);
+            $BatteryTemperature = round((float) $ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_temperature") / 32, 1);
+            $this->SetValueFloat('BatteryTemperature', $BatteryTemperature);
+            $BatteryVoltage = round((float) $ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_voltage") / 1000, 1);
+            $this->SetValueFloat('BatteryVoltage', $BatteryVoltage);
+            $BatteryVMon1 = round((float) $ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_vmon1_voltage") / 1000, 1);
+            $this->SetValueFloat('BatteryVMon1', $BatteryVMon1);
+            $BatteryVMon2 = round((float) $ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_vmon2_voltage") / 1000, 1);
+            $this->SetValueFloat('BatteryVMon2', $BatteryVMon2);
+//var_dump($ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/charger_event"));
+//var_dump($ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_charge_rate"));
+//var_dump($ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_discharge_rate"));
+        } else {
+            $this->SetValueFloat('BatteryLevel', 0.0);
+            $this->SetValueInteger('BatteryCapacity', 0);
+            $this->SetValueFloat('BatteryTemperature', 0.0);
+            $this->SetValueFloat('BatteryVoltage', 0.0);
+            $this->SetValueFloat('BatteryVMon1', 0.0);
+            $this->SetValueFloat('BatteryVMon2', 0.0);
+        }
+
+
+
+
         $ssh->disconnect();
 
-        return $battery_charge;
+        return true;
     }
 
 ################## PRIVATE
@@ -146,6 +186,13 @@ class SqueezeboxBattery extends IPSModule
         $id = $this->GetIDForIdent($Ident);
         if (GetValueBoolean($id) <> $value)
             SetValueBoolean($id, $value);
+    }
+
+    private function SetValueFloat($Ident, $value)
+    {
+        $id = $this->GetIDForIdent($Ident);
+        if (GetValueFloat($id) <> $value)
+            SetValueFloat($id, $value);
     }
 
     private function SetValueInteger($Ident, $value)
