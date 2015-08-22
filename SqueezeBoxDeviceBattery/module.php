@@ -14,7 +14,6 @@ class SqueezeboxBattery extends IPSModule
         $this->RegisterPropertyInteger("Interval", 5);
         $this->RegisterPropertyString("Password", "1234");
         $this->RegisterTimer("RequestState", 0, 'LSQB_RequestState($_IPS[\'TARGET\']);');
-        
     }
 
     public function Destroy()
@@ -38,8 +37,8 @@ class SqueezeboxBattery extends IPSModule
             if (strpos($Address, '.')) // IP ?
             {
                 $this->SetStatus(102);
-                if (ReadPropertyInteger("Interval")<5)
-                    $this->SetStatus(203);                    
+                if (ReadPropertyInteger("Interval") < 5)
+                    $this->SetStatus(203);
             }
         }
 
@@ -69,7 +68,7 @@ class SqueezeboxBattery extends IPSModule
         $this->RegisterVariableFloat("BatteryTemperature", "Akkutemperatur", "~Temperature", 4);
         $this->RegisterVariableFloat("BatteryVoltage", "Akkuspannung", "~Voltage", 5);
         $this->RegisterVariableFloat("BatteryVMon1", "Akku vmon1", "~Voltage", 6);
-        $this->RegisterVariableFloat("BatteryVMon2", "Akku vmon2", "~Voltage", 7);        
+        $this->RegisterVariableFloat("BatteryVMon2", "Akku vmon2", "~Voltage", 7);
         if ($this->Init(false))
         {
             if ($this->ReadPropertyInteger("Interval") >= 5)
@@ -81,12 +80,10 @@ class SqueezeboxBattery extends IPSModule
                 $this->SetTimerInterval("RequestState", 0);
             }
             $this->RequestState();
-            
         }
         else
         {
-           $this->SetTimerInterval("RequestState", 0);
-        
+            $this->SetTimerInterval("RequestState", 0);
         }
     }
 
@@ -110,14 +107,14 @@ class SqueezeboxBattery extends IPSModule
         $this->Init();
 //SSH Login
 //include('Net/SSH2.php');
-require_once(__DIR__ . "/../BigInteger.php");
-require_once(__DIR__ . '/../Random.php');
-require_once(__DIR__ . '/../Hash.php');
-require_once(__DIR__ . '/../TripleDES.php');
-require_once(__DIR__ . '/../RC4.php');
-require_once(__DIR__ . '/../AES.php');
-require_once(__DIR__ . "/../SSH2.php"); 
-        
+        require_once(__DIR__ . "/../BigInteger.php");
+        require_once(__DIR__ . '/../Random.php');
+        require_once(__DIR__ . '/../Hash.php');
+        require_once(__DIR__ . '/../TripleDES.php');
+        require_once(__DIR__ . '/../RC4.php');
+        require_once(__DIR__ . '/../AES.php');
+        require_once(__DIR__ . "/../SSH2.php");
+
         $ssh = new Net_SSH2($this->ReadPropertyString("Address"));
         if (!$ssh->login('root', $this->ReadPropertyString("Password")))
         {
@@ -125,14 +122,13 @@ require_once(__DIR__ . "/../SSH2.php");
         }
 //SSH Ende
         $ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_charge"); //Befehl der auf dem Mac ausgeführt //werden soll.
-        IPS_LogMessage("Batterie",$ssh->read());
+        IPS_LogMessage("Batterie", $ssh->read());
         $ssh->disconnect();
 
 //        return true;
     }
 
 ################## PRIVATE
-
 
     private function Init($throwException = true)
     {
@@ -169,9 +165,7 @@ require_once(__DIR__ . "/../SSH2.php");
             SetValueString($id, $value);
     }
 
-
 ################## DUMMYS / WOARKAROUNDS - protected
-
     //Remove on next Symcon update
     protected function RegisterProfileInteger($Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, $StepSize)
     {
@@ -212,7 +206,53 @@ require_once(__DIR__ . "/../SSH2.php");
             IPS_SetVariableProfileAssociation($Name, $Association[0], $Association[1], $Association[2], $Association[3]);
         }
     }
+    
+    protected function RegisterTimer($Name, $Interval, $Script)
+    {
+        $id = @IPS_GetObjectIDByIdent($Name, $this->InstanceID);
+        if ($id === false)
+        {
+            $id = IPS_CreateEvent(1);
+            IPS_SetParent($id, $this->InstanceID);
+            IPS_SetIdent($id, $Name);
+        }
+        IPS_SetName($id, $Name);
+        IPS_SetHidden($id, true);
+        IPS_SetEventScript($id, $Script);
+        if ($Interval > 0)
+        {
+            IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, $Interval);
 
+            IPS_SetEventActive($id, true);
+        }
+        else
+        {
+            IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, 1);
+
+            IPS_SetEventActive($id, false);
+        }
+    }
+
+    protected function SetTimerInterval($Name, $Interval)
+    {
+        $id = @IPS_GetObjectIDByIdent($Name, $this->InstanceID);
+        if ($id === false)
+            throw new Exception('Timer not present');
+        $Event = IPS_GetEvent($id);
+
+        if ($Interval < 1)
+        {
+            if ($Event['EventActive'])
+                IPS_SetEventActive($id, false);
+        }
+        else
+        {
+            if ($Event['CyclicTimeValue'] <> $Interval)
+                IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, $Interval);
+            if (!$Event['EventActive'])
+                IPS_SetEventActive($id, true);
+        }
+    }
 }
 
 ?>
