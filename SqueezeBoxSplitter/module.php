@@ -88,7 +88,8 @@ class LMSSplitter extends IPSModule
     public function GetRescanProgress()
     {
         $ret = $this->SendLMSData(new LMSData('rescanprogress'));
-        return $ret;
+        $LSQEvent = new LSQTaggingData($ret, true);
+        return (bool)$LSQEvent->Value;
     }
 
     public function GetSongInfoByFileID(integer $ID)
@@ -103,12 +104,15 @@ class LMSSplitter extends IPSModule
 
     public function CreateAllPlayer()
     {
-        $players = $this->SendDataToParent('player count ?');
+        $players = $this->SendLMSData(new LMSData(array('player','count'),'?'));        
+//        $players = $this->SendDataToParent('player count ?');
 
         for ($i = 0; $i < $players; $i++)
         {
-            $player = $this->SendDataToParent('player id ' . $i . ' ?');
-            $playerName = $this->SendDataToParent('player name ' . $i . ' ?');
+            $player = $this->SendLMSData(new LMSData(array('player','id',$i),'?'));
+//            $player = $this->SendDataToParent('player id ' . $i . ' ?');
+            $playerName = $this->SendLMSData(new LMSData(array('player','name',$i),'?'));            
+//            $playerName = $this->SendDataToParent('player name ' . $i . ' ?');
             // Daten zerlegen und Childs anlegen/prüfen
             IPS_LogMessage('PLAYER ID' . $i, print_r($player, 1));
             IPS_LogMessage('PLAYER NAME' . $i, print_r($playerName, 1));
