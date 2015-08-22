@@ -37,7 +37,7 @@ class SqueezeboxBattery extends IPSModule
             if (strpos($Address, '.')) // IP ?
             {
                 $this->SetStatus(102);
-                if (ReadPropertyInteger("Interval") < 5)
+                if ($this->ReadPropertyInteger("Interval") < 5)
                     $this->SetStatus(203);
             }
         }

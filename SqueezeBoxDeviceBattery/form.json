@@ -7,7 +7,7 @@
                 },
                 {
                     "name": "Address",
-                    "type": "PasswordTextBox",
+                    "type": "ValidationTextBox",
                     "caption": "IP Adresse"
                 },
                 {
