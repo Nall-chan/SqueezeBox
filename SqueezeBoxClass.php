@@ -389,8 +389,13 @@ class LSQResponse extends stdClass
                     $this->Value = $Data->Data[3];
                 break;
             default:
+                $this->Command = $Data->Data[0];
+                if (isset($Data->Data[1]))
+                    $this->Value = $Data->Data[1];
+                break;
+            case 'displaynotify': //ignorieren
+            case 'menustatus': //ignorieren                
                 $this->Command = false;
-                $this->Value = $Data->Data;
                 break;
         }
     }

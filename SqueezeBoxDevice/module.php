@@ -1401,6 +1401,8 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetValueInteger('PositionRAW', $LSQEvent->Value);
                 $this->SetValueString('Position', @date('i:s', $LSQEvent->Value));
                 break;
+            case false:
+                break;
             default:
                 if (is_array($LSQEvent->Value))
                     IPS_LogMessage('ToDoLSQEvent', 'LSQResponse-' . $MainCommand . '-' . print_r($LSQEvent->Value, 1));
