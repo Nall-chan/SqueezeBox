@@ -89,7 +89,7 @@ class LMSSplitter extends IPSModule
     {
         $ret = $this->SendLMSData(new LMSData('rescanprogress'));
         $LSQEvent = new LSQTaggingData($ret, true);
-        return (bool)$LSQEvent->Value;
+        return (bool) $LSQEvent->Value;
     }
 
     public function GetSongInfoByFileID(integer $ID)
@@ -104,18 +104,29 @@ class LMSSplitter extends IPSModule
 
     public function CreateAllPlayer()
     {
-        $players = $this->SendLMSData(new LMSData(array('player','count'),'?'));        
+        $players = $this->SendLMSData(new LMSData(array('player', 'count'), '?'));
 //        $players = $this->SendDataToParent('player count ?');
-
+        $DevicesIDs = IPS_GetInstanceListByModuleID("{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}");
+        foreach ($DevicesIDs as $Device)
+        {
+            $KnownDevices = IPS_GetProperty($Device, 'Address');
+        }
         for ($i = 0; $i < $players; $i++)
         {
-            $player = $this->SendLMSData(new LMSData(array('player','id',$i),'?'));
+            $player = rawurldecode($this->SendLMSData(new LMSData(array('player', 'id', $i), '?')));
+
 //            $player = $this->SendDataToParent('player id ' . $i . ' ?');
-            $playerName = $this->SendLMSData(new LMSData(array('player','name',$i),'?'));            
+            //$playerName = $this->SendLMSData(new LMSData(array('player','name',$i),'?'));            
 //            $playerName = $this->SendDataToParent('player name ' . $i . ' ?');
             // Daten zerlegen und Childs anlegen/prüfen
+
+            if (in_array($player, $KnownDevices))
+                continue;
             IPS_LogMessage('PLAYER ID' . $i, print_r($player, 1));
-            IPS_LogMessage('PLAYER NAME' . $i, print_r($playerName, 1));
+            $NewDevice = IPS_CreateInstance("{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}");
+            IPS_SetProperty($NewDevice, 'Address', $player);
+            IPS_ApplyChanges($NewDevice);
+            //IPS_LogMessage('PLAYER NAME' . $i, print_r($playerName, 1));
         }
     }
 
@@ -124,7 +135,8 @@ class LMSSplitter extends IPSModule
         if (!is_int($Index))
             throw new Exception("Index must be integer.");
         $ret = $this->SendLMSData(new LMSData(array('players', (string) $Index, '1')));
-        return $ret;
+        $LSQEvent = new LSQTaggingData($ret, true);
+        return $LSQEvent;
     }
 
     public function GetLibaryInfo()
@@ -276,7 +288,7 @@ class LMSSplitter extends IPSModule
         else
             $Commands = $LMSData->Command;
         if (is_array($LMSData->Data))
-            $Data = $Commands . ' '.implode(' ', $LMSData->Data);
+            $Data = $Commands . ' ' . implode(' ', $LMSData->Data);
         else
             $Data = $Commands . ' ' . $LMSData->Data;
         $Data = trim($Data);
@@ -455,7 +467,7 @@ class LMSSplitter extends IPSModule
                     if ($ret == '')
                         return true;
                     else
-                        return $ret;                    
+                        return $ret;
                 }
                 return false;
             }
@@ -465,22 +477,22 @@ class LMSSplitter extends IPSModule
 
     private function WriteResponse($Array)
     {
-                if (is_array($Array))
+        if (is_array($Array))
             $Array = implode(' ', $Array);
 
         $Event = $this->GetIDForIdent('WaitForResponse');
         if (!GetValueBoolean($Event))
             return false;
         $BufferID = $this->GetIDForIdent('BufferOUT');
-        $BufferOut=GetValueString($BufferID);
-        $Data = utf8_decode($Array /*implode(" ", $Array)*/);
+        $BufferOut = GetValueString($BufferID);
+        $Data = utf8_decode($Array /* implode(" ", $Array) */);
         $DataPos = strpos($Data, $BufferOut);
         if (!($DataPos === false))
         {
             if ($this->lock('BufferOut'))
             {
 //                $Event = $this->GetIDForIdent('WaitForResponse');
-                SetValueString($BufferID, trim(substr($Data,$DataPos+strlen($BufferOut))));
+                SetValueString($BufferID, trim(substr($Data, $DataPos + strlen($BufferOut))));
                 SetValueBoolean($Event, false);
                 $this->unlock('BufferOut');
                 return true;
