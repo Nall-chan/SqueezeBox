@@ -10,6 +10,9 @@ Für alle Befehle gilt: Tritt ein Fehler auf, wird eine Exception geworfen.
 
 #### Datenbank:
 
+`string LMS_GetVersion(integer $InstanzID)`  
+Liefert die aktuell installierte Version des Logitech Media-Server.
+
 `boolean LMS_Rescan(integer $InstanzID)`  
 Startet einen schnellen Rescan der Library.
 Liefert `true` wenn Rescan gestartet wurde.
@@ -30,7 +33,21 @@ Fragt die aktuelle Anzahl aller bekannten Player vom Server ab.
 
 `array LMS_GetPlayerInfo(integer $InstanzID, integer $Index)`  
 Liefert Infomationen über ein Gerät.
-**Array:**    
+**Array:**  
+
+| Index       | Typ     | Beschreibung                                      |
+| :---------: | :-----: | :-----------------------------------------------: |
+| Playerindex | integer | Forlaufender Index                                |
+| Playerid    | string  | MAC oder IP-Adresse                               |
+| Uuid        | string  | 32-stellige eindeutige Kennung                    |
+| Ip          | string  | IP-Adresse und Port                               |
+| Name        | string  | Name des Gerätes                                  |
+| Model       | string  | Model des Gerätes                                 |
+| Isplayer    | integer | 1 wenn Gerät der SqueezeBox-Familie               |
+| Displaytype | string  | Typ vom verbauten Display                         |
+| Canpoweroff | integer | 1 wenn Gerät Standby unterstützt                  |
+| Connected   | integer | 1 wenn Gerät aktuell mit dem Server verbunden ist |
+
 
 `array LMS_GetLibaryInfo (integer $InstanzID)`  
 Liefert Informationen über die Datenbank des LMS.  
@@ -43,8 +60,12 @@ Liefert Informationen über die Datenbank des LMS.
 | Albums  | integer | Anzahl der Alben            |
 | Songs   | integer | Anzahl aller Titel          |
 
+`array LMS_GetSongInfoByFileID (integer $InstanzID, integer $ID)`  
+Noch ohne Funktion.  
 
-*mehr fehlt noch...*
+`array LMS_GetSongInfoByFileURL (integer $InstanzID, string $File)`  
+Noch ohne Funktion.  
+
 
 ### Funktionsreferenz LSQDevice / SqueezeboxDevice:
 Für alle Befehle gilt: Tritt ein Fehler auf, wird eine Exception geworfen.
@@ -73,6 +94,15 @@ Stoppt die Wiedergabe.
 
 `string LSQ_LoadPlaylist (integer $InstanzID, string $Name)`  
 Lädt die unter `$Name`übergebene Playlist.  
+Die Wiedergabe wird nicht automatisch gestartet.
+
+`boolean LSQ_ResumePlaylist(integer $InstanzID, string $Name)`  
+Lädt die unter `$Name`übergebene Playlist, und springt auf den zuletzt wiedergegeben Track.  
+Die Wiedergabe wird nicht automatisch gestartet.
+
+`boolean LSQ_LoadTempPlaylist (integer $InstanzID)`  
+Lädt eine zuvor mit LSQ_SaveTempPlaylist gespeicherte Playlist, und springt auf den zuletzt wiedergegeben Track.  
+Die Wiedergabe wird nicht automatisch gestartet.
 
 `array LSQ_GetSongInfoOfCurrentPlaylist (integer $InstanzID)`  
 Liefert Informationen über den aktuellen Song.  
@@ -100,6 +130,10 @@ Wird der Befehl nicht bestätigt, so ist die ein Fehler (Exception wird erzeugt).
 
 `boolean LSQ_SavePlaylist (integer $InstanzID, string $Name)`  
 Speichert eine Playlist unter den mit `$Name` übergebenen Namen.  
+
+`boolean LSQ_SaveTempPlaylist (integer $InstanzID)`  
+Speichert eine temporäre Playlist, welche beim Laden per LSQ_LoadTempPlaylist automatisch vom Server gelöscht wird.  
+Eine zuvor nicht geladene temporäre Playlist wird dabei überschrieben.
 
 `boolean LSQ_PlayTrack (integer $InstanzID, integer $Index)`  
 Springt in der Playlist auf den mit `$Index` übergebe Position.  

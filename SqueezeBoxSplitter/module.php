@@ -201,8 +201,7 @@ class LMSSplitter extends IPSModule
       // index  toindex
       }
       return $ret;
-      }
-
+      
       public function DeleteFileFromPlaylist(integer $PlayListId, integer $SongId)
       {
       $ret = $this->SendLMSData(new LMSData('playlists edit cmd%3Adelete playlist_id%3A' . $PlayListId . ' index%3A' . $SongId, LMSData::GetData));
@@ -218,11 +217,13 @@ class LMSSplitter extends IPSModule
 
         // Daten annehmen und Command zusammenfügen wenn Array
         if (is_array($Data->LSQ->Command))
-            $Data->LSQ->Command = implode(' ', $Data->LSQ->Command);
-
+//            $Data->LSQ->Command = implode(' ', $Data->LSQ->Command);
+            $Data->LSQ->Command[0] = $Data->LSQ->Address . ' ' .$Data->LSQ->Command[0];
+        else 
+            $Data->LSQ->Command = $Data->LSQ->Address . ' ' .$Data->LSQ->Command;            
         // LMS-Objekt erzeugen und Daten mit Adresse ergänzen.
-        $LMSData = new LMSData($Data->LSQ->Address . ' ' . $Data->LSQ->Command, $Data->LSQ->Value, false);
-
+//        $LMSData = new LMSData($Data->LSQ->Address . ' ' . $Data->LSQ->Command, $Data->LSQ->Value, false);
+        $LMSData = new LMSData($Data->LSQ->Command, $Data->LSQ->Value, false);
         // Senden über die Warteschlange
         $ret = $this->SendLMSData($LMSData);
         return $ret;

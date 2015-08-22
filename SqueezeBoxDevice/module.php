@@ -871,7 +871,7 @@ class SqueezeboxDevice extends IPSModule
     public function SavePlaylist(string $Name)
     {
         $this->Init();
-        $raw = $this->SendLSQData(new LSQData(array('playlist', 'save'), $Name . ' silent:1'));
+        $raw = $this->SendLSQData(new LSQData(array('playlist', 'save'), array($Name,'silent:1')));
         $ret = explode(' ', $raw);
         return (rawurldecode($ret[0]) == $Name);
     }
@@ -886,7 +886,7 @@ class SqueezeboxDevice extends IPSModule
     public function SaveTempPlaylist()
     {
         $this->Init();
-        $raw = $this->SendLSQData(new LSQData(array('playlist', 'save'), (string)$this->InstanceID . ' silent:1'));
+        $raw = $this->SendLSQData(new LSQData(array('playlist', 'save'), array((string)$this->InstanceID,'silent:1')));
         $ret = explode(' ', $raw);
         return (rawurldecode($ret[0]) == $Name);
     }
@@ -903,7 +903,7 @@ class SqueezeboxDevice extends IPSModule
     public function LoadPlaylist(string $Name)
     {
         $this->Init();
-        $raw = $this->SendLSQData(new LSQData(array('playlist', 'load'), $Name . ' noplay:1'));
+        $raw = $this->SendLSQData(new LSQData(array('playlist', 'load'), array($Name,'noplay:1')));
         $ret = explode(' ', $raw);
         return rawurldecode($ret[0]);
     }
@@ -919,7 +919,7 @@ class SqueezeboxDevice extends IPSModule
     public function ResumePlaylist(string $Name)
     {
         $this->Init();
-        $raw = $this->SendLSQData(new LSQData(array('playlist', 'resume'), $Name . ' noplay:1'));
+        $raw = $this->SendLSQData(new LSQData(array('playlist', 'resume'), array($Name,'noplay:1')));
         $ret = explode(' ', $raw);
         return rawurldecode($ret[0]);
     }
@@ -934,7 +934,7 @@ class SqueezeboxDevice extends IPSModule
     public function LoadTempPlaylist()
     {
         $this->Init();
-        $raw = $this->SendLSQData(new LSQData(array('playlist', 'resume'), (string)$this->InstanceID . ' wipePlaylist:1 noplay:1'));
+        $raw = $this->SendLSQData(new LSQData(array('playlist', 'resume'), array((string)$this->InstanceID,'wipePlaylist:1','noplay:1')));
         $ret = explode(' ', $raw);
         return rawurldecode($ret[0]);
     }
