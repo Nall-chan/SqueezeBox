@@ -10,6 +10,28 @@ Für alle Befehle gilt: Tritt ein Fehler auf, wird eine Exception geworfen.
 
 #### Datenbank:
 
+`boolean LMS_Rescan(integer $InstanzID)`  
+Startet einen schnellen Rescan der Library.
+Liefert `true` wenn Rescan gestartet wurde.
+
+`boolean LMS_GetRescanProgress(integer $InstanzID)`  
+Prüft ob aktuell ein Rescan läuft `true`, sonst `false`.
+
+`integer LMS_GetNumberOfPlayers(integer $InstanzID)`  
+Fragt die aktuelle Anzahl aller bekannten Player vom Server ab.
+**Hinweis:**
+    Der Server 'vergisst' Player welche komplett vom Stromnetz/Netzwerk getrennt wurden.
+    Somit muss die Anzahl nicht mit allen registrieren Geräten übereinstimmen.
+
+`array LMS_CreateAllPlayer(integer $InstanzID)`  
+    Erzeugt und konfiguriert alle noch nicht in IPS vorhandenen SqueezeBox-Devices,   
+    welche der Server aktuell kennt.  
+    Das Array enthält alle erzeugten Instanzen.  
+
+`array LMS_GetPlayerInfo(integer $InstanzID, integer $Index)`  
+Liefert Infomationen über ein Gerät.
+**Array:**    
+
 `array LMS_GetLibaryInfo (integer $InstanzID)`  
 Liefert Informationen über die Datenbank des LMS.  
 **Array:**  

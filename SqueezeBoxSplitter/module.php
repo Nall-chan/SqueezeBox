@@ -92,21 +92,17 @@ class LMSSplitter extends IPSModule
         return (bool) $LSQEvent->Value;
     }
 
-    public function GetSongInfoByFileID(integer $ID)
+    public function GetNumberOfPlayers()
     {
-        
-    }
-
-    public function GetSongInfoByFileURL(string $File)
-    {
-        
+        $players = $this->SendLMSData(new LMSData(array('player', 'count'), '?'));
+        return (int) $players;
     }
 
     public function CreateAllPlayer()
     {
         $players = $this->SendLMSData(new LMSData(array('player', 'count'), '?'));
-//        $players = $this->SendDataToParent('player count ?');
         $DevicesIDs = IPS_GetInstanceListByModuleID("{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}");
+        $CreatedPlayers= array();
         foreach ($DevicesIDs as $Device)
         {
             $KnownDevices[] = IPS_GetProperty($Device, 'Address');
@@ -114,25 +110,22 @@ class LMSSplitter extends IPSModule
         for ($i = 0; $i < $players; $i++)
         {
             $player = rawurldecode($this->SendLMSData(new LMSData(array('player', 'id', $i), '?')));
-
-//            $player = $this->SendDataToParent('player id ' . $i . ' ?');
-            //$playerName = $this->SendLMSData(new LMSData(array('player','name',$i),'?'));            
-//            $playerName = $this->SendDataToParent('player name ' . $i . ' ?');
-            // Daten zerlegen und Childs anlegen/prüfen
-
             if (in_array($player, $KnownDevices))
                 continue;
             IPS_LogMessage('PLAYER ID' . $i, print_r($player, 1));
             $NewDevice = IPS_CreateInstance("{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}");
+            $playerName = $this->SendLMSData(new LMSData(array('player', 'name', $i), '?'));
+            IPS_SetName($NewDevice, $playerName);
             if (IPS_GetInstance($NewDevice)['ConnectionID'] <> $this->InstanceID)
             {
                 @IPS_DisconnectInstance($NewDevice);
                 IPS_ConnectInstance($NewDevice, $this->InstanceID);
-            }            
+            }
             IPS_SetProperty($NewDevice, 'Address', $player);
             IPS_ApplyChanges($NewDevice);
-            //IPS_LogMessage('PLAYER NAME' . $i, print_r($playerName, 1));
+            $CreatedPlayers[]=$NewDevice;
         }
+        return $CreatedPlayers;
     }
 
     public function GetPlayerInfo(integer $Index)
@@ -146,8 +139,10 @@ class LMSSplitter extends IPSModule
         foreach ($Data->Data as $Part)
         {
             $Pair = new LSQTaggingData($Part, true);
-            $LSQEvent[$Pair->Command] =$Pair->Value;
-        }        
+            if (is_numeric($Pair->Value))
+                $Pair->Value = (int) $Pair->Value;
+            $LSQEvent[ucfirst($Pair->Command)] = $Pair->Value;
+        }
         return $LSQEvent;
     }
 
@@ -167,6 +162,15 @@ class LMSSplitter extends IPSModule
         return $ret;
     }
 
+    public function GetSongInfoByFileID(integer $ID)
+    {
+        
+    }
+
+    public function GetSongInfoByFileURL(string $File)
+    {
+        
+    }
     /*
       public function GetSyncGroups()
       {
