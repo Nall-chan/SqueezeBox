@@ -50,7 +50,7 @@ class SqueezeboxBattery extends IPSModule
             Array(7, "Netz- und Akkubetrieb", "", -1)
         ));
 
-        $this->RegisterProfileIntegerEx("Charge.Squeezebox", "Information", "", "", Array(
+        $this->RegisterProfileIntegerEx("Charge.Squeezebox", "Battery", "", "", Array(
             Array(1, "Keine installiert", "", -1),
             Array(2, "Ruhezustand", "", -1),
             Array(3, "wird entladen", "", -1),
@@ -63,14 +63,17 @@ class SqueezeboxBattery extends IPSModule
 
         //Status-Variablen anlegen
         $this->RegisterVariableInteger("State", "Status", "Power.Squeezebox", 1);
-        $this->RegisterVariableFloat("WallVoltage", "Netzspannung", "~Volt", 2);
-        $this->RegisterVariableInteger("ChargeState", "Ladestatus", "Charge.Squeezebox", 2);
-        $this->RegisterVariableFloat("BatteryLevel", "Akkuladekapazität", "~Intensity.1", 3); // float?
-        $this->RegisterVariableFloat("BatteryTemperature", "Akkutemperatur", "~Temperature", 4);
-        $this->RegisterVariableFloat("BatteryVoltage", "Akkuspannung", "~Volt", 5);
-        $this->RegisterVariableFloat("BatteryVMon1", "Akku vmon1", "~Volt", 6);
-        $this->RegisterVariableFloat("BatteryVMon2", "Akku vmon2", "~Volt", 7);
-        $this->RegisterVariableInteger("BatteryCapacity", "Akkukapazität", "mAh.Squeezebox", 8); // float?
+        $this->RegisterVariableFloat("SysVoltage", "Gerätespannung", "~Volt", 2);
+        $this->RegisterVariableFloat("WallVoltage", "Netzspannung", "~Volt", 3);
+        $this->RegisterVariableInteger("ChargeState", "Ladestatus", "Charge.Squeezebox", 4);
+        $this->RegisterVariableFloat("BatteryLevel", "Akkuladekapazität", "~Intensity.1", 5);
+        $this->RegisterVariableFloat("BatteryTemperature", "Akkutemperatur", "~Temperature", 6);
+        $this->RegisterVariableFloat("BatteryVoltage", "Akkuspannung", "~Volt", 7);
+        $this->RegisterVariableFloat("BatteryVMon1", "Akku vmon1", "~Volt", 8);
+        $this->RegisterVariableFloat("BatteryVMon2", "Akku vmon2", "~Volt", 9);
+        $this->RegisterVariableInteger("BatteryCapacity", "Akkukapazität", "mAh.Squeezebox", 10);
+        $this->RegisterVariableInteger("BatteryChargeRate", "Ladezyklen Akku", "", 11);
+        $this->RegisterVariableInteger("BatteryDischargeRate", "Entladezyklen Akku", "mAh.Squeezebox", 12);
         if ($this->Init(false))
         {
             if ($this->ReadPropertyInteger("Interval") >= 30)
@@ -127,9 +130,9 @@ class SqueezeboxBattery extends IPSModule
             $WallVoltage = round((int) $ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/wall_voltage") / 1000, 1);
             $this->SetValueFloat("WallVoltage", $WallVoltage);
         }
-        
-//var_dump($ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/sys_voltage"));
-        
+
+        $SysVoltage = round((float) $ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/sys_voltage") / 1000, 1);
+        $this->SetValueFloat('SysVoltage', $SysVoltage);
         $ChargeState = (int) $ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/charger_state");
         $this->SetValueInteger('ChargeState', $ChargeState);
         if ($ChargeState <> 1)
@@ -147,15 +150,21 @@ class SqueezeboxBattery extends IPSModule
             $BatteryVMon2 = round((float) $ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_vmon2_voltage") / 1000, 1);
             $this->SetValueFloat('BatteryVMon2', $BatteryVMon2);
 //var_dump($ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/charger_event"));
-//var_dump($ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_charge_rate"));
-//var_dump($ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_discharge_rate"));
-        } else {
+            $BatteryChargeRate = (int) $ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_charge_rate");
+            $this->SetValueInteger('BatteryChargeRate', $BatteryChargeRate);
+            $BatteryDischargeRate = (int) $ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_discharge_rate");
+            $this->SetValueInteger('BatteryDischargeRate', $BatteryDischargeRate);
+        }
+        else
+        {
             $this->SetValueFloat('BatteryLevel', 0.0);
             $this->SetValueInteger('BatteryCapacity', 0);
             $this->SetValueFloat('BatteryTemperature', 0.0);
             $this->SetValueFloat('BatteryVoltage', 0.0);
             $this->SetValueFloat('BatteryVMon1', 0.0);
             $this->SetValueFloat('BatteryVMon2', 0.0);
+            $this->SetValueInteger('BatteryChargeRate', 0);
+            $this->SetValueInteger('BatteryDischargeRate', 0);
         }
 
 
