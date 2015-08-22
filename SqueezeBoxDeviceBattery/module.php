@@ -118,11 +118,11 @@ class SqueezeboxBattery extends IPSModule
             return false;
         }
 //SSH Ende
+        $ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_charge"); //Befehl der auf dem Mac ausgeführt //werden soll.
+        IPS_LogMessage("Batterie",$ssh->read());
+        $ssh->disconnect();
 
-        $ssh->exec("say -v Anna Danny, das Fenster im Buero ist seit 30min $zustand !"); //Befehl der auf dem Mac ausgeführt //werden soll.
-
-
-        return true;
+//        return true;
     }
 
 ################## PRIVATE
