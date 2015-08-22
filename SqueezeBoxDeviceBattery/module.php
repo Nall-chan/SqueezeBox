@@ -1,4 +1,5 @@
 <?
+
 class SqueezeboxBattery extends IPSModule
 {
 
@@ -107,20 +108,21 @@ class SqueezeboxBattery extends IPSModule
 //SSH Login
 //include('Net/SSH2.php');
 
-require_once('Crypt/Random.php');
-require_once ('Net/SSH2.php');
+        require_once('Crypt/Random.php');
+        require_once ('Net/SSH2.php');
 
         $ssh = new Net_SSH2($this->ReadPropertyString("Address"));
         if (!$ssh->login('root', $this->ReadPropertyString("Password")))
         {
+           IPS_LogMessage("Batterie", $ssh->errors);
             return false;
         }
 //SSH Ende
-        $ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_charge"); //Befehl der auf dem Mac ausgeführt //werden soll.
-        IPS_LogMessage("Batterie", $ssh->read());
+        $battery_charge = $ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_charge");
+        IPS_LogMessage("Batterie", $battery_charge);
         $ssh->disconnect();
 
-//        return true;
+        return $battery_charge;
     }
 
 ################## PRIVATE
@@ -162,6 +164,7 @@ require_once ('Net/SSH2.php');
 
 ################## DUMMYS / WOARKAROUNDS - protected
     //Remove on next Symcon update
+
     protected function RegisterProfileInteger($Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, $StepSize)
     {
 
@@ -201,7 +204,7 @@ require_once ('Net/SSH2.php');
             IPS_SetVariableProfileAssociation($Name, $Association[0], $Association[1], $Association[2], $Association[3]);
         }
     }
-    
+
     protected function RegisterTimer($Name, $Interval, $Script)
     {
         $id = @IPS_GetObjectIDByIdent($Name, $this->InstanceID);
@@ -248,6 +251,7 @@ require_once ('Net/SSH2.php');
                 IPS_SetEventActive($id, true);
         }
     }
+
 }
 
 ?>
