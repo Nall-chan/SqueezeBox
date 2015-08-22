@@ -64,7 +64,7 @@ class SqueezeboxBattery extends IPSModule
         $this->RegisterVariableInteger("State", "Status", "Power.Squeezebox", 1);
         $this->RegisterVariableFloat("WallVoltage", "Netzspannung", "~Volt", 2);
         $this->RegisterVariableInteger("ChargeState", "Ladestatus", "Charge.Squeezebox", 2);
-        $this->RegisterVariableFloat("BatteryLevel", "Akkuladekapazität", "~Intensity", 3); // float?
+        $this->RegisterVariableFloat("BatteryLevel", "Akkuladekapazität", "~Intensity.1", 3); // float?
         $this->RegisterVariableFloat("BatteryTemperature", "Akkutemperatur", "~Temperature", 4);
         $this->RegisterVariableFloat("BatteryVoltage", "Akkuspannung", "~Volt", 5);
         $this->RegisterVariableFloat("BatteryVMon1", "Akku vmon1", "~Volt", 6);
