@@ -1395,13 +1395,10 @@ class SqueezeboxDevice extends IPSModule
             case LSQResponse::currentSong:
                 $this->SetValueInteger('Index', intval($LSQEvent->Value) + 1);
                 break;
-
             case LSQResponse::time:
                 $this->tempData['Position'] = $LSQEvent->Value;
                 $this->SetValueInteger('PositionRAW', $LSQEvent->Value);
                 $this->SetValueString('Position', @date('i:s', $LSQEvent->Value));
-                break;
-            case false:
                 break;
             default:
                 if (is_array($LSQEvent->Value))
@@ -1550,12 +1547,13 @@ class SqueezeboxDevice extends IPSModule
                     throw new Exception($isResponse);
                 }
             }
-            // Unbekanntes Command loggen
+            // Ignorierte Commands loggen
+/*            
             else
             {
                 IPS_LogMessage("ToDoLSQDevice: Unbekannter Datensatz:", print_r($Response->Value, 1));
                 return true;
-            }
+            }*/
         }
         // Daten waren nicht für uns
         return false;
