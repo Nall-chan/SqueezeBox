@@ -124,6 +124,11 @@ class LMSSplitter extends IPSModule
                 continue;
             IPS_LogMessage('PLAYER ID' . $i, print_r($player, 1));
             $NewDevice = IPS_CreateInstance("{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}");
+            if (IPS_GetInstance($NewDevice)['ConnectionID'] <> $this->InstanceID)
+            {
+                @IPS_DisconnectInstance($NewDevice);
+                IPS_ConnectInstance($NewDevice, $this->InstanceID);
+            }            
             IPS_SetProperty($NewDevice, 'Address', $player);
             IPS_ApplyChanges($NewDevice);
             //IPS_LogMessage('PLAYER NAME' . $i, print_r($playerName, 1));
@@ -135,7 +140,16 @@ class LMSSplitter extends IPSModule
         if (!is_int($Index))
             throw new Exception("Index must be integer.");
         $ret = $this->SendLMSData(new LMSData(array('players', (string) $Index, '1')));
-        $LSQEvent = new LSQTaggingData($ret, true);
+//        $LSQEvent = new LSQTaggingData($ret, true);
+        $Data = new LMSResponse($ret);
+        $LSQEvent = array();
+        foreach ($Data->Data as $index => $Part)
+        {
+            $Pair = new LSQTaggingData($Part, true);
+
+            $LSQEvent[$index]['Command'] = $Pair->Command;
+            $LSQEvent[$index]['Value'] = $Pair->Value;
+        }        
         return $LSQEvent;
     }
 

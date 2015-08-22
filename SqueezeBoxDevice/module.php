@@ -1528,7 +1528,7 @@ class SqueezeboxDevice extends IPSModule
             // Objekt erzeugen welches die Commands und die Values enthält.
             $Response = new LSQResponse($Data->LMS);
 
-            // Ist das Command noch schon bekannt ?
+            // Ist das Command schon bekannt ?
             if ($Response->Command <> false)
             {
                 // Daten prüfen ob Antwort
