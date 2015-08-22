@@ -1,6 +1,7 @@
 <?
-
+require_once(__DIR__ . "/../BigInteger.php");  // diverse Klassen
 require_once(__DIR__ . "/../SSH2.php");  // diverse Klassen
+
 
 class SqueezeboxBattery extends IPSModule
 {
