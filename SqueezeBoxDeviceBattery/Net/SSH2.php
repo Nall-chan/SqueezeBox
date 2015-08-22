@@ -149,8 +149,6 @@ define('NET_SSH2_LOG_MAX_SIZE', 1024 * 1024);
  * @author  Jim Wigginton <terrafrost@php.net>
  * @access  public
  */
-             include_once 'Crypt/Random.php';
-
 class Net_SSH2
 {
     /**

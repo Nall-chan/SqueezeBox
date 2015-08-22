@@ -1,5 +1,4 @@
 <?
-        require_once ('Net/SSH2.php');
 class SqueezeboxBattery extends IPSModule
 {
 
@@ -108,6 +107,8 @@ class SqueezeboxBattery extends IPSModule
 //SSH Login
 //include('Net/SSH2.php');
 
+require_once('Crypt/Random.php');
+require_once ('Net/SSH2.php');
 
         $ssh = new Net_SSH2($this->ReadPropertyString("Address"));
         if (!$ssh->login('root', $this->ReadPropertyString("Password")))
