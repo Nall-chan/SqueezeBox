@@ -109,7 +109,7 @@ class LMSSplitter extends IPSModule
         $DevicesIDs = IPS_GetInstanceListByModuleID("{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}");
         foreach ($DevicesIDs as $Device)
         {
-            $KnownDevices = IPS_GetProperty($Device, 'Address');
+            $KnownDevices[] = IPS_GetProperty($Device, 'Address');
         }
         for ($i = 0; $i < $players; $i++)
         {
