@@ -1,7 +1,4 @@
 <?
-require_once(__DIR__ . "/../BigInteger.php");  // diverse Klassen
-require_once(__DIR__ . "/../SSH2.php");  // diverse Klassen
-
 
 class SqueezeboxBattery extends IPSModule
 {
@@ -113,6 +110,14 @@ class SqueezeboxBattery extends IPSModule
         $this->Init();
 //SSH Login
 //include('Net/SSH2.php');
+require_once(__DIR__ . "/../BigInteger.php");
+require_once(__DIR__ . '/../Random.php');
+require_once(__DIR__ . '/../Hash.php');
+require_once(__DIR__ . '/../TripleDES.php');
+require_once(__DIR__ . '/../RC4.php');
+require_once(__DIR__ . '/../AES.php');
+require_once(__DIR__ . "/../SSH2.php"); 
+        
         $ssh = new Net_SSH2($this->ReadPropertyString("Address"));
         if (!$ssh->login('root', $this->ReadPropertyString("Password")))
         {
