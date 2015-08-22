@@ -889,9 +889,9 @@ class Net_SSH2
             include_once 'Math/BigInteger.php';
         }
 
-//        if (!function_exists('crypt_random_string')) {
+        if (!function_exists('crypt_random_string')) {
             include_once 'Crypt/Random.php';
-//        }
+        }
 
         if (!class_exists('Crypt_Hash')) {
             include_once 'Crypt/Hash.php';
@@ -1212,6 +1212,9 @@ class Net_SSH2
                     array('arcfour256', 'arcfour128', 'arcfour')
                 );
             }
+        if (!function_exists('phpseclib_resolve_include_path')) {
+            include_once 'Crypt/Random.php';
+        }
 
             if (phpseclib_resolve_include_path('Crypt/RC4.php') === false) {
                 $encryption_algorithms = array_diff(
