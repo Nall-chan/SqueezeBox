@@ -141,6 +141,8 @@ class LMSSplitter extends IPSModule
             $Pair = new LSQTaggingData($Part, true);
             if (is_numeric($Pair->Value))
                 $Pair->Value = (int) $Pair->Value;
+            else 
+                $Pair->Value = rawurldecode ($Pair->Value);
             $LSQEvent[ucfirst($Pair->Command)] = $Pair->Value;
         }
         return $LSQEvent;
