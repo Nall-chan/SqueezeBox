@@ -40,9 +40,13 @@ class LMSSplitter extends IPSModule
             }
             $ParentOpen = $this->ReadPropertyBoolean('Open');
             // Keine Verbindung erzwingen wenn Host leer ist, sonst folgt später Exception.
+            if (!$ParentOpen)
+                $this->SetStatus(104);
+
             if ($this->ReadPropertyString('Host') == '')
             {
-                if ($ParentOpen) $this->SetStatus(202);
+                if ($ParentOpen)
+                    $this->SetStatus(202);
                 $ParentOpen = false;
             }
             if (IPS_GetProperty($ParentID, 'Open') <> $ParentOpen)
@@ -50,7 +54,6 @@ class LMSSplitter extends IPSModule
                 IPS_SetProperty($ParentID, 'Open', $ParentOpen);
                 $change = true;
             }
-                if (!$ParentOpen) $this->SetStatus(104);            
             if ($change)
                 @IPS_ApplyChanges($ParentID);
         }
@@ -103,7 +106,7 @@ class LMSSplitter extends IPSModule
     {
         $players = $this->SendLMSData(new LMSData(array('player', 'count'), '?'));
         $DevicesIDs = IPS_GetInstanceListByModuleID("{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}");
-        $CreatedPlayers= array();
+        $CreatedPlayers = array();
         foreach ($DevicesIDs as $Device)
         {
             $KnownDevices[] = IPS_GetProperty($Device, 'Address');
@@ -124,7 +127,7 @@ class LMSSplitter extends IPSModule
             }
             IPS_SetProperty($NewDevice, 'Address', $player);
             IPS_ApplyChanges($NewDevice);
-            $CreatedPlayers[]=$NewDevice;
+            $CreatedPlayers[] = $NewDevice;
         }
         return $CreatedPlayers;
     }
@@ -142,8 +145,8 @@ class LMSSplitter extends IPSModule
             $Pair = new LSQTaggingData($Part, true);
             if (is_numeric($Pair->Value))
                 $Pair->Value = (int) $Pair->Value;
-            else 
-                $Pair->Value = rawurldecode ($Pair->Value);
+            else
+                $Pair->Value = rawurldecode($Pair->Value);
             $LSQEvent[ucfirst($Pair->Command)] = $Pair->Value;
         }
         return $LSQEvent;
@@ -174,6 +177,7 @@ class LMSSplitter extends IPSModule
     {
         
     }
+
     /*
       public function GetSyncGroups()
       {
@@ -202,7 +206,7 @@ class LMSSplitter extends IPSModule
       // index  toindex
       }
       return $ret;
-      
+
       public function DeleteFileFromPlaylist(integer $PlayListId, integer $SongId)
       {
       $ret = $this->SendLMSData(new LMSData('playlists edit cmd%3Adelete playlist_id%3A' . $PlayListId . ' index%3A' . $SongId, LMSData::GetData));
@@ -219,9 +223,9 @@ class LMSSplitter extends IPSModule
         // Daten annehmen und Command zusammenfügen wenn Array
         if (is_array($Data->LSQ->Command))
 //            $Data->LSQ->Command = implode(' ', $Data->LSQ->Command);
-            $Data->LSQ->Command[0] = $Data->LSQ->Address . ' ' .$Data->LSQ->Command[0];
-        else 
-            $Data->LSQ->Command = $Data->LSQ->Address . ' ' .$Data->LSQ->Command;            
+            $Data->LSQ->Command[0] = $Data->LSQ->Address . ' ' . $Data->LSQ->Command[0];
+        else
+            $Data->LSQ->Command = $Data->LSQ->Address . ' ' . $Data->LSQ->Command;
         // LMS-Objekt erzeugen und Daten mit Adresse ergänzen.
 //        $LMSData = new LMSData($Data->LSQ->Address . ' ' . $Data->LSQ->Command, $Data->LSQ->Value, false);
         $LMSData = new LMSData($Data->LSQ->Command, $Data->LSQ->Value, false);
