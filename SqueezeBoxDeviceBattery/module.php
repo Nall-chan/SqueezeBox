@@ -73,7 +73,7 @@ class SqueezeboxBattery extends IPSModule
         $this->RegisterVariableFloat("BatteryVMon2", "Akku vmon2", "~Volt", 9);
         $this->RegisterVariableInteger("BatteryCapacity", "Akkukapazität", "mAh.Squeezebox", 10);
         $this->RegisterVariableInteger("BatteryChargeRate", "Ladezyklen Akku", "", 11);
-        $this->RegisterVariableInteger("BatteryDischargeRate", "Entladezyklen Akku", "mAh.Squeezebox", 12);
+        $this->RegisterVariableInteger("BatteryDischargeRate", "Entladezyklen Akku", "", 12);
         if ($this->Init(false))
         {
             if ($this->ReadPropertyInteger("Interval") >= 30)
@@ -112,8 +112,8 @@ class SqueezeboxBattery extends IPSModule
         $this->Init();
 //SSH Login
 //include('Net/SSH2.php');
-
-        include('Crypt/Random.php');
+IPS_LogMessage('Debug',__DIR__);
+//        include('Crypt/Random.php');
         include ('Net/SSH2.php');
 
         $ssh = new Net_SSH2($this->ReadPropertyString("Address"));
@@ -137,7 +137,7 @@ class SqueezeboxBattery extends IPSModule
         $this->SetValueInteger('ChargeState', $ChargeState);
         if ($ChargeState <> 1)
         {
-            $BatteryLevel = (int) $ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_charge") / 1000;
+            $BatteryLevel = (int) $ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_charge") / 2000;
             $this->SetValueFloat('BatteryLevel', $BatteryLevel);
             $BatteryCapacity = (int) $ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_capacity");
             $this->SetValueInteger('BatteryCapacity', $BatteryCapacity);
