@@ -113,7 +113,7 @@ class SqueezeboxBattery extends IPSModule
 //SSH Login
 //include('Net/SSH2.php');
 //IPS_LogMessage('Debug',__DIR__);
-        require_once (__DIR__.'/Math/BigInteger.php');
+        /*require_once (__DIR__.'/Math/BigInteger.php');
         require_once (__DIR__.'/Crypt/Random.php');
         require_once (__DIR__.'/Crypt/Base.php');
         require_once (__DIR__.'/Crypt/AES.php');
@@ -128,7 +128,7 @@ class SqueezeboxBattery extends IPSModule
         require_once (__DIR__.'/Crypt/Hash.php');
         require_once (__DIR__.'/File/ANSI.php');
         require_once (__DIR__.'/File/ASN1.php');
-        require_once (__DIR__.'/File/X509.php');
+        require_once (__DIR__.'/File/X509.php');*/
         require_once (__DIR__.'/Net/SSH2.php');
         
         $ssh = new Net_SSH2($this->ReadPropertyString("Address"));
