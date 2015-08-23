@@ -3,7 +3,7 @@
 class SqueezeboxBattery extends IPSModule
 {
 
-    private $Address, $Interval;
+    private $Address;
 
     public function Create()
     {
@@ -110,25 +110,6 @@ class SqueezeboxBattery extends IPSModule
     public function RequestState()
     {
         $this->Init();
-//SSH Login
-//include('Net/SSH2.php');
-//IPS_LogMessage('Debug',__DIR__);
-        /* require_once (__DIR__.'/Math/BigInteger.php');
-          require_once (__DIR__.'/Crypt/Random.php');
-          require_once (__DIR__.'/Crypt/Base.php');
-          require_once (__DIR__.'/Crypt/AES.php');
-          require_once (__DIR__.'/Crypt/Blowfish.php');
-          require_once (__DIR__.'/Crypt/DES.php');
-          require_once (__DIR__.'/Crypt/RC2.php');
-          require_once (__DIR__.'/Crypt/RC4.php');
-          require_once (__DIR__.'/Crypt/RSA.php');
-          require_once (__DIR__.'/Crypt/Rijndael.php');
-          require_once (__DIR__.'/Crypt/TripleDES.php');
-          require_once (__DIR__.'/Crypt/Twofish.php');
-          require_once (__DIR__.'/Crypt/Hash.php');
-          require_once (__DIR__.'/File/ANSI.php');
-          require_once (__DIR__.'/File/ASN1.php');
-          require_once (__DIR__.'/File/X509.php'); */
         set_include_path(__DIR__);
         require_once (__DIR__ . '/Net/SSH2.php');
 

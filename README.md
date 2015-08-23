@@ -249,6 +249,16 @@ Antwortet das Gerät nicht auf die Anfrage, so ist dies ein Fehler und eine Excep
 Liefert alle InstanzIDs der mit `$InstanzID` gesyncten Geräte als Array.  
 `false` wenn kein Sync aktiv ist.  
 
+### Funktionsreferenz SqueezeboxBattery:
+
+**Wichtig**:  
+Damit der Status des Akku und Ladeteiles von der SqueezeBox abgefragt werden kann,
+ist es notwenig den SSH-Zugang auf den Geräten zu aktivieren.
+
+`boolean LSQB_RequestState(integer $InstanzID)`  
+Startet eine Statusabfrage der Instanz.  
+Bei Erfolg wird `true` zurück gegeben, sonst `false`.  
+
 ### Konfiguration:
 
 #### LMSSplitter:
@@ -268,6 +278,15 @@ Liefert alle InstanzIDs der mit `$InstanzID` gesyncten Geräte als Array.
 | Address     | string  |              | MAC [inkl. : ] bei SqueezeBox-Geräten IP-Adresse bei Anderen          |
 | CoverSize   | string  | cover        | Größe vom Cover:  cover  cover150x150  cover300x300                   |
 | Interval    | integer | 2            | Abstand in welchen der LMS aktuelle Daten bei der Wiedergabe liefert. |
+
+#### SqueezeboxBattery:  
+
+| Eigenschaft | Typ     | Standardwert | Funktion                                                                |
+| :---------: | :-----: | :----------: | :---------------------------------------------------------------------: |
+| Address     | string  |              | IP-Adresse der SqueezeBox                                               |
+| Password    | string  | 1234         | root-Passwort der SqueezeBox. Standard-Passwort ist 1234                |
+| Interval    | integer | 30           | Abstand in welchen der Status abgefragt werden soll (<30 nicht möglich) |
+
 
 ### GUIDs und Datenaustausch:
 
@@ -302,3 +321,6 @@ Objekt vom Typ `LMSResponse`
 | IP          | string  | Absender IP-Adresse                                                   |
 | Data        | array   | Array mit allen empfangenen Roh-Daten vom Device                      |
 
+#### SqueezeboxBattery:
+
+GUID: `{718158BB-B247-4A71-9440-9C2FF1378752}`  
