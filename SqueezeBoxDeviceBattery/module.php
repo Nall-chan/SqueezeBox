@@ -112,8 +112,13 @@ class SqueezeboxBattery extends IPSModule
         $this->Init();
 //SSH Login
 //include('Net/SSH2.php');
-IPS_LogMessage('Debug',__DIR__);
-//        include('Crypt/Random.php');
+//IPS_LogMessage('Debug',__DIR__);
+        include ('Crypt/Random.php');
+        include ('Crypt/RC4.php');
+        include ('Crypt/Rijndael.php');
+        include ('Crypt/Twofish.php');
+        include ('Crypt/Blowfish.php');
+        include ('Crypt/TripleDES.php');
         include ('Net/SSH2.php');
 
         $ssh = new Net_SSH2($this->ReadPropertyString("Address"));

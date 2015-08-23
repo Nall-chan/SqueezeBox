@@ -1,5 +1,4 @@
 <?php
-IPS_LogMessage('Debug',__DIR__);
 /**
  * Pure-PHP implementation of SSHv2.
  *
