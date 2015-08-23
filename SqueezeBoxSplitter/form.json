@@ -30,6 +30,11 @@
                     "caption": "LMS ereichbar."
                 },
                 {
+                    "code": 104,
+                    "icon": "inactive",
+                    "caption": "Interface geschlossen."
+                },                
+                {
                     "code": 202,
                     "icon": "error",
                     "caption": "LMS Adresse darf nicht leer sein."

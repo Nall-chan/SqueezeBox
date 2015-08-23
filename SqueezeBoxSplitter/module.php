@@ -42,7 +42,7 @@ class LMSSplitter extends IPSModule
             // Keine Verbindung erzwingen wenn Host leer ist, sonst folgt später Exception.
             if ($this->ReadPropertyString('Host') == '')
             {
-                $this->SetStatus(202);
+                if ($ParentOpen) $this->SetStatus(202);
                 $ParentOpen = false;
             }
             if (IPS_GetProperty($ParentID, 'Open') <> $ParentOpen)
@@ -50,6 +50,7 @@ class LMSSplitter extends IPSModule
                 IPS_SetProperty($ParentID, 'Open', $ParentOpen);
                 $change = true;
             }
+                if (!$ParentOpen) $this->SetStatus(104);            
             if ($change)
                 @IPS_ApplyChanges($ParentID);
         }
