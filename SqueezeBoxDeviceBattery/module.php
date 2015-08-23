@@ -113,19 +113,19 @@ class SqueezeboxBattery extends IPSModule
 //SSH Login
 //include('Net/SSH2.php');
 //IPS_LogMessage('Debug',__DIR__);
-        include_once ('Math/BigInteger.php');
-        include_once ('Crypt/Random.php');
-        include_once ('Crypt/Base.php');
-        include_once ('Crypt/AES.php');
-        include_once ('Crypt/Blowfish.php');
-        include_once ('Crypt/DES.php');
-        include_once ('Crypt/RC4.php');
-        include_once ('Crypt/RSA.php');
-        include_once ('Crypt/Rijndael.php');
-        include_once ('Crypt/TripleDES.php');
-        include_once ('Crypt/Twofish.php');
-        include_once ('Crypt/Hash.php');
-        include_once ('Net/SSH2.php');
+/*        include_once (__DIR__.'/Math/BigInteger.php');
+        include_once (__DIR__.'/Crypt/Random.php');
+        include_once (__DIR__.'/Crypt/Base.php');
+        include_once (__DIR__.'/Crypt/AES.php');
+        include_once (__DIR__.'/Crypt/Blowfish.php');
+        include_once (__DIR__.'/Crypt/DES.php');
+        include_once (__DIR__.'/Crypt/RC4.php');
+        include_once (__DIR__.'/Crypt/RSA.php');
+        include_once (__DIR__.'/Crypt/Rijndael.php');
+        include_once (__DIR__.'/Crypt/TripleDES.php');
+        include_once (__DIR__.'/Crypt/Twofish.php');
+        include_once (__DIR__.'/Crypt/Hash.php');*/
+        include_once (__DIR__.'/Net/SSH2.php');
         
         $ssh = new Net_SSH2($this->ReadPropertyString("Address"));
         if (!$ssh->login('root', $this->ReadPropertyString("Password")))
