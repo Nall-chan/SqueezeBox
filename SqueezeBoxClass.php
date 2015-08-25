@@ -11,7 +11,7 @@ class LMSData extends stdClass
     public $Typ;
     public $needResponse;
 
-    public function __construct($Command, $Data = '',/* $Typ = LMSData::SendCommand,*/ $needResponse = true)
+    public function __construct($Command, $Data = '', /* $Typ = LMSData::SendCommand, */ $needResponse = true)
     {
         $this->Command = $Command;
         $this->Data = $Data;
@@ -41,15 +41,18 @@ class LSQData extends stdClass
 
 class LMSTaggingData extends stdClass
 {
+
     public function __construct($TaggedDataLine)
     {
-        foreach (explode(' ', $TaggedDataLine) as  $Line)
+        foreach (explode(' ', $TaggedDataLine) as $Line)
         {
             $Data = new LSQTaggingData($Line, false);
             $this->{$Data->Command} = rawurldecode($Data->Value);
         }
     }
+
 }
+
 // Klasse mit den Empfangenen Daten vom LMS
 class LMSResponse extends stdClass
 {
@@ -119,10 +122,12 @@ class LSQEvent extends stdClass
         $this->Value = $Value;
         $this->isResponse = $isResponse;
     }
+
 }
+
 class LSQTaggingData extends LSQEvent
 {
-   
+
     public function __construct($Data, $isResponse)
     {
         $Part = explode('%3A', $Data); //        
@@ -142,15 +147,17 @@ class LSQTaggingData extends LSQEvent
         parent::__construct($Command, $Value, $isResponse);
         //return new LSQEvent($Command, $Value, $isResponse);
     }
-    
+
 }
 
 class LSMSongInfo extends stdClass
 {
+
     private $SongArray;
-        public function __construct($TaggedDataLine)
+
+    public function __construct($TaggedDataLine)
     {
-        $id = 0;
+        $id = -1;
         $Songs = array();
         $SongFields = array(
             'Id' => 0,
@@ -164,12 +171,12 @@ class LSMSongInfo extends stdClass
             'Bitrate' => 1,
             'Tracknum' => 0
         );
-        foreach (explode(' ', $TaggedDataLine) as  $Line)
+        foreach (explode(' ', $TaggedDataLine) as $Line)
         {
 
 //            $LSQPart = $this->decodeLSQTaggingData($Line, false);
-            $LSQPart = new LSQTaggingData($Line, false);                        
-     
+            $LSQPart = new LSQTaggingData($Line, false);
+
             if (is_array($LSQPart->Command) and ( $LSQPart->Command[0] == LSQResponse::playlist) and ( $LSQPart->Command[1] == LSQResponse::index))
             {
                 $id = (int) $LSQPart->Value;
@@ -185,20 +192,23 @@ class LSMSongInfo extends stdClass
                     $Songs[$id][$Index] = utf8_decode(rawurldecode($LSQPart->Value));
             }
         }
-        $this->SongArray= $Songs;
+        if (isset($Songs[-1]))
+            unset($Songs[-1]);
+        $this->SongArray = $Songs;
     }
-    
-    public function GetSong($Index)
+
+    public function GetSong()
     {
-        return $this->SongArray[$Index];
+        return array_shift($this->SongArray);
     }
 
     public function GetAllSongs()
     {
         return $this->SongArray;
     }
-    
+
 }
+
 // Klasse mit den Empfangenen Daten vom LMS-Splitter
 class LSQResponse extends stdClass
 {
@@ -210,24 +220,24 @@ class LSQResponse extends stdClass
     const player_name = 'player_name';
     const player_connected = 'player_connected';
     const player_ip = 'player_ip';
-    const open ='open';
+    const open = 'open';
     const time = 'time';
     const playlist_tracks = 'playlist_tracks';
     const playlist_cur_index = 'playlist_cur_index';
     const currentSong = 'currentSong';
     const waitingToPlay = 'waitingToPlay';
-    const jump = 'jump';    
+    const jump = 'jump';
     const can_seek = 'can_seek';
-    const remote = 'remote';   
-    const newmetadata ='newmetadata';
-    const remoteMeta='remoteMeta';
-    const displaynotify='displaynotify';
-    const id='id';
+    const remote = 'remote';
+    const newmetadata = 'newmetadata';
+    const remoteMeta = 'remoteMeta';
+    const displaynotify = 'displaynotify';
+    const id = 'id';
     const rate = 'rate';
     const seq_no = 'seq_no';
     const playlist_timestamp = 'playlist_timestamp';
     const title = 'title';
-    const current_title ='current_title';
+    const current_title = 'current_title';
     const index = 'index';
     const connected = 'connected';
     const sleep = 'sleep';
@@ -332,7 +342,7 @@ class LSQResponse extends stdClass
         foreach ($Data->Data as $Key => $Value)
         {
             $Data->Data[$Key] = utf8_decode($Value);
-        }        
+        }
         switch ($Data->Data[0])
         {
             // 0 = Command 1 = Value

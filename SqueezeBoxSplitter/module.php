@@ -175,7 +175,7 @@ class LMSSplitter extends IPSModule
     {
         $Data = $this->SendLMSData(new LMSData(array('songinfo', '0', '1'), array('track_id:'.$ID,'tags:gladiqrRt')));
         $SongInfo = new LSMSongInfo($Data);
-        $Song = $SongInfo->GetSong(0);
+        $Song = $SongInfo->GetSong;
         return $Song;        
     }
 
@@ -183,7 +183,7 @@ class LMSSplitter extends IPSModule
     {
          $Data = $this->SendLMSData(new LMSData(array('songinfo', '0', '1'), array('url:'.rawurlencode($File),'tags:gladiqrRt')));
         $SongInfo = new LSMSongInfo($Data);
-        $Song = $SongInfo->GetSong(0);
+        $Song = $SongInfo->GetSong;
         return $Song;         
     }
 
@@ -199,10 +199,12 @@ class LMSSplitter extends IPSModule
         foreach ($AllPlayerIDs as $DeviceID)
         {
             $Addresses[$DeviceID] = IPS_GetProperty($DeviceID, 'Address');
+            IPS_LogMessage("Addresses:",$Address);
         }
         $Search = explode(',', $Data->sync_members);
         foreach ($Search as $Value)
         {
+            IPS_LogMessage("search:",$Search);
             $FoundInstanzIDs[] = array_search($Value, $Addresses);
         }
         if (count($FoundInstanzIDs) > 0)
