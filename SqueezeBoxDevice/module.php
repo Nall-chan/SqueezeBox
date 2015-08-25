@@ -892,7 +892,7 @@ class SqueezeboxDevice extends IPSModule
         $this->Init();
         $raw = $this->SendLSQData(new LSQData(array('playlist', 'save'), array((string)$this->InstanceID,'silent:1')));
         $ret = explode(' ', $raw);
-        return (rawurldecode($ret[0]) == $Name);
+        return (rawurldecode($ret[0]) == (string)$this->InstanceID);
     }
     
     /**
@@ -940,7 +940,7 @@ class SqueezeboxDevice extends IPSModule
         $this->Init();
         $raw = $this->SendLSQData(new LSQData(array('playlist', 'resume'), array((string)$this->InstanceID,'wipePlaylist:1','noplay:1')));
         $ret = explode(' ', $raw);
-        return rawurldecode($ret[0]);
+        return (rawurldecode($ret[0]) == (string)$this->InstanceID);
     }
 
     /**
