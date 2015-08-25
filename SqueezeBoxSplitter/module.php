@@ -79,7 +79,9 @@ class LMSSplitter extends IPSModule
     public function SendRaw($Command, $Value, $needResponse)
     {
         $LMSData = new LMSData($Command, $Value, $needResponse);
-        return $this->SendLMSData($LMSData);
+        $ret = $this->SendLMSData($LMSData);
+        if (is_bool($ret)) return $ret;
+        return new LMSResponse($ret);
         //return $this->SendDataToParent($Text);
     }
 
@@ -116,7 +118,7 @@ class LMSSplitter extends IPSModule
             $player = rawurldecode($this->SendLMSData(new LMSData(array('player', 'id', $i), '?')));
             if (in_array($player, $KnownDevices))
                 continue;
-            IPS_LogMessage('PLAYER ID' . $i, print_r($player, 1));
+//            IPS_LogMessage('PLAYER ID' . $i, print_r($player, 1));
             $NewDevice = IPS_CreateInstance("{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}");
             $playerName = $this->SendLMSData(new LMSData(array('player', 'name', $i), '?'));
             IPS_SetName($NewDevice, $playerName);
@@ -178,26 +180,30 @@ class LMSSplitter extends IPSModule
         
     }
 
-    /*
-      public function GetSyncGroups()
+
+    public function GetSyncGroups()
       {
       $ret = $this->SendLMSData(new LMSData('syncgroups','?'));
+      if ($ret == true) return false;
+      //new LMSResponse($ret)
+//sync_members%3A00%3A04%3A20%3A2e%3A57%3Aee%2C00%3A04%3A20%3A2b%3A78%3A5f sync_member_names%3ASqueezeBox%20Micha%2CSqueezebox%20Jungs"      
+      
       return $ret;
       }
-
-      public function CreatePlaylist(string $Name) // ToDo antwort zerlegen
+/*      public function CreatePlaylist(string $Name) // ToDo antwort zerlegen
       {
       $ret = $this->SendLMSData(new LMSData('playlists new name%3A' . $Name, LMSData::GetData));
       return $ret;
       }
-
-      public function DeletePlaylist(integer $PlayListId) // ToDo antwort zerlegen
+*/
+/*      public function DeletePlaylist(integer $PlayListId) // ToDo antwort zerlegen
       {
       $ret = $this->SendLMSData(new LMSData('playlists delete playlist_id%3A' . $PlayListId, LMSData::GetData));
       return $ret;
       }
 
-      public function AddFileToPlaylist(integer $PlayListId, string $SongUrl, integer $Track)
+*/
+/*      public function AddFileToPlaylist(integer $PlayListId, string $SongUrl, integer $Track)
       {
       $ret = $this->SendLMSData(new LMSData('playlists edit cmd%3Aadd playlist_id%3A' . $PlayListId . ' url%3A' . $SongUrl, LMSData::GetData));
       if ($Track > 0)
@@ -207,7 +213,8 @@ class LMSSplitter extends IPSModule
       }
       return $ret;
 
-      public function DeleteFileFromPlaylist(integer $PlayListId, integer $SongId)
+*/
+/*      public function DeleteFileFromPlaylist(integer $PlayListId, integer $SongId)
       {
       $ret = $this->SendLMSData(new LMSData('playlists edit cmd%3Adelete playlist_id%3A' . $PlayListId . ' index%3A' . $SongId, LMSData::GetData));
       return $ret;
