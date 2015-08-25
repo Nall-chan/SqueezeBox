@@ -192,9 +192,14 @@ class LMSSplitter extends IPSModule
     {
         $ret = $this->SendLMSData(new LMSData('syncgroups', '?'));
         IPS_LogMessage("ret:", print_r($ret, 1));
-        if ($ret == true)
+        if ($ret === true)
             return false;
+
         $Data = new LMSTaggingData($ret);
+        IPS_LogMessage("Data:", print_r($Data, 1));
+        
+        IPS_LogMessage("ret:", print_r($ret, 1));
+        
         $AllPlayerIDs = IPS_GetInstanceListByModuleID('{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}');
         $Addresses = array();
         $FoundInstanzIDs = array();

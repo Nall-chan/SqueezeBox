@@ -192,14 +192,12 @@ class LSMSongInfo extends stdClass
                     $Songs[$id][$Index] = utf8_decode(rawurldecode($LSQPart->Value));
             }
         }
-        if ((count($Songs) == 1 ) and isset($Songs[-1]))
-            $this->SongArray = $Songs[-1];
-        else
+        if ((count($Songs) <> 1 ) and isset($Songs[-1]))
         {
             if (isset($Songs[-1]))
                 unset($Songs[-1]);
-            $this->SongArray = $Songs;
         }
+        $this->SongArray = $Songs;
     }
 
     public function GetSong()
