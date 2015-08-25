@@ -174,23 +174,24 @@ class LMSSplitter extends IPSModule
 
     public function GetSongInfoByFileID(integer $ID)
     {
-        $Data = $this->SendLMSData(new LMSData(array('songinfo', '0', '10'), array('track_id:'.$ID,'tags:gladiqrRt')));
+        $Data = $this->SendLMSData(new LMSData(array('songinfo', '0', '10'), array('track_id:' . $ID, 'tags:gladiqrRt')));
         $SongInfo = new LSMSongInfo($Data);
         $Song = $SongInfo->GetSong;
-        return $Song;        
+        return $Song;
     }
 
     public function GetSongInfoByFileURL(string $File)
     {
-         $Data = $this->SendLMSData(new LMSData(array('songinfo', '0', '10'), array('url:'.rawurlencode($File),'tags:gladiqrRt')));
+        $Data = $this->SendLMSData(new LMSData(array('songinfo', '0', '10'), array('url:' . rawurlencode($File), 'tags:gladiqrRt')));
         $SongInfo = new LSMSongInfo($Data);
         $Song = $SongInfo->GetSong;
-        return $Song;         
+        return $Song;
     }
 
     public function GetSyncGroups()
     {
         $ret = $this->SendLMSData(new LMSData('syncgroups', '?'));
+        IPS_LogMessage("ret:", print_r($ret, 1));
         if ($ret == true)
             return false;
         $Data = new LMSTaggingData($ret);
@@ -200,12 +201,12 @@ class LMSSplitter extends IPSModule
         foreach ($AllPlayerIDs as $DeviceID)
         {
             $Addresses[$DeviceID] = IPS_GetProperty($DeviceID, 'Address');
-            IPS_LogMessage($DeviceID."-Addresses:",$Addresses[$DeviceID]);
+            IPS_LogMessage($DeviceID . "-Addresses:", $Addresses[$DeviceID]);
         }
         $Search = explode(',', $Data->sync_members);
         foreach ($Search as $Value)
         {
-            IPS_LogMessage("search:",$Value);
+            IPS_LogMessage("search:", $Value);
             $FoundInstanzIDs[] = array_search($Value, $Addresses);
         }
         if (count($FoundInstanzIDs) > 0)
