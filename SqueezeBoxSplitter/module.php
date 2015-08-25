@@ -80,7 +80,8 @@ class LMSSplitter extends IPSModule
     {
         $LMSData = new LMSData($Command, $Value, $needResponse);
         $ret = $this->SendLMSData($LMSData);
-        if (is_bool($ret)) return $ret;
+        if (is_bool($ret))
+            return $ret;
         return new LMSTaggingData($ret);
         //return $this->SendDataToParent($Text);
     }
@@ -172,38 +173,58 @@ class LMSSplitter extends IPSModule
 
     public function GetSongInfoByFileID(integer $ID)
     {
-        
+        $Data = $this->SendLMSData(new LMSData(array('songinfo', '0', '1'), array('track_id:'.$ID,'tags:gladiqrRt')));
+        $SongInfo = new LSMSongInfo($Data);
+        $Song = $SongInfo->GetSong(0);
+        return $Song;        
     }
 
     public function GetSongInfoByFileURL(string $File)
     {
-        
+         $Data = $this->SendLMSData(new LMSData(array('songinfo', '0', '1'), array('url:'.rawurlencode($File),'tags:gladiqrRt')));
+        $SongInfo = new LSMSongInfo($Data);
+        $Song = $SongInfo->GetSong(0);
+        return $Song;         
     }
 
-
     public function GetSyncGroups()
-      {
-      $ret = $this->SendLMSData(new LMSData('syncgroups','?'));
-      if ($ret == true) return false;
-      //new LMSResponse($ret)
-//sync_members%3A00%3A04%3A20%3A2e%3A57%3Aee%2C00%3A04%3A20%3A2b%3A78%3A5f sync_member_names%3ASqueezeBox%20Micha%2CSqueezebox%20Jungs"      
-      
-      return $ret;
-      }
-/*      public function CreatePlaylist(string $Name) // ToDo antwort zerlegen
+    {
+        $ret = $this->SendLMSData(new LMSData('syncgroups', '?'));
+        if ($ret == true)
+            return false;
+        $Data = new LMSTaggingData($ret);
+        $AllPlayerIDs = IPS_GetInstanceListByModuleID('{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}');
+        $Addresses = array();
+        $FoundInstanzIDs = array();
+        foreach ($AllPlayerIDs as $DeviceID)
+        {
+            $Addresses[$DeviceID] = IPS_GetProperty($DeviceID, 'Address');
+        }
+        $Search = explode(',', $Data->sync_members);
+        foreach ($Search as $Value)
+        {
+            $FoundInstanzIDs[] = array_search(rawurldecode($Value), $Addresses);
+        }
+        if (count($FoundInstanzIDs) > 0)
+            return $FoundInstanzIDs;
+        else
+            return false;
+    }
+
+    /*      public function CreatePlaylist(string $Name) // ToDo antwort zerlegen
       {
       $ret = $this->SendLMSData(new LMSData('playlists new name%3A' . $Name, LMSData::GetData));
       return $ret;
       }
-*/
-/*      public function DeletePlaylist(integer $PlayListId) // ToDo antwort zerlegen
+     */
+    /*      public function DeletePlaylist(integer $PlayListId) // ToDo antwort zerlegen
       {
       $ret = $this->SendLMSData(new LMSData('playlists delete playlist_id%3A' . $PlayListId, LMSData::GetData));
       return $ret;
       }
 
-*/
-/*      public function AddFileToPlaylist(integer $PlayListId, string $SongUrl, integer $Track)
+     */
+    /*      public function AddFileToPlaylist(integer $PlayListId, string $SongUrl, integer $Track)
       {
       $ret = $this->SendLMSData(new LMSData('playlists edit cmd%3Aadd playlist_id%3A' . $PlayListId . ' url%3A' . $SongUrl, LMSData::GetData));
       if ($Track > 0)
@@ -213,8 +234,8 @@ class LMSSplitter extends IPSModule
       }
       return $ret;
 
-*/
-/*      public function DeleteFileFromPlaylist(integer $PlayListId, integer $SongId)
+     */
+    /*      public function DeleteFileFromPlaylist(integer $PlayListId, integer $SongId)
       {
       $ret = $this->SendLMSData(new LMSData('playlists edit cmd%3Adelete playlist_id%3A' . $PlayListId . ' index%3A' . $SongId, LMSData::GetData));
       return $ret;

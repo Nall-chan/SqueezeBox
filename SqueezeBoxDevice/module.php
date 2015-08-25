@@ -351,7 +351,7 @@ class SqueezeboxDevice extends IPSModule
      * @return string|array
      * @exception 
      */
-    public function GetSync() // ToDo Instanz suchen
+    public function GetSync()
     {
         $Addresses = array();
         $FoundInstanzIDs = array();
