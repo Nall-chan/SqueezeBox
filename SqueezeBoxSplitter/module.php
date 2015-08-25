@@ -173,7 +173,7 @@ class LMSSplitter extends IPSModule
 
     public function GetSongInfoByFileID(integer $ID)
     {
-        $Data = $this->SendLMSData(new LMSData(array('songinfo', '0', '10'), array('track_id:' . $ID, 'tags:gladiqrRtueJINpsy')));
+        $Data = $this->SendLMSData(new LMSData(array('songinfo', '0', '20'), array('track_id:' . $ID, 'tags:gladiqrRtueJINpsy')));
         $SongInfo = new LSMSongInfo($Data);
         $Song = $SongInfo->GetSong();
         return $Song;
@@ -181,7 +181,7 @@ class LMSSplitter extends IPSModule
 
     public function GetSongInfoByFileURL(string $File)
     {
-        $Data = $this->SendLMSData(new LMSData(array('songinfo', '0', '10'), array('url:' . rawurlencode($File), 'tags:gladiqrRtueJINpsy')));
+        $Data = $this->SendLMSData(new LMSData(array('songinfo', '0', '20'), array('url:' . rawurlencode($File), 'tags:gladiqrRtueJINpsy')));
         $SongInfo = new LSMSongInfo($Data);
         $Song = $SongInfo->GetSong();
         return $Song;
