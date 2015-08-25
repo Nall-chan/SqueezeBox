@@ -974,8 +974,8 @@ class SqueezeboxDevice extends IPSModule
             $Index = '-';
         $Data = $this->SendLSQData(new LSQData(array('status', (string) $Index, '1'), 'tags:gladiqrRt'));
         $SongInfo = new LSMSongInfo($Data);
-        $Song = $SongInfo->GetSong();
-        return $Song;
+        return $SongInfo->GetSong();
+
     }
     
      /**
@@ -999,8 +999,7 @@ class SqueezeboxDevice extends IPSModule
         $max = GetValueInteger($this->GetIDForIdent('Tracks'));
         $Data = $this->SendLSQData(new LSQData(array('status', '0' , (string)$max), 'tags:gladiqrRt'));
         $SongInfo = new LSMSongInfo($Data);
-        $Song = $SongInfo->GetAllSongs();
-        return $Song;
+        return $SongInfo->GetAllSongs();
     }
 
 

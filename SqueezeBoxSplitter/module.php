@@ -82,7 +82,8 @@ class LMSSplitter extends IPSModule
         $ret = $this->SendLMSData($LMSData);
         if (is_bool($ret))
             return $ret;
-        return new LMSTaggingData($ret);
+        return $ret;
+        //return new LMSTaggingData($ret);
         //return $this->SendDataToParent($Text);
     }
 
