@@ -162,14 +162,24 @@ class LSMSongInfo extends stdClass
         $SongFields = array(
             'Id' => 0,
             'Title' => 1,
-            'Genre' => 1,
-            'Album' => 1,
-            'Artist' => 1,
-            'Duration' => 0,
-            'Disc' => 0,
-            'Disccount' => 0,
-            'Bitrate' => 1,
-            'Tracknum' => 0
+            'Genre' => 1,     // g
+            'Album' => 1,     // l
+            'Artist' => 1,    // a
+            'Duration' => 0,  // d
+            'Disc' => 0,      // i
+            'Disccount' => 0, // q
+            'Bitrate' => 1,   // r
+            'Tracknum' => 0,  // t
+            'Url' => 1,       // u
+            'Remote' =>0,
+            'Rating'=>0,      // R
+            'Album_id'=>0,    // e
+            'Artwork_track_id'=>1,  // J
+            'Samplesize'=>1,  // I
+            'Remote_title' => 1,//N 
+            'genre_id'=>0,    //p
+            'Artist_id' => 0,  //s
+            'Year'=>0         // Y
         );
         foreach (explode(' ', $TaggedDataLine) as $Line)
         {

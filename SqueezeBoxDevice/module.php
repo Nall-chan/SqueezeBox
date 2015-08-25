@@ -263,7 +263,7 @@ class SqueezeboxDevice extends IPSModule
           new LSQData(array(LSQResponse::mixer, LSQResponse::muting), '?', false)
           ); */
         $this->SendLSQData(
-                new LSQData(array('status', 0, '1'), 'tags:gladiqrRt')
+                new LSQData(array('status', 0, '1'), 'tags:gladiqrRtueJINpsy')
         );
         SetValueInteger($this->GetIDForIdent('Status'), 1);
         $this->SendLSQData(
@@ -971,7 +971,7 @@ class SqueezeboxDevice extends IPSModule
             throw new Exception("Index must be integer.");
         if ($Index == -1)
             $Index = '-';
-        $Data = $this->SendLSQData(new LSQData(array('status', (string) $Index, '1'), 'tags:gladiqrRt'));
+        $Data = $this->SendLSQData(new LSQData(array('status', (string) $Index, '1'), 'tags:gladiqrRtueJINpsy'));
         $SongInfo = new LSMSongInfo($Data);
         return $SongInfo->GetSong();
 
@@ -996,7 +996,7 @@ class SqueezeboxDevice extends IPSModule
     public function GetSongInfoOfCurrentPlaylist()
     {
         $max = GetValueInteger($this->GetIDForIdent('Tracks'));
-        $Data = $this->SendLSQData(new LSQData(array('status', '0' , (string)$max), 'tags:gladiqrRt'));
+        $Data = $this->SendLSQData(new LSQData(array('status', '0' , (string)$max), 'tags:gladiqrRtueJINpsy'));
         $SongInfo = new LSMSongInfo($Data);
         return $SongInfo->GetAllSongs();
     }
