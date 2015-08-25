@@ -203,7 +203,7 @@ class LMSSplitter extends IPSModule
         $Search = explode(',', $Data->sync_members);
         foreach ($Search as $Value)
         {
-            $FoundInstanzIDs[] = array_search(rawurldecode($Value), $Addresses);
+            $FoundInstanzIDs[] = array_search($Value, $Addresses);
         }
         if (count($FoundInstanzIDs) > 0)
             return $FoundInstanzIDs;

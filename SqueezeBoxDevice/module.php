@@ -966,15 +966,15 @@ class SqueezeboxDevice extends IPSModule
     public function GetSongInfoByTrackIndex(integer $Index)
     {
         $this->Init();
-        if (is_int($Index))
-            $Index--;
-        else
+        if (!is_int($Index))
             throw new Exception("Index must be integer.");
-        if ($Index == -1)
-            $Index = '-';
-        $Data = $this->SendLSQData(new LSQData(array('status', (string) $Index, '1'), 'tags:gladiqrRt'));
+        if ($Index == 0)
+            $Search= '-';
+        else
+            $Search = $Index;
+        $Data = $this->SendLSQData(new LSQData(array('status', (string) $Search, '1'), 'tags:gladiqrRt'));
         $SongInfo = new LSMSongInfo($Data);
-        $Song = $SongInfo->GetSong(0);
+        $Song = $SongInfo->GetSong($Index);
         return $Song;
     }
     
