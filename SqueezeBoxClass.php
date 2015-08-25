@@ -55,7 +55,7 @@ class LMSResponse extends stdClass
     public function __construct($Data)
     {
         $array = explode(' ', $Data); // Antwortstring in Array umwandeln
-        if (strpos($array[0], '%')) //isMAC
+        if (strpos($array[0], '%3A') == 2) //isMAC
         {
             $this->Device = LMSResponse::isMAC;
             $this->MAC = rawurldecode(array_shift($array));
