@@ -39,6 +39,17 @@ class LSQData extends stdClass
 
 }
 
+class LMSTaggingData extends stdClass
+{
+    public function __construct($TaggedDataLine)
+    {
+        foreach (explode(' ', $TaggedDataLine) as  $Line)
+        {
+            $Data = new LSQTaggingData($Line, false);
+            $this->{$Data->Command} = $Data->Value;
+        }
+    }
+}
 // Klasse mit den Empfangenen Daten vom LMS
 class LMSResponse extends stdClass
 {
@@ -108,7 +119,6 @@ class LSQEvent extends stdClass
         $this->Value = $Value;
         $this->isResponse = $isResponse;
     }
-
 }
 class LSQTaggingData extends LSQEvent
 {
