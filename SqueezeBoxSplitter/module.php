@@ -120,7 +120,6 @@ class LMSSplitter extends IPSModule
             $player = rawurldecode($this->SendLMSData(new LMSData(array('player', 'id', $i), '?')));
             if (in_array($player, $KnownDevices))
                 continue;
-//            IPS_LogMessage('PLAYER ID' . $i, print_r($player, 1));
             $NewDevice = IPS_CreateInstance("{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}");
             $playerName = $this->SendLMSData(new LMSData(array('player', 'name', $i), '?'));
             IPS_SetName($NewDevice, $playerName);
@@ -176,7 +175,7 @@ class LMSSplitter extends IPSModule
     {
         $Data = $this->SendLMSData(new LMSData(array('songinfo', '0', '10'), array('track_id:' . $ID, 'tags:gladiqrRt')));
         $SongInfo = new LSMSongInfo($Data);
-        $Song = $SongInfo->GetSong;
+        $Song = $SongInfo->GetSong();
         return $Song;
     }
 
@@ -184,34 +183,27 @@ class LMSSplitter extends IPSModule
     {
         $Data = $this->SendLMSData(new LMSData(array('songinfo', '0', '10'), array('url:' . rawurlencode($File), 'tags:gladiqrRt')));
         $SongInfo = new LSMSongInfo($Data);
-        $Song = $SongInfo->GetSong;
+        $Song = $SongInfo->GetSong();
         return $Song;
     }
 
     public function GetSyncGroups()
     {
         $ret = $this->SendLMSData(new LMSData('syncgroups', '?'));
-        IPS_LogMessage("ret:", print_r($ret, 1));
         if ($ret === true)
             return false;
 
         $Data = new LMSTaggingData($ret);
-        IPS_LogMessage("Data:", print_r($Data, 1));
-        
-        IPS_LogMessage("ret:", print_r($ret, 1));
-        
         $AllPlayerIDs = IPS_GetInstanceListByModuleID('{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}');
         $Addresses = array();
         $FoundInstanzIDs = array();
         foreach ($AllPlayerIDs as $DeviceID)
         {
             $Addresses[$DeviceID] = IPS_GetProperty($DeviceID, 'Address');
-            IPS_LogMessage($DeviceID . "-Addresses:", $Addresses[$DeviceID]);
         }
         $Search = explode(',', $Data->sync_members);
         foreach ($Search as $Value)
         {
-            IPS_LogMessage("search:", $Value);
             $FoundInstanzIDs[] = array_search($Value, $Addresses);
         }
         if (count($FoundInstanzIDs) > 0)
