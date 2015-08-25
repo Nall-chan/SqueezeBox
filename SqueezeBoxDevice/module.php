@@ -289,7 +289,7 @@ class SqueezeboxDevice extends IPSModule
         $this->Init();
 
         $LSQData = new LSQData($Command, $Value, $needResponse);
-        return $this->SendLSQData($LSQData)        ;
+        return $this->SendLSQData($LSQData);
         //return $this->SendDataToParent($LSQData);
     }
 

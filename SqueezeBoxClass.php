@@ -46,7 +46,7 @@ class LMSTaggingData extends stdClass
         foreach (explode(' ', $TaggedDataLine) as  $Line)
         {
             $Data = new LSQTaggingData($Line, false);
-            $this->{$Data->Command} = $Data->Value;
+            $this->{$Data->Command} = rawurldecode($Data->Value);
         }
     }
 }
