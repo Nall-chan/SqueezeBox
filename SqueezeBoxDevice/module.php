@@ -1032,7 +1032,7 @@ class SqueezeboxDevice extends IPSModule
     public function GetPlaylistInfo()
     {
         $this->Init();
-        $raw = $this->SendLSQData(new LSQData(array(LSQResponse::playlists, 'playlistsinfo'), ''));
+        $raw = $this->SendLSQData(new LSQData(array(LSQResponse::playlist, 'playlistsinfo'), ''));
         $Data = new LMSTaggingData($raw);
         return $Data;
 //        $ret = explode(' ', $raw);
