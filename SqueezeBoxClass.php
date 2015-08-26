@@ -179,7 +179,9 @@ class LSMSongInfo extends stdClass
             'Remote_title' => 1, //N 
             'genre_id' => 0, //p
             'Artist_id' => 0, //s
-            'Year' => 0         // Y
+            'Year' => 0,// Y
+            'Name' => 1,
+            'Modified' => 0
         );
         foreach (explode(' ', $TaggedDataLine) as $Line)
         {

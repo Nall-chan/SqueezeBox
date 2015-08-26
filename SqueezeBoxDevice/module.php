@@ -954,11 +954,6 @@ class SqueezeboxDevice extends IPSModule
         $Data = new LMSTaggingData($raw);
         if (property_exists($Data, 'count'))
         {
-            if ((int) $Data->count > 500)
-            {
-                $this->SetValueInteger('Tracks', 500);
-                return false;
-            }
             $this->SetValueInteger('Tracks', (int) $Data->count);
             return true;
         }
@@ -974,11 +969,6 @@ class SqueezeboxDevice extends IPSModule
         $Data = new LMSTaggingData($raw);
         if (property_exists($Data, 'count'))
         {
-            if ((int) $Data->count > 500)
-            {
-                $this->SetValueInteger('Tracks', 500);
-                return false;
-            }
             $this->SetValueInteger('Tracks', (int) $Data->count);
             return true;
         }
@@ -995,11 +985,6 @@ class SqueezeboxDevice extends IPSModule
         $Data = new LMSTaggingData($raw);
         if (property_exists($Data, 'count'))
         {
-            if ((int) $Data->count > 500)
-            {
-                $this->SetValueInteger('Tracks', 500);
-                return false;
-            }
             $this->SetValueInteger('Tracks', (int) $Data->count);
             return true;
         }
@@ -1017,11 +1002,6 @@ class SqueezeboxDevice extends IPSModule
         $Data = new LMSTaggingData($raw);
         if (property_exists($Data, 'count'))
         {
-            if ((int) $Data->count > 500)
-            {
-                $this->SetValueInteger('Tracks', 500);
-                return false;
-            }
             $this->SetValueInteger('Tracks', (int) $Data->count);
             return true;
         }
@@ -1033,10 +1013,9 @@ class SqueezeboxDevice extends IPSModule
     {
         $this->Init();
         $raw = $this->SendLSQData(new LSQData(array(LSQResponse::playlist, 'playlistsinfo'), ''));
-        $Data = new LMSTaggingData($raw);
-        return $Data;
-//        $ret = explode(' ', $raw);
-//        return (rawurldecode($ret[0]) == (string)$this->InstanceID);
+        if ($raw === true) return false;
+        $SongInfo = new LSMSongInfo($raw);
+        return $SongInfo->GetSong();        
     }
 
     /**
