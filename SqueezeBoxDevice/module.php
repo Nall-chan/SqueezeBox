@@ -949,15 +949,20 @@ class SqueezeboxDevice extends IPSModule
         $this->Init();
         if (!is_int($AlbumID))
             throw new Exception("AlbumID must be integer.");
-        
+
         $raw = $this->SendLSQData(new LSQData(LSQResponse::playlistcontrol, array('cmd:load', 'album_id:' . $AlbumID)));
         $Data = new LMSTaggingData($raw);
         if (property_exists($Data, 'count'))
         {
+            if ((int) $Data->count > 500)
+            {
+                $this->SetValueInteger('Tracks', 500);
+                return false;
+            }
             $this->SetValueInteger('Tracks', (int) $Data->count);
             return true;
         }
-        return false;
+        throw new Exception("AlbumID not found.");
     }
 
     public function LoadPlaylistByGenreID(integer $GenreID)
@@ -969,10 +974,15 @@ class SqueezeboxDevice extends IPSModule
         $Data = new LMSTaggingData($raw);
         if (property_exists($Data, 'count'))
         {
+            if ((int) $Data->count > 500)
+            {
+                $this->SetValueInteger('Tracks', 500);
+                return false;
+            }
             $this->SetValueInteger('Tracks', (int) $Data->count);
             return true;
         }
-        return false;
+        throw new Exception("GenreID not found.");
     }
 
     public function LoadPlaylistByArtistID(integer $ArtistID)
@@ -980,15 +990,21 @@ class SqueezeboxDevice extends IPSModule
         $this->Init();
         if (!is_int($ArtistID))
             throw new Exception("ArtistID must be integer.");
-        
+
         $raw = $this->SendLSQData(new LSQData(LSQResponse::playlistcontrol, array('cmd:load', 'artist_id:' . $ArtistID)));
         $Data = new LMSTaggingData($raw);
         if (property_exists($Data, 'count'))
         {
+            if ((int) $Data->count > 500)
+            {
+                $this->SetValueInteger('Tracks', 500);
+                return false;
+            }
             $this->SetValueInteger('Tracks', (int) $Data->count);
             return true;
         }
-        return false;
+        throw new Exception("ArtistID not found.");
+
     }
 
     public function LoadPlaylistByPlaylistID(integer $PlaylistID)
@@ -996,22 +1012,29 @@ class SqueezeboxDevice extends IPSModule
         $this->Init();
         if (!is_int($PlaylistID))
             throw new Exception("PlaylistID must be integer.");
-        
+
         $raw = $this->SendLSQData(new LSQData(LSQResponse::playlistcontrol, array('cmd:load', 'playlist_id:' . $PlaylistID)));
         $Data = new LMSTaggingData($raw);
         if (property_exists($Data, 'count'))
         {
+            if ((int) $Data->count > 500)
+            {
+                $this->SetValueInteger('Tracks', 500);
+                return false;
+            }
             $this->SetValueInteger('Tracks', (int) $Data->count);
             return true;
         }
-        return false;
+        throw new Exception("PlaylistID not found.");
+
     }
 
     public function GetPlaylistInfo()
     {
         $this->Init();
-        $raw = $this->SendLSQData(new LSQData(array('playlist', 'playlistinfo'), ''));
-        return $raw;
+        $raw = $this->SendLSQData(new LSQData(array(LSQResponse::playlist, 'playlistsinfo'), ''));
+        $Data = new LMSTaggingData($raw);
+        return $Data;
 //        $ret = explode(' ', $raw);
 //        return (rawurldecode($ret[0]) == (string)$this->InstanceID);
     }
