@@ -276,6 +276,7 @@ class LSQResponse extends stdClass
     const status = 'status';
     const prefset = 'prefset';
     const playlist = 'playlist';
+    const playlists = 'playlists';
     const playlistcontrol = 'playlistcontrol';
     const client = 'client';
     //mixer
@@ -406,6 +407,7 @@ class LSQResponse extends stdClass
             case LSQResponse::button:
             case LSQResponse::mixer:
             case LSQResponse::playlist:
+            case LSQResponse::playlists:
                 $this->Command[0] = array_shift($Data->Data);
                 $this->Command[1] = array_shift($Data->Data);
                 if (isset($Data->Data[1]))
