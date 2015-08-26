@@ -252,6 +252,7 @@ Liefert alle InstanzIDs der mit `$InstanzID` gesyncten Geräte als Array.
 ### Funktionsreferenz SqueezeboxBattery:
 
 **Wichtig**:  
+Getestet nur mit der SqueezeBox Radio und UE (mit SqueezeBox Firmware)!  
 Damit der Status des Akku und Ladeteiles von der SqueezeBox abgefragt werden kann,
 ist es notwenig den SSH-Zugang auf den Geräten zu aktivieren.
 
