@@ -126,7 +126,7 @@ class SqueezeboxDevice extends IPSModule
         $this->RegisterProfileIntegerEx("Repeat.Squeezebox", "Repeat", "", "", Array(
             Array(0, "off", "", -1),
             Array(1, "Title", "", -1),
-            Array(2, "Album", "", -1)
+            Array(2, "Playlist", "", -1)
         ));
         $this->RegisterProfileIntegerEx("Preset.Squeezebox", "Speaker", "", "", Array(
             Array(1, "1", "", -1),
@@ -942,6 +942,55 @@ class SqueezeboxDevice extends IPSModule
         return (rawurldecode($ret[0]) == (string)$this->InstanceID);
     }
 
+    public function LoadPlaylistByAlbumID(integer $AlbumID)
+    {
+        $this->Init();
+        $raw = $this->SendLSQData(new LSQData(array('playlistcontrol', 'cmd:load'), 'album_id:'.$AlbumID));
+        return $raw;
+//        $ret = explode(' ', $raw);
+//        return (rawurldecode($ret[0]) == (string)$this->InstanceID);
+        
+    }
+
+        public function LoadPlaylistByGenreID(integer $GenreID)
+    {
+        $this->Init();
+        $raw = $this->SendLSQData(new LSQData(array('playlistcontrol', 'cmd:load'), 'genre_id:'.$GenreID));
+        return $raw;
+//        $ret = explode(' ', $raw);
+//        return (rawurldecode($ret[0]) == (string)$this->InstanceID);
+        
+    }
+    
+        public function LoadPlaylistByArtistID(integer $ArtistID)
+    {
+        $this->Init();
+        $raw = $this->SendLSQData(new LSQData(array('playlistcontrol', 'cmd:load'), 'artist_id:'.$ArtistID));
+        return $raw;
+//        $ret = explode(' ', $raw);
+//        return (rawurldecode($ret[0]) == (string)$this->InstanceID);
+        
+    }
+          public function LoadPlaylistByPlaylistID(integer $PlaylistID)
+    {
+        $this->Init();
+        $raw = $this->SendLSQData(new LSQData(array('playlistcontrol', 'cmd:load'), 'playlist_id:'.$PlaylistID));
+        return $raw;
+//        $ret = explode(' ', $raw);
+//        return (rawurldecode($ret[0]) == (string)$this->InstanceID);
+        
+    }  
+          public function GetPlaylistInfo()
+    {
+        $this->Init();
+        $raw = $this->SendLSQData(new LSQData(array('playlist','playlistinfo'),''));
+        return $raw;
+//        $ret = explode(' ', $raw);
+//        return (rawurldecode($ret[0]) == (string)$this->InstanceID);
+        
+    }  
+    
+    
     /**
      * Liefert Informationen über einen Song aus der aktuelle Wiedergabeliste.
      *
@@ -1000,6 +1049,7 @@ class SqueezeboxDevice extends IPSModule
         $SongInfo = new LSMSongInfo($Data);
         return $SongInfo->GetAllSongs();
     }
+
 
 
 ################## ActionHandler

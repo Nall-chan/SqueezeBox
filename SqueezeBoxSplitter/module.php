@@ -211,19 +211,19 @@ class LMSSplitter extends IPSModule
         else
             return false;
     }
-
+//
     public function CreatePlaylist(string $Name) // ToDo antwort zerlegen
     {
         $ret = $this->SendLMSData(new LMSData(array('playlists', 'new'), 'name:' . $Name));
         return $ret;
     }
-
+//
     public function DeletePlaylist(integer $PlayListId) // ToDo antwort zerlegen
     {
         $ret = $this->SendLMSData(new LMSData(array('playlists', 'delete'), 'playlist_id:' . $PlayListId));
         return $ret;
     }
-
+//
     public function AddFileToPlaylist(integer $PlayListId, string $SongUrl, integer $Track = -1)
     {
         $ret = $this->SendLMSData(new LMSData(array('playlists', 'edit'), array('cmd:add', 'playlist_id:' . $PlayListId, 'url:' . $SongUrl)));
@@ -234,7 +234,7 @@ class LMSSplitter extends IPSModule
         }
         return $ret;
     }
-
+//
     public function DeleteFileFromPlaylist(integer $PlayListId, integer $Track)
     {
         $ret = $this->SendLMSData(new LMSData(array('playlists', 'edit'), array('cmd:delete', 'playlist_id:' . $PlayListId, 'index:' . $Track)));

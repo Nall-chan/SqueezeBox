@@ -174,11 +174,11 @@ Springt im aktuellen Track auf die Zeit in Sekunden von `$Value`.
 
 `boolean LSQ_SetRepeat (integer $InstanzID, integer $Value)`  
 Setzt dem Modus für Wiederholungen. `$Value` kann die Werte 0 für aus,  
-1 für den aktuellen Titel, oder 2 für das aktuelle Album/Playlist enthalten.  
+1 für den aktuellen Titel, oder 2 für die aktuelle Playlist enthalten.  
 
 `boolean LSQ_SetShuffle (integer $InstanzID, integer $Value)`  
 Setzt dem Modus für die zufällige Wiedergabe. `$Value` kann die Werte 0 für aus,  
-1 für den aktuellen ?Titel?, oder 2 für das aktuelle Album/Playlist enthalten.  
+1 für den alle Titel in der Playlist, oder 2 für das die verschiednen Alben in der Playlist enthalten.  
 
 `boolean LSQ_SetTreble (integer $InstanzID, integer $Value)`  
 Setzt die Höhen auf `$Value`. (Nur SliMP3 & SqueezeBox1 / SB1 )  
