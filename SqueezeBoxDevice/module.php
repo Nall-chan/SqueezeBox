@@ -1713,7 +1713,13 @@ class SqueezeboxDevice extends IPSModule
     private function SetWaitForResponse($Data)
     {
         if (is_array($Data))
-            $Data = implode(' ', rawurlencode ($Data));
+        {
+            foreach ($Data as $Key => $Value)
+            {
+                $Data[$Key] = rawurlencode($Value);
+            }
+            $Data = implode(' ', $Data);
+        }
         if ($this->lock('BufferOut'))
         {
             $buffer = $this->GetIDForIdent('BufferOUT');
