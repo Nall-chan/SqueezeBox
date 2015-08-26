@@ -211,6 +211,7 @@ class LMSSplitter extends IPSModule
         else
             return false;
     }
+
 //
     public function CreatePlaylist(string $Name) // ToDo antwort zerlegen
     {
@@ -218,29 +219,55 @@ class LMSSplitter extends IPSModule
         $Data = new LMSTaggingData($raw);
         if (property_exists($Data, 'playlist_id'))
         {
-            return (int)$Data->playlist_id;
-        } else {
+            return (int) $Data->playlist_id;
+        }
+        else
+        {
             throw new Exception("Playlist already exists.");
         }
-
     }
+
 //
     public function DeletePlaylist(integer $PlayListId) // ToDo antwort zerlegen
     {
-        $ret = $this->SendLMSData(new LMSData(array('playlists', 'delete'), 'playlist_id:' . $PlayListId));
-        return $ret;
+        if (!is_int($PlayListId))
+            throw new Exception("PlayListId must be integer.");
+
+        $raw = $this->SendLMSData(new LMSData(array('playlists', 'delete'), 'playlist_id:' . $PlayListId));
+        $Data = new LMSTaggingData($raw);
+        if (property_exists($Data, 'playlist_id'))
+        {
+            return ($PlayListId == (int) $Data->playlist_id);
+        }
+        else
+        {
+            throw new Exception("Error deleting Playlist.");
+        }
     }
+
 //
     public function AddFileToPlaylist(integer $PlayListId, string $SongUrl, integer $Track = null)
     {
-        $ret = $this->SendLMSData(new LMSData(array('playlists', 'edit'), array('cmd:add', 'playlist_id:' . $PlayListId, 'url:' . $SongUrl)));
+        $raw = $this->SendLMSData(new LMSData(array('playlists', 'edit'), array('cmd:add', 'playlist_id:' . $PlayListId, 'url:' . $SongUrl)));
+        $Data = new LMSTaggingData($raw);
+        if (property_exists($Data, 'url'))
+        {
+            if  ($SongUrl <> (string) $Data->url) 
+                return false;
+        }
+        else
+        {
+            throw new Exception("Error add File to Playlist.");
+        }
         if (!is_null($Track))
         {
             //            $ret = $this->SendLMSData(new LMSData('playlists edit cmd%3Amove playlist_id%3A'.$PlayListId.' url%3A'.$SongUrl, LMSData::GetData));
             // index  toindex
         }
-        return $ret;
+//cmd%3Aadd playlist_id%3A52250 url%3Afile%3A%2F%2F%2FE%3A%2FServerFolders%2FMusik%2FAKB%2FAKB0048%20Complete%20Vocal%20Collection%2F1-03%20-%20AKB%20Sanjou!.mp3"        
+        return true;
     }
+
 //
     public function DeleteFileFromPlaylist(integer $PlayListId, integer $Track)
     {
