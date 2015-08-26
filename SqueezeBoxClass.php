@@ -162,24 +162,24 @@ class LSMSongInfo extends stdClass
         $SongFields = array(
             'Id' => 0,
             'Title' => 1,
-            'Genre' => 1,     // g
-            'Album' => 1,     // l
-            'Artist' => 1,    // a
-            'Duration' => 0,  // d
-            'Disc' => 0,      // i
+            'Genre' => 1, // g
+            'Album' => 1, // l
+            'Artist' => 1, // a
+            'Duration' => 0, // d
+            'Disc' => 0, // i
             'Disccount' => 0, // q
-            'Bitrate' => 1,   // r
-            'Tracknum' => 0,  // t
-            'Url' => 1,       // u
-            'Remote' =>0,
-            'Rating'=>0,      // R
-            'Album_id'=>0,    // e
-            'Artwork_track_id'=>1,  // J
-            'Samplesize'=>1,  // I
-            'Remote_title' => 1,//N 
-            'genre_id'=>0,    //p
-            'Artist_id' => 0,  //s
-            'Year'=>0         // Y
+            'Bitrate' => 1, // r
+            'Tracknum' => 0, // t
+            'Url' => 1, // u
+            'Remote' => 0,
+            'Rating' => 0, // R
+            'Album_id' => 0, // e
+            'Artwork_track_id' => 1, // J
+            'Samplesize' => 1, // I
+            'Remote_title' => 1, //N 
+            'genre_id' => 0, //p
+            'Artist_id' => 0, //s
+            'Year' => 0         // Y
         );
         foreach (explode(' ', $TaggedDataLine) as $Line)
         {
@@ -382,18 +382,21 @@ class LSQResponse extends stdClass
             case LSQResponse::time:
             case LSQResponse::newmetadata:
             case LSQResponse::title:
-                $this->Command = $Data->Data[0];
-                if (isset($Data->Data[1]))
-                    $this->Value = $Data->Data[1];
+                $this->Command = array_shift($Data->Data);
+                if (isset($Data->Data[0]))
+                    $this->Value = array_shift($Data->Data);
                 break;
             // 0 = Command 1=multiValue
             case LSQResponse::status:
-
                 $this->Command[0] = array_shift($Data->Data);
                 $this->Command[1] = array_shift($Data->Data);
                 $this->Command[2] = array_shift($Data->Data);
 //                $this->Command[3] =array_shift($Data->Data);                
                 $this->Value = array_values($Data->Data);
+                break;
+            case LSQResponse::playlistcontrol:
+                $this->Command = array_shift($Data->Data);
+                $this->Value = $Data->Data;
                 break;
 //        LSQResponse::show,
 //        LSQResponse::display,
@@ -403,29 +406,31 @@ class LSQResponse extends stdClass
             case LSQResponse::button:
             case LSQResponse::mixer:
             case LSQResponse::playlist:
-                $this->Command[0] = $Data->Data[0];
-                $this->Command[1] = $Data->Data[1];
-                if (isset($Data->Data[3]))
+                $this->Command[0] = array_shift($Data->Data);
+                $this->Command[1] = array_shift($Data->Data);
+                if (isset($Data->Data[1]))
                 {
-                    $this->Value[0] = $Data->Data[2];
-                    $this->Value[1] = $Data->Data[3];
+                    $this->Value = $Data->Data;
+
+//                    $this->Value[0] =  array_shift($Data->Data);
+//                    $this->Value[1] =  array_shift($Data->Data);
                 }
-                elseif (isset($Data->Data[2]))
-                    $this->Value = $Data->Data[2];
+                elseif (isset($Data->Data[0]))
+                    $this->Value = array_shift($Data->Data);
                 break;
 
             // 2 = Command 3 = Value             
             case LSQResponse::prefset:
-                $this->Command[0] = $Data->Data[0];
-                $this->Command[1] = $Data->Data[1];
-                $this->Command[2] = $Data->Data[2];
-                if (isset($Data->Data[3]))
-                    $this->Value = $Data->Data[3];
+                $this->Command[0] = array_shift($Data->Data);
+                $this->Command[1] = array_shift($Data->Data);
+                $this->Command[2] = array_shift($Data->Data);
+                if (isset($Data->Data[0]))
+                    $this->Value = array_shift($Data->Data);
                 break;
             default:
-                $this->Command = $Data->Data[0];
-                if (isset($Data->Data[1]))
-                    $this->Value = $Data->Data[1];
+                $this->Command = array_shift($Data->Data);
+                if (isset($Data->Data[0]))
+                    $this->Value = array_shift($Data->Data);
                 break;
             case 'displaynotify': //ignorieren
             case 'menustatus': //ignorieren                
