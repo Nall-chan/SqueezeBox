@@ -276,6 +276,7 @@ class LSQResponse extends stdClass
     const status = 'status';
     const prefset = 'prefset';
     const playlist = 'playlist';
+    const playlistcontrol = 'playlistcontrol';
     const client = 'client';
     //mixer
     const volume = 'volume';

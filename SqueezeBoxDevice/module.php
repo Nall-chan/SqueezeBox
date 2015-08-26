@@ -654,7 +654,7 @@ class SqueezeboxDevice extends IPSModule
         $this->Init();
         if (!is_bool($Value))
             throw new Exception("Value must boolean.");
-        $ret = (bool)$this->SendLSQData(new LSQData(array('mixer', 'muting'), intval($Value)));
+        $ret = (bool)$this->SendLSQData(new LSQData(array(LSQResponse::mixer, LSQResponse::muting), intval($Value)));
         $this->SetValueBoolean('Mute', $ret);
         return ($ret == $Value);
     }
@@ -670,7 +670,7 @@ class SqueezeboxDevice extends IPSModule
     public function GetMute()
     {
         $this->Init();
-        $ret = (bool)$this->SendLSQData(new LSQData(array('mixer', 'muting'), '?'));
+        $ret = (bool)$this->SendLSQData(new LSQData(array(LSQResponse::mixer, LSQResponse::muting), '?'));
         $this->SetValueBoolean('Mute', $ret);
         return $ret;
     }
@@ -691,7 +691,7 @@ class SqueezeboxDevice extends IPSModule
         $this->Init();
         if (($Value < 0) or ( $Value > 2))
             throw new Exception("Value must be 0, 1 or 2.");
-        $ret = intval($this->SendLSQData(new LSQData(array('playlist', 'repeat'), intval($Value))));
+        $ret = intval($this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::repeat), intval($Value))));
         $this->SetValueInteger('Repeat', $ret);
         return ($ret == $Value);
     }
@@ -708,7 +708,7 @@ class SqueezeboxDevice extends IPSModule
     public function GetRepeat()
     {
         $this->Init();
-        $ret = intval($this->SendLSQData(new LSQData(array('playlist', 'repeat'), '?')));
+        $ret = intval($this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::repeat), '?')));
         $this->SetValueInteger('Repeat', $ret);
         return $ret;
     }
@@ -729,7 +729,7 @@ class SqueezeboxDevice extends IPSModule
         $this->Init();
         if (($Value < 0) or ( $Value > 2))
             throw new Exception("Value must be 0, 1 or 2.");
-        $ret = intval($this->SendLSQData(new LSQData(array('playlist', 'shuffle'), intval($Value))));
+        $ret = intval($this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::shuffle), intval($Value))));
         $this->SetValueInteger('Shuffle', $ret);
         return ($ret == $Value);
     }
@@ -746,7 +746,7 @@ class SqueezeboxDevice extends IPSModule
     public function GetShuffle()
     {
         $this->Init();
-        $ret = intval($this->SendLSQData(new LSQData(array('playlist', 'shuffle'), '?')));
+        $ret = intval($this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::shuffle), '?')));
         $this->SetValueInteger('Shuffle', $ret);
         return $ret;
     }
@@ -765,7 +765,7 @@ class SqueezeboxDevice extends IPSModule
         $this->Init();
         if (($Value < 1) or ( $Value > 6))
             throw new Exception("Value invalid.");
-        return (bool)$this->SendLSQData(new LSQData(array('button', 'preset_' . intval($Value) . '.single'), ''));
+        return (bool)$this->SendLSQData(new LSQData(array(LSQResponse::button, 'preset_' . intval($Value) . '.single'), ''));
     }
 
     /**
@@ -784,7 +784,7 @@ class SqueezeboxDevice extends IPSModule
         $this->Init();
         if (!is_bool($Value))
             throw new Exception("Value must boolean.");
-        $ret = (bool)$this->SendLSQData(new LSQData('power', intval($Value)));
+        $ret = (bool)$this->SendLSQData(new LSQData(LSQResponse::power, intval($Value)));
         return ($ret == $Value);
     }
 
@@ -800,7 +800,7 @@ class SqueezeboxDevice extends IPSModule
     public function PlayTrack(integer $Index)
     {
         $this->Init();
-        $ret = intval($this->SendLSQData(new LSQData(array('playlist', 'index'), intval($Index) - 1))) + 1;
+        $ret = intval($this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::index), intval($Index) - 1))) + 1;
         return ($ret == $Index);
     }
 
@@ -814,7 +814,7 @@ class SqueezeboxDevice extends IPSModule
     public function NextTrack()
     {
         $this->Init();
-        $ret = trim(rawurldecode($this->SendLSQData(new LSQData(array('playlist', 'index'), '+1'))));
+        $ret = trim(rawurldecode($this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::index), '+1'))));
         return ($ret == "+1");
     }
 
@@ -828,7 +828,7 @@ class SqueezeboxDevice extends IPSModule
     public function PreviousTrack()
     {
         $this->Init();
-        $ret = trim(rawurldecode($this->SendLSQData(new LSQData(array('playlist', 'index'), '-1'))));
+        $ret = trim(rawurldecode($this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::index), '-1'))));
         return ($ret == "-1");
     }
 
@@ -844,7 +844,7 @@ class SqueezeboxDevice extends IPSModule
         $this->Init();
         if (!is_int($Value))
             throw new Exception("Value must be integer.");
-        $ret = intval($this->SendLSQData(new LSQData('time', $Value)));
+        $ret = intval($this->SendLSQData(new LSQData(LSQResponse::time, $Value)));
         return ($ret == $Value);
     }
 
@@ -858,7 +858,7 @@ class SqueezeboxDevice extends IPSModule
     public function GetPosition()
     {
         $this->Init();
-        $ret = intval($this->SendLSQData(new LSQData('time', '?')));
+        $ret = intval($this->SendLSQData(new LSQData(LSQResponse::time, '?')));
         return $ret;
     }
 
@@ -874,7 +874,7 @@ class SqueezeboxDevice extends IPSModule
     public function SavePlaylist(string $Name)
     {
         $this->Init();
-        $raw = $this->SendLSQData(new LSQData(array('playlist', 'save'), array($Name,'silent:1')));
+        $raw = $this->SendLSQData(new LSQData(array(LSQResponse::playlist, 'save'), array($Name,'silent:1')));
         $ret = explode(' ', $raw);
         return (rawurldecode($ret[0]) == $Name);
     }
@@ -889,7 +889,7 @@ class SqueezeboxDevice extends IPSModule
     public function SaveTempPlaylist()
     {
         $this->Init();
-        $raw = $this->SendLSQData(new LSQData(array('playlist', 'save'), array((string)$this->InstanceID,'silent:1')));
+        $raw = $this->SendLSQData(new LSQData(array(LSQResponse::playlist, 'save'), array((string)$this->InstanceID,'silent:1')));
         $ret = explode(' ', $raw);
         return (rawurldecode($ret[0]) == (string)$this->InstanceID);
     }
@@ -906,7 +906,7 @@ class SqueezeboxDevice extends IPSModule
     public function LoadPlaylist(string $Name)
     {
         $this->Init();
-        $raw = $this->SendLSQData(new LSQData(array('playlist', 'load'), array($Name,'noplay:1')));
+        $raw = $this->SendLSQData(new LSQData(array(LSQResponse::playlist, 'load'), array($Name,'noplay:1')));
         $ret = explode(' ', $raw);
         return rawurldecode($ret[0]);
     }
@@ -922,7 +922,7 @@ class SqueezeboxDevice extends IPSModule
     public function ResumePlaylist(string $Name)
     {
         $this->Init();
-        $raw = $this->SendLSQData(new LSQData(array('playlist', 'resume'), array($Name,'noplay:1')));
+        $raw = $this->SendLSQData(new LSQData(array(LSQResponse::playlist, 'resume'), array($Name,'noplay:1')));
         $ret = explode(' ', $raw);
         return rawurldecode($ret[0]);
     }
@@ -937,7 +937,7 @@ class SqueezeboxDevice extends IPSModule
     public function LoadTempPlaylist()
     {
         $this->Init();
-        $raw = $this->SendLSQData(new LSQData(array('playlist', 'resume'), array((string)$this->InstanceID,'wipePlaylist:1','noplay:1')));
+        $raw = $this->SendLSQData(new LSQData(array(LSQResponse::playlist,'resume'), array((string)$this->InstanceID,'wipePlaylist:1','noplay:1')));
         $ret = explode(' ', $raw);
         return (rawurldecode($ret[0]) == (string)$this->InstanceID);
     }
@@ -945,7 +945,7 @@ class SqueezeboxDevice extends IPSModule
     public function LoadPlaylistByAlbumID(integer $AlbumID)
     {
         $this->Init();
-        $raw = $this->SendLSQData(new LSQData(array('playlistcontrol', 'cmd:load'), 'album_id:'.$AlbumID));
+        $raw = $this->SendLSQData(new LSQData(LSQResponse::playlistcontrol,array('cmd:load', 'album_id:'.$AlbumID)));
         return $raw;
 //        $ret = explode(' ', $raw);
 //        return (rawurldecode($ret[0]) == (string)$this->InstanceID);
@@ -955,7 +955,7 @@ class SqueezeboxDevice extends IPSModule
         public function LoadPlaylistByGenreID(integer $GenreID)
     {
         $this->Init();
-        $raw = $this->SendLSQData(new LSQData(array('playlistcontrol', 'cmd:load'), 'genre_id:'.$GenreID));
+        $raw = $this->SendLSQData(new LSQData(LSQResponse::playlistcontrol,array('cmd:load', 'genre_id:'.$GenreID)));
         return $raw;
 //        $ret = explode(' ', $raw);
 //        return (rawurldecode($ret[0]) == (string)$this->InstanceID);
@@ -965,7 +965,7 @@ class SqueezeboxDevice extends IPSModule
         public function LoadPlaylistByArtistID(integer $ArtistID)
     {
         $this->Init();
-        $raw = $this->SendLSQData(new LSQData(array('playlistcontrol', 'cmd:load'), 'artist_id:'.$ArtistID));
+        $raw = $this->SendLSQData(new LSQData(LSQResponse::playlistcontrol,array('cmd:load', 'artist_id:'.$ArtistID)));
         return $raw;
 //        $ret = explode(' ', $raw);
 //        return (rawurldecode($ret[0]) == (string)$this->InstanceID);
@@ -974,7 +974,7 @@ class SqueezeboxDevice extends IPSModule
           public function LoadPlaylistByPlaylistID(integer $PlaylistID)
     {
         $this->Init();
-        $raw = $this->SendLSQData(new LSQData(array('playlistcontrol', 'cmd:load'), 'playlist_id:'.$PlaylistID));
+        $raw = $this->SendLSQData(new LSQData(LSQResponse::playlistcontrol,array('cmd:load', 'playlist_id:'.$PlaylistID)));
         return $raw;
 //        $ret = explode(' ', $raw);
 //        return (rawurldecode($ret[0]) == (string)$this->InstanceID);
@@ -1713,13 +1713,7 @@ class SqueezeboxDevice extends IPSModule
     private function SetWaitForResponse($Data)
     {
         if (is_array($Data))
-        {
-            foreach ($Data as $Key => $Value)
-            {
-                $Data[$Key] = rawurlencode($Value);
-            }
             $Data = implode(' ', $Data);
-        }
         if ($this->lock('BufferOut'))
         {
             $buffer = $this->GetIDForIdent('BufferOUT');
