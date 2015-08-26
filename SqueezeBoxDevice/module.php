@@ -989,7 +989,6 @@ class SqueezeboxDevice extends IPSModule
             return true;
         }
         throw new Exception("ArtistID not found.");
-
     }
 
     public function LoadPlaylistByPlaylistID(integer $PlaylistID)
@@ -1006,16 +1005,16 @@ class SqueezeboxDevice extends IPSModule
             return true;
         }
         throw new Exception("PlaylistID not found.");
-
     }
 
     public function GetPlaylistInfo()
     {
         $this->Init();
         $raw = $this->SendLSQData(new LSQData(array(LSQResponse::playlist, 'playlistsinfo'), ''));
-        if ($raw === true) return false;
+        if ($raw === true)
+            return false;
         $SongInfo = new LSMSongInfo($raw);
-        return $SongInfo->GetSong();        
+        return $SongInfo->GetSong();
     }
 
     /**

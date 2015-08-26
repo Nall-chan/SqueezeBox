@@ -214,8 +214,15 @@ class LMSSplitter extends IPSModule
 //
     public function CreatePlaylist(string $Name) // ToDo antwort zerlegen
     {
-        $ret = $this->SendLMSData(new LMSData(array('playlists', 'new'), 'name:' . $Name));
-        return $ret;
+        $raw = $this->SendLMSData(new LMSData(array('playlists', 'new'), 'name:' . $Name));
+        $Data = new LMSTaggingData($raw);
+        if (property_exists($Data, 'playlist_id'))
+        {
+            return (int)$Data->playlist_id;
+        } else {
+            throw new Exception("Playlist already exists.");
+        }
+
     }
 //
     public function DeletePlaylist(integer $PlayListId) // ToDo antwort zerlegen
