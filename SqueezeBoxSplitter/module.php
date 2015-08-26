@@ -212,36 +212,35 @@ class LMSSplitter extends IPSModule
             return false;
     }
 
-    /*      public function CreatePlaylist(string $Name) // ToDo antwort zerlegen
-      {
-      $ret = $this->SendLMSData(new LMSData('playlists new name%3A' . $Name, LMSData::GetData));
-      return $ret;
-      }
-     */
-    /*      public function DeletePlaylist(integer $PlayListId) // ToDo antwort zerlegen
-      {
-      $ret = $this->SendLMSData(new LMSData('playlists delete playlist_id%3A' . $PlayListId, LMSData::GetData));
-      return $ret;
-      }
+    public function CreatePlaylist(string $Name) // ToDo antwort zerlegen
+    {
+        $ret = $this->SendLMSData(new LMSData(array('playlists', 'new'), 'name:' . $Name));
+        return $ret;
+    }
 
-     */
-    /*      public function AddFileToPlaylist(integer $PlayListId, string $SongUrl, integer $Track)
-      {
-      $ret = $this->SendLMSData(new LMSData('playlists edit cmd%3Aadd playlist_id%3A' . $PlayListId . ' url%3A' . $SongUrl, LMSData::GetData));
-      if ($Track > 0)
-      {
-      //            $ret = $this->SendLMSData(new LMSData('playlists edit cmd%3Amove playlist_id%3A'.$PlayListId.' url%3A'.$SongUrl, LMSData::GetData));
-      // index  toindex
-      }
-      return $ret;
+    public function DeletePlaylist(integer $PlayListId) // ToDo antwort zerlegen
+    {
+        $ret = $this->SendLMSData(new LMSData(array('playlists', 'delete'), 'playlist_id:' . $PlayListId));
+        return $ret;
+    }
 
-     */
-    /*      public function DeleteFileFromPlaylist(integer $PlayListId, integer $SongId)
-      {
-      $ret = $this->SendLMSData(new LMSData('playlists edit cmd%3Adelete playlist_id%3A' . $PlayListId . ' index%3A' . $SongId, LMSData::GetData));
-      return $ret;
-      }
-     */
+    public function AddFileToPlaylist(integer $PlayListId, string $SongUrl, integer $Track = -1)
+    {
+        $ret = $this->SendLMSData(new LMSData(array('playlists', 'edit'), array('cmd:add', 'playlist_id:' . $PlayListId, 'url:' . $SongUrl)));
+        if ($Track > -1)
+        {
+            //            $ret = $this->SendLMSData(new LMSData('playlists edit cmd%3Amove playlist_id%3A'.$PlayListId.' url%3A'.$SongUrl, LMSData::GetData));
+            // index  toindex
+        }
+        return $ret;
+    }
+
+    public function DeleteFileFromPlaylist(integer $PlayListId, integer $Track)
+    {
+        $ret = $this->SendLMSData(new LMSData(array('playlists', 'edit'), array('cmd:delete', 'playlist_id:' . $PlayListId, 'index:' . $Track)));
+        return $ret;
+    }
+
 ################## DataPoints
     //Ankommend von Child-Device
 
