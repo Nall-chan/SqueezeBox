@@ -21,8 +21,8 @@ class SqueezeboxDevice extends IPSModule
         $this->RegisterPropertyString("Address", "");
         $this->RegisterPropertyInteger("Interval", 2);
         $this->RegisterPropertyString("CoverSize", "cover");
-        $ID = $this->RegisterScript('PlaylistDesign', 'Playlist Config',$this->CreatePlaylistConfigScript(),-7);
-        IPS_SetHidden($ID,true);
+        $ID = $this->RegisterScript('PlaylistDesign', 'Playlist Config', $this->CreatePlaylistConfigScript(), -7);
+        IPS_SetHidden($ID, true);
         $this->RegisterPropertyInteger("Playlistconfig", $ID);
     }
 
@@ -1536,7 +1536,7 @@ class SqueezeboxDevice extends IPSModule
         }
         catch (Exception $exc)
         {
-               throw new Exception($exc);
+            throw new Exception($exc);
             unset($exc);
             throw new Exception('Error on read Playlist');
         }
@@ -1550,7 +1550,7 @@ class SqueezeboxDevice extends IPSModule
         {
             foreach ($Data as $Line)
             {
-                $Line['Duration'] =  @date('i:s', $Line['Duration']);
+                $Line['Duration'] = @date('i:s', $Line['Duration']);
                 $HTMLData .='<tr style="' . $Config['Style']['BR' . ($pos % 2 ? 'U' : 'G')] . '">';
                 foreach ($Config['Spalten'] as $feldIndex => $value)
                 {
@@ -1596,7 +1596,7 @@ class SqueezeboxDevice extends IPSModule
 
     private function CreatePlaylistConfigScript()
     {
-    $Script ='<?
+        $Script = '<?
 ### Konfig ab Zeile 10 !!!
 
 if (!isset($Data))
@@ -1690,7 +1690,7 @@ $Config["Style"] = array(
 
 return $Config;
 ?>';
-    return $Script;
+        return $Script;
     }
 
     private function SetCover()
@@ -1962,8 +1962,8 @@ return $Config;
             $this->unlock('BufferOut');
             return true;
         }
-                throw new Exception("No answer from LMS789");
-        
+        throw new Exception("No answer from LMS789");
+
         return false;
     }
 
@@ -1987,7 +1987,7 @@ return $Config;
                     else
                         return $ret;
                 }
- throw new Exception("No answer from LMS123");
+                throw new Exception("No answer from LMS123");
 
                 return false;
             }
@@ -2006,8 +2006,8 @@ return $Config;
             $this->unlock('BufferOut');
             return true;
         }
-                throw new Exception("No answer from LMS456");
-        
+        throw new Exception("No answer from LMS456");
+
         return false;
     }
 
@@ -2043,7 +2043,10 @@ return $Config;
         for ($i = 0; $i < 100; $i++)
         {
             if (IPS_SemaphoreEnter("LMS_" . (string) $this->InstanceID . (string) $ident, 1))
+            {
+                IPS_LogMessage('LOCK', (string) $ident);
                 return true;
+            }
             else
                 IPS_Sleep(mt_rand(1, 5));
         }
@@ -2053,6 +2056,7 @@ return $Config;
     private function unlock($ident)
     {
         IPS_SemaphoreLeave("LMS_" . (string) $this->InstanceID . (string) $ident);
+        IPS_LogMessage('UNLOCK', (string) $ident);
     }
 
 ################## DUMMYS / WOARKAROUNDS - protected
