@@ -1635,7 +1635,6 @@ if (isset($_GET["Index"]))
 
     private function CreatePlaylistConfigScript()
     {
-        
         $Script = '<?
 ### Konfig ab Zeile 10 !!!
 
@@ -1651,7 +1650,7 @@ if ($_IPS["SENDER"] <> "SqueezeBox")
 // Reihenfolge und Überschriften der Tabelle. Der vordere Wert darf nicht verändert werden.
 // Die Reihenfolge, der hintere Wert (Anzeigetext) und die Reihenfolge sind beliebig änderbar.
 $Config["Spalten"] = array(
-"Play" ="",
+"Play" =>"",
 "Position"=>"Pos",
 "Title"=>"Titel",
 "Artist"=>"Interpret",
