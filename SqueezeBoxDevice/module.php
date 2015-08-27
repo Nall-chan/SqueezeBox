@@ -1635,6 +1635,7 @@ if (isset($_GET["Index"]))
 
     private function CreatePlaylistConfigScript()
     {
+        
         $Script = '<?
 ### Konfig ab Zeile 10 !!!
 
