@@ -203,7 +203,7 @@ class LSMSongInfo extends stdClass
                 elseif ($SongFields[$Index] == 1)
                     $Songs[$id][$Index] = intval($LSQPart->Value);
                 else
-                    $Songs[$id][$Index] = utf8_decode(rawurldecode($LSQPart->Value));
+                    $Songs[$id][$Index] = /*utf8_decode(*/rawurldecode($LSQPart->Value)/*)*/;
             }
         }
         if ((count($Songs) <> 1 ) and isset($Songs[-1]))

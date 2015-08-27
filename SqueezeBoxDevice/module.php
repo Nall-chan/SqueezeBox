@@ -1535,6 +1535,7 @@ class SqueezeboxDevice extends IPSModule
         }
         catch (Exception $exc)
         {
+               throw new Exception($exc);
             unset($exc);
             throw new Exception('Error on read Playlist');
         }
@@ -1610,6 +1611,7 @@ if (!isset($Data))
 // Reihenfolge und Überschriften der Tabelle. Der vordere Wert darf nicht verändert werden.
 // Die Reihenfolge, der hintere Wert (Anzeigetext) und die Reihenfolge sind beliebig änderbar.
 $Config["Spalten"] = array(
+"Tracknum"=>"Pos",
 "Title"=>"Titel",
 "Artist"=>"Interpret",
 "Bitrate"=>"Bitrate",
@@ -1638,6 +1640,7 @@ $Config["Spalten"] = array(
 */
 // Breite der Spalten (Reihenfolge ist egal)
 $Config["Breite"] = array(
+"Tracknum" => "50em",
     "Title" => "200em",
     "Artist" => "200em",
     "Bitrate" => "200em",
@@ -1651,6 +1654,8 @@ $Config["Style"] = array(
     "H"    => "",
     // <tr>-Tag im thead-Bereich:
     "HR"   => "",
+    // <th>-Tag Feld Tracknum:
+    "HFTracknum"  => "width:35px; align:left;",
     // <th>-Tag Feld Title:
     "HFTitle"  => "width:35px; align:left;",
     // <th>-Tag Feld Artist:
@@ -1664,6 +1669,9 @@ $Config["Style"] = array(
     // <tr>-Tag:
     "BRG"  => "background-color:#000000; color:ffff00;",
     "BRU"  => "background-color:#080808; color:ffff00;",
+    // <td>-Tag Feld Tracknum:
+    "DFGTracknum" => "text-align:center;",
+    "DFUTracknum" => "text-align:center;",
     // <td>-Tag Feld Title:
     "DFGTitle" => "text-align:center;",
     "DFUTitle" => "text-align:center;",
