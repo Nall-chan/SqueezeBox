@@ -1559,9 +1559,9 @@ if (isset($_GET["Index"]))
         {
             foreach ($Data as $Position => $Line)
             {
-                $Line['Play'] = $Line['Position'] == $CurrentTrack ? '<div class="icon td ipsIconPower" is="null"></div>' : '';
                 $Line['Position'] = $Position + 1;
                 $Line['Duration'] = @date('i:s', $Line['Duration']);
+                $Line['Play'] = $Line['Position'] == $CurrentTrack ? '<div class="ipsIconArrowRight" is="null"></div>' : '';
 
                 $HTMLData .='<tr style="' . $Config['Style']['BR' . ($Line['Position'] == $CurrentTrack ? 'A' : ($pos % 2 ? 'U' : 'G'))] . '"
                         onclick="window.xhrGet=function xhrGet(o) {var HTTP = new XMLHttpRequest();HTTP.open(\'GET\',o.url,true);HTTP.send();};window.xhrGet({ url: \'hook/SqueezeBoxPlaylist' . $this->InstanceID . '?Index=' . $Line['Position'] . '\' })">';
