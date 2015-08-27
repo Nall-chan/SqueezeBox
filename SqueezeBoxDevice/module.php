@@ -1355,7 +1355,7 @@ class SqueezeboxDevice extends IPSModule
             case LSQResponse::id:
             case LSQResponse::playlist_modified:
             case LSQResponse::playlist_id:
-
+            case LSQResponse::currentSong:
                 //ignore
                 break;
             case LSQResponse::newsong:
@@ -1502,7 +1502,6 @@ class SqueezeboxDevice extends IPSModule
                 break;
             case LSQResponse::index:
             case LSQResponse::playlist_cur_index:
-                case LSQResponse::currentSong:
                 if ($this->SetValueInteger('Index', intval($LSQEvent->Value) + 1))
                         $this->RefreshPlaylist();
                 break;
