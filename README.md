@@ -50,7 +50,7 @@ Liefert Informationen über eine in `$FileID` übergebene Datei.
 | Disc             | integer | Aktuelles Medium                    |
 | Disccount        | integer | Anzahl aller Medien dieses Albums   |
 | Bitrate          | string  | Bitrate in Klartext                 |
-| Tracknum         | integer | Index in der aktuellen Playlist     |
+| Tracknum         | integer | Tracknummer im Album                |
 | Url              | string  | Pfad der Playlist                   |
 | Album_id         | integer | UID des Album in der LMS-Datenbank  |
 | Artwork_track_id | string  | UID des Cover in der LMS-Datenbank  |
@@ -75,7 +75,7 @@ Liefert Informationen über eine in `$FileURL` übergebene Datei.
 | Disc             | integer | Aktuelles Medium                    |
 | Disccount        | integer | Anzahl aller Medien dieses Albums   |
 | Bitrate          | string  | Bitrate in Klartext                 |
-| Tracknum         | integer | Index in der aktuellen Playlist     |
+| Tracknum         | integer | Tracknummer im Album                |
 | Url              | string  | Pfad der Playlist                   |
 | Album_id         | integer | UID des Album in der LMS-Datenbank  |
 | Artwork_track_id | string  | UID des Cover in der LMS-Datenbank  |
@@ -204,7 +204,7 @@ Mehrdimensionales Array, wobei der erste Index der Trackposition entspricht.
 | Disc             | integer | Aktuelles Medium                    |
 | Disccount        | integer | Anzahl aller Medien dieses Albums   |
 | Bitrate          | string  | Bitrate in Klartext                 |
-| Tracknum         | integer | Index in der aktuellen Playlist     |
+| Tracknum         | integer | Tracknummer im Album                |
 | Url              | string  | Pfad der Playlist                   |
 | Album_id         | integer | UID des Album in der LMS-Datenbank  |
 | Artwork_track_id | string  | UID des Cover in der LMS-Datenbank  |
@@ -229,7 +229,7 @@ Wird als `$Index` 0 übergeben, so wird der aktuelle Song genutzt.
 | Disc             | integer | Aktuelles Medium                    |
 | Disccount        | integer | Anzahl aller Medien dieses Albums   |
 | Bitrate          | string  | Bitrate in Klartext                 |
-| Tracknum         | integer | Index in der aktuellen Playlist     |
+| Tracknum         | integer | Tracknummer im Album                |
 | Url              | string  | Pfad der Playlist                   |
 | Album_id         | integer | UID des Album in der LMS-Datenbank  |
 | Artwork_track_id | string  | UID des Cover in der LMS-Datenbank  |

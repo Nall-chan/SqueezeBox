@@ -1548,8 +1548,9 @@ class SqueezeboxDevice extends IPSModule
         $pos = 0;
         if (isset($Data))
         {
-            foreach ($Data as $Line)
+            foreach ($Data as $Position => $Line)
             {
+                $Line['Position'] = $Position;
                 $Line['Duration'] = @date('i:s', $Line['Duration']);
                 $HTMLData .='<tr style="' . $Config['Style']['BR' . ($pos % 2 ? 'U' : 'G')] . '">';
                 foreach ($Config['Spalten'] as $feldIndex => $value)
@@ -1612,7 +1613,7 @@ if (!isset($Data))
 // Reihenfolge und Überschriften der Tabelle. Der vordere Wert darf nicht verändert werden.
 // Die Reihenfolge, der hintere Wert (Anzeigetext) und die Reihenfolge sind beliebig änderbar.
 $Config["Spalten"] = array(
-"Tracknum"=>"Pos",
+"Position"=>"Pos",
 "Title"=>"Titel",
 "Artist"=>"Interpret",
 "Bitrate"=>"Bitrate",
@@ -1631,7 +1632,7 @@ $Config["Spalten"] = array(
 | Disc             | integer | Aktuelles Medium                    |
 | Disccount        | integer | Anzahl aller Medien dieses Albums   |
 | Bitrate          | string  | Bitrate in Klartext                 |
-| Tracknum         | integer | Index in der aktuellen Playlist     |
+| Tracknum         | integer | Tracknummer im Album                |
 | Url              | string  | Pfad der Playlist                   |
 | Album_id         | integer | UID des Album in der LMS-Datenbank  |
 | Artwork_track_id | string  | UID des Cover in der LMS-Datenbank  |
@@ -1641,7 +1642,7 @@ $Config["Spalten"] = array(
 */
 // Breite der Spalten (Reihenfolge ist egal)
 $Config["Breite"] = array(
-"Tracknum" => "50em",
+"Position" => "50em",
     "Title" => "200em",
     "Artist" => "200em",
     "Bitrate" => "200em",
@@ -1655,8 +1656,8 @@ $Config["Style"] = array(
     "H"    => "",
     // <tr>-Tag im thead-Bereich:
     "HR"   => "",
-    // <th>-Tag Feld Tracknum:
-    "HFTracknum"  => "width:35px; align:left;",
+    // <th>-Tag Feld Position:
+    "HFPosition"  => "width:35px; align:left;",
     // <th>-Tag Feld Title:
     "HFTitle"  => "width:35px; align:left;",
     // <th>-Tag Feld Artist:
@@ -1671,8 +1672,8 @@ $Config["Style"] = array(
     "BRG"  => "background-color:#000000; color:ffff00;",
     "BRU"  => "background-color:#080808; color:ffff00;",
     // <td>-Tag Feld Tracknum:
-    "DFGTracknum" => "text-align:center;",
-    "DFUTracknum" => "text-align:center;",
+    "DFGPosition" => "text-align:center;",
+    "DFUPosition" => "text-align:center;",
     // <td>-Tag Feld Title:
     "DFGTitle" => "text-align:center;",
     "DFUTitle" => "text-align:center;",
@@ -2044,7 +2045,7 @@ return $Config;
         {
             if (IPS_SemaphoreEnter("LMS_" . (string) $this->InstanceID . (string) $ident, 1))
             {
-                IPS_LogMessage('LOCK', (string) $ident);
+                IPS_LogMessage('LOCK_LSQ', (string) $ident);
                 return true;
             }
             else
@@ -2056,7 +2057,7 @@ return $Config;
     private function unlock($ident)
     {
         IPS_SemaphoreLeave("LMS_" . (string) $this->InstanceID . (string) $ident);
-        IPS_LogMessage('UNLOCK', (string) $ident);
+        IPS_LogMessage('UNLOCK_LSQ', (string) $ident);
     }
 
 ################## DUMMYS / WOARKAROUNDS - protected
