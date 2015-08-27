@@ -1326,8 +1326,8 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetValueInteger('Repeat', (int) ($LSQEvent->Value));
                 break;
             case LSQResponse::shuffle:
-                $this->SetValueInteger('Shuffle', (int) ($LSQEvent->Value));
-                IPS_LogMessage('DOIT', 'REFRESHPLAYLISTINFO1');
+                if ($this->SetValueInteger('Shuffle', (int) ($LSQEvent->Value)))
+                    IPS_LogMessage('DOIT', 'REFRESHPLAYLISTINFO1');
                 break;
             /*            case LSQResponse::sleep:
               $this->SetValueInteger('SleepTimeout', (int) $LSQEvent->Value);
@@ -1590,21 +1590,33 @@ class SqueezeboxDevice extends IPSModule
     {
         $id = $this->GetIDForIdent($Ident);
         if (GetValueBoolean($id) <> $value)
+        {
             SetValueBoolean($id, $value);
+            return true;
+        }
+        return false;
     }
 
     private function SetValueInteger($Ident, $value)
     {
         $id = $this->GetIDForIdent($Ident);
         if (GetValueInteger($id) <> $value)
+        {
             SetValueInteger($id, $value);
+            return true;
+        }
+        return false;
     }
 
     private function SetValueString($Ident, $value)
     {
         $id = $this->GetIDForIdent($Ident);
         if (GetValueString($id) <> $value)
+        {
             SetValueString($id, $value);
+            return true;
+        }
+        return false;
     }
 
 ################## DataPoints
