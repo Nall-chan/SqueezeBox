@@ -21,7 +21,8 @@ class SqueezeboxDevice extends IPSModule
         $this->RegisterPropertyString("Address", "");
         $this->RegisterPropertyInteger("Interval", 2);
         $this->RegisterPropertyString("CoverSize", "cover");
-        $ID = $this->RegisterScript('PlaylistDesign', 'Playlist Config',$this->CreatePlaylistConfigScript());
+        $ID = $this->RegisterScript('PlaylistDesign', 'Playlist Config',$this->CreatePlaylistConfigScript(),-7);
+        IPS_SetHidden($ID,true);
         $this->RegisterPropertyInteger("Playlistconfig", $ID);
     }
 
