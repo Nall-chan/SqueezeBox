@@ -165,7 +165,7 @@ class SqueezeboxDevice extends IPSModule
         $this->RegisterVariableInteger("Index", "Playlist Position", "Tracklist.Squeezebox." . $this->InstanceID, 12);
         $this->EnableAction("Index");
 
-        $this->RegisterVariableString("Playlist", "Playlist", "", 19);        
+        $this->RegisterVariableString("Playlist", "Playlist", "", 19);
         $this->RegisterVariableString("Album", "Album", "", 20);
         $this->RegisterVariableString("Title", "Titel", "", 21);
         $this->RegisterVariableString("Interpret", "Interpret", "", 22);
@@ -1327,7 +1327,7 @@ class SqueezeboxDevice extends IPSModule
                 break;
             case LSQResponse::shuffle:
                 $this->SetValueInteger('Shuffle', (int) ($LSQEvent->Value));
-                IPS_LogMessage('DOIT', 'REFRESHPLAYLISTINFO');
+                IPS_LogMessage('DOIT', 'REFRESHPLAYLISTINFO1');
                 break;
             /*            case LSQResponse::sleep:
               $this->SetValueInteger('SleepTimeout', (int) $LSQEvent->Value);
@@ -1380,8 +1380,10 @@ class SqueezeboxDevice extends IPSModule
                     $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[0], $LSQEvent->Value, $LSQEvent->isResponse));
                 break;
             case LSQResponse::loadtracks:
+                IPS_LogMessage('DOIT', 'REFRESHPLAYLISTINFO2');
+                break;
             case LSQResponse::load_done:
-                IPS_LogMessage('DOIT', 'REFRESHPLAYLISTINFO');
+                IPS_LogMessage('DOIT', 'REFRESHPLAYLISTINFO3');
                 break;
             case LSQResponse::prefset:
                 if ($LSQEvent->Command[0] == 'server')
