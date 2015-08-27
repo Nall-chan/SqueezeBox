@@ -738,7 +738,6 @@ class SqueezeboxDevice extends IPSModule
             throw new Exception("Value must be 0, 1 or 2.");
         $ret = intval($this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::shuffle), intval($Value))));
         $this->SetValueInteger('Shuffle', $ret);
-        IPS_LogMessage('DOIT', 'REFRESHPLAYLISTINFO4');
         $this->RefreshPlaylist();
         return ($ret == $Value);
     }
@@ -1335,7 +1334,6 @@ class SqueezeboxDevice extends IPSModule
             case LSQResponse::shuffle:
                 if ($this->SetValueInteger('Shuffle', (int) ($LSQEvent->Value)))
                 {
-                    IPS_LogMessage('DOIT', 'REFRESHPLAYLISTINFO1');
                     $this->RefreshPlaylist();
                 }
                 break;
@@ -1373,7 +1371,8 @@ class SqueezeboxDevice extends IPSModule
                 }
                 $this->SetValueInteger('Status', 2);
                 $this->SetValueString('Title', trim(rawurldecode($title)));
-                $this->SetValueInteger('Index', $currentTrack);
+                if ($this->SetValueInteger('Index', $currentTrack))
+                        $this->RefreshPlaylist();
                 /*                $this->SendLSQData(new LSQData(LSQResponse::artist, '?', false));
                   $this->SendLSQData(new LSQData(LSQResponse::album, '?', false));
                   $this->SendLSQData(new LSQData(LSQResponse::genre, '?', false));
@@ -1390,12 +1389,10 @@ class SqueezeboxDevice extends IPSModule
                     $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[0], $LSQEvent->Value, $LSQEvent->isResponse));
                 break;
             case LSQResponse::loadtracks:
-                IPS_LogMessage('DOIT', 'REFRESHPLAYLISTINFO2');
                 $this->RefreshPlaylist();
 
                 break;
             case LSQResponse::load_done:
-                IPS_LogMessage('DOIT', 'REFRESHPLAYLISTINFO3');
                 $this->RefreshPlaylist();
 
                 break;
@@ -1463,7 +1460,9 @@ class SqueezeboxDevice extends IPSModule
                     $this->SetValueInteger('Position2', 0);
                     $this->SetValueInteger('PositionRAW', 0);
                     $this->SetValueString('Position', '0:00');
-                    $this->SetValueInteger('Index', 0);
+                if ($this->SetValueInteger('Index', 0))
+                        $this->RefreshPlaylist();
+                    
                     $this->SetCover();
                 }
                 if (!IPS_VariableProfileExists($Name))
@@ -1503,8 +1502,9 @@ class SqueezeboxDevice extends IPSModule
                 break;
             case LSQResponse::index:
             case LSQResponse::playlist_cur_index:
-            case LSQResponse::currentSong:
-                $this->SetValueInteger('Index', intval($LSQEvent->Value) + 1);
+                case LSQResponse::currentSong:
+                if ($this->SetValueInteger('Index', intval($LSQEvent->Value) + 1))
+                        $this->RefreshPlaylist();
                 break;
             case LSQResponse::time:
                 $this->tempData['Position'] = $LSQEvent->Value;
@@ -2054,7 +2054,6 @@ LSQ_DisplayPlaylist($_IPS["TARGET"],$Config);
         {
             if (IPS_SemaphoreEnter("LMS_" . (string) $this->InstanceID . (string) $ident, 1))
             {
-                IPS_LogMessage('LOCK_LSQ', (string) $ident);
                 return true;
             }
             else
@@ -2066,7 +2065,6 @@ LSQ_DisplayPlaylist($_IPS["TARGET"],$Config);
     private function unlock($ident)
     {
         IPS_SemaphoreLeave("LMS_" . (string) $this->InstanceID . (string) $ident);
-        IPS_LogMessage('UNLOCK_LSQ', (string) $ident);
     }
 
 ################## DUMMYS / WOARKAROUNDS - protected

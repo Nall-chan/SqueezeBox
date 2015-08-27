@@ -600,7 +600,6 @@ class LMSSplitter extends IPSModule
         {
             if (IPS_SemaphoreEnter("LMS_" . (string) $this->InstanceID . (string) $ident, 1))
             {
-                IPS_LogMessage('LOCK_LMS', (string) $ident);
                 return true;
             }
             else
@@ -614,7 +613,6 @@ class LMSSplitter extends IPSModule
     private function unlock($ident)
     {
         IPS_SemaphoreLeave("LMS_" . (string) $this->InstanceID . (string) $ident);
-        IPS_LogMessage('UNLOCK_LMS', (string) $ident);
     }
 
 ################## DUMMYS / WOARKAROUNDS - protected
