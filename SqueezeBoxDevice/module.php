@@ -733,6 +733,7 @@ class SqueezeboxDevice extends IPSModule
             throw new Exception("Value must be 0, 1 or 2.");
         $ret = intval($this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::shuffle), intval($Value))));
         $this->SetValueInteger('Shuffle', $ret);
+        IPS_LogMessage('DOIT', 'REFRESHPLAYLISTINFO4');
         return ($ret == $Value);
     }
 
