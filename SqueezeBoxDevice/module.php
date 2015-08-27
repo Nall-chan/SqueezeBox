@@ -1556,10 +1556,10 @@ class SqueezeboxDevice extends IPSModule
                 $Line['Position'] = $Position + 1;
                 $Line['Duration'] = @date('i:s', $Line['Duration']);
 
-                $HTMLData .='<tr style="' . $Config['Style']['BR' . ($Line['Position'] = $CurrentTrack ? 'A' : ($pos % 2 ? 'U' : 'G'))] . '">';
+                $HTMLData .='<tr style="' . $Config['Style']['BR' . ($Line['Position'] == $CurrentTrack ? 'A' : ($pos % 2 ? 'U' : 'G'))] . '">';
                 foreach ($Config['Spalten'] as $feldIndex => $value)
                 {
-                    $HTMLData .= '<td style="' . $Config['Style']['DF' . ($Line['Position'] = $CurrentTrack ? 'A' : ($pos % 2 ? 'U' : 'G')). $feldIndex] . '">' . (string) $Line[$feldIndex] . '</td>';
+                    $HTMLData .= '<td style="' . $Config['Style']['DF' . ($Line['Position'] == $CurrentTrack ? 'A' : ($pos % 2 ? 'U' : 'G')). $feldIndex] . '">' . (string) $Line[$feldIndex] . '</td>';
                 }
                 $HTMLData .= '</tr>' . PHP_EOL;
                 $pos++;
@@ -1693,7 +1693,7 @@ $Config["Style"] = array(
     "DFABitrate" => "text-align:center;",
     // <td>-Tag Feld Duration:
     "DFGDuration" => "text-align:center;",
-    "DFUDuration" => "text-align:center;"
+    "DFUDuration" => "text-align:center;",
     "DFADuration" => "text-align:center;"
     // ^- Der Buchstabe "G" steht für gerade, "U" für ungerade., "A" für Aktiv
  );
