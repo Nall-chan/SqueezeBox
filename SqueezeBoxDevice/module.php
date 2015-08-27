@@ -197,8 +197,11 @@ class SqueezeboxDevice extends IPSModule
         IPS_SetHidden($this->GetIDForIdent('Connected'), true);
         IPS_SetHidden($this->GetIDForIdent('PositionRAW'), true);
         IPS_SetHidden($this->GetIDForIdent('DurationRAW'), true);
-        $sid = $this->RegisterScript("WebHookPlaylist", "WebHookPlaylist", '<? //Do not delete or modify.\nif (isset($_GET["Index"]))\n   LSQ_PlayTrack(' . $this->InstanceID . ',$_GET["Index"]);\n');
-        IPS_SetHidden($ID, true);
+        $sid = $this->RegisterScript("WebHookPlaylist", "WebHookPlaylist", '<? //Do not delete or modify.
+if (isset($_GET["Index"]))
+    LSQ_PlayTrack(' . $this->InstanceID . ',$_GET["Index"]);
+', -8);
+        IPS_SetHidden($sid, true);
         $this->RegisterHook('/hook/SqueezeBoxPlaylist' . $this->InstanceID, $sid);
         // Adresse nicht leer ?
         // Parent vorhanden und nicht in Fehlerstatus ?
