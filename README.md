@@ -39,6 +39,7 @@ Liefert Informationen über eine in `$FileID` übergebene Datei.
 
 **Array:**  
 
+| Index            | Typ     | Beschreibung                        |
 | :--------------: | :-----: | :---------------------------------: |
 | Id               | integer | UID der Datei in der LMS-Datenbank  |
 | Title            | string  | Titel                               |
@@ -63,6 +64,7 @@ Liefert Informationen über eine in `$FileURL` übergebene Datei.
 
 **Array:**  
 
+| Index            | Typ     | Beschreibung                        |
 | :--------------: | :-----: | :---------------------------------: |
 | Id               | integer | UID der Datei in der LMS-Datenbank  |
 | Title            | string  | Titel                               |
@@ -191,6 +193,7 @@ Liefert Informationen über alle Songs in der Playlist.
 Mehrdimensionales Array, wobei der erste Index der Trackposition entspricht.  
 **Array:**  
 
+| Index            | Typ     | Beschreibung                        |
 | :--------------: | :-----: | :---------------------------------: |
 | Id               | integer | UID der Datei in der LMS-Datenbank  |
 | Title            | string  | Titel                               |

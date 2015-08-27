@@ -21,6 +21,8 @@ class SqueezeboxDevice extends IPSModule
         $this->RegisterPropertyString("Address", "");
         $this->RegisterPropertyInteger("Interval", 2);
         $this->RegisterPropertyString("CoverSize", "cover");
+        $ID = $this->RegisterScript('PlaylistDesign', 'Playlist Config',$this->CreatePlaylistConfigScript());
+        $this->RegisterPropertyInteger("Playlistconfig", $ID);
     }
 
     public function Destroy()
@@ -138,6 +140,7 @@ class SqueezeboxDevice extends IPSModule
         ));
         $this->RegisterProfileInteger("Tracklist.Squeezebox." . $this->InstanceID, "", "", "", 1, 1, 1);
 
+
         //Status-Variablen anlegen
         $this->RegisterVariableBoolean("Power", "Power", "~Switch", 1);
         $this->EnableAction("Power");
@@ -165,7 +168,7 @@ class SqueezeboxDevice extends IPSModule
         $this->RegisterVariableInteger("Index", "Playlist Position", "Tracklist.Squeezebox." . $this->InstanceID, 12);
         $this->EnableAction("Index");
 
-        $this->RegisterVariableString("Playlist", "Playlist", "", 19);
+        $this->RegisterVariableString("Playlistname", "Playlist", "", 19);
         $this->RegisterVariableString("Album", "Album", "", 20);
         $this->RegisterVariableString("Title", "Titel", "", 21);
         $this->RegisterVariableString("Interpret", "Interpret", "", 22);
@@ -174,6 +177,7 @@ class SqueezeboxDevice extends IPSModule
         $this->RegisterVariableString("Position", "Spielzeit", "", 25);
         $this->RegisterVariableInteger("Position2", "Position", "Intensity.Squeezebox", 26);
         $this->EnableAction("Position2");
+        $this->RegisterVariableString("Playlist", "Playlist", "~HTMLBox", 29);
 
         $this->RegisterVariableInteger("Signalstrength", utf8_encode("Signalstärke"), "Intensity.Squeezebox", 30);
         $this->RegisterVariableInteger("SleepTimeout", "SleepTimeout", "", 31);
@@ -734,6 +738,7 @@ class SqueezeboxDevice extends IPSModule
         $ret = intval($this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::shuffle), intval($Value))));
         $this->SetValueInteger('Shuffle', $ret);
         IPS_LogMessage('DOIT', 'REFRESHPLAYLISTINFO4');
+        $this->RefreshPlaylist();
         return ($ret == $Value);
     }
 
@@ -1328,7 +1333,10 @@ class SqueezeboxDevice extends IPSModule
                 break;
             case LSQResponse::shuffle:
                 if ($this->SetValueInteger('Shuffle', (int) ($LSQEvent->Value)))
+                {
                     IPS_LogMessage('DOIT', 'REFRESHPLAYLISTINFO1');
+                    $this->RefreshPlaylist();
+                }
                 break;
             /*            case LSQResponse::sleep:
               $this->SetValueInteger('SleepTimeout', (int) $LSQEvent->Value);
@@ -1382,9 +1390,13 @@ class SqueezeboxDevice extends IPSModule
                 break;
             case LSQResponse::loadtracks:
                 IPS_LogMessage('DOIT', 'REFRESHPLAYLISTINFO2');
+                $this->RefreshPlaylist();
+
                 break;
             case LSQResponse::load_done:
                 IPS_LogMessage('DOIT', 'REFRESHPLAYLISTINFO3');
+                $this->RefreshPlaylist();
+
                 break;
             case LSQResponse::prefset:
                 if ($LSQEvent->Command[0] == 'server')
@@ -1432,7 +1444,7 @@ class SqueezeboxDevice extends IPSModule
                 }
                 break;
             case LSQResponse::playlist_name:
-                $this->SetValueString('Playlist', trim(rawurldecode($LSQEvent->Value)));
+                $this->SetValueString('Playlistname', trim(rawurldecode($LSQEvent->Value)));
 
                 break;
             case LSQResponse::playlist_tracks:
@@ -1510,6 +1522,166 @@ class SqueezeboxDevice extends IPSModule
             $Value = (100 / $this->tempData['Duration']) * $this->tempData['Position'];
             $this->SetValueInteger('Position2', round($Value));
         }
+    }
+
+    private function RefreshPlaylist()
+    {
+        $ScriptID = $this->ReadPropertyInteger('Playlistconfig');
+        if ($ScriptID == 0)
+            return;
+        try
+        {
+            $Data = $this->GetSongInfoOfCurrentPlaylist();
+        }
+        catch (Exception $exc)
+        {
+            unset($exc);
+            throw new Exception('Error on read Playlist');
+        }
+        $Config = include (IPS_GetKernelDir() . "scripts/" . IPS_GetScriptFile($ScriptID));
+        if (($Config === false) or ( !is_array($Config)))
+            throw new Exception('Error on read Playlistconfig-Script');
+
+        $HTMLData = $this->GetTableHeader($Config);
+        $pos = 0;
+        if (isset($Data))
+        {
+            foreach ($Data as $Line)
+            {
+                $Line['Duration'] =  @date('i:s', $Line['Duration']);
+                $HTMLData .='<tr style="' . $Config['Style']['BR' . ($pos % 2 ? 'U' : 'G')] . '">';
+                foreach ($Config['Spalten'] as $feldIndex => $value)
+                {
+                    $HTMLData .= '<td style="' . $Config['Style']['DF' . ($pos % 2 ? 'U' : 'G') . $feldIndex] . '">' . (string) $Line[$feldIndex] . '</td>';
+                }
+                $HTMLData .= '</tr>' . PHP_EOL;
+                $pos++;
+            }
+        }
+        $HTMLData .= $this->GetTableFooter();
+        $this->SetValueString('Playlist', $HTMLData);
+    }
+
+    private function GetTableHeader($Config)
+    {
+//	$felder = array('Icon'=>'Typ', 'Date'=>'Datum', 'Name'=>'Name', 'Caller'=>'Rufnummer', 'Device'=>'Nebenstelle', 'Called'=>'Eigene Rufnummer', 'Duration'=>'Dauer','AB'=>'Nachricht');
+        // Kopf der Tabelle erzeugen
+        $html = "<table bgcolor='#000000'><body scroll=no><body bgcolor='#000000'><table style=" . $Config['Style']['T'] . '">' . PHP_EOL;
+        $html .= '<colgroup>' . PHP_EOL;
+        foreach ($Config['Spalten'] as $Index => $Value)
+        {
+            $html .= '<col width="' . $Config['Breite'][$Index] . '" />' . PHP_EOL;
+        }
+        $html .= '</colgroup>' . PHP_EOL;
+        $html .= '<thead style="' . $Config['Style']['H'] . '">' . PHP_EOL;
+        $html .= '<tr style="' . $Config['Style']['HR'] . '">';
+        foreach ($Config['Spalten'] as $Index => $Value)
+        {
+            $html .= '<th style="color:ffff00; ' . $Config['Style']['HF' . $Index] . '">' . $Value . '</th>';
+        }
+        $html .= '</tr>' . PHP_EOL;
+        $html .= '</thead>' . PHP_EOL;
+        $html .= '<tbody style="' . $Config['Style']['B'] . '">' . PHP_EOL;
+        return $html;
+    }
+
+    private function GetTableFooter()
+    {
+        $html = '</tbody>' . PHP_EOL;
+        $html .= '</table>' . PHP_EOL;
+        return $html;
+    }
+
+    private function CreatePlaylistConfigScript()
+    {
+    $Script ='<?
+### Konfig ab Zeile 10 !!!
+
+if (!isset($Data))
+{
+	echo "Dieses Script kann nicht direkt ausgeführt werden!";
+	return;
+}
+
+##########   KONFIGURATION
+#### Tabellarische Ansicht
+# Folgende Parameter bestimmen das Aussehen der HTML-Tabelle in der die WLAN-Geräte aufgelistet werden.
+
+// Reihenfolge und Überschriften der Tabelle. Der vordere Wert darf nicht verändert werden.
+// Die Reihenfolge, der hintere Wert (Anzeigetext) und die Reihenfolge sind beliebig änderbar.
+$Config["Spalten"] = array(
+"Title"=>"Titel",
+"Artist"=>"Interpret",
+"Bitrate"=>"Bitrate",
+"Duration"=>"Dauer"
+);
+#### Mögliche Index-Felder
+/*
+| Index            | Typ     | Beschreibung                        |
+| :--------------: | :-----: | :---------------------------------: |
+| Id               | integer | UID der Datei in der LMS-Datenbank  |
+| Title            | string  | Titel                               |
+| Genre            | string  | Genre                               |
+| Album            | string  | Album                               |
+| Artist           | string  | Interpret                           |
+| Duration         | integer | Länge in Sekunden                   |
+| Disc             | integer | Aktuelles Medium                    |
+| Disccount        | integer | Anzahl aller Medien dieses Albums   |
+| Bitrate          | string  | Bitrate in Klartext                 |
+| Tracknum         | integer | Index in der aktuellen Playlist     |
+| Url              | string  | Pfad der Playlist                   |
+| Album_id         | integer | UID des Album in der LMS-Datenbank  |
+| Artwork_track_id | string  | UID des Cover in der LMS-Datenbank  |
+| Genre_id         | integer | UID des Genre in der LMS-Datenbank  |
+| Artist_id        | integer | UID des Artist in der LMS-Datenbank |
+| Year             | integer | Jahr des Song, soweit hinterlegt    |
+*/
+// Breite der Spalten (Reihenfolge ist egal)
+$Config["Breite"] = array(
+    "Title" => "200em",
+    "Artist" => "200em",
+    "Bitrate" => "200em",
+    "Duration" => "100em"
+);
+// Style Informationen der Tabelle
+$Config["Style"] = array(
+    // <table>-Tag:
+    "T"    => "margin:0 auto; font-size:0.8em;",
+    // <thead>-Tag:
+    "H"    => "",
+    // <tr>-Tag im thead-Bereich:
+    "HR"   => "",
+    // <th>-Tag Feld Title:
+    "HFTitle"  => "width:35px; align:left;",
+    // <th>-Tag Feld Artist:
+    "HFArtist"  => "width:35px; align:left;",
+    // <th>-Tag Feld Bitrate:
+    "HFBitrate"  => "width:35px; align:left;",
+    // <th>-Tag Feld Duration:
+    "HFDuration"  => "width:35px; align:left;",
+    // <tbody>-Tag:
+    "B"    => "",
+    // <tr>-Tag:
+    "BRG"  => "background-color:#000000; color:ffff00;",
+    "BRU"  => "background-color:#080808; color:ffff00;",
+    // <td>-Tag Feld Title:
+    "DFGTitle" => "text-align:center;",
+    "DFUTitle" => "text-align:center;",
+    // <td>-Tag Feld Artist:
+	 "DFGArtist" => "text-align:center;",
+    "DFUArtist" => "text-align:center;",
+    // <td>-Tag Feld Bitrate:
+    "DFGBitrate" => "text-align:center;",
+    "DFUBitrate" => "text-align:center;",
+    // <td>-Tag Feld Duration:
+    "DFGDuration" => "text-align:center;",
+    "DFUDuration" => "text-align:center;"
+    // ^- Der Buchstabe "G" steht für gerade, "U" für ungerade.
+ );
+
+return $Config;
+?>';
+    return $Script;
     }
 
     private function SetCover()

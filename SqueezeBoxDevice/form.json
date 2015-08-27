@@ -32,7 +32,13 @@
                     "name": "Interval",
                     "type": "NumberSpinner",
                     "caption": "Interval"
+                },
+                {
+                    "name": "Playlistconfig",
+                    "type": "SelectScript",
+                    "caption": "Playlist Config"
                 }
+                
             ],
     "actions":
             [
