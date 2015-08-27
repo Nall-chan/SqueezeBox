@@ -72,8 +72,8 @@ class SqueezeboxBattery extends IPSModule
         $this->RegisterVariableFloat("BatteryVMon1", "Akku vmon1", "~Volt", 8);
         $this->RegisterVariableFloat("BatteryVMon2", "Akku vmon2", "~Volt", 9);
         $this->RegisterVariableInteger("BatteryCapacity", "Akkukapazität", "mAh.Squeezebox", 10);
-        $this->RegisterVariableInteger("BatteryChargeRate", "Ladezyklen Akku", "", 11);
-        $this->RegisterVariableInteger("BatteryDischargeRate", "Entladezyklen Akku", "", 12);
+//        $this->RegisterVariableInteger("BatteryChargeRate", "Ladezyklen Akku", "", 11);
+//        $this->RegisterVariableInteger("BatteryDischargeRate", "Entladezyklen Akku", "", 12);
         if ($this->Init(false))
         {
             if ($this->ReadPropertyInteger("Interval") >= 30)
@@ -147,10 +147,10 @@ class SqueezeboxBattery extends IPSModule
             $BatteryVMon2 = round((float) $ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_vmon2_voltage") / 1000, 1);
             $this->SetValueFloat('BatteryVMon2', $BatteryVMon2);
 //var_dump($ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/charger_event"));
-            $BatteryChargeRate = (int) $ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_charge_rate");
-            $this->SetValueInteger('BatteryChargeRate', $BatteryChargeRate);
-            $BatteryDischargeRate = (int) $ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_discharge_rate");
-            $this->SetValueInteger('BatteryDischargeRate', $BatteryDischargeRate);
+//            $BatteryChargeRate = (int) $ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_charge_rate");
+//            $this->SetValueInteger('BatteryChargeRate', $BatteryChargeRate);
+//            $BatteryDischargeRate = (int) $ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_discharge_rate");
+//            $this->SetValueInteger('BatteryDischargeRate', $BatteryDischargeRate);
         }
         else
         {
@@ -160,8 +160,8 @@ class SqueezeboxBattery extends IPSModule
             $this->SetValueFloat('BatteryVoltage', 0.0);
             $this->SetValueFloat('BatteryVMon1', 0.0);
             $this->SetValueFloat('BatteryVMon2', 0.0);
-            $this->SetValueInteger('BatteryChargeRate', 0);
-            $this->SetValueInteger('BatteryDischargeRate', 0);
+//            $this->SetValueInteger('BatteryChargeRate', 0);
+//            $this->SetValueInteger('BatteryDischargeRate', 0);
         }
 
 

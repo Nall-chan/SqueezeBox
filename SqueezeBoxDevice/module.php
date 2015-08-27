@@ -909,6 +909,8 @@ class SqueezeboxDevice extends IPSModule
         $this->Init();
         $raw = $this->SendLSQData(new LSQData(array(LSQResponse::playlist, 'load'), array($Name, 'noplay:1')));
         $ret = explode(' ', $raw);
+        if ($ret == '')
+            throw new Exception("Playlist not found.");
         return rawurldecode($ret[0]);
     }
 
@@ -926,6 +928,8 @@ class SqueezeboxDevice extends IPSModule
         $this->Init();
         $raw = $this->SendLSQData(new LSQData(array(LSQResponse::playlist, 'resume'), array($Name, 'noplay:1')));
         $ret = explode(' ', $raw);
+        if ($ret == '')
+            throw new Exception("Playlist not found.");
         return rawurldecode($ret[0]);
     }
 
@@ -1048,9 +1052,11 @@ class SqueezeboxDevice extends IPSModule
             $Index = '-';
         $Data = $this->SendLSQData(new LSQData(array('status', (string) $Index, '1'), 'tags:gladiqrRtueJINpsy'));
         $SongInfo = new LSMSongInfo($Data);
-        return $SongInfo->GetSong();
+        $SongArray = $SongInfo->GetSong();
+        if (count($SongArray) == 1)
+            throw new Exception("Index not valid.");
+        return $SongArray;
     }
-
     /**
      * Liefert Informationen über alle Songs aus der aktuelle Wiedergabeliste.
      *

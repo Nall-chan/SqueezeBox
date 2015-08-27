@@ -160,27 +160,27 @@ class LSMSongInfo extends stdClass
         $id = -1;
         $Songs = array();
         $SongFields = array(
-            'Id' => 0,
-            'Title' => 1,
-            'Genre' => 1, // g
-            'Album' => 1, // l
-            'Artist' => 1, // a
-            'Duration' => 0, // d
-            'Disc' => 0, // i
-            'Disccount' => 0, // q
-            'Bitrate' => 1, // r
-            'Tracknum' => 0, // t
-            'Url' => 1, // u
+            'Id' => 1,
+            'Title' => 3,
+            'Genre' => 3, // g
+            'Album' => 3, // l
+            'Artist' => 3, // a
+            'Duration' => 1, // d
+            'Disc' => 1, // i
+            'Disccount' => 1, // q
+            'Bitrate' => 3, // r
+            'Tracknum' => 1, // t
+            'Url' => 3, // u
             'Remote' => 0,
-            'Rating' => 0, // R
-            'Album_id' => 0, // e
-            'Artwork_track_id' => 1, // J
-            'Samplesize' => 1, // I
-            'Remote_title' => 1, //N 
-            'genre_id' => 0, //p
-            'Artist_id' => 0, //s
-            'Year' => 0,// Y
-            'Name' => 1,
+            'Rating' => 1, // R
+            'Album_id' => 1, // e
+            'Artwork_track_id' => 3, // J
+            'Samplesize' => 3, // I
+            'Remote_title' => 3, //N 
+            'Genre_id' => 1, //p
+            'Artist_id' => 1, //s
+            'Year' => 1,// Y
+            'Name' => 3,
             'Modified' => 0
         );
         foreach (explode(' ', $TaggedDataLine) as $Line)
@@ -199,6 +199,8 @@ class LSMSongInfo extends stdClass
             if (array_key_exists($Index, $SongFields))
             {
                 if ($SongFields[$Index] == 0)
+                    $Songs[$id][$Index] = (bool)($LSQPart->Value);
+                elseif ($SongFields[$Index] == 1)
                     $Songs[$id][$Index] = intval($LSQPart->Value);
                 else
                     $Songs[$id][$Index] = utf8_decode(rawurldecode($LSQPart->Value));

@@ -91,38 +91,97 @@ Pausiert die Wiedergabe.
 Stoppt die Wiedergabe.  
 
 #### Playlist:
+Wird der Befehl nicht bestätigt, so ist dise ein Fehler (Exception wird erzeugt).  
+Wird ein übergebener Parameter nicht auf dem Server gefunden, so wird ebenfalls ein Fehler erzeugt.  
 
 `string LSQ_LoadPlaylist (integer $InstanzID, string $Name)`  
 Lädt die unter `$Name`übergebene Playlist.  
-Die Wiedergabe wird nicht automatisch gestartet.
+Die Wiedergabe wird nicht automatisch gestartet.  
+Liefert den Pfad der Playlist.  
 
-`boolean LSQ_ResumePlaylist(integer $InstanzID, string $Name)`  
+`string LSQ_ResumePlaylist(integer $InstanzID, string $Name)`  
 Lädt die unter `$Name`übergebene Playlist, und springt auf den zuletzt wiedergegeben Track.  
-Die Wiedergabe wird nicht automatisch gestartet.
+Die Wiedergabe wird nicht automatisch gestartet.  
+Liefert den Pfad der Playlist.  
 
 `boolean LSQ_LoadTempPlaylist (integer $InstanzID)`  
 Lädt eine zuvor mit LSQ_SaveTempPlaylist gespeicherte Playlist, und springt auf den zuletzt wiedergegeben Track.  
-Die Wiedergabe wird nicht automatisch gestartet.
+Die Wiedergabe wird nicht automatisch gestartet.  
+Liefert `true`bei Erfolg.  
+
+`boolean LSQ_LoadPlaylistByAlbumID (integer $InstanzID, integer $AlbumID)`  
+Lädt eine Playlist bestehend aus der in `$AlbumID` übergeben ID eines Albums.  
+Liefert `true`bei Erfolg.  
+
+`boolean LSQ_LoadPlaylistByGenreID (integer $InstanzID, integer $GenreID)`  
+Lädt eine Playlist bestehend aus der in `$GenreID` übergeben ID eines Genres.  
+Liefert `true`bei Erfolg.  
+
+`boolean LSQ_LoadPlaylistByArtistID (integer $InstanzID, integer $ArtistID)`  
+Lädt eine Playlist bestehend aus der in `$ArtistID` übergeben ID eines Artist.  
+Liefert `true`bei Erfolg.  
+
+`boolean LSQ_LoadPlaylistByPlaylistID (integer $InstanzID, integer $PlaylistID)`  
+Lädt eine Playlist bestehend aus der in `$PlaylistID` übergeben ID einer Playlist.  
+Liefert `true`bei Erfolg.  
+
+`array LSQ_GetPlaylistInfo(integer $InstanzID)`  
+Liefert Informationen über die Playlist.  
+**Array:**  
+
+| Index     | Typ     | Beschreibung                          |
+| :-------: | :-----: | :-----------------------------------: |
+| Id        | integer | UID der Playlist in der LMS-Datenbank |
+| Name      | string  | Name der Playlist                     |
+| Modified  | boolean | `true` wenn Playlist verändert wurde  |
+| Url       | string  | Pfad der Playlist                     |
 
 `array LSQ_GetSongInfoOfCurrentPlaylist (integer $InstanzID)`  
-Liefert Informationen über den aktuellen Song.  
+Liefert Informationen über alle Songs in der Playlist.  
+Mehrdimensionales Array, wobei der erste Index der Trackposition entspricht.  
+**Array:**  
+
+| :--------------: | :-----: | :---------------------------------: |
+| Id               | integer | UID der Datei in der LMS-Datenbank  |
+| Title            | string  | Titel                               |
+| Genre            | string  | Genre                               |
+| Album            | string  | Album                               |
+| Artist           | string  | Interpret                           |
+| Duration         | integer | Länge in Sekunden                   |
+| Disc             | integer | Aktuelles Medium                    |
+| Disccount        | integer | Anzahl aller Medien dieses Albums   |
+| Bitrate          | string  | Bitrate in Klartext                 |
+| Tracknum         | integer | Index in der aktuellen Playlist     |
+| Url              | string  | Pfad der Playlist                   |
+| Album_id         | integer | UID des Album in der LMS-Datenbank  |
+| Artwork_track_id | string  | UID des Cover in der LMS-Datenbank  |
+| Artist_id        | integer | UID des Artist in der LMS-Datenbank |
+| Year             | integer | Jahr des Song, soweit hinterlegt    |
+| Remote_title     | string  | Titel des Stream                    |
 
 `array LSQ_GetSongInfoByTrackIndex (integer $InstanzID, integer $Index)`  
 Liefert Informationen über den Song mit dem `$Index` der aktuellen Playlist.  
 Wird als `$Index` 0 übergeben, so wird der aktuelle Song genutzt.  
 **Array:**  
 
-| Index     | Typ     | Beschreibung                       |
-| :-------: | :-----: | :--------------------------------: |
-| Duration  | integer | Länge in Sekunden                  |
-| Id        | integer | UID der Datei in der LMS-Datenbank |
-| Title     | string  | Titel                              |
-| Genre     | string  | Genre                              |
-| Album     | string  | Album                              |
-| Artist    | string  | Interpret                          |
-| Disc      | integer | Aktuelles Medium                   |
-| Disccount | integer | Anzahl aller Medien dieses Albums  |
-| Bitrate   | string  | Bitrate in Klartext                |
+| Index            | Typ     | Beschreibung                        |
+| :--------------: | :-----: | :---------------------------------: |
+| Id               | integer | UID der Datei in der LMS-Datenbank  |
+| Title            | string  | Titel                               |
+| Genre            | string  | Genre                               |
+| Album            | string  | Album                               |
+| Artist           | string  | Interpret                           |
+| Duration         | integer | Länge in Sekunden                   |
+| Disc             | integer | Aktuelles Medium                    |
+| Disccount        | integer | Anzahl aller Medien dieses Albums   |
+| Bitrate          | string  | Bitrate in Klartext                 |
+| Tracknum         | integer | Index in der aktuellen Playlist     |
+| Url              | string  | Pfad der Playlist                   |
+| Album_id         | integer | UID des Album in der LMS-Datenbank  |
+| Artwork_track_id | string  | UID des Cover in der LMS-Datenbank  |
+| Artist_id        | integer | UID des Artist in der LMS-Datenbank |
+| Year             | integer | Jahr des Song, soweit hinterlegt    |
+| Remote_title     | string  | Titel des Stream                    |
 
 Alle anderen Befehle liefern einen `boolean` als Rückgabewert.  
 `true` wenn der Befehl vom Server bestätigt wurde.  
