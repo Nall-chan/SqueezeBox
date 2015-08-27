@@ -1530,32 +1530,36 @@ class SqueezeboxDevice extends IPSModule
         $ScriptID = $this->ReadPropertyInteger('Playlistconfig');
         if ($ScriptID == 0)
             return;
+        IPS_RunScriptEx($ScriptID,array('SENDER'=>'SqueezeBox','TARGET'=>$this->InstanceID));
+    }
+    public function DisplayPlaylist($Config)
+    {
+        if (($Config === false) or ( !is_array($Config)))
+            throw new Exception('Error on read Playlistconfig-Script');
+        
         try
         {
             $Data = $this->GetSongInfoOfCurrentPlaylist();
         }
         catch (Exception $exc)
         {
-            throw new Exception($exc);
-            unset($exc);
             throw new Exception('Error on read Playlist');
         }
-        $Config = include (IPS_GetKernelDir() . "scripts/" . IPS_GetScriptFile($ScriptID));
-        if (($Config === false) or ( !is_array($Config)))
-            throw new Exception('Error on read Playlistconfig-Script');
-
         $HTMLData = $this->GetTableHeader($Config);
         $pos = 0;
+        $CurrentTrack = GetValueInteger($this->GetIDForIdent('Index'));
+
         if (isset($Data))
         {
             foreach ($Data as $Position => $Line)
             {
-                $Line['Position'] = $Position;
+                $Line['Position'] = $Position + 1;
                 $Line['Duration'] = @date('i:s', $Line['Duration']);
-                $HTMLData .='<tr style="' . $Config['Style']['BR' . ($pos % 2 ? 'U' : 'G')] . '">';
+
+                $HTMLData .='<tr style="' . $Config['Style']['BR' . ($Line['Position'] = $CurrentTrack ? 'A' : ($pos % 2 ? 'U' : 'G'))] . '">';
                 foreach ($Config['Spalten'] as $feldIndex => $value)
                 {
-                    $HTMLData .= '<td style="' . $Config['Style']['DF' . ($pos % 2 ? 'U' : 'G') . $feldIndex] . '">' . (string) $Line[$feldIndex] . '</td>';
+                    $HTMLData .= '<td style="' . $Config['Style']['DF' . ($Line['Position'] = $CurrentTrack ? 'A' : ($pos % 2 ? 'U' : 'G')). $feldIndex] . '">' . (string) $Line[$feldIndex] . '</td>';
                 }
                 $HTMLData .= '</tr>' . PHP_EOL;
                 $pos++;
@@ -1600,12 +1604,11 @@ class SqueezeboxDevice extends IPSModule
         $Script = '<?
 ### Konfig ab Zeile 10 !!!
 
-if (!isset($Data))
+if ($_IPS["SENDER"] <> "SqueezeBox")
 {
 	echo "Dieses Script kann nicht direkt ausgeführt werden!";
 	return;
 }
-
 ##########   KONFIGURATION
 #### Tabellarische Ansicht
 # Folgende Parameter bestimmen das Aussehen der HTML-Tabelle in der die WLAN-Geräte aufgelistet werden.
@@ -1671,25 +1674,31 @@ $Config["Style"] = array(
     // <tr>-Tag:
     "BRG"  => "background-color:#000000; color:ffff00;",
     "BRU"  => "background-color:#080808; color:ffff00;",
+    "BRA"  => "background-color:#808000; color:ffff00;",
     // <td>-Tag Feld Tracknum:
     "DFGPosition" => "text-align:center;",
     "DFUPosition" => "text-align:center;",
+    "DFAPosition" => "text-align:center;",
     // <td>-Tag Feld Title:
     "DFGTitle" => "text-align:center;",
     "DFUTitle" => "text-align:center;",
+    "DFATitle" => "text-align:center;",
     // <td>-Tag Feld Artist:
 	 "DFGArtist" => "text-align:center;",
     "DFUArtist" => "text-align:center;",
+    "DFAArtist" => "text-align:center;",
     // <td>-Tag Feld Bitrate:
     "DFGBitrate" => "text-align:center;",
     "DFUBitrate" => "text-align:center;",
+    "DFABitrate" => "text-align:center;",
     // <td>-Tag Feld Duration:
     "DFGDuration" => "text-align:center;",
     "DFUDuration" => "text-align:center;"
-    // ^- Der Buchstabe "G" steht für gerade, "U" für ungerade.
+    "DFADuration" => "text-align:center;"
+    // ^- Der Buchstabe "G" steht für gerade, "U" für ungerade., "A" für Aktiv
  );
-
-return $Config;
+### Konfig ENDE !!!
+LSQ_DisplayPlaylist($_IPS["TARGET"],$Config);
 ?>';
         return $Script;
     }
