@@ -165,6 +165,7 @@ class SqueezeboxDevice extends IPSModule
         $this->RegisterVariableInteger("Index", "Playlist Position", "Tracklist.Squeezebox." . $this->InstanceID, 12);
         $this->EnableAction("Index");
 
+        $this->RegisterVariableString("Playlist", "Playlist", "", 19);        
         $this->RegisterVariableString("Album", "Album", "", 20);
         $this->RegisterVariableString("Title", "Titel", "", 21);
         $this->RegisterVariableString("Interpret", "Interpret", "", 22);
@@ -804,6 +805,7 @@ class SqueezeboxDevice extends IPSModule
         $ret = intval($this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::index), intval($Index) - 1))) + 1;
         return ($ret == $Index);
     }
+
     /**
      * Springt in der aktuellen Wiedergabeliste auf den nächsten Titel.
      *
@@ -908,7 +910,7 @@ class SqueezeboxDevice extends IPSModule
         $this->Init();
         $raw = $this->SendLSQData(new LSQData(array(LSQResponse::playlist, 'load'), array($Name, 'noplay:1')));
         $ret = rawurldecode(explode(' ', $raw)[0]);
-        if (($ret == '/'.$Name) or ($ret == '\\'.$Name))
+        if (($ret == '/' . $Name) or ( $ret == '\\' . $Name))
             throw new Exception("Playlist not found.");
         return rawurldecode($ret);
     }
@@ -927,7 +929,7 @@ class SqueezeboxDevice extends IPSModule
         $this->Init();
         $raw = $this->SendLSQData(new LSQData(array(LSQResponse::playlist, 'resume'), array($Name, 'noplay:1')));
         $ret = rawurldecode(explode(' ', $raw)[0]);
-        if (($ret == '/'.$Name) or ($ret == '\\'.$Name))
+        if (($ret == '/' . $Name) or ( $ret == '\\' . $Name))
             throw new Exception("Playlist not found.");
         return rawurldecode($ret);
     }
@@ -1056,6 +1058,7 @@ class SqueezeboxDevice extends IPSModule
             throw new Exception("Index not valid.");
         return $SongArray;
     }
+
     /**
      * Liefert Informationen über alle Songs aus der aktuelle Wiedergabeliste.
      *
@@ -1324,6 +1327,7 @@ class SqueezeboxDevice extends IPSModule
                 break;
             case LSQResponse::shuffle:
                 $this->SetValueInteger('Shuffle', (int) ($LSQEvent->Value));
+                IPS_LogMessage('DOIT', 'REFRESHPLAYLISTINFO');
                 break;
             /*            case LSQResponse::sleep:
               $this->SetValueInteger('SleepTimeout', (int) $LSQEvent->Value);
@@ -1341,6 +1345,9 @@ class SqueezeboxDevice extends IPSModule
             case LSQResponse::displaynotify:
             case LSQResponse::remoteMeta:
             case LSQResponse::id:
+            case LSQResponse::playlist_modified:
+            case LSQResponse::playlist_id:
+
                 //ignore
                 break;
             case LSQResponse::newsong:
@@ -1357,11 +1364,11 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetValueInteger('Status', 2);
                 $this->SetValueString('Title', trim(rawurldecode($title)));
                 $this->SetValueInteger('Index', $currentTrack);
-                $this->SendLSQData(new LSQData(LSQResponse::artist, '?', false));
-                $this->SendLSQData(new LSQData(LSQResponse::album, '?', false));
-                $this->SendLSQData(new LSQData(LSQResponse::genre, '?', false));
-                $this->SendLSQData(new LSQData(LSQResponse::duration, '?', false));
-                $this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::tracks), '?', false));
+                /*                $this->SendLSQData(new LSQData(LSQResponse::artist, '?', false));
+                  $this->SendLSQData(new LSQData(LSQResponse::album, '?', false));
+                  $this->SendLSQData(new LSQData(LSQResponse::genre, '?', false));
+                  $this->SendLSQData(new LSQData(LSQResponse::duration, '?', false));
+                  $this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::tracks), '?', false)); */
                 $this->SetCover();
                 break;
             case LSQResponse::newmetadata:
@@ -1372,15 +1379,19 @@ class SqueezeboxDevice extends IPSModule
                         and ( $LSQEvent->Command[0] <> LSQResponse::mode))
                     $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[0], $LSQEvent->Value, $LSQEvent->isResponse));
                 break;
+            case LSQResponse::loadtracks:
+            case LSQResponse::load_done:
+                IPS_LogMessage('DOIT', 'REFRESHPLAYLISTINFO');
+                break;
             case LSQResponse::prefset:
-                /*                if ($LSQEvent->Command[0] == 'server')
-                  {
-                  $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[1], $LSQEvent->Value, $LSQEvent->isResponse));
-                  }
-                  else
-                  {
-                  IPS_LogMessage('prefsetLSQEvent', 'Namespace' . $LSQEvent->Command[0] . ':' . $LSQEvent->Value);
-                  } */
+                if ($LSQEvent->Command[0] == 'server')
+                {
+                    $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[1], $LSQEvent->Value, $LSQEvent->isResponse));
+                }
+                else
+                {
+                    IPS_LogMessage('prefsetLSQEvent', 'Namespace' . $LSQEvent->Command[0] . ':' . $LSQEvent->Value);
+                }
                 break;
             case LSQResponse::title:
                 $this->SetValueString('Title', trim(rawurldecode($LSQEvent->Value)));
@@ -1416,6 +1427,10 @@ class SqueezeboxDevice extends IPSModule
                     $this->SetValueInteger('DurationRAW', $LSQEvent->Value);
                     $this->SetValueString('Duration', @date('i:s', $LSQEvent->Value));
                 }
+                break;
+            case LSQResponse::playlist_name:
+                $this->SetValueString('Playlist', trim(rawurldecode($LSQEvent->Value)));
+
                 break;
             case LSQResponse::playlist_tracks:
             case LSQResponse::tracks:

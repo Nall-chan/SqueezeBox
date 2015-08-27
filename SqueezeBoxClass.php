@@ -179,7 +179,7 @@ class LSMSongInfo extends stdClass
             'Remote_title' => 3, //N 
             'Genre_id' => 1, //p
             'Artist_id' => 1, //s
-            'Year' => 1,// Y
+            'Year' => 1, // Y
             'Name' => 3,
             'Modified' => 0
         );
@@ -199,7 +199,7 @@ class LSMSongInfo extends stdClass
             if (array_key_exists($Index, $SongFields))
             {
                 if ($SongFields[$Index] == 0)
-                    $Songs[$id][$Index] = (bool)($LSQPart->Value);
+                    $Songs[$id][$Index] = (bool) ($LSQPart->Value);
                 elseif ($SongFields[$Index] == 1)
                     $Songs[$id][$Index] = intval($LSQPart->Value);
                 else
@@ -294,6 +294,11 @@ class LSQResponse extends stdClass
     const shuffle = 'shuffle';
     const newsong = 'newsong';
     const tracks = 'tracks';
+    const loadtracks = 'loadtracks';
+    const load_done = 'load_done';
+    const playlist_name = 'playlist_name';
+    const playlist_modified = 'playlist_modified';
+    const playlist_id = 'playlist_id';
 
     /*
       connected ?
