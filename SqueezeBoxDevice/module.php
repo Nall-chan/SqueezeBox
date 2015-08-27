@@ -1559,11 +1559,11 @@ if (isset($_GET["Index"]))
         {
             foreach ($Data as $Position => $Line)
             {
+                $Line['Play'] = $Line['Position'] == $CurrentTrack ? '<div class="icon td ipsIconPower" is="null"></div>' : '';
                 $Line['Position'] = $Position + 1;
                 $Line['Duration'] = @date('i:s', $Line['Duration']);
 
                 $HTMLData .='<tr style="' . $Config['Style']['BR' . ($Line['Position'] == $CurrentTrack ? 'A' : ($pos % 2 ? 'U' : 'G'))] . '"
-                        ontouchstart="window.xhrGet=function xhrGet(o) {var HTTP = new XMLHttpRequest();HTTP.open(\'GET\',o.url,true);HTTP.send();};window.xhrGet({ url: \'hook/SqueezeBoxPlaylist' . $this->InstanceID . '?Index=' . $Line['Position'] . '\' })"
                         onclick="window.xhrGet=function xhrGet(o) {var HTTP = new XMLHttpRequest();HTTP.open(\'GET\',o.url,true);HTTP.send();};window.xhrGet({ url: \'hook/SqueezeBoxPlaylist' . $this->InstanceID . '?Index=' . $Line['Position'] . '\' })">';
                 foreach ($Config['Spalten'] as $feldIndex => $value)
                 {
@@ -1650,6 +1650,7 @@ if ($_IPS["SENDER"] <> "SqueezeBox")
 // Reihenfolge und Überschriften der Tabelle. Der vordere Wert darf nicht verändert werden.
 // Die Reihenfolge, der hintere Wert (Anzeigetext) und die Reihenfolge sind beliebig änderbar.
 $Config["Spalten"] = array(
+"Play" ="",
 "Position"=>"Pos",
 "Title"=>"Titel",
 "Artist"=>"Interpret",
@@ -1660,6 +1661,8 @@ $Config["Spalten"] = array(
 /*
 | Index            | Typ     | Beschreibung                        |
 | :--------------: | :-----: | :---------------------------------: |
+| Play             |  kein   | Play-Icon                           |
+| Position         | integer | Position in der Playlist            |
 | Id               | integer | UID der Datei in der LMS-Datenbank  |
 | Title            | string  | Titel                               |
 | Genre            | string  | Genre                               |
@@ -1679,6 +1682,7 @@ $Config["Spalten"] = array(
 */
 // Breite der Spalten (Reihenfolge ist egal)
 $Config["Breite"] = array(
+"Play" =>"50em",
 "Position" => "50em",
     "Title" => "200em",
     "Artist" => "200em",
@@ -1693,6 +1697,8 @@ $Config["Style"] = array(
     "H"    => "",
     // <tr>-Tag im thead-Bereich:
     "HR"   => "",
+    // <th>-Tag Feld Play:
+    "HFPlay"  => "width:35px; align:left;",
     // <th>-Tag Feld Position:
     "HFPosition"  => "width:35px; align:left;",
     // <th>-Tag Feld Title:
@@ -1709,7 +1715,11 @@ $Config["Style"] = array(
     "BRG"  => "background-color:#000000; color:ffff00;",
     "BRU"  => "background-color:#080808; color:ffff00;",
     "BRA"  => "background-color:#808000; color:ffff00;",
-    // <td>-Tag Feld Tracknum:
+    // <td>-Tag Feld Play:
+    "DFGPlay" => "text-align:center;",
+    "DFUPlay" => "text-align:center;",
+    "DFAPlay" => "text-align:center;",
+    // <td>-Tag Feld Position:
     "DFGPosition" => "text-align:center;",
     "DFUPosition" => "text-align:center;",
     "DFAPosition" => "text-align:center;",
