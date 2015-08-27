@@ -186,7 +186,7 @@ class LMSSplitter extends IPSModule
         $Data = $this->SendLMSData(new LMSData(array('songinfo', '0', '20'), array('url:' . rawurlencode($FileURL), 'tags:gladiqrRtueJINpsy')));
         $SongInfo = new LSMSongInfo($Data);
         $Song = $SongInfo->GetSong();
-        if (is_null($Song))
+        if (count($Song) == 1)
             throw new Exception("FileURL not valid.");
         return $Song;
     }
