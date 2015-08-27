@@ -7,8 +7,9 @@ Logitech Media Server.
 
 ### Funktionsreferenz LMSSplitter / Logitech Media Server:
 Für alle Befehle gilt: Tritt ein Fehler auf, wird eine Exception geworfen.
+Dies gilt auch wenn ein Parameter nicht gültig ist, oder z.B. ein Index nicht in der Datenbank gefunden wurde.  
 
-#### Datenbank:
+#### Server:
 
 `string LMS_GetVersion(integer $InstanzID)`  
 Liefert die aktuell installierte Version des Logitech Media-Server.
@@ -19,6 +20,69 @@ Liefert `true` wenn Rescan gestartet wurde.
 
 `boolean LMS_GetRescanProgress(integer $InstanzID)`  
 Prüft ob aktuell ein Rescan läuft `true`, sonst `false`.
+
+#### Datenbank:
+
+`array LMS_GetLibaryInfo (integer $InstanzID)`  
+Liefert Informationen über die Datenbank des LMS.  
+**Array:**  
+
+| Index   | Typ     | Beschreibung                |
+| :-----: | :-----: | :-------------------------: |
+| Genres  | integer | Anzahl verschiedener Genres |
+| Artists | integer | Anzahl der Interpreten      |
+| Albums  | integer | Anzahl der Alben            |
+| Songs   | integer | Anzahl aller Titel          |
+
+`array LMS_GetSongInfoByFileID (integer $InstanzID, integer $FileID)`  
+Liefert Informationen über eine in `$FileID` übergebene Datei.  
+
+**Array:**  
+
+| :--------------: | :-----: | :---------------------------------: |
+| Id               | integer | UID der Datei in der LMS-Datenbank  |
+| Title            | string  | Titel                               |
+| Genre            | string  | Genre                               |
+| Album            | string  | Album                               |
+| Artist           | string  | Interpret                           |
+| Duration         | integer | Länge in Sekunden                   |
+| Disc             | integer | Aktuelles Medium                    |
+| Disccount        | integer | Anzahl aller Medien dieses Albums   |
+| Bitrate          | string  | Bitrate in Klartext                 |
+| Tracknum         | integer | Index in der aktuellen Playlist     |
+| Url              | string  | Pfad der Playlist                   |
+| Album_id         | integer | UID des Album in der LMS-Datenbank  |
+| Artwork_track_id | string  | UID des Cover in der LMS-Datenbank  |
+| Genre_id         | integer | UID des Genre in der LMS-Datenbank  |
+| Artist_id        | integer | UID des Artist in der LMS-Datenbank |
+| Year             | integer | Jahr des Song, soweit hinterlegt    |
+  
+`array LMS_GetSongInfoByFileURL (integer $InstanzID, string $FileURL)`  
+
+Liefert Informationen über eine in `$FileURL` übergebene Datei.  
+
+**Array:**  
+
+| :--------------: | :-----: | :---------------------------------: |
+| Id               | integer | UID der Datei in der LMS-Datenbank  |
+| Title            | string  | Titel                               |
+| Genre            | string  | Genre                               |
+| Album            | string  | Album                               |
+| Artist           | string  | Interpret                           |
+| Duration         | integer | Länge in Sekunden                   |
+| Disc             | integer | Aktuelles Medium                    |
+| Disccount        | integer | Anzahl aller Medien dieses Albums   |
+| Bitrate          | string  | Bitrate in Klartext                 |
+| Tracknum         | integer | Index in der aktuellen Playlist     |
+| Url              | string  | Pfad der Playlist                   |
+| Album_id         | integer | UID des Album in der LMS-Datenbank  |
+| Artwork_track_id | string  | UID des Cover in der LMS-Datenbank  |
+| Genre_id         | integer | UID des Genre in der LMS-Datenbank  |
+| Artist_id        | integer | UID des Artist in der LMS-Datenbank |
+| Year             | integer | Jahr des Song, soweit hinterlegt    |
+
+
+#### Player:
 
 `integer LMS_GetNumberOfPlayers(integer $InstanzID)`  
 Fragt die aktuelle Anzahl aller bekannten Player vom Server ab.
@@ -47,25 +111,6 @@ Liefert Infomationen über ein Gerät.
 | Displaytype | string  | Typ vom verbauten Display                         |
 | Canpoweroff | integer | 1 wenn Gerät Standby unterstützt                  |
 | Connected   | integer | 1 wenn Gerät aktuell mit dem Server verbunden ist |
-
-
-`array LMS_GetLibaryInfo (integer $InstanzID)`  
-Liefert Informationen über die Datenbank des LMS.  
-**Array:**  
-
-| Index   | Typ     | Beschreibung                |
-| :-----: | :-----: | :-------------------------: |
-| Genres  | integer | Anzahl verschiedener Genres |
-| Artists | integer | Anzahl der Interpreten      |
-| Albums  | integer | Anzahl der Alben            |
-| Songs   | integer | Anzahl aller Titel          |
-
-`array LMS_GetSongInfoByFileID (integer $InstanzID, integer $ID)`  
-Noch ohne Funktion.  
-
-`array LMS_GetSongInfoByFileURL (integer $InstanzID, string $File)`  
-Noch ohne Funktion.  
-
 
 ### Funktionsreferenz LSQDevice / SqueezeboxDevice:
 Für alle Befehle gilt: Tritt ein Fehler auf, wird eine Exception geworfen.
@@ -127,6 +172,11 @@ Liefert `true`bei Erfolg.
 
 `array LSQ_GetPlaylistInfo(integer $InstanzID)`  
 Liefert Informationen über die Playlist.  
+**Hinweis:**
+Funktioniert nur, wenn wirklich eine Playlist aus den vorhandnene Server-Playlisten geladen wurde.  
+Und auch nur, wenn Sie manuell am Player oder per `LSQ_LoadPlaylistByPlaylistID` geladen wurde.
+Playlisten welche mit ihrem Namen über `LSQ_LoadPlaylist` geladen wurden, liefern leider keine Informationen.  
+
 **Array:**  
 
 | Index     | Typ     | Beschreibung                          |
@@ -155,6 +205,7 @@ Mehrdimensionales Array, wobei der erste Index der Trackposition entspricht.
 | Url              | string  | Pfad der Playlist                   |
 | Album_id         | integer | UID des Album in der LMS-Datenbank  |
 | Artwork_track_id | string  | UID des Cover in der LMS-Datenbank  |
+| Genre_id         | integer | UID des Genre in der LMS-Datenbank  |
 | Artist_id        | integer | UID des Artist in der LMS-Datenbank |
 | Year             | integer | Jahr des Song, soweit hinterlegt    |
 | Remote_title     | string  | Titel des Stream                    |
@@ -179,6 +230,7 @@ Wird als `$Index` 0 übergeben, so wird der aktuelle Song genutzt.
 | Url              | string  | Pfad der Playlist                   |
 | Album_id         | integer | UID des Album in der LMS-Datenbank  |
 | Artwork_track_id | string  | UID des Cover in der LMS-Datenbank  |
+| Genre_id         | integer | UID des Genre in der LMS-Datenbank  |
 | Artist_id        | integer | UID des Artist in der LMS-Datenbank |
 | Year             | integer | Jahr des Song, soweit hinterlegt    |
 | Remote_title     | string  | Titel des Stream                    |

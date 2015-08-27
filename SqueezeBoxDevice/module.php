@@ -804,7 +804,6 @@ class SqueezeboxDevice extends IPSModule
         $ret = intval($this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::index), intval($Index) - 1))) + 1;
         return ($ret == $Index);
     }
-
     /**
      * Springt in der aktuellen Wiedergabeliste auf den nächsten Titel.
      *
@@ -909,7 +908,7 @@ class SqueezeboxDevice extends IPSModule
         $this->Init();
         $raw = $this->SendLSQData(new LSQData(array(LSQResponse::playlist, 'load'), array($Name, 'noplay:1')));
         $ret = explode(' ', $raw);
-        if ($ret == '')
+        if (($ret == '/'.$Name) or ($ret == '\\'.$Name))
             throw new Exception("Playlist not found.");
         return rawurldecode($ret[0]);
     }
@@ -928,7 +927,7 @@ class SqueezeboxDevice extends IPSModule
         $this->Init();
         $raw = $this->SendLSQData(new LSQData(array(LSQResponse::playlist, 'resume'), array($Name, 'noplay:1')));
         $ret = explode(' ', $raw);
-        if ($ret == '')
+        if (($ret == '/'.$Name) or ($ret == '\\'.$Name))
             throw new Exception("Playlist not found.");
         return rawurldecode($ret[0]);
     }

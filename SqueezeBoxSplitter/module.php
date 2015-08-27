@@ -171,19 +171,23 @@ class LMSSplitter extends IPSModule
         return $ret;
     }
 
-    public function GetSongInfoByFileID(integer $ID)
+    public function GetSongInfoByFileID(integer $FileID)
     {
-        $Data = $this->SendLMSData(new LMSData(array('songinfo', '0', '20'), array('track_id:' . $ID, 'tags:gladiqrRtueJINpsy')));
+        $Data = $this->SendLMSData(new LMSData(array('songinfo', '0', '20'), array('track_id:' . $FileID, 'tags:gladiqrRtueJINpsy')));
         $SongInfo = new LSMSongInfo($Data);
         $Song = $SongInfo->GetSong();
+        if (is_null($Song))
+            throw new Exception("FileID not valid.");
         return $Song;
     }
 
-    public function GetSongInfoByFileURL(string $File)
+    public function GetSongInfoByFileURL(string $FileURL)
     {
-        $Data = $this->SendLMSData(new LMSData(array('songinfo', '0', '20'), array('url:' . rawurlencode($File), 'tags:gladiqrRtueJINpsy')));
+        $Data = $this->SendLMSData(new LMSData(array('songinfo', '0', '20'), array('url:' . rawurlencode($FileURL), 'tags:gladiqrRtueJINpsy')));
         $SongInfo = new LSMSongInfo($Data);
         $Song = $SongInfo->GetSong();
+        if (is_null($Song))
+            throw new Exception("FileURL not valid.");
         return $Song;
     }
 
