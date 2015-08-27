@@ -25,6 +25,7 @@ Prüft ob aktuell ein Rescan läuft `true`, sonst `false`.
 
 `array LMS_GetLibaryInfo (integer $InstanzID)`  
 Liefert Informationen über die Datenbank des LMS.  
+
 **Array:**  
 
 | Index   | Typ     | Beschreibung                |
@@ -98,7 +99,8 @@ Fragt die aktuelle Anzahl aller bekannten Player vom Server ab.
     Das Array enthält alle erzeugten Instanzen.  
 
 `array LMS_GetPlayerInfo(integer $InstanzID, integer $Index)`  
-Liefert Infomationen über ein Gerät.
+Liefert Infomationen über ein Gerät.  
+
 **Array:**  
 
 | Index       | Typ     | Beschreibung                                      |
@@ -191,6 +193,7 @@ Playlisten welche mit ihrem Namen über `LSQ_LoadPlaylist` geladen wurden, liefer
 `array LSQ_GetSongInfoOfCurrentPlaylist (integer $InstanzID)`  
 Liefert Informationen über alle Songs in der Playlist.  
 Mehrdimensionales Array, wobei der erste Index der Trackposition entspricht.  
+
 **Array:**  
 
 | Index            | Typ     | Beschreibung                        |
@@ -216,6 +219,7 @@ Mehrdimensionales Array, wobei der erste Index der Trackposition entspricht.
 `array LSQ_GetSongInfoByTrackIndex (integer $InstanzID, integer $Index)`  
 Liefert Informationen über den Song mit dem `$Index` der aktuellen Playlist.  
 Wird als `$Index` 0 übergeben, so wird der aktuelle Song genutzt.  
+
 **Array:**  
 
 | Index            | Typ     | Beschreibung                        |
