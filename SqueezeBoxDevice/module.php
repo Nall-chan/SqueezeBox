@@ -197,6 +197,9 @@ class SqueezeboxDevice extends IPSModule
         IPS_SetHidden($this->GetIDForIdent('Connected'), true);
         IPS_SetHidden($this->GetIDForIdent('PositionRAW'), true);
         IPS_SetHidden($this->GetIDForIdent('DurationRAW'), true);
+        $sid = $this->RegisterScript("WebHookPlaylist", "WebHookPlaylist", '<? //Do not delete or modify.\nif (isset($_GET["Index"]))\n   LSQ_PlayTrack(' . $this->InstanceID . ',$_GET["Index"]);\n');
+        IPS_SetHidden($ID, true);
+        $this->RegisterHook('/hook/SqueezeBoxPlaylist' . $this->InstanceID, $sid);
         // Adresse nicht leer ?
         // Parent vorhanden und nicht in Fehlerstatus ?
         if ($this->Init(false))
@@ -1372,7 +1375,7 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetValueInteger('Status', 2);
                 $this->SetValueString('Title', trim(rawurldecode($title)));
                 if ($this->SetValueInteger('Index', $currentTrack))
-                        $this->RefreshPlaylist();
+                    $this->RefreshPlaylist();
                 /*                $this->SendLSQData(new LSQData(LSQResponse::artist, '?', false));
                   $this->SendLSQData(new LSQData(LSQResponse::album, '?', false));
                   $this->SendLSQData(new LSQData(LSQResponse::genre, '?', false));
@@ -1460,9 +1463,9 @@ class SqueezeboxDevice extends IPSModule
                     $this->SetValueInteger('Position2', 0);
                     $this->SetValueInteger('PositionRAW', 0);
                     $this->SetValueString('Position', '0:00');
-                if ($this->SetValueInteger('Index', 0))
+                    if ($this->SetValueInteger('Index', 0))
                         $this->RefreshPlaylist();
-                    
+
                     $this->SetCover();
                 }
                 if (!IPS_VariableProfileExists($Name))
@@ -1503,7 +1506,7 @@ class SqueezeboxDevice extends IPSModule
             case LSQResponse::index:
             case LSQResponse::playlist_cur_index:
                 if ($this->SetValueInteger('Index', intval($LSQEvent->Value) + 1))
-                        $this->RefreshPlaylist();
+                    $this->RefreshPlaylist();
                 break;
             case LSQResponse::time:
                 $this->tempData['Position'] = $LSQEvent->Value;
@@ -1529,13 +1532,14 @@ class SqueezeboxDevice extends IPSModule
         $ScriptID = $this->ReadPropertyInteger('Playlistconfig');
         if ($ScriptID == 0)
             return;
-        IPS_RunScriptEx($ScriptID,array('SENDER'=>'SqueezeBox','TARGET'=>$this->InstanceID));
+        IPS_RunScriptEx($ScriptID, array('SENDER' => 'SqueezeBox', 'TARGET' => $this->InstanceID));
     }
+
     public function DisplayPlaylist($Config)
     {
         if (($Config === false) or ( !is_array($Config)))
             throw new Exception('Error on read Playlistconfig-Script');
-        
+
         try
         {
             $Data = $this->GetSongInfoOfCurrentPlaylist();
@@ -1555,10 +1559,12 @@ class SqueezeboxDevice extends IPSModule
                 $Line['Position'] = $Position + 1;
                 $Line['Duration'] = @date('i:s', $Line['Duration']);
 
-                $HTMLData .='<tr style="' . $Config['Style']['BR' . ($Line['Position'] == $CurrentTrack ? 'A' : ($pos % 2 ? 'U' : 'G'))] . '">';
+                $HTMLData .='<tr style="' . $Config['Style']['BR' . ($Line['Position'] == $CurrentTrack ? 'A' : ($pos % 2 ? 'U' : 'G'))] . '"
+                        ontouchstart="window.xhrGet=function xhrGet(o) {var HTTP = new XMLHttpRequest();HTTP.open(\'GET\',o.url,true);HTTP.send();};window.xhrGet({ url: \'hook/SqueezeBoxPlaylist' . $this->InstanceID . '&Index=' . $Line['Position'] . '\' })"
+                        onclick="window.xhrGet=function xhrGet(o) {var HTTP = new XMLHttpRequest();HTTP.open(\'GET\',o.url,true);HTTP.send();};window.xhrGet({ url: \'hook/SqueezeBoxPlaylist' . $this->InstanceID . '&Index=' . $Line['Position'] . '\' })"';
                 foreach ($Config['Spalten'] as $feldIndex => $value)
                 {
-                    $HTMLData .= '<td style="' . $Config['Style']['DF' . ($Line['Position'] == $CurrentTrack ? 'A' : ($pos % 2 ? 'U' : 'G')). $feldIndex] . '">' . (string) $Line[$feldIndex] . '</td>';
+                    $HTMLData .= '<td style="' . $Config['Style']['DF' . ($Line['Position'] == $CurrentTrack ? 'A' : ($pos % 2 ? 'U' : 'G')) . $feldIndex] . '">' . (string) $Line[$feldIndex] . '</td>';
                 }
                 $HTMLData .= '</tr>' . PHP_EOL;
                 $pos++;
@@ -1566,6 +1572,32 @@ class SqueezeboxDevice extends IPSModule
         }
         $HTMLData .= $this->GetTableFooter();
         $this->SetValueString('Playlist', $HTMLData);
+    }
+
+    private function RegisterHook($WebHook, $TargetID)
+    {
+        $ids = IPS_GetInstanceListByModuleID("{015A6EB8-D6E5-4B93-B496-0D3F77AE9FE1}");
+        if (sizeof($ids) > 0)
+        {
+            $hooks = json_decode(IPS_GetProperty($ids[0], "Hooks"), true);
+            $found = false;
+            foreach ($hooks as $index => $hook)
+            {
+                if ($hook['Hook'] == $WebHook)
+                {
+                    if ($hook['TargetID'] == $TargetID)
+                        return;
+                    $hooks[$index]['TargetID'] = $TargetID;
+                    $found = true;
+                }
+            }
+            if (!$found)
+            {
+                $hooks[] = Array("Hook" => $WebHook, "TargetID" => $TargetID);
+            }
+            IPS_SetProperty($ids[0], "Hooks", json_encode($hooks));
+            IPS_ApplyChanges($ids[0]);
+        }
     }
 
     private function GetTableHeader($Config)
