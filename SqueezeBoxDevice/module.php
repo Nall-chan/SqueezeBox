@@ -1962,6 +1962,8 @@ return $Config;
             $this->unlock('BufferOut');
             return true;
         }
+                throw new Exception("No answer from LMS789");
+        
         return false;
     }
 
@@ -1985,6 +1987,8 @@ return $Config;
                     else
                         return $ret;
                 }
+ throw new Exception("No answer from LMS123");
+
                 return false;
             }
         }
@@ -2002,6 +2006,8 @@ return $Config;
             $this->unlock('BufferOut');
             return true;
         }
+                throw new Exception("No answer from LMS456");
+        
         return false;
     }
 
