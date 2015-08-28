@@ -305,16 +305,23 @@ class LMSSplitter extends IPSModule
 
     public function GetPlaylists()
     {
-        $ret = $this->SendLMSData(new LMSData('playlists', array('0', '1000', 'tags:us')));
-        IPS_Logmessage('Playlist1',print_r($ret,1));
-        $Data = new LMSTaggingData($ret);
-        IPS_Logmessage('Playlist2',print_r($Data,1)); 
-        $ret = $this->SendLMSData(new LMSData(array('playlists','tracks'), array('0', '1')));
-        IPS_Logmessage('Playlist3',print_r($ret,1));
-        $Data = new LMSTaggingData($ret);
-        IPS_Logmessage('Playlist4',print_r($Data,1)); 
         
-        return array('123' => "123456678", 'af' => 'hallo');
+        $ret = $this->SendLMSData(new LMSData('playlists', array(0 ,1000 ,'tags:u')));            
+        
+        IPS_Logmessage('Playlist1', print_r($ret, 1));
+
+        $SongInfo = new LSMSongInfo($ret);
+        $SongArray = $SongInfo->GetAllSongs();
+        IPS_Logmessage('Playlist2', print_r($SongArray, 1));
+        IPS_Logmessage('PlaylistTotal', print_r($SongInfo->GetTotalDuration(), 1));
+/*        
+        $ret = $this->SendLMSData(new LMSData(array('playlists', 'tracks'), array('0', '1')));
+        IPS_Logmessage('Playlist3', print_r($ret, 1));
+        $Data = new LMSTaggingData($ret);
+        IPS_Logmessage('Playlist4', print_r($Data, 1));
+*/
+        return $SongArray;
+//        return array('123' => "123456678", 'af' => 'hallo');
     }
 
 ################## Action

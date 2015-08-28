@@ -1479,7 +1479,8 @@ if (isset($_GET["Index"]))
                     $this->SetValueInteger('Position2', 0);
                     $this->SetValueInteger('PositionRAW', 0);
                     $this->SetValueString('Position', '0:00');
-                    $this->SetValueInteger('Index', 0);
+                    if ($this->SetValueInteger('Index', 0))
+                        $this->RefreshPlaylist();
                     $this->SetCover();
 //                $LSQEvent->Value                    
                 }
@@ -1493,7 +1494,6 @@ if (isset($_GET["Index"]))
                     if (IPS_GetVariableProfile($Name)['MaxValue'] <> $LSQEvent->Value)
                         IPS_SetVariableProfileValues($Name, 1, $LSQEvent->Value, 1);
                 }
-                $this->RefreshPlaylist();
 
                 break;
             case LSQResponse::status:
@@ -2185,11 +2185,13 @@ LSQ_DisplayPlaylist($_IPS["TARGET"],$Config);
             IPS_SetVariableProfileAssociation($Name, $Association[0], $Association[1], $Association[2], $Association[3]);
         }
     }
+
     protected function SetStatus($InstanceStatus)
     {
         if ($InstanceStatus <> IPS_GetInstance($this->InstanceID)['InstanceStatus'])
             parent::SetStatus($InstanceStatus);
     }
+
 }
 
 ?>

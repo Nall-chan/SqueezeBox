@@ -154,11 +154,13 @@ class LSMSongInfo extends stdClass
 {
 
     private $SongArray;
+    private $Duration;
 
     public function __construct($TaggedDataLine)
     {
         $id = -1;
         $Songs = array();
+        $Duration = 0;
         $SongFields = array(
             'Id' => 1,
             'Title' => 3,
@@ -181,7 +183,8 @@ class LSMSongInfo extends stdClass
             'Artist_id' => 1, //s
             'Year' => 1, // Y
             'Name' => 3,
-            'Modified' => 0
+            'Modified' => 0,
+            'Playlist' => 3
         );
         foreach (explode(' ', $TaggedDataLine) as $Line)
         {
@@ -195,6 +198,14 @@ class LSMSongInfo extends stdClass
 //                IPS_LogMessage('LMSSongInfo','ROW: '.$Key.' ID: '.$id);                
                 continue;
             }
+            if (!is_array($LSQPart->Command) and ( $LSQPart->Command == LSQResponse::id))
+            {
+                $id++;
+            }
+
+            if ($LSQPart->Command == LSQResponse::duration)
+                $Duration = +intval($LSQPart->Value);
+
             $Index = ucfirst($LSQPart->Command);
             if (array_key_exists($Index, $SongFields))
             {
@@ -203,7 +214,7 @@ class LSMSongInfo extends stdClass
                 elseif ($SongFields[$Index] == 1)
                     $Songs[$id][$Index] = intval($LSQPart->Value);
                 else
-                    $Songs[$id][$Index] = /*utf8_decode(*/rawurldecode($LSQPart->Value)/*)*/;
+                    $Songs[$id][$Index] = /* utf8_decode( */rawurldecode($LSQPart->Value)/* ) */;
             }
         }
         if ((count($Songs) <> 1 ) and isset($Songs[-1]))
@@ -212,6 +223,7 @@ class LSMSongInfo extends stdClass
                 unset($Songs[-1]);
         }
         $this->SongArray = $Songs;
+        $this->Duration = $Duration;
     }
 
     public function GetSong()
@@ -222,6 +234,14 @@ class LSMSongInfo extends stdClass
     public function GetAllSongs()
     {
         return $this->SongArray;
+    }
+
+    public function GetTotalDuration()
+    {
+        if (@date('H', $this->Duration) == 0)
+            return @date('i:s', $this->Duration);
+        else
+            return @date('H:i:s', $this->Duration);
     }
 
 }
