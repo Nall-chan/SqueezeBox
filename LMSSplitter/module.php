@@ -7,12 +7,6 @@ class LMSSplitter extends IPSModule
 
     public function Create()
     {
-        //Never delete this line!
-        parent::Create();
-        //These lines are parsed on Instance creation
-        // ClientSocket benötigt
-        $this->RequireParent("{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}", "Logitech Media Server");
-        
         if ((integer) IPS_GetProperty($this->InstanceID, 'isOld') == 1)
         {
             $Host = IPS_GetProperty($this->InstanceID, 'Host');
@@ -27,6 +21,13 @@ class LMSSplitter extends IPSModule
             $Port = 9090;
             $WebPort = 9000;
         }
+        
+        //Never delete this line!
+        parent::Create();
+        //These lines are parsed on Instance creation
+        // ClientSocket benötigt
+        $this->RequireParent("{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}", "Logitech Media Server");
+        
         IPS_Logmessage('Setting_Host',print_r($Host,1));
         IPS_Logmessage('Setting_Open',print_r($Open,1));
         IPS_Logmessage('Setting_Port',print_r($Port,1));
