@@ -13,7 +13,7 @@ class LMSSplitter extends IPSModule
         // ClientSocket benötigt
         $this->RequireParent("{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}", "Logitech Media Server");
         
-        if ((bool) IPS_GetProperty($this->InstanceID, 'isOld'))
+        if ((integer) IPS_GetProperty($this->InstanceID, 'isOld') == 1)
         {
             $Host = IPS_GetProperty($this->InstanceID, 'Host');
             $Open = IPS_GetProperty($this->InstanceID, 'Open');
@@ -31,7 +31,7 @@ class LMSSplitter extends IPSModule
         IPS_Logmessage('Setting_Open',print_r($Open,1));
         IPS_Logmessage('Setting_Port',print_r($Port,1));
         IPS_Logmessage('Setting_WebPort',print_r($WebPort,1));
-        $this->RegisterPropertyBoolean("isOld", true);
+        $this->RegisterPropertyInteger("isOld", 1);
        
         $this->RegisterPropertyString("Host", $Host);
         $this->RegisterPropertyBoolean("Open", $Open);
