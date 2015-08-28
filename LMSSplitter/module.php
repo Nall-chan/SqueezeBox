@@ -305,8 +305,8 @@ class LMSSplitter extends IPSModule
                     case "notify":
                         $Data = new LMSTaggingData($LMSData->Data[2]);
                         IPS_LogMessage("scanner progress", print_r($Data, 1));
-
-                        switch ($Data->{0})
+                        IPS_LogMessage("scanner progress2", print_r($Data->{0}, 1));
+                        switch (array_keys(get_object_vars($Data))[0])
                         {
                             case "end":
                             case "exit":
