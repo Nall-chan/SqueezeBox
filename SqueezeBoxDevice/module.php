@@ -1399,6 +1399,7 @@ if (isset($_GET["Index"]))
                 //  $this->SendLSQData(new LSQData(LSQResponse::artist, '?', false));
                 //  $this->SendLSQData(new LSQData(LSQResponse::album, '?', false));
                 $this->SendLSQData(new LSQData(LSQResponse::genre, '?', false));
+                $this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::name),'?', false));
                 //  $this->SendLSQData(new LSQData(LSQResponse::duration, '?', false));
                 //  $this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::tracks), '?', false));
                 $this->SetCover();
