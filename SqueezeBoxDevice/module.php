@@ -1277,10 +1277,10 @@ if (isset($_GET["Index"]))
                         $this->SetConnected(true);
                 }
                 break;
-//            case LSQResponse::player_name:
-//            case LSQResponse::name:
-            //              $this->_NewName(rawurldecode((string) $LSQEvent->Value));
-//                break;
+            case LSQResponse::player_name:
+            case LSQResponse::name:
+                $this->_NewName(rawurldecode((string) $LSQEvent->Value));
+                break;
             case LSQResponse::signalstrength:
                 $this->SetValueInteger('Signalstrength', (int) $LSQEvent->Value);
                 break;
@@ -1401,8 +1401,8 @@ if (isset($_GET["Index"]))
                 {
                     if ($LSQEvent->Command[0] == LSQResponse::name)
                         $this->decodeLSQEvent(new LSQEvent(LSQResponse::playlist_name, $LSQEvent->Value, $LSQEvent->isResponse));
-
-                    $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[0], $LSQEvent->Value, $LSQEvent->isResponse));
+                    else
+                        $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[0], $LSQEvent->Value, $LSQEvent->isResponse));
                 }
                 break;
             case LSQResponse::loadtracks:
