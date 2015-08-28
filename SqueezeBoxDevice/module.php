@@ -17,7 +17,7 @@ class SqueezeboxDevice extends IPSModule
 
         // 1. Verfügbarer LMS-Splitter wird verbunden oder neu erzeugt, wenn nicht vorhanden.
         $this->ConnectParent("{96A9AB3A-2538-42C5-A130-FC34205A706A}");
-
+        IPS_Logmessage('Setting_isOld',print_r(IPS_GetProperty($this->InstanceID, 'isOld'),1));
         if ((bool) IPS_GetProperty($this->InstanceID, 'isOld'))
         {
             $Address = IPS_GetProperty($this->InstanceID, 'Address');
@@ -30,6 +30,9 @@ class SqueezeboxDevice extends IPSModule
             $Interval = 2;
             $CoverSize = "cover";
         }
+        IPS_Logmessage('Setting_Address',print_r($Address,1));
+        IPS_Logmessage('Setting_Interval',print_r($Interval,1));
+        IPS_Logmessage('Setting_CoverSize',print_r($CoverSize,1));
         $this->RegisterPropertyBoolean("isOld", true);
         $this->RegisterPropertyString("Address", $Address);
         $this->RegisterPropertyInteger("Interval", $Interval);
@@ -1414,7 +1417,7 @@ if (isset($_GET["Index"]))
                         and ( $LSQEvent->Command[0] <> LSQResponse::mode))
                 {
                     if ($LSQEvent->Command[0] == LSQResponse::name)
-                        $this->decodeLSQEvent(new LSQEvent(LSQResponse::player_name, $LSQEvent->Value, $LSQEvent->isResponse));
+                        $this->decodeLSQEvent(new LSQEvent(LSQResponse::playlist_name, $LSQEvent->Value, $LSQEvent->isResponse));
 
                     $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[0], $LSQEvent->Value, $LSQEvent->isResponse));
                 }
