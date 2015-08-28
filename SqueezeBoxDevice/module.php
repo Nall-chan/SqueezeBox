@@ -25,21 +25,22 @@ class SqueezeboxDevice extends IPSModule
             $Address = "";
             $Interval = 2;
             $CoverSize = "cover";
+            $this->RegisterPropertyString("Address", $Address);
+            $this->RegisterPropertyInteger("Interval", $Interval);
+            $this->RegisterPropertyString("CoverSize", $CoverSize);
+
         }
-        else
+/*        else
         {
             $Address = IPS_GetProperty($this->InstanceID, 'Address');
             $Interval = IPS_GetProperty($this->InstanceID, 'Interval');
             $CoverSize = IPS_GetProperty($this->InstanceID, 'CoverSize');
-        }
+        }*/
         
-        IPS_Logmessage('Setting_Address', print_r($Address, 1));
+        /*IPS_Logmessage('Setting_Address', print_r($Address, 1));
         IPS_Logmessage('Setting_Interval', print_r($Interval, 1));
-        IPS_Logmessage('Setting_CoverSize', print_r($CoverSize, 1));
+        IPS_Logmessage('Setting_CoverSize', print_r($CoverSize, 1));*/
         
-        $this->RegisterPropertyString("Address", $Address);
-        $this->RegisterPropertyInteger("Interval", $Interval);
-        $this->RegisterPropertyString("CoverSize", $CoverSize);
 
 
         $ID = $this->RegisterScript('PlaylistDesign', 'Playlist Config', $this->CreatePlaylistConfigScript(), -7);
