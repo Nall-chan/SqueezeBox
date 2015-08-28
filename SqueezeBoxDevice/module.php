@@ -2027,7 +2027,7 @@ LSQ_DisplayPlaylist($_IPS["TARGET"],$Config);
             $this->unlock('BufferOut');
             return true;
         }
-        throw new Exception("No answer from LMS789");
+//        throw new Exception("No answer from LMS789");
 
         return false;
     }
@@ -2052,7 +2052,7 @@ LSQ_DisplayPlaylist($_IPS["TARGET"],$Config);
                     else
                         return $ret;
                 }
-                throw new Exception("No answer from LMS123");
+//                throw new Exception("No answer from LMS123");
 
                 return false;
             }
@@ -2071,7 +2071,7 @@ LSQ_DisplayPlaylist($_IPS["TARGET"],$Config);
             $this->unlock('BufferOut');
             return true;
         }
-        throw new Exception("No answer from LMS456");
+//        throw new Exception("No answer from LMS456");
 
         return false;
     }

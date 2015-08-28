@@ -7,10 +7,10 @@ class LMSSplitter extends IPSModule
 
     public function Create()
     {
-        //Never delete this line!
+//Never delete this line!
         parent::Create();
-        //These lines are parsed on Instance creation
-        // ClientSocket benötigt
+//These lines are parsed on Instance creation
+// ClientSocket benötigt
         $this->RequireParent("{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}", "Logitech Media Server");
 
         $this->RegisterPropertyString("Host", "");
@@ -21,11 +21,11 @@ class LMSSplitter extends IPSModule
 
     public function ApplyChanges()
     {
-        //Never delete this line!
+//Never delete this line!
         parent::ApplyChanges();
         $change = false;
 
-        // Zwangskonfiguration des ClientSocket
+// Zwangskonfiguration des ClientSocket
         $ParentID = $this->GetParent();
         if (!($ParentID === false))
         {
@@ -40,7 +40,7 @@ class LMSSplitter extends IPSModule
                 $change = true;
             }
             $ParentOpen = $this->ReadPropertyBoolean('Open');
-            // Keine Verbindung erzwingen wenn Host leer ist, sonst folgt später Exception.
+// Keine Verbindung erzwingen wenn Host leer ist, sonst folgt später Exception.
             if (!$ParentOpen)
                 $this->SetStatus(104);
 
@@ -58,12 +58,25 @@ class LMSSplitter extends IPSModule
             if ($change)
                 @IPS_ApplyChanges($ParentID);
         }
-        //Workaround für persistente Daten der Instanz
-        $this->RegisterVariableString("BufferIN", "BufferIN");
-        $this->RegisterVariableString("BufferOUT", "BufferOUT");
-        $this->RegisterVariableBoolean("WaitForResponse", "WaitForResponse");
 
-        // Wenn wir verbunden sind, am LMS mit listen anmelden für Events
+// Eigene Variablen
+        $this->RegisterVariableBoolean("RescanRun", "Rescan läuft", "", 1);
+        $this->RegisterVariableString("RescanInfo", "Rescan Status", "", 2);
+        $this->RegisterVariableString("RescanProgress", "Rescan Fortschritt", "", 3);
+
+
+
+//Workaround für persistente Daten der Instanz
+        $this->RegisterVariableString("BufferIN", "BufferIN", "", -3);
+        $this->RegisterVariableString("BufferOUT", "BufferOUT", "", -2);
+        $this->RegisterVariableBoolean("WaitForResponse", "WaitForResponse", "", -1);
+        IPS_SetHidden($this->GetIDForIdent('BufferIN'), true);
+        IPS_SetHidden($this->GetIDForIdent('BufferOUT'), true);
+        IPS_SetHidden($this->GetIDForIdent('WaitForResponse'), true);
+
+
+
+// Wenn wir verbunden sind, am LMS mit listen anmelden für Events
         if ($this->ReadPropertyBoolean('Open') and $this->HasActiveParent($ParentID))
         {
             $Data = new LMSData("listen", "1");
@@ -84,8 +97,8 @@ class LMSSplitter extends IPSModule
         if (is_bool($ret))
             return $ret;
         return $ret;
-        //return new LMSTaggingData($ret);
-        //return $this->SendDataToParent($Text);
+//return new LMSTaggingData($ret);
+//return $this->SendDataToParent($Text);
     }
 
     public function Rescan()
@@ -266,8 +279,8 @@ class LMSSplitter extends IPSModule
         }
         if (!is_null($Track))
         {
-            //            $ret = $this->SendLMSData(new LMSData('playlists edit cmd%3Amove playlist_id%3A'.$PlayListId.' url%3A'.$SongUrl, LMSData::GetData));
-            // index  toindex
+//            $ret = $this->SendLMSData(new LMSData('playlists edit cmd%3Amove playlist_id%3A'.$PlayListId.' url%3A'.$SongUrl, LMSData::GetData));
+// index  toindex
         }
 //cmd%3Aadd playlist_id%3A52250 url%3Afile%3A%2F%2F%2FE%3A%2FServerFolders%2FMusik%2FAKB%2FAKB0048%20Complete%20Vocal%20Collection%2F1-03%20-%20AKB%20Sanjou!.mp3"        
         return true;
@@ -280,78 +293,132 @@ class LMSSplitter extends IPSModule
         return $ret;
     }
 
+################## Decode Data
+
+    private function DecodeLMSEvent(LMSResponse $LMSData)
+    {
+        switch ($LMSData->Data[0])
+        {
+            case "scanner":
+                switch ($LMSData->Data[1])
+                {
+                    case "notify":
+                        switch ($LMSData->Data[2])
+                        {
+                            case "progress":
+                                $Data = new LMSTaggingData($LMSData->Data[3]);
+                                IPS_LogMessage("scanner progress", print_r($Data, 1));
+                                $this->SetValueString("RescanInfo", "");
+                                $this->SetValueString("RescanProgress", "");
+
+                                break;
+                            case "end":
+                            case "exit":
+                                $this->SetValueString("RescanInfo", "");
+                                $this->SetValueString("RescanProgress", "");
+
+                                break;
+                        }
+                        break;
+                }
+                break;
+            case "rescan":
+                if (!isset($LMSData->Data[1]))
+                {
+                    $this->SetValueBoolean("RescanRun", true);
+
+                    //start   
+                }
+                else
+                {
+                    if ($LMSData->Data[1] == 'done')
+                    {
+                        $this->SetValueBoolean("RescanRun", false);
+                        //done
+                    }
+                    elseif (trim($LMSData->Data[1]) == '')
+                    {
+                        //start   
+                        $this->SetValueBoolean("RescanRun", true);
+                    }
+                }
+                break;
+        }
+    }
+
 ################## DataPoints
-    //Ankommend von Child-Device
+//Ankommend von Child-Device
 
     public function ForwardData($JSONString)
     {
         $Data = json_decode($JSONString);
 
-        // Daten annehmen und Command zusammenfügen wenn Array
+// Daten annehmen und Command zusammenfügen wenn Array
         if (is_array($Data->LSQ->Command))
 //            $Data->LSQ->Command = implode(' ', $Data->LSQ->Command);
             $Data->LSQ->Command[0] = $Data->LSQ->Address . ' ' . $Data->LSQ->Command[0];
         else
             $Data->LSQ->Command = $Data->LSQ->Address . ' ' . $Data->LSQ->Command;
-        // LMS-Objekt erzeugen und Daten mit Adresse ergänzen.
+// LMS-Objekt erzeugen und Daten mit Adresse ergänzen.
 //        $LMSData = new LMSData($Data->LSQ->Address . ' ' . $Data->LSQ->Command, $Data->LSQ->Value, false);
         $LMSData = new LMSData($Data->LSQ->Command, $Data->LSQ->Value, false);
-        // Senden über die Warteschlange
+// Senden über die Warteschlange
         $ret = $this->SendLMSData($LMSData);
         return $ret;
     }
 
-    // Ankommend von Parent-ClientSocket
+// Ankommend von Parent-ClientSocket
     public function ReceiveData($JSONString)
     {
         $data = json_decode($JSONString);
         $bufferID = $this->GetIDForIdent("BufferIN");
 
-        // Empfangs Lock setzen
+// Empfangs Lock setzen
         if (!$this->lock("bufferin"))
         {
             throw new Exception("ReceiveBuffer is locked");
         }
 
-        // Datenstream zusammenfügen
+// Datenstream zusammenfügen
         $head = GetValueString($bufferID);
         SetValueString($bufferID, '');
 
-        // Stream in einzelne Pakete schneiden
+// Stream in einzelne Pakete schneiden
         $packet = explode(chr(0x0d), $head . utf8_decode($data->Buffer));
 
-        // Rest vom Stream wieder in den Empfangsbuffer schieben
+// Rest vom Stream wieder in den Empfangsbuffer schieben
         $tail = array_pop($packet);
         SetValueString($bufferID, $tail);
 
-        // Empfangs Lock aufheben
+// Empfangs Lock aufheben
         $this->unlock("bufferin");
 
-        // Pakete verarbeiten
+// Pakete verarbeiten
         $ReceiveOK = true;
         foreach ($packet as $part)
         {
             $Data = new LMSResponse($part);
-            // Server Antworten hier verarbeiten
+// Server Antworten hier verarbeiten
             if ($Data->Device == LMSResponse::isServer)
             {
                 $isResponse = $this->WriteResponse($Data->Data);
                 if ($isResponse === true)
                 {
-                    // TODO LMS-Statusvariablen nachführen....
-                    // 
+// TODO LMS-Statusvariablen nachführen....
+// 
                     continue; // später unnötig
                 }
                 elseif ($isResponse === false)
                 { //Info Daten von Server verarbeiten
-                    // TODO
+// TODO
+                    IPS_LogMessage('LMSEvent', print_r($Data, 1));
                 }
                 else
                 {
                     $ret = new Exception($isResponse);
                 }
             }
-            // Nicht Server antworten zu den Devices weiter senden.
+// Nicht Server antworten zu den Devices weiter senden.
             else
             {
                 try
@@ -365,13 +432,13 @@ class LMSSplitter extends IPSModule
                 }
             }
         }
-        // Ist ein Fehler aufgetreten ?
+// Ist ein Fehler aufgetreten ?
         if (isset($ret))
             throw $ret; // dann erst jetzt werfen
         return $ReceiveOK;
     }
 
-    // Sende-Routine an den Parent
+// Sende-Routine an den Parent
     protected function SendDataToParent(LMSData $LMSData)
     {
         if (is_array($LMSData->Command))
@@ -383,19 +450,19 @@ class LMSSplitter extends IPSModule
         else
             $Data = $Commands . ' ' . $LMSData->Data;
         $Data = trim($Data);
-        //Semaphore setzen
+//Semaphore setzen
         if (!$this->lock("ToParent"))
         {
             throw new Exception("Can not send to LMS");
         }
-        // Daten senden
+// Daten senden
         try
         {
             $ret = IPS_SendDataToParent($this->InstanceID, json_encode(Array("DataID" => "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}", "Buffer" => utf8_encode($Data . chr(0x0d)))));
         }
         catch (Exception $exc)
         {
-            // Senden fehlgeschlagen
+// Senden fehlgeschlagen
             $this->unlock("ToParent");
             throw new Exception("LMS not reachable");
         }
@@ -403,14 +470,14 @@ class LMSSplitter extends IPSModule
         return $ret;
     }
 
-    // Sende-Routine an den Child
+// Sende-Routine an den Child
     protected function SendDataToChildren($Data)
     {
         return IPS_SendDataToChildren($this->InstanceID, $Data);
     }
 
-    ################## Datenaustausch      
-    // Sende-Routine des LMSData-Objektes an den Parent
+################## Datenaustausch      
+// Sende-Routine des LMSData-Objektes an den Parent
 
     private function SendLMSData(LMSData $LMSData)
     {
@@ -422,13 +489,13 @@ class LMSSplitter extends IPSModule
             throw new Exception('Instance has no active parent.');
         if ($LMSData->needResponse)
         {
-            //Semaphore setzen für Sende-Routine
+//Semaphore setzen für Sende-Routine
             if (!$this->lock("LMSData"))
             {
                 throw new Exception("Can not send to LMS");
             }
 
-            // Noch Umbauen wie das Device ?!?!
+// Noch Umbauen wie das Device ?!?!
             /*            if ($LMSData->Typ == LMSData::GetData)
               {
               $WaitData = substr($LMSData->Data, 0, -2);
@@ -438,45 +505,45 @@ class LMSSplitter extends IPSModule
               $WaitData = $LMSData->Data;
               } */
 
-            // Anfrage für die Warteschleife schreiben
+// Anfrage für die Warteschleife schreiben
             if (!$this->SetWaitForResponse($LMSData->Command))
             {
-                // Konnte Daten nicht in den ResponseBuffer schreiben
-                // Lock der Sende-Routine aufheben.
+// Konnte Daten nicht in den ResponseBuffer schreiben
+// Lock der Sende-Routine aufheben.
                 $this->unlock("LMSData");
                 throw new Exception("Can not send to LMS");
             }
 
             try
             {
-                // Senden an Parent
+// Senden an Parent
                 $this->SendDataToParent($LMSData);
             }
             catch (Exception $exc)
             {
-                // Konnte nicht senden
-                //Daten in ResponseBuffer löschen
+// Konnte nicht senden
+//Daten in ResponseBuffer löschen
                 $this->ResetWaitForResponse();
-                // Lock der Sende-Routine aufheben.
+// Lock der Sende-Routine aufheben.
                 $this->unlock("LMSData");
                 throw $exc;
             }
-            // Lock der Sende-Routine aufheben.
+// Lock der Sende-Routine aufheben.
             $this->unlock("LMSData");
-            // Auf Antwort warten....
+// Auf Antwort warten....
             $ret = $this->WaitForResponse();
 
 
 
             if ($ret === false) // Response-Warteschleife lief in Timeout
             {
-                //  Daten in ResponseBuffer löschen                
+//  Daten in ResponseBuffer löschen                
                 $this->ResetWaitForResponse();
-                // Fehler
+// Fehler
                 throw new Exception("No answer from LMS");
             }
 
-            // Rückgabe ist eine Bestätigung von einem Befehl
+// Rückgabe ist eine Bestätigung von einem Befehl
             /*            if ($LMSData->Typ == LMSData::SendCommand)
               {
               if (trim($LMSData->Data) == trim($ret))
@@ -494,7 +561,7 @@ class LMSSplitter extends IPSModule
               } */
             return $ret;
         }
-        // ohne Response, also ohne warten raussenden, 
+// ohne Response, also ohne warten raussenden, 
         else
         {
             try
@@ -593,7 +660,7 @@ class LMSSplitter extends IPSModule
         return false;
     }
 
-    ################## SEMAPHOREN Helper  - private  
+################## SEMAPHOREN Helper  - private  
 
     private function lock($ident)
     {
@@ -654,6 +721,39 @@ class LMSSplitter extends IPSModule
                 IPS_SetName($parentID, $Name);
             IPS_ConnectInstance($this->InstanceID, $parentID);
         }
+    }
+
+    private function SetValueBoolean($Ident, $value)
+    {
+        $id = $this->GetIDForIdent($Ident);
+        if (GetValueBoolean($id) <> $value)
+        {
+            SetValueBoolean($id, $value);
+            return true;
+        }
+        return false;
+    }
+
+    private function SetValueInteger($Ident, $value)
+    {
+        $id = $this->GetIDForIdent($Ident);
+        if (GetValueInteger($id) <> $value)
+        {
+            SetValueInteger($id, $value);
+            return true;
+        }
+        return false;
+    }
+
+    private function SetValueString($Ident, $value)
+    {
+        $id = $this->GetIDForIdent($Ident);
+        if (GetValueString($id) <> $value)
+        {
+            SetValueString($id, $value);
+            return true;
+        }
+        return false;
     }
 
 }
