@@ -15,11 +15,15 @@
                     "name": "Port",
                     "type": "NumberSpinner",
                     "caption": "CLI Port"
-                },
-                {
+                }, {
                     "name": "Webport",
                     "type": "NumberSpinner",
                     "caption": "Webserver Port"
+                },
+                {
+                    "name": "Playlistconfig",
+                    "type": "SelectScript",
+                    "caption": "Playlist Config"
                 }
             ],
     "status":
@@ -33,7 +37,7 @@
                     "code": 104,
                     "icon": "inactive",
                     "caption": "Interface geschlossen."
-                },                
+                },
                 {
                     "code": 202,
                     "icon": "error",

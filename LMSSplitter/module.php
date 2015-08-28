@@ -44,12 +44,12 @@ class LMSSplitter extends IPSModule
             }
             $ParentOpen = $this->ReadPropertyBoolean('Open');
 // Keine Verbindung erzwingen wenn Host leer ist, sonst folgt später Exception.
-            if (!$ParentOpen)
+            if ($ParentOpen === false)
                 $this->SetStatus(104);
 
             if ($this->ReadPropertyString('Host') == '')
             {
-                if ($ParentOpen)
+                if ($ParentOpen === true)
                     $this->SetStatus(202);
                 $ParentOpen = false;
             }
@@ -85,7 +85,8 @@ class LMSSplitter extends IPSModule
 
 
 // Wenn wir verbunden sind, am LMS mit listen anmelden für Events
-        if ($this->ReadPropertyBoolean('Open') and $this->HasActiveParent($ParentID))
+        if (($this->ReadPropertyBoolean('Open') === true)
+                and ( $this->HasActiveParent($ParentID)))
         {
             $Data = new LMSData("listen", "1");
             $this->SendLMSData($Data);
