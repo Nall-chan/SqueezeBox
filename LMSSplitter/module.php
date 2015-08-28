@@ -303,20 +303,21 @@ class LMSSplitter extends IPSModule
                 switch ($LMSData->Data[1])
                 {
                     case "notify":
+                        $Data = new LMSTaggingData($LMSData->Data[2]);
+                        IPS_LogMessage("scanner progress", print_r($Data, 1));
+
                         switch ($LMSData->Data[2])
                         {
-                            case "progress":
-                                $Data = new LMSTaggingData($LMSData->Data[3]);
-                                IPS_LogMessage("scanner progress", print_r($Data, 1));
-                                $this->SetValueString("RescanInfo", "");
-                                $this->SetValueString("RescanProgress", "");
-
-                                break;
                             case "end":
                             case "exit":
                                 $this->SetValueString("RescanInfo", "");
                                 $this->SetValueString("RescanProgress", "");
-
+                                return true;
+                                break;
+                            default:
+                                $this->SetValueString("RescanInfo", "");
+                                $this->SetValueString("RescanProgress", "");
+                                return true;
                                 break;
                         }
                         break;
@@ -326,6 +327,7 @@ class LMSSplitter extends IPSModule
                 if (!isset($LMSData->Data[1]))
                 {
                     $this->SetValueBoolean("RescanRun", true);
+                    return true;
 
                     //start   
                 }
@@ -334,16 +336,19 @@ class LMSSplitter extends IPSModule
                     if ($LMSData->Data[1] == 'done')
                     {
                         $this->SetValueBoolean("RescanRun", false);
+                        return true;
                         //done
                     }
                     elseif (trim($LMSData->Data[1]) == '')
                     {
                         //start   
                         $this->SetValueBoolean("RescanRun", true);
+                        return true;
                     }
                 }
                 break;
         }
+        return false;
     }
 
 ################## DataPoints
@@ -411,7 +416,8 @@ class LMSSplitter extends IPSModule
                 elseif ($isResponse === false)
                 { //Info Daten von Server verarbeiten
 // TODO
-                    IPS_LogMessage('LMSEvent', print_r($Data, 1));
+                    if (!$this->DecodeLMSEvent($Data))
+                        IPS_LogMessage('LMSEvent', print_r($Data, 1));
                 }
                 else
                 {
