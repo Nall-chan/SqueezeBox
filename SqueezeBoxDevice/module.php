@@ -1374,8 +1374,8 @@ if (isset($_GET["Index"]))
                 $this->_SetSleep((int) $LSQEvent->Value);
                 break;
             case LSQResponse::will_sleep_in:
-                if (@date("H", (int) $LSQEvent->Value) <> 0)
-                    $this->SetValueString('SleepTimeout', @date("H:i:s", (int) $LSQEvent->Value));
+                if ((int) $LSQEvent->Value > 3600)
+                    $this->SetValueString('SleepTimeout', @date("H:i:s", (int) $LSQEvent->Value-3600));
                 else
                     $this->SetValueString('SleepTimeout', @date("i:s", (int) $LSQEvent->Value));
                 break;
@@ -1483,8 +1483,8 @@ if (isset($_GET["Index"]))
                 {
                     $this->tempData['Duration'] = $LSQEvent->Value;
                     $this->SetValueInteger('DurationRAW', $LSQEvent->Value);
-                    if (@date("H", (int) $LSQEvent->Value) <> 0)
-                        $this->SetValueString('Duration', @date("H:i:s", (int) $LSQEvent->Value));
+                    if ((int) $LSQEvent->Value > 3600)
+                        $this->SetValueString('Duration', @date("H:i:s", (int) $LSQEvent->Value-3600));
                     else
                         $this->SetValueString('Duration', @date("i:s", (int) $LSQEvent->Value));
                 }
@@ -1557,8 +1557,8 @@ if (isset($_GET["Index"]))
             case LSQResponse::time:
                 $this->tempData['Position'] = $LSQEvent->Value;
                 $this->SetValueInteger('PositionRAW', $LSQEvent->Value);
-                if (@date("H", (int) $LSQEvent->Value) <> 0)
-                    $this->SetValueString('Position', @date("H:i:s", (int) $LSQEvent->Value));
+                if ((int) $LSQEvent->Value >3600)
+                    $this->SetValueString('Position', @date("H:i:s", (int) $LSQEvent->Value-3600));
                 else
                     $this->SetValueString('Position', @date("i:s", (int) $LSQEvent->Value));
 
@@ -1608,8 +1608,8 @@ if (isset($_GET["Index"]))
             {
                 $Line['Position'] = $Position;
 
-                if (@date("H", $Line['Duration']) <> 0)
-                   $Line['Duration']=  @date("H:i:s", $Line['Duration']);
+                if ($Line['Duration'] >3600)
+                   $Line['Duration']=  @date("H:i:s", $Line['Duration']-3600);
                 else
                     $Line['Duration']= @date("i:s", $Line['Duration']);
                 
