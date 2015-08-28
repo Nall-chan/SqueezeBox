@@ -12,12 +12,16 @@ class SqueezeboxDevice extends IPSModule
 
     public function Create()
     {
+        $Address = IPS_GetProperty($this->InstanceID, 'Address');
+        IPS_Logmessage('Setting_Address1', print_r($Address, 1));
 
         //Never delete this line!
         parent::Create();
 
         // 1. Verfügbarer LMS-Splitter wird verbunden oder neu erzeugt, wenn nicht vorhanden.
         $this->ConnectParent("{96A9AB3A-2538-42C5-A130-FC34205A706A}");
+        $Address = IPS_GetProperty($this->InstanceID, 'Address');
+        IPS_Logmessage('Setting_Address2', print_r($Address, 1));
 
         IPS_Logmessage('Setting_isOld', print_r(IPS_GetName($this->InstanceID), 1));
         if (trim(IPS_GetName($this->InstanceID)) == '')
