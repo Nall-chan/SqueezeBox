@@ -12,40 +12,15 @@ class SqueezeboxDevice extends IPSModule
 
     public function Create()
     {
-        $Address = IPS_GetProperty($this->InstanceID, 'Address');
-        IPS_Logmessage('Setting_Address1', print_r($Address, 1));
-
         //Never delete this line!
         parent::Create();
 
         // 1. Verfügbarer LMS-Splitter wird verbunden oder neu erzeugt, wenn nicht vorhanden.
         $this->ConnectParent("{96A9AB3A-2538-42C5-A130-FC34205A706A}");
-        $Address = IPS_GetProperty($this->InstanceID, 'Address');
-        IPS_Logmessage('Setting_Address2', print_r($Address, 1));
 
-        IPS_Logmessage('Setting_isOld', print_r(IPS_GetName($this->InstanceID), 1));
-        if (trim(IPS_GetName($this->InstanceID)) == '')
-        {
-            $Address = "";
-            $Interval = 2;
-            $CoverSize = "cover";
-            $this->RegisterPropertyString("Address", $Address);
-            $this->RegisterPropertyInteger("Interval", $Interval);
-            $this->RegisterPropertyString("CoverSize", $CoverSize);
-
-        }
-/*        else
-        {
-            $Address = IPS_GetProperty($this->InstanceID, 'Address');
-            $Interval = IPS_GetProperty($this->InstanceID, 'Interval');
-            $CoverSize = IPS_GetProperty($this->InstanceID, 'CoverSize');
-        }*/
-        
-        /*IPS_Logmessage('Setting_Address', print_r($Address, 1));
-        IPS_Logmessage('Setting_Interval', print_r($Interval, 1));
-        IPS_Logmessage('Setting_CoverSize', print_r($CoverSize, 1));*/
-        
-
+        $this->RegisterPropertyString("Address", "");
+        $this->RegisterPropertyInteger("Interval", 2);
+        $this->RegisterPropertyString("CoverSize", "Cover");
 
         $ID = $this->RegisterScript('PlaylistDesign', 'Playlist Config', $this->CreatePlaylistConfigScript(), -7);
         IPS_SetHidden($ID, true);
