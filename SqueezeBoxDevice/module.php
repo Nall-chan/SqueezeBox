@@ -18,9 +18,24 @@ class SqueezeboxDevice extends IPSModule
         // 1. Verfügbarer LMS-Splitter wird verbunden oder neu erzeugt, wenn nicht vorhanden.
         $this->ConnectParent("{96A9AB3A-2538-42C5-A130-FC34205A706A}");
 
-        $this->RegisterPropertyString("Address", "");
-        $this->RegisterPropertyInteger("Interval", 2);
-        $this->RegisterPropertyString("CoverSize", "cover");
+        if ((bool) IPS_GetProperty($this->InstanceID, 'isOld'))
+        {
+            $Address = IPS_GetProperty($this->InstanceID, 'Address');
+            $Interval = IPS_GetProperty($this->InstanceID, 'Interval');
+            $CoverSize = IPS_GetProperty($this->InstanceID, 'CoverSize');
+        }
+        else
+        {
+            $Address = "";
+            $Interval = 2;
+            $CoverSize = "cover";
+        }
+        $this->RegisterPropertyBoolean("isOld", true);
+        $this->RegisterPropertyString("Address", $Address);
+        $this->RegisterPropertyInteger("Interval", $Interval);
+        $this->RegisterPropertyString("CoverSize",$CoverSize);
+
+        
         $ID = $this->RegisterScript('PlaylistDesign', 'Playlist Config', $this->CreatePlaylistConfigScript(), -7);
         IPS_SetHidden($ID, true);
         $this->RegisterPropertyInteger("Playlistconfig", $ID);
@@ -203,6 +218,10 @@ if (isset($_GET["Index"]))
 ', -8);
         IPS_SetHidden($sid, true);
         $this->RegisterHook('/hook/SqueezeBoxPlaylist' . $this->InstanceID, $sid);
+
+        $ID = $this->RegisterScript('PlaylistDesign', 'Playlist Config', $this->CreatePlaylistConfigScript(), -7);
+        IPS_SetHidden($ID, true);
+
         // Adresse nicht leer ?
         // Parent vorhanden und nicht in Fehlerstatus ?
         if ($this->Init(false))
