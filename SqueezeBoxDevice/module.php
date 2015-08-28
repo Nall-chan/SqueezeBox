@@ -1374,7 +1374,10 @@ if (isset($_GET["Index"]))
                 $this->_SetSleep((int) $LSQEvent->Value);
                 break;
             case LSQResponse::will_sleep_in:
-                $this->SetValueString('SleepTimeout', @date("i:s", (int) $LSQEvent->Value));
+                if (@date("H", (int) $LSQEvent->Value) <> 0)
+                    $this->SetValueString('SleepTimeout', @date("H:i:s", (int) $LSQEvent->Value));
+                else
+                    $this->SetValueString('SleepTimeout', @date("i:s", (int) $LSQEvent->Value));
                 break;
             case LSQResponse::sync:
             case LSQResponse::rate:
@@ -1480,7 +1483,10 @@ if (isset($_GET["Index"]))
                 {
                     $this->tempData['Duration'] = $LSQEvent->Value;
                     $this->SetValueInteger('DurationRAW', $LSQEvent->Value);
-                    $this->SetValueString('Duration', @date('i:s', $LSQEvent->Value));
+                    if (@date("H", (int) $LSQEvent->Value) <> 0)
+                        $this->SetValueString('Duration', @date("H:i:s", (int) $LSQEvent->Value));
+                    else
+                        $this->SetValueString('Duration', @date("i:s", (int) $LSQEvent->Value));
                 }
                 break;
             case LSQResponse::playlist_name:
@@ -1551,7 +1557,11 @@ if (isset($_GET["Index"]))
             case LSQResponse::time:
                 $this->tempData['Position'] = $LSQEvent->Value;
                 $this->SetValueInteger('PositionRAW', $LSQEvent->Value);
-                $this->SetValueString('Position', @date('i:s', $LSQEvent->Value));
+                if (@date("H", (int) $LSQEvent->Value) <> 0)
+                    $this->SetValueString('Position', @date("H:i:s", (int) $LSQEvent->Value));
+                else
+                    $this->SetValueString('Position', @date("i:s", (int) $LSQEvent->Value));
+
                 break;
             default:
                 if (is_array($LSQEvent->Value))
@@ -1597,7 +1607,12 @@ if (isset($_GET["Index"]))
             foreach ($Data as $Position => $Line)
             {
                 $Line['Position'] = $Position;
-                $Line['Duration'] = @date('i:s', $Line['Duration']);
+
+                if (@date("H", $Line['Duration']) <> 0)
+                   $Line['Duration']=  @date("H:i:s", $Line['Duration']);
+                else
+                    $Line['Duration']= @date("i:s", $Line['Duration']);
+                
                 $Line['Play'] = $Line['Position'] == $CurrentTrack ? '<div class="ipsIconArrowRight" is="null"></div>' : '';
 
                 $HTMLData .='<tr style="' . $Config['Style']['BR' . ($Line['Position'] == $CurrentTrack ? 'A' : ($pos % 2 ? 'U' : 'G'))] . '"
