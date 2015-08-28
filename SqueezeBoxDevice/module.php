@@ -12,29 +12,31 @@ class SqueezeboxDevice extends IPSModule
 
     public function Create()
     {
-                IPS_Logmessage('Setting_isOld',print_r(IPS_GetProperty($this->InstanceID, 'isOld'),1));
-        if ((integer)IPS_GetProperty($this->InstanceID, 'isOld') == 1)
-        {
-            $Address = IPS_GetProperty($this->InstanceID, 'Address');
-            $Interval = IPS_GetProperty($this->InstanceID, 'Interval');
-            $CoverSize = IPS_GetProperty($this->InstanceID, 'CoverSize');
-        }
-        else
-        {
-            $Address = "";
-            $Interval = 2;
-            $CoverSize = "cover";
-        }
+
         //Never delete this line!
         parent::Create();
 
         // 1. Verfügbarer LMS-Splitter wird verbunden oder neu erzeugt, wenn nicht vorhanden.
         $this->ConnectParent("{96A9AB3A-2538-42C5-A130-FC34205A706A}");
 
-        IPS_Logmessage('Setting_Address',print_r($Address,1));
-        IPS_Logmessage('Setting_Interval',print_r($Interval,1));
-        IPS_Logmessage('Setting_CoverSize',print_r($CoverSize,1));
-        $this->RegisterPropertyInteger("isOld", 1);
+        IPS_Logmessage('Setting_isOld', print_r(IPS_GetName($this->InstanceID), 1));
+        if (trim(IPS_GetName($this->InstanceID)) == '')
+        {
+            $Address = "";
+            $Interval = 2;
+            $CoverSize = "cover";
+        }
+        else
+        {
+            $Address = IPS_GetProperty($this->InstanceID, 'Address');
+            $Interval = IPS_GetProperty($this->InstanceID, 'Interval');
+            $CoverSize = IPS_GetProperty($this->InstanceID, 'CoverSize');
+        }
+        
+        IPS_Logmessage('Setting_Address', print_r($Address, 1));
+        IPS_Logmessage('Setting_Interval', print_r($Interval, 1));
+        IPS_Logmessage('Setting_CoverSize', print_r($CoverSize, 1));
+        
         $this->RegisterPropertyString("Address", $Address);
         $this->RegisterPropertyInteger("Interval", $Interval);
         $this->RegisterPropertyString("CoverSize", $CoverSize);
