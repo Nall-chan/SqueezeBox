@@ -142,6 +142,7 @@ class SqueezeboxDevice extends IPSModule
         ));
         $this->RegisterProfileInteger("Tracklist.Squeezebox." . $this->InstanceID, "", "", "", 1, 1, 1);
         $this->RegisterProfileIntegerEx("SleepTimer.Squeezebox", "Gear", "", "", Array(
+            Array(0, "%d", "", -1),
             Array(900, "%d", "", -1),
             Array(1800, "%d", "", -1),
             Array(2700, "%d", "", -1),
@@ -1259,6 +1260,8 @@ if (isset($_GET["Index"]))
     private function _SetSleep($Value)
     {
         $this->SetValueInteger('SleepTimer', $Value);
+        if ($Value == 0)
+            $this->SetValueString('SleepTimeout', '');
     }
 
     private function decodeLSQEvent($LSQEvent)
@@ -1311,6 +1314,8 @@ if (isset($_GET["Index"]))
                 break;
             case LSQResponse::power:
                 $this->SetValueBoolean('Power', (bool) $LSQEvent->Value);
+                if ((bool) $LSQEvent->Value == false)
+                    $this->_SetSleep(0);
                 break;
 
             case LSQResponse::play:
@@ -1375,7 +1380,7 @@ if (isset($_GET["Index"]))
                 break;
             case LSQResponse::will_sleep_in:
                 if ((int) $LSQEvent->Value > 3600)
-                    $this->SetValueString('SleepTimeout', @date("H:i:s", (int) $LSQEvent->Value-3600));
+                    $this->SetValueString('SleepTimeout', @date("H:i:s", (int) $LSQEvent->Value - 3600));
                 else
                     $this->SetValueString('SleepTimeout', @date("i:s", (int) $LSQEvent->Value));
                 break;
@@ -1484,7 +1489,7 @@ if (isset($_GET["Index"]))
                     $this->tempData['Duration'] = $LSQEvent->Value;
                     $this->SetValueInteger('DurationRAW', $LSQEvent->Value);
                     if ((int) $LSQEvent->Value > 3600)
-                        $this->SetValueString('Duration', @date("H:i:s", (int) $LSQEvent->Value-3600));
+                        $this->SetValueString('Duration', @date("H:i:s", (int) $LSQEvent->Value - 3600));
                     else
                         $this->SetValueString('Duration', @date("i:s", (int) $LSQEvent->Value));
                 }
@@ -1557,8 +1562,8 @@ if (isset($_GET["Index"]))
             case LSQResponse::time:
                 $this->tempData['Position'] = $LSQEvent->Value;
                 $this->SetValueInteger('PositionRAW', $LSQEvent->Value);
-                if ((int) $LSQEvent->Value >3600)
-                    $this->SetValueString('Position', @date("H:i:s", (int) $LSQEvent->Value-3600));
+                if ((int) $LSQEvent->Value > 3600)
+                    $this->SetValueString('Position', @date("H:i:s", (int) $LSQEvent->Value - 3600));
                 else
                     $this->SetValueString('Position', @date("i:s", (int) $LSQEvent->Value));
 
@@ -1608,11 +1613,11 @@ if (isset($_GET["Index"]))
             {
                 $Line['Position'] = $Position;
 
-                if ($Line['Duration'] >3600)
-                   $Line['Duration']=  @date("H:i:s", $Line['Duration']-3600);
+                if ($Line['Duration'] > 3600)
+                    $Line['Duration'] = @date("H:i:s", $Line['Duration'] - 3600);
                 else
-                    $Line['Duration']= @date("i:s", $Line['Duration']);
-                
+                    $Line['Duration'] = @date("i:s", $Line['Duration']);
+
                 $Line['Play'] = $Line['Position'] == $CurrentTrack ? '<div class="ipsIconArrowRight" is="null"></div>' : '';
 
                 $HTMLData .='<tr style="' . $Config['Style']['BR' . ($Line['Position'] == $CurrentTrack ? 'A' : ($pos % 2 ? 'U' : 'G'))] . '"
