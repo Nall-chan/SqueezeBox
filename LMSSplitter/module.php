@@ -306,7 +306,7 @@ class LMSSplitter extends IPSModule
                         $Data = new LMSTaggingData($LMSData->Data[2]);
                         IPS_LogMessage("scanner progress", print_r($Data, 1));
 
-                        switch ($LMSData->Data[2])
+                        switch ($Data->{0})
                         {
                             case "end":
                             case "exit":
@@ -314,9 +314,16 @@ class LMSSplitter extends IPSModule
                                 $this->SetValueString("RescanProgress", "");
                                 return true;
                                 break;
-                            default:
-                                $this->SetValueString("RescanInfo", "");
-                                $this->SetValueString("RescanProgress", "");
+                            case "progress":
+                                $Info = explode("||", $Data->progress);
+                                $StepInfo = $Info[2];
+                                if (strpos($StepInfo, "|"))
+                                {
+                                    $StepInfo = explode("|", $StepInfo);
+                                }
+                                $this->SetValueString("RescanInfo", $StepInfo);
+                                $StepProgress = $Info[3] . " von " . $Info[4];
+                                $this->SetValueString("RescanProgress", $StepProgress);
                                 return true;
                                 break;
                         }
@@ -339,7 +346,7 @@ class LMSSplitter extends IPSModule
                         return true;
                         //done
                     }
-                    elseif (trim($LMSData->Data[1]) == '')
+                    else
                     {
                         //start   
                         $this->SetValueBoolean("RescanRun", true);
