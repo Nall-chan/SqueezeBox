@@ -33,9 +33,9 @@ class SqueezeboxDevice extends IPSModule
         $this->RegisterPropertyBoolean("isOld", true);
         $this->RegisterPropertyString("Address", $Address);
         $this->RegisterPropertyInteger("Interval", $Interval);
-        $this->RegisterPropertyString("CoverSize",$CoverSize);
+        $this->RegisterPropertyString("CoverSize", $CoverSize);
 
-        
+
         $ID = $this->RegisterScript('PlaylistDesign', 'Playlist Config', $this->CreatePlaylistConfigScript(), -7);
         IPS_SetHidden($ID, true);
         $this->RegisterPropertyInteger("Playlistconfig", $ID);
@@ -1396,14 +1396,14 @@ if (isset($_GET["Index"]))
                 }
                 $this->SetValueInteger('Status', 2);
                 $this->SetValueString('Title', trim(rawurldecode($title)));
+                //  $this->SendLSQData(new LSQData(LSQResponse::artist, '?', false));
+                //  $this->SendLSQData(new LSQData(LSQResponse::album, '?', false));
+                $this->SendLSQData(new LSQData(LSQResponse::genre, '?', false));
+                //  $this->SendLSQData(new LSQData(LSQResponse::duration, '?', false));
+                //  $this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::tracks), '?', false));
+                $this->SetCover();
                 if ($this->SetValueInteger('Index', $currentTrack))
                     $this->RefreshPlaylist();
-                /*                $this->SendLSQData(new LSQData(LSQResponse::artist, '?', false));
-                  $this->SendLSQData(new LSQData(LSQResponse::album, '?', false));
-                  $this->SendLSQData(new LSQData(LSQResponse::genre, '?', false));
-                  $this->SendLSQData(new LSQData(LSQResponse::duration, '?', false));
-                  $this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::tracks), '?', false)); */
-                $this->SetCover();
                 break;
             case LSQResponse::newmetadata:
                 $this->SetCover();
