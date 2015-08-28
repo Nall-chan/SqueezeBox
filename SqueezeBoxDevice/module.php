@@ -1291,10 +1291,10 @@ if (isset($_GET["Index"]))
                         $this->SetConnected(true);
                 }
                 break;
-            case LSQResponse::player_name:
-            case LSQResponse::name:
-                $this->_NewName(rawurldecode((string) $LSQEvent->Value));
-                break;
+//            case LSQResponse::player_name:
+//            case LSQResponse::name:
+            //              $this->_NewName(rawurldecode((string) $LSQEvent->Value));
+//                break;
             case LSQResponse::signalstrength:
                 $this->SetValueInteger('Signalstrength', (int) $LSQEvent->Value);
                 break;
@@ -1399,7 +1399,7 @@ if (isset($_GET["Index"]))
                 //  $this->SendLSQData(new LSQData(LSQResponse::artist, '?', false));
                 //  $this->SendLSQData(new LSQData(LSQResponse::album, '?', false));
                 $this->SendLSQData(new LSQData(LSQResponse::genre, '?', false));
-                $this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::name),'?', false));
+                $this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::name), '?', false));
                 //  $this->SendLSQData(new LSQData(LSQResponse::duration, '?', false));
                 //  $this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::tracks), '?', false));
                 $this->SetCover();
@@ -1412,7 +1412,12 @@ if (isset($_GET["Index"]))
             case LSQResponse::playlist:
                 if (($LSQEvent->Command[0] <> LSQResponse::stop)  //Playlist stop kommt auch bei fwd ?
                         and ( $LSQEvent->Command[0] <> LSQResponse::mode))
+                {
+                    if ($LSQEvent->Command[0] == LSQResponse::name)
+                        $this->decodeLSQEvent(new LSQEvent(LSQResponse::player_name, $LSQEvent->Value, $LSQEvent->isResponse));
+
                     $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[0], $LSQEvent->Value, $LSQEvent->isResponse));
+                }
                 break;
             case LSQResponse::loadtracks:
                 $this->RefreshPlaylist();
