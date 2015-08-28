@@ -306,6 +306,12 @@ class SqueezeboxBattery extends IPSModule
         }
     }
 
+    protected function SetStatus($InstanceStatus)
+    {
+        if ($InstanceStatus <> IPS_GetInstance($this->InstanceID)['InstanceStatus'])
+            parent::SetStatus($InstanceStatus);
+    }
+
 }
 
 ?>

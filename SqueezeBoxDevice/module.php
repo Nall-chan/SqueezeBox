@@ -2185,7 +2185,11 @@ LSQ_DisplayPlaylist($_IPS["TARGET"],$Config);
             IPS_SetVariableProfileAssociation($Name, $Association[0], $Association[1], $Association[2], $Association[3]);
         }
     }
-
+    protected function SetStatus($InstanceStatus)
+    {
+        if ($InstanceStatus <> IPS_GetInstance($this->InstanceID)['InstanceStatus'])
+            parent::SetStatus($InstanceStatus);
+    }
 }
 
 ?>

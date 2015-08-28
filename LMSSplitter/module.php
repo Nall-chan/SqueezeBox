@@ -44,12 +44,12 @@ class LMSSplitter extends IPSModule
             }
             $ParentOpen = $this->ReadPropertyBoolean('Open');
 // Keine Verbindung erzwingen wenn Host leer ist, sonst folgt später Exception.
-            if ($ParentOpen === false)
+            if (!$ParentOpen)
                 $this->SetStatus(104);
 
             if ($this->ReadPropertyString('Host') == '')
             {
-                if ($ParentOpen === true)
+                if ($ParentOpen)
                     $this->SetStatus(202);
                 $ParentOpen = false;
             }
@@ -85,7 +85,7 @@ class LMSSplitter extends IPSModule
 
 
 // Wenn wir verbunden sind, am LMS mit listen anmelden für Events
-        if (($this->ReadPropertyBoolean('Open') === true)
+        if (($this->ReadPropertyBoolean('Open'))
                 and ( $this->HasActiveParent($ParentID)))
         {
             $Data = new LMSData("listen", "1");
@@ -305,7 +305,7 @@ class LMSSplitter extends IPSModule
 
     public function GetPlaylists()
     {
-        return "123456678";
+        return array('123' => "123456678", 'af' => 'hallo');
     }
 
 ################## Action
@@ -495,7 +495,7 @@ $Config["Style"] = array(
     // ^- Der Buchstabe "G" steht für gerade, "U" für ungerade., "A" für Aktiv
  );
 ### Konfig ENDE !!!
-LSQ_DisplayPlaylist($_IPS["TARGET"],$Config);
+LSM_DisplayPlaylist($_IPS["TARGET"],$Config);
 ?>';
         return $Script;
     }
@@ -977,6 +977,12 @@ LSQ_DisplayPlaylist($_IPS["TARGET"],$Config);
             return true;
         }
         return false;
+    }
+
+    protected function SetStatus($InstanceStatus)
+    {
+        if ($InstanceStatus <> IPS_GetInstance($this->InstanceID)['InstanceStatus'])
+            parent::SetStatus($InstanceStatus);
     }
 
 }
