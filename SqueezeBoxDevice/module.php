@@ -198,6 +198,8 @@ class SqueezeboxDevice extends IPSModule
         IPS_SetHidden($this->GetIDForIdent('Connected'), true);
         IPS_SetHidden($this->GetIDForIdent('PositionRAW'), true);
         IPS_SetHidden($this->GetIDForIdent('DurationRAW'), true);
+
+        // Eigene Scripte
         $sid = $this->RegisterScript("WebHookPlaylist", "WebHookPlaylist", '<? //Do not delete or modify.
 if (isset($_GET["Index"]))
     LSQ_PlayTrack(' . $this->InstanceID . ',$_GET["Index"]);
@@ -1396,8 +1398,8 @@ if (isset($_GET["Index"]))
                 $this->SetCover();
                 break;
             case LSQResponse::playlist:
-                if (($LSQEvent->Command[0] <> LSQResponse::stop)  //Playlist stop kommt auch bei fwd ?
-                        and ( $LSQEvent->Command[0] <> LSQResponse::mode))
+                if (!($LSQEvent->Command[0] == LSQResponse::stop)  //Playlist stop kommt auch bei fwd ?
+                        and ! ($LSQEvent->Command[0] == LSQResponse::mode))
                 {
                     if ($LSQEvent->Command[0] == LSQResponse::name)
                         $this->decodeLSQEvent(new LSQEvent(LSQResponse::playlist_name, $LSQEvent->Value, $LSQEvent->isResponse));
@@ -1477,10 +1479,9 @@ if (isset($_GET["Index"]))
                     $this->SetValueInteger('Position2', 0);
                     $this->SetValueInteger('PositionRAW', 0);
                     $this->SetValueString('Position', '0:00');
-                    if ($this->SetValueInteger('Index', 0))
-                        $this->RefreshPlaylist();
-
+                    $this->SetValueInteger('Index', 0);
                     $this->SetCover();
+//                $LSQEvent->Value                    
                 }
                 if (!IPS_VariableProfileExists($Name))
                 {
@@ -1492,6 +1493,8 @@ if (isset($_GET["Index"]))
                     if (IPS_GetVariableProfile($Name)['MaxValue'] <> $LSQEvent->Value)
                         IPS_SetVariableProfileValues($Name, 1, $LSQEvent->Value, 1);
                 }
+                $this->RefreshPlaylist();
+
                 break;
             case LSQResponse::status:
                 array_shift($LSQEvent->Value);

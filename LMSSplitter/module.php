@@ -17,6 +17,9 @@ class LMSSplitter extends IPSModule
         $this->RegisterPropertyBoolean("Open", false);
         $this->RegisterPropertyInteger("Port", 9090);
         $this->RegisterPropertyInteger("Webport", 9000);
+        $ID = $this->RegisterScript('PlaylistDesign', 'Playlist Config', $this->CreatePlaylistConfigScript(), -7);
+        IPS_SetHidden($ID, true);
+        $this->RegisterPropertyInteger("Playlistconfig", $ID);
     }
 
     public function ApplyChanges()
@@ -60,11 +63,16 @@ class LMSSplitter extends IPSModule
         }
 
 // Eigene Variablen
-        $this->RegisterVariableBoolean("RescanRun", "Rescan läuft", "", 1);
+        $this->RegisterVariableInteger("RescanState", "Rescan läuft", "", 1);
         $this->RegisterVariableString("RescanInfo", "Rescan Status", "", 2);
         $this->RegisterVariableString("RescanProgress", "Rescan Fortschritt", "", 3);
+        $this->EnableAction("RescanState");
+        $this->RegisterVariableString("Playlists", "Playlisten", "", 4);
 
+        // Eigene Scripte
 
+        $ID = $this->RegisterScript('PlaylistDesign', 'Playlist Config', $this->CreatePlaylistConfigScript(), -4);
+        IPS_SetHidden($ID, true);
 
 //Workaround für persistente Daten der Instanz
         $this->RegisterVariableString("BufferIN", "BufferIN", "", -3);
@@ -81,6 +89,7 @@ class LMSSplitter extends IPSModule
         {
             $Data = new LMSData("listen", "1");
             $this->SendLMSData($Data);
+            $this->RefreshPlaylists();
         }
     }
 
@@ -293,6 +302,203 @@ class LMSSplitter extends IPSModule
         return $ret;
     }
 
+    public function GetPlaylists()
+    {
+        return "123456678";
+    }
+
+################## Action
+
+    public function RequestAction($Ident, $Value)
+    {
+        switch ($Ident)
+        {
+            case "RescanState":
+                if ($Value == 0)
+                    $ret = $this->SendLMSData(new LMSData('abortscan', ''));
+                elseif ($Value == 1)
+                    $ret = $this->SendLMSData(new LMSData('rescan', ''));
+                elseif ($Value == 2)
+                    $ret = $this->SendLMSData(new LMSData('rescan playlists', ''));
+                elseif ($Value == 3)
+                {
+                    $ret = $this->SendLMSData(new LMSData('wipecache', ''));
+                }
+                if (!$ret)
+                    throw new Exception('Error on send Scan Command');
+                $this->SetValueInteger('RescanState', $Value);
+                break;
+            default:
+
+                break;
+        }
+    }
+
+################## Privat
+
+    private function RefreshPlaylists()
+    {
+        $ScriptID = $this->ReadPropertyInteger('Playlistconfig');
+        if ($ScriptID == 0)
+            return;
+        IPS_RunScriptEx($ScriptID, array('SENDER' => 'LMS', 'TARGET' => $this->InstanceID));
+    }
+
+    public function DisplayPlaylist($Config)
+    {
+        if (($Config === false) or ( !is_array($Config)))
+            throw new Exception('Error on read Playlistconfig-Script');
+
+        try
+        {
+            $Data = $this->GetPlaylists();
+        }
+        catch (Exception $exc)
+        {
+            unset($exc);
+            throw new Exception('Error on read Playlist');
+        }
+        /*    $HTMLData = $this->GetTableHeader($Config);
+          $pos = 0;
+          $CurrentTrack = GetValueInteger($this->GetIDForIdent('Index'));
+
+          if (isset($Data))
+          {
+          foreach ($Data as $Position => $Line)
+          {
+          $Line['Position'] = $Position + 1;
+          $Line['Duration'] = @date('i:s', $Line['Duration']);
+          $Line['Play'] = $Line['Position'] == $CurrentTrack ? '<div class="ipsIconArrowRight" is="null"></div>' : '';
+
+          $HTMLData .='<tr style="' . $Config['Style']['BR' . ($Line['Position'] == $CurrentTrack ? 'A' : ($pos % 2 ? 'U' : 'G'))] . '"
+          onclick="window.xhrGet=function xhrGet(o) {var HTTP = new XMLHttpRequest();HTTP.open(\'GET\',o.url,true);HTTP.send();};window.xhrGet({ url: \'hook/SqueezeBoxPlaylist' . $this->InstanceID . '?Index=' . $Line['Position'] . '\' })">';
+          foreach ($Config['Spalten'] as $feldIndex => $value)
+          {
+          $HTMLData .= '<td style="' . $Config['Style']['DF' . ($Line['Position'] == $CurrentTrack ? 'A' : ($pos % 2 ? 'U' : 'G')) . $feldIndex] . '">' . (string) $Line[$feldIndex] . '</td>';
+          }
+          $HTMLData .= '</tr>' . PHP_EOL;
+          $pos++;
+          }
+          }
+          $HTMLData .= $this->GetTableFooter();
+          $this->SetValueString('Playlist', $HTMLData); */
+        $this->SetValueString('Playlists', serialize($Data));
+    }
+
+    private function CreatePlaylistConfigScript()
+    {
+        $Script = '<?
+### Konfig ab Zeile 10 !!!
+
+if ($_IPS["SENDER"] <> "LMS")
+{
+	echo "Dieses Script kann nicht direkt ausgeführt werden!";
+	return;
+}
+##########   KONFIGURATION
+#### Tabellarische Ansicht
+# Folgende Parameter bestimmen das Aussehen der HTML-Tabelle in der die WLAN-Geräte aufgelistet werden.
+
+// Reihenfolge und Überschriften der Tabelle. Der vordere Wert darf nicht verändert werden.
+// Die Reihenfolge, der hintere Wert (Anzeigetext) und die Reihenfolge sind beliebig änderbar.
+$Config["Spalten"] = array(
+"Play" =>"",
+"Position"=>"Pos",
+"Title"=>"Titel",
+"Artist"=>"Interpret",
+"Bitrate"=>"Bitrate",
+"Duration"=>"Dauer"
+);
+#### Mögliche Index-Felder
+/*
+| Index            | Typ     | Beschreibung                        |
+| :--------------: | :-----: | :---------------------------------: |
+| Play             |  kein   | Play-Icon                           |
+| Position         | integer | Position in der Playlist            |
+| Id               | integer | UID der Datei in der LMS-Datenbank  |
+| Title            | string  | Titel                               |
+| Genre            | string  | Genre                               |
+| Album            | string  | Album                               |
+| Artist           | string  | Interpret                           |
+| Duration         | integer | Länge in Sekunden                   |
+| Disc             | integer | Aktuelles Medium                    |
+| Disccount        | integer | Anzahl aller Medien dieses Albums   |
+| Bitrate          | string  | Bitrate in Klartext                 |
+| Tracknum         | integer | Tracknummer im Album                |
+| Url              | string  | Pfad der Playlist                   |
+| Album_id         | integer | UID des Album in der LMS-Datenbank  |
+| Artwork_track_id | string  | UID des Cover in der LMS-Datenbank  |
+| Genre_id         | integer | UID des Genre in der LMS-Datenbank  |
+| Artist_id        | integer | UID des Artist in der LMS-Datenbank |
+| Year             | integer | Jahr des Song, soweit hinterlegt    |
+*/
+// Breite der Spalten (Reihenfolge ist egal)
+$Config["Breite"] = array(
+"Play" =>"50em",
+"Position" => "50em",
+    "Title" => "200em",
+    "Artist" => "200em",
+    "Bitrate" => "200em",
+    "Duration" => "100em"
+);
+// Style Informationen der Tabelle
+$Config["Style"] = array(
+    // <table>-Tag:
+    "T"    => "margin:0 auto; font-size:0.8em;",
+    // <thead>-Tag:
+    "H"    => "",
+    // <tr>-Tag im thead-Bereich:
+    "HR"   => "",
+    // <th>-Tag Feld Play:
+    "HFPlay"  => "width:35px; align:left;",
+    // <th>-Tag Feld Position:
+    "HFPosition"  => "width:35px; align:left;",
+    // <th>-Tag Feld Title:
+    "HFTitle"  => "width:35px; align:left;",
+    // <th>-Tag Feld Artist:
+    "HFArtist"  => "width:35px; align:left;",
+    // <th>-Tag Feld Bitrate:
+    "HFBitrate"  => "width:35px; align:left;",
+    // <th>-Tag Feld Duration:
+    "HFDuration"  => "width:35px; align:left;",
+    // <tbody>-Tag:
+    "B"    => "",
+    // <tr>-Tag:
+    "BRG"  => "background-color:#000000; color:ffff00;",
+    "BRU"  => "background-color:#080808; color:ffff00;",
+    "BRA"  => "background-color:#808000; color:ffff00;",
+    // <td>-Tag Feld Play:
+    "DFGPlay" => "text-align:center;",
+    "DFUPlay" => "text-align:center;",
+    "DFAPlay" => "text-align:center;",
+    // <td>-Tag Feld Position:
+    "DFGPosition" => "text-align:center;",
+    "DFUPosition" => "text-align:center;",
+    "DFAPosition" => "text-align:center;",
+    // <td>-Tag Feld Title:
+    "DFGTitle" => "text-align:center;",
+    "DFUTitle" => "text-align:center;",
+    "DFATitle" => "text-align:center;",
+    // <td>-Tag Feld Artist:
+	 "DFGArtist" => "text-align:center;",
+    "DFUArtist" => "text-align:center;",
+    "DFAArtist" => "text-align:center;",
+    // <td>-Tag Feld Bitrate:
+    "DFGBitrate" => "text-align:center;",
+    "DFUBitrate" => "text-align:center;",
+    "DFABitrate" => "text-align:center;",
+    // <td>-Tag Feld Duration:
+    "DFGDuration" => "text-align:center;",
+    "DFUDuration" => "text-align:center;",
+    "DFADuration" => "text-align:center;"
+    // ^- Der Buchstabe "G" steht für gerade, "U" für ungerade., "A" für Aktiv
+ );
+### Konfig ENDE !!!
+LSQ_DisplayPlaylist($_IPS["TARGET"],$Config);
+?>';
+        return $Script;
+    }
+
 ################## Decode Data
 
     private function DecodeLMSEvent(LMSResponse $LMSData)
@@ -331,9 +537,12 @@ class LMSSplitter extends IPSModule
                 }
                 break;
             case "rescan":
+                $this->SetValueInteger("RescanState", 3);
+                break;
+            case "rescan":
                 if (!isset($LMSData->Data[1]))
                 {
-                    $this->SetValueBoolean("RescanRun", true);
+                    $this->SetValueInteger("RescanState", 1);
                     return true;
 
                     //start   
@@ -342,14 +551,14 @@ class LMSSplitter extends IPSModule
                 {
                     if ($LMSData->Data[1] == 'done')
                     {
-                        $this->SetValueBoolean("RescanRun", false);
+                        $this->SetValueInteger("RescanState", 0);
                         return true;
                         //done
                     }
                     else
                     {
                         //start   
-                        $this->SetValueBoolean("RescanRun", true);
+                        $this->SetValueInteger("RescanState", 2);
                         return true;
                     }
                 }
