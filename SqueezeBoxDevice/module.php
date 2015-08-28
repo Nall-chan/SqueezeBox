@@ -141,6 +141,13 @@ class SqueezeboxDevice extends IPSModule
             Array(6, "6", "", -1)
         ));
         $this->RegisterProfileInteger("Tracklist.Squeezebox." . $this->InstanceID, "", "", "", 1, 1, 1);
+        $this->RegisterProfileIntegerEx("SleepTimer.Squeezebox", "Gear", "", "", Array(
+            Array(900, "%d", "", -1),
+            Array(1800, "%d", "", -1),
+            Array(2700, "%d", "", -1),
+            Array(3600, "%d", "", -1),
+            Array(5400, "%d", "", -1)
+        ));
 
 
         //Status-Variablen anlegen
@@ -182,7 +189,9 @@ class SqueezeboxDevice extends IPSModule
         $this->RegisterVariableString("Playlist", "Playlist", "~HTMLBox", 29);
 
         $this->RegisterVariableInteger("Signalstrength", utf8_encode("Signalstärke"), "Intensity.Squeezebox", 30);
-        $this->RegisterVariableInteger("SleepTimeout", "SleepTimeout", "", 31);
+        $this->RegisterVariableInteger("SleepTimer", "Einschlaftimer", "SleepTimer.Squeezebox", 31);
+        $this->EnableAction("SleepTimer");
+        $this->RegisterVariableString("SleepTimeout", "Ausschalten in ", "", 32);
 
         // Workaround für persistente Daten der Instanz.
         $this->RegisterVariableBoolean("can_seek", "can_seek", "", -5);
@@ -428,6 +437,7 @@ if (isset($_GET["Index"]))
     public function SetSleep(integer $Seconds)
     {
         $ret = $this->SendLSQData(new LSQData(LSQResponse::sleep, $Seconds));
+        $this->_SetSleep($Seconds);
         return ($ret == $Seconds);
     }
 
@@ -439,7 +449,9 @@ if (isset($_GET["Index"]))
      */
     public function GetSleep()
     {
-        return intval($this->SendLSQData(new LSQData(LSQResponse::sleep, '?')));
+        $ret = intval($this->SendLSQData(new LSQData(LSQResponse::sleep, '?')));
+        $this->_SetSleep($ret);
+        return $ret;
     }
 
     /**
@@ -1167,6 +1179,9 @@ if (isset($_GET["Index"]))
             case "Index":
                 $result = $this->PlayTrack($Value);
                 break;
+            case "SleepTimer":
+                $result = $this->SetSleep($Value);
+                break;
             default:
                 throw new Exception("Invalid ident");
         }
@@ -1239,6 +1254,11 @@ if (isset($_GET["Index"]))
             $this->EnableAction("Position2");
         else
             $this->DisableAction('Position2');
+    }
+
+    private function _SetSleep($Value)
+    {
+        $this->SetValueInteger('SleepTimer', $Value);
     }
 
     private function decodeLSQEvent($LSQEvent)
@@ -1350,9 +1370,12 @@ if (isset($_GET["Index"]))
                     $this->RefreshPlaylist();
                 }
                 break;
-            /*            case LSQResponse::sleep:
-              $this->SetValueInteger('SleepTimeout', (int) $LSQEvent->Value);
-              break; */
+            case LSQResponse::sleep:
+                $this->_SetSleep((int) $LSQEvent->Value);
+                break;
+            case LSQResponse::will_sleep_in:
+                $this->SetValueString('SleepTimeout', @date("i:s", (int) $LSQEvent->Value));
+                break;
             case LSQResponse::sync:
             case LSQResponse::rate:
             case LSQResponse::seq_no:
@@ -1573,7 +1596,7 @@ if (isset($_GET["Index"]))
         {
             foreach ($Data as $Position => $Line)
             {
-                $Line['Position'] = $Position + 1;
+                $Line['Position'] = $Position;
                 $Line['Duration'] = @date('i:s', $Line['Duration']);
                 $Line['Play'] = $Line['Position'] == $CurrentTrack ? '<div class="ipsIconArrowRight" is="null"></div>' : '';
 

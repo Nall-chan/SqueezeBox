@@ -278,6 +278,7 @@ class LSQResponse extends stdClass
     const index = 'index';
     const connected = 'connected';
     const sleep = 'sleep';
+    const will_sleep_in = 'will_sleep_in';
     const sync = 'sync';
     const mode = 'mode';
     const power = 'power';

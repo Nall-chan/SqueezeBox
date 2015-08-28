@@ -383,7 +383,7 @@ class LMSSplitter extends IPSModule
           {
           foreach ($Data as $Position => $Line)
           {
-          $Line['Position'] = $Position + 1;
+          $Line['Position'] = $Position;
           $Line['Duration'] = @date('i:s', $Line['Duration']);
           $Line['Play'] = $Line['Position'] == $CurrentTrack ? '<div class="ipsIconArrowRight" is="null"></div>' : '';
 
