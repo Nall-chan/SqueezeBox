@@ -396,7 +396,7 @@ class LMSSplitter extends IPSModule
           }
           }
           $HTMLData .= $this->GetTableFooter();
-          $this->SetValueString('Playlist', $HTMLData); 
+          $this->SetValueString('Playlists', $HTMLData); 
     }
   private function GetTableHeader($Config)
     {
