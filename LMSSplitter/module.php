@@ -397,7 +397,6 @@ class LMSSplitter extends IPSModule
           }
           $HTMLData .= $this->GetTableFooter();
           $this->SetValueString('Playlist', $HTMLData); 
-        $this->SetValueString('Playlists', serialize($Data));
     }
   private function GetTableHeader($Config)
     {
@@ -505,7 +504,7 @@ $Config["Style"] = array(
     // ^- Der Buchstabe "G" steht für gerade, "U" für ungerade.
  );
 ### Konfig ENDE !!!
-LSM_DisplayPlaylist($_IPS["TARGET"],$Config);
+LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
 ?>';
         return $Script;
     }
