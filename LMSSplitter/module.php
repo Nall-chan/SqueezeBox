@@ -305,34 +305,17 @@ class LMSSplitter extends IPSModule
 
     public function GetPlaylists()
     {
-
         $ret = $this->SendLMSData(new LMSData('playlists', array(0, 10000, 'tags:u')));
-
-        IPS_Logmessage('PlaylistTotal', print_r($ret, 1));
-
         $SongInfo = new LSMSongInfo($ret);
         $Playlists = $SongInfo->GetAllSongs();
-        IPS_Logmessage('PlaylistTotal', print_r(Playlists, 1));
         foreach ($Playlists as $Key => $Playlist)
         {
-            //   werte und Total
             $raw = LMS_SendRaw(15277 /* [Logitech Media Server] */, array('playlists', 'tracks'), array(0, 10000, 'playlist_id:' . $Playlist['Id'], 'tags:d'), true);
-
             $SongInfo = new LSMSongInfo($raw);
-            IPS_Logmessage('PlaylistInfo', print_r($Playlist, 1));
             $Playlists[$Key]['Tracks'] = $SongInfo->CountAllSongs();
-            IPS_Logmessage('PlaylistSongs', print_r($SongInfo->CountAllSongs(), 1));
             $Playlists[$Key]['Duration'] = $SongInfo->GetTotalDuration();
-            IPS_Logmessage('PlaylistDauer', print_r($SongInfo->GetTotalDuration(), 1));
         }
-        /*
-          $ret = $this->SendLMSData(new LMSData(array('playlists', 'tracks'), array('0', '1')));
-          IPS_Logmessage('Playlist3', print_r($ret, 1));
-          $Data = new LMSTaggingData($ret);
-          IPS_Logmessage('Playlist4', print_r($Data, 1));
-         */
         return $Playlists;
-//        return array('123' => "123456678", 'af' => 'hallo');
     }
 
 ################## Action
@@ -386,33 +369,67 @@ class LMSSplitter extends IPSModule
             unset($exc);
             throw new Exception('Error on read Playlist');
         }
-        /*    $HTMLData = $this->GetTableHeader($Config);
+            $HTMLData = $this->GetTableHeader($Config);
           $pos = 0;
-          $CurrentTrack = GetValueInteger($this->GetIDForIdent('Index'));
+//          $CurrentTrack = GetValueInteger($this->GetIDForIdent('Index'));
 
           if (isset($Data))
           {
           foreach ($Data as $Position => $Line)
           {
-          $Line['Position'] = $Position;
-          $Line['Duration'] = @date('i:s', $Line['Duration']);
-          $Line['Play'] = $Line['Position'] == $CurrentTrack ? '<div class="ipsIconArrowRight" is="null"></div>' : '';
+//          $Line['Position'] = $Position;
+                if ($Line['Duration'] > 3600)
+                    $Line['Duration'] = @date("H:i:s", $Line['Duration'] - 3600);
+                else
+                    $Line['Duration'] = @date("i:s", $Line['Duration']);
 
-          $HTMLData .='<tr style="' . $Config['Style']['BR' . ($Line['Position'] == $CurrentTrack ? 'A' : ($pos % 2 ? 'U' : 'G'))] . '"
-          onclick="window.xhrGet=function xhrGet(o) {var HTTP = new XMLHttpRequest();HTTP.open(\'GET\',o.url,true);HTTP.send();};window.xhrGet({ url: \'hook/SqueezeBoxPlaylist' . $this->InstanceID . '?Index=' . $Line['Position'] . '\' })">';
+//          $Line['Play'] = $Line['Position'] == $CurrentTrack ? '<div class="ipsIconArrowRight" is="null"></div>' : '';
+
+          $HTMLData .='<tr style="' . $Config['Style']['BR' . ($pos % 2 ? 'U' : 'G')] . '"
+          onclick="window.xhrGet=function xhrGet(o) {var HTTP = new XMLHttpRequest();HTTP.open(\'GET\',o.url,true);HTTP.send();};window.xhrGet({ url: \'hook/SqueezeBoxPlaylist' . $this->InstanceID . '?Playlistid=' . $Line['Id'] . '\' })">';
           foreach ($Config['Spalten'] as $feldIndex => $value)
           {
-          $HTMLData .= '<td style="' . $Config['Style']['DF' . ($Line['Position'] == $CurrentTrack ? 'A' : ($pos % 2 ? 'U' : 'G')) . $feldIndex] . '">' . (string) $Line[$feldIndex] . '</td>';
+          $HTMLData .= '<td style="' . $Config['Style']['DF' . ($Line['Position'] == $pos % 2 ? 'U' : 'G') . $feldIndex] . '">' . (string) $Line[$feldIndex] . '</td>';
           }
           $HTMLData .= '</tr>' . PHP_EOL;
           $pos++;
           }
           }
           $HTMLData .= $this->GetTableFooter();
-          $this->SetValueString('Playlist', $HTMLData); */
+          $this->SetValueString('Playlist', $HTMLData); 
         $this->SetValueString('Playlists', serialize($Data));
     }
+  private function GetTableHeader($Config)
+    {
+//	$felder = array('Icon'=>'Typ', 'Date'=>'Datum', 'Name'=>'Name', 'Caller'=>'Rufnummer', 'Device'=>'Nebenstelle', 'Called'=>'Eigene Rufnummer', 'Duration'=>'Dauer','AB'=>'Nachricht');
+        // Kopf der Tabelle erzeugen
+        $html = "<table bgcolor='#000000'><body scroll=no><body bgcolor='#000000'><table style=" . $Config['Style']['T'] . '">' . PHP_EOL;
+        $html .= '<colgroup>' . PHP_EOL;
+        foreach ($Config['Spalten'] as $Index => $Value)
+        {
+            $html .= '<col width="' . $Config['Breite'][$Index] . '" />' . PHP_EOL;
+        }
+        $html .= '</colgroup>' . PHP_EOL;
+        $html .= '<thead style="' . $Config['Style']['H'] . '">' . PHP_EOL;
+        $html .= '<tr style="' . $Config['Style']['HR'] . '">';
+        foreach ($Config['Spalten'] as $Index => $Value)
+        {
+            $html .= '<th style="color:ffff00; ' . $Config['Style']['HF' . $Index] . '">' . $Value . '</th>';
+        }
+        $html .= '</tr>' . PHP_EOL;
+        $html .= '</thead>' . PHP_EOL;
+        $html .= '<tbody style="' . $Config['Style']['B'] . '">' . PHP_EOL;
+        return $html;
+    }
 
+    private function GetTableFooter()
+    {
+        $html = '</tbody>' . PHP_EOL;
+        $html .= '</table>' . PHP_EOL;
+        return $html;
+    }
+
+  
     private function CreatePlaylistConfigScript()
     {
         $Script = '<?
@@ -430,44 +447,27 @@ if ($_IPS["SENDER"] <> "LMS")
 // Reihenfolge und Überschriften der Tabelle. Der vordere Wert darf nicht verändert werden.
 // Die Reihenfolge, der hintere Wert (Anzeigetext) und die Reihenfolge sind beliebig änderbar.
 $Config["Spalten"] = array(
-"Play" =>"",
-"Position"=>"Pos",
-"Title"=>"Titel",
-"Artist"=>"Interpret",
-"Bitrate"=>"Bitrate",
+"Id" =>"",
+"Playlist"=>"Playlist-Name",
+"Tracks"=>"Anzahl der Tracks",
 "Duration"=>"Dauer"
 );
 #### Mögliche Index-Felder
 /*
 | Index            | Typ     | Beschreibung                        |
 | :--------------: | :-----: | :---------------------------------: |
-| Play             |  kein   | Play-Icon                           |
-| Position         | integer | Position in der Playlist            |
-| Id               | integer | UID der Datei in der LMS-Datenbank  |
-| Title            | string  | Titel                               |
-| Genre            | string  | Genre                               |
-| Album            | string  | Album                               |
-| Artist           | string  | Interpret                           |
-| Duration         | integer | Länge in Sekunden                   |
-| Disc             | integer | Aktuelles Medium                    |
-| Disccount        | integer | Anzahl aller Medien dieses Albums   |
-| Bitrate          | string  | Bitrate in Klartext                 |
-| Tracknum         | integer | Tracknummer im Album                |
+| Id               | integer | UID der Playlist in der LMS-Datenbank  |
+| Playlist         | string  | Name der Playlist                   |
+| Duration         | integer | Länge der Playlist in Klartext      |
 | Url              | string  | Pfad der Playlist                   |
-| Album_id         | integer | UID des Album in der LMS-Datenbank  |
-| Artwork_track_id | string  | UID des Cover in der LMS-Datenbank  |
-| Genre_id         | integer | UID des Genre in der LMS-Datenbank  |
-| Artist_id        | integer | UID des Artist in der LMS-Datenbank |
-| Year             | integer | Jahr des Song, soweit hinterlegt    |
+| Tracks           | integer | Anzahl der enthaltenen Tracks       |
 */
 // Breite der Spalten (Reihenfolge ist egal)
 $Config["Breite"] = array(
-"Play" =>"50em",
-"Position" => "50em",
-    "Title" => "200em",
-    "Artist" => "200em",
-    "Bitrate" => "200em",
-    "Duration" => "100em"
+"Id" =>"100em",
+    "Playlist" => "200em",
+    "Tracks" => "50em",
+    "Duration" => "50em"
 );
 // Style Informationen der Tabelle
 $Config["Style"] = array(
@@ -477,16 +477,12 @@ $Config["Style"] = array(
     "H"    => "",
     // <tr>-Tag im thead-Bereich:
     "HR"   => "",
-    // <th>-Tag Feld Play:
-    "HFPlay"  => "width:35px; align:left;",
-    // <th>-Tag Feld Position:
-    "HFPosition"  => "width:35px; align:left;",
-    // <th>-Tag Feld Title:
-    "HFTitle"  => "width:35px; align:left;",
-    // <th>-Tag Feld Artist:
-    "HFArtist"  => "width:35px; align:left;",
-    // <th>-Tag Feld Bitrate:
-    "HFBitrate"  => "width:35px; align:left;",
+    // <th>-Tag Feld Id:
+    "HFId"  => "width:35px; align:left;",
+    // <th>-Tag Feld Playlist:
+    "HFPlaylist"  => "width:35px; align:left;",
+    // <th>-Tag Feld Tracks:
+    "HFTracks"  => "width:35px; align:left;",
     // <th>-Tag Feld Duration:
     "HFDuration"  => "width:35px; align:left;",
     // <tbody>-Tag:
@@ -494,32 +490,19 @@ $Config["Style"] = array(
     // <tr>-Tag:
     "BRG"  => "background-color:#000000; color:ffff00;",
     "BRU"  => "background-color:#080808; color:ffff00;",
-    "BRA"  => "background-color:#808000; color:ffff00;",
-    // <td>-Tag Feld Play:
-    "DFGPlay" => "text-align:center;",
-    "DFUPlay" => "text-align:center;",
-    "DFAPlay" => "text-align:center;",
-    // <td>-Tag Feld Position:
-    "DFGPosition" => "text-align:center;",
-    "DFUPosition" => "text-align:center;",
-    "DFAPosition" => "text-align:center;",
-    // <td>-Tag Feld Title:
-    "DFGTitle" => "text-align:center;",
-    "DFUTitle" => "text-align:center;",
-    "DFATitle" => "text-align:center;",
-    // <td>-Tag Feld Artist:
-	 "DFGArtist" => "text-align:center;",
-    "DFUArtist" => "text-align:center;",
-    "DFAArtist" => "text-align:center;",
-    // <td>-Tag Feld Bitrate:
-    "DFGBitrate" => "text-align:center;",
-    "DFUBitrate" => "text-align:center;",
-    "DFABitrate" => "text-align:center;",
+    // <td>-Tag Feld Id:
+    "DFGId" => "text-align:center;",
+    "DFUId" => "text-align:center;",
+    // <td>-Tag Feld Playlist:
+    "DFGPlaylist" => "text-align:center;",
+    "DFUPlaylist" => "text-align:center;",
+    // <td>-Tag Feld Tracks:
+    "DFGTracks" => "text-align:center;",
+    "DFUTracks" => "text-align:center;",
     // <td>-Tag Feld Duration:
     "DFGDuration" => "text-align:center;",
     "DFUDuration" => "text-align:center;",
-    "DFADuration" => "text-align:center;"
-    // ^- Der Buchstabe "G" steht für gerade, "U" für ungerade., "A" für Aktiv
+    // ^- Der Buchstabe "G" steht für gerade, "U" für ungerade.
  );
 ### Konfig ENDE !!!
 LSM_DisplayPlaylist($_IPS["TARGET"],$Config);
