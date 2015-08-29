@@ -238,10 +238,15 @@ class LSMSongInfo extends stdClass
 
     public function GetTotalDuration()
     {
-        if (@date('H', $this->Duration) == 0)
-            return @date('i:s', $this->Duration);
+        if ($this->Duration > 3600)
+            return @date('Hi:s', $this->Duration - 3600);
         else
-            return @date('H:i:s', $this->Duration);
+            return @date('i:s', $this->Duration);
+    }
+
+    public function CountAllSongs()
+    {
+        return count($this->SongArray);
     }
 
 }

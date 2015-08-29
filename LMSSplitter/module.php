@@ -305,22 +305,33 @@ class LMSSplitter extends IPSModule
 
     public function GetPlaylists()
     {
-        
-        $ret = $this->SendLMSData(new LMSData('playlists', array(0 ,1000 ,'tags:u')));            
-        
-        IPS_Logmessage('Playlist1', print_r($ret, 1));
+
+        $ret = $this->SendLMSData(new LMSData('playlists', array(0, 10000, 'tags:u')));
+
+        IPS_Logmessage('PlaylistTotal', print_r($ret, 1));
 
         $SongInfo = new LSMSongInfo($ret);
-        $SongArray = $SongInfo->GetAllSongs();
-        IPS_Logmessage('Playlist2', print_r($SongArray, 1));
-        IPS_Logmessage('PlaylistTotal', print_r($SongInfo->GetTotalDuration(), 1));
-/*        
-        $ret = $this->SendLMSData(new LMSData(array('playlists', 'tracks'), array('0', '1')));
-        IPS_Logmessage('Playlist3', print_r($ret, 1));
-        $Data = new LMSTaggingData($ret);
-        IPS_Logmessage('Playlist4', print_r($Data, 1));
-*/
-        return $SongArray;
+        $Playlists = $SongInfo->GetAllSongs();
+        IPS_Logmessage('PlaylistTotal', print_r(Playlists, 1));
+        foreach ($Playlists as $Key => $Playlist)
+        {
+            //   werte und Total
+            $raw = LMS_SendRaw(15277 /* [Logitech Media Server] */, array('playlists', 'tracks'), array(0, 10000, 'playlist_id:' . $Playlist['Id'], 'tags:d'), true);
+
+            $SongInfo = new LSMSongInfo($raw);
+            IPS_Logmessage('PlaylistInfo', print_r($Playlist, 1));
+            $Playlists[$Key]['Tracks'] = $SongInfo->CountAllSongs();
+            IPS_Logmessage('PlaylistSongs', print_r($SongInfo->CountAllSongs(), 1));
+            $Playlists[$Key]['Duration'] = $SongInfo->GetTotalDuration();
+            IPS_Logmessage('PlaylistDauer', print_r($SongInfo->GetTotalDuration(), 1));
+        }
+        /*
+          $ret = $this->SendLMSData(new LMSData(array('playlists', 'tracks'), array('0', '1')));
+          IPS_Logmessage('Playlist3', print_r($ret, 1));
+          $Data = new LMSTaggingData($ret);
+          IPS_Logmessage('Playlist4', print_r($Data, 1));
+         */
+        return $Playlists;
 //        return array('123' => "123456678", 'af' => 'hallo');
     }
 
