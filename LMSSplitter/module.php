@@ -363,12 +363,13 @@ class LMSSplitter extends IPSModule
     private function RefreshPlayerList()
     {
         $players = $this->GetNumberOfPlayers();
-        $Assosiation[] = array(-2, 'Keiner', "", 0x00ff00);
-        $Assosiation[] = array(-1, 'Alle', "", 0xff0000);
+        
+        $Assosiation[0] = array(-2, 'Keiner', "", 0x00ff00);
+        $Assosiation[1] = array(-1, 'Alle', "", 0xff0000);
         for ($i = 0; $i < $players; $i++)
         {
             $PlayerName = rawurldecode($this->SendLMSData(new LMSData(array('player', 'name', $i), '?')));
-            $Assosiation[] = array($i, $PlayerName, "", -1);
+            $Assosiation[$i+2] = array($i, $PlayerName, "", -1);
         }
         $this->RegisterProfileIntegerEx("PlayerSelect" . $this->InstanceID . ".SqueezeboxServer", "Speaker", "", "", $Assosiation);
         $this->SetValueInteger('PlayerSelect', -2);
@@ -619,7 +620,7 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
                 }
                 else
                 {
-                    if ($LMSData->Data[1] == 'done')
+                    if (($LMSData->Data[1] == 'done') or ( $LMSData->Data[1] == '0'))
                     {
                         $this->SetValueInteger("RescanState", 0); // fertig
                         $this->RefreshPlaylists();
@@ -630,10 +631,10 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
                         $this->SetValueInteger("RescanState", 3); // Playlists
                         return true;
                     }
-                    else
+                    elseif ((int) $LMSData->Data[1] == 1)
                     {
                         //start   
-                        $this->SetValueInteger("RescanState", 2); // einfacher ?
+                        $this->SetValueInteger("RescanState", 2); // einfacher
                         return true;
                     }
                 }
