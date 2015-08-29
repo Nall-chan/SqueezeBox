@@ -495,6 +495,7 @@ class LMSSplitter extends IPSModule
             $Players = IPS_GetObjectIDByIdent("PlayerSelect",IPS_GetParent($_IPS["SELF"]));
             var_dump(GetValueInteger($Players);
 ';
+        return $Script;
     }
 
     private function CreatePlaylistConfigScript()
