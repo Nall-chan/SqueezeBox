@@ -76,6 +76,7 @@ class LMSSplitter extends IPSModule
         $this->RegisterVariableString("RescanProgress", "Rescan Fortschritt", "", 3);
         $this->EnableAction("RescanState");
         $this->RegisterVariableInteger("PlayerSelect", "Player wählen", "PlayerSelect" . $this->InstanceID . ".SqueezeboxServer", 4);
+        $this->EnableAction("PlayerSelect");
         $this->RegisterVariableString("Playlists", "Playlisten", "~HTMLBox", 5);
 
         // Eigene Scripte
@@ -339,6 +340,10 @@ class LMSSplitter extends IPSModule
     {
         switch ($Ident)
         {
+            case "PlayerSelect":
+                $this->SetValueInteger('PlayerSelect', $Value);
+
+                break;
             case "RescanState":
                 if ($Value == 1)
                     $ret = $this->SendLMSData(new LMSData('abortscan', ''));
@@ -347,7 +352,7 @@ class LMSSplitter extends IPSModule
                 elseif ($Value == 3)
                     $ret = $this->SendLMSData(new LMSData('rescan playlists', ''));
                 elseif ($Value == 4)
-                    $ret = $this->SendLMSData(new LMSData('wipecache', ''));
+                    $ret = $this->SendLMSData(new LMSData('wipecache', '', false));
                 if (($Value <> 0) and ( !$ret))
                     throw new Exception('Error on send Scan Command');
                 $this->SetValueInteger('RescanState', $Value);
@@ -363,13 +368,13 @@ class LMSSplitter extends IPSModule
     private function RefreshPlayerList()
     {
         $players = $this->GetNumberOfPlayers();
-        
+
         $Assosiation[0] = array(-2, 'Keiner', "", 0x00ff00);
         $Assosiation[1] = array(-1, 'Alle', "", 0xff0000);
         for ($i = 0; $i < $players; $i++)
         {
             $PlayerName = rawurldecode($this->SendLMSData(new LMSData(array('player', 'name', $i), '?')));
-            $Assosiation[$i+2] = array($i, $PlayerName, "", -1);
+            $Assosiation[$i + 2] = array($i, $PlayerName, "", -1);
         }
         $this->RegisterProfileIntegerEx("PlayerSelect" . $this->InstanceID . ".SqueezeboxServer", "Speaker", "", "", $Assosiation);
         $this->SetValueInteger('PlayerSelect', -2);
@@ -612,6 +617,10 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
                         break;
                 }
                 break;
+            case"wipecache":
+                $this->SetValueInteger("RescanState", 4); // Vollständig
+                return true;
+
             case "rescan":
                 if (!isset($LMSData->Data[1]))
                 {
