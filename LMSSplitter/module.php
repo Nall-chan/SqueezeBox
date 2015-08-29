@@ -61,15 +61,27 @@ class LMSSplitter extends IPSModule
             if ($change)
                 @IPS_ApplyChanges($ParentID);
         }
-
+// Eigene Profile
+        $this->RegisterProfileIntegerEx("Scanner.SqueezeboxServer", "Gear", "", "", Array(
+            Array(0, "Standby", "", -1),
+            Array(1, "Abbruch", "", -1),
+            Array(2, "Scan", "", -1),
+            Array(3, "Nur Playlists", "", -1),
+            Array(4, "Vollständig", "", -1)
+        ));
+        $this->RegisterProfileInteger("PlayerSelect" . $this->InstanceID . ".SqueezeboxServer", "Speaker", "", "", 0, 0, 0);
 // Eigene Variablen
-        $this->RegisterVariableInteger("RescanState", "Rescan läuft", "", 1);
+        $this->RegisterVariableInteger("RescanState", "Scanner", "Scanner.SqueezeboxServer", 1);
         $this->RegisterVariableString("RescanInfo", "Rescan Status", "", 2);
         $this->RegisterVariableString("RescanProgress", "Rescan Fortschritt", "", 3);
         $this->EnableAction("RescanState");
-        $this->RegisterVariableString("Playlists", "Playlisten", "", 4);
+        $this->RegisterVariableInteger("PlayerSelect", "Player wählen", "PlayerSelect" . $this->InstanceID . ".SqueezeboxServer", 4);
+        $this->RegisterVariableString("Playlists", "Playlisten", "~HTMLBox", 5);
 
         // Eigene Scripte
+        $ID = $this->RegisterScript("WebHookPlaylist", "WebHookPlaylist", $this->CreateWebHookScript(), -8);
+        IPS_SetHidden($ID, true);
+        $this->RegisterHook('/hook/LMSPlaylist' . $this->InstanceID, $ID);
 
         $ID = $this->RegisterScript('PlaylistDesign', 'Playlist Config', $this->CreatePlaylistConfigScript(), -4);
         IPS_SetHidden($ID, true);
@@ -90,6 +102,9 @@ class LMSSplitter extends IPSModule
         {
             $Data = new LMSData("listen", "1");
             $this->SendLMSData($Data);
+            $Data = new LMSData("rescan", "?", false);
+            $this->SendLMSData($Data);
+            $this->RefreshPlayerList();
             $this->RefreshPlaylists();
         }
     }
@@ -132,7 +147,7 @@ class LMSSplitter extends IPSModule
 
     public function CreateAllPlayer()
     {
-        $players = $this->SendLMSData(new LMSData(array('player', 'count'), '?'));
+        $players = $this->GetNumberOfPlayers();
         $DevicesIDs = IPS_GetInstanceListByModuleID("{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}");
         $CreatedPlayers = array();
         foreach ($DevicesIDs as $Device)
@@ -325,17 +340,15 @@ class LMSSplitter extends IPSModule
         switch ($Ident)
         {
             case "RescanState":
-                if ($Value == 0)
+                if ($Value == 1)
                     $ret = $this->SendLMSData(new LMSData('abortscan', ''));
-                elseif ($Value == 1)
-                    $ret = $this->SendLMSData(new LMSData('rescan', ''));
                 elseif ($Value == 2)
-                    $ret = $this->SendLMSData(new LMSData('rescan playlists', ''));
+                    $ret = $this->SendLMSData(new LMSData('rescan', ''));
                 elseif ($Value == 3)
-                {
+                    $ret = $this->SendLMSData(new LMSData('rescan playlists', ''));
+                elseif ($Value == 4)
                     $ret = $this->SendLMSData(new LMSData('wipecache', ''));
-                }
-                if (!$ret)
+                if (($Value <> 0) and ( !$ret))
                     throw new Exception('Error on send Scan Command');
                 $this->SetValueInteger('RescanState', $Value);
                 break;
@@ -346,6 +359,20 @@ class LMSSplitter extends IPSModule
     }
 
 ################## Privat
+
+    private function RefreshPlayerList()
+    {
+        $players = $this->GetNumberOfPlayers();
+        $Assosiation[] = array(-2, 'Keiner', "", 0x00ff00);
+        $Assosiation[] = array(-1, 'Alle', "", 0xff0000);
+        for ($i = 0; $i < $players; $i++)
+        {
+            $PlayerName = rawurldecode($this->SendLMSData(new LMSData(array('player', 'name', $i), '?')));
+            $Assosiation[] = array($i, $PlayerName, "", -1);
+        }
+        $this->RegisterProfileIntegerEx("PlayerSelect" . $this->InstanceID . ".SqueezeboxServer", "Speaker", "", "", $Assosiation);
+        $this->SetValueInteger('PlayerSelect', -2);
+    }
 
     private function RefreshPlaylists()
     {
@@ -369,14 +396,14 @@ class LMSSplitter extends IPSModule
             unset($exc);
             throw new Exception('Error on read Playlist');
         }
-            $HTMLData = $this->GetTableHeader($Config);
-          $pos = 0;
+        $HTMLData = $this->GetTableHeader($Config);
+        $pos = 0;
 //          $CurrentTrack = GetValueInteger($this->GetIDForIdent('Index'));
 
-          if (isset($Data))
-          {
-          foreach ($Data as $Position => $Line)
-          {
+        if (isset($Data))
+        {
+            foreach ($Data as $Position => $Line)
+            {
 //          $Line['Position'] = $Position;
                 if ($Line['Duration'] > 3600)
                     $Line['Duration'] = @date("H:i:s", $Line['Duration'] - 3600);
@@ -385,20 +412,21 @@ class LMSSplitter extends IPSModule
 
 //          $Line['Play'] = $Line['Position'] == $CurrentTrack ? '<div class="ipsIconArrowRight" is="null"></div>' : '';
 
-          $HTMLData .='<tr style="' . $Config['Style']['BR' . ($pos % 2 ? 'U' : 'G')] . '"
+                $HTMLData .='<tr style="' . $Config['Style']['BR' . ($pos % 2 ? 'U' : 'G')] . '"
           onclick="window.xhrGet=function xhrGet(o) {var HTTP = new XMLHttpRequest();HTTP.open(\'GET\',o.url,true);HTTP.send();};window.xhrGet({ url: \'hook/SqueezeBoxPlaylist' . $this->InstanceID . '?Playlistid=' . $Line['Id'] . '\' })">';
-          foreach ($Config['Spalten'] as $feldIndex => $value)
-          {
-          $HTMLData .= '<td style="' . $Config['Style']['DF' . ($Line['Position'] == $pos % 2 ? 'U' : 'G') . $feldIndex] . '">' . (string) $Line[$feldIndex] . '</td>';
-          }
-          $HTMLData .= '</tr>' . PHP_EOL;
-          $pos++;
-          }
-          }
-          $HTMLData .= $this->GetTableFooter();
-          $this->SetValueString('Playlists', $HTMLData); 
+                foreach ($Config['Spalten'] as $feldIndex => $value)
+                {
+                    $HTMLData .= '<td style="' . $Config['Style']['DF' . ($Line['Position'] == $pos % 2 ? 'U' : 'G') . $feldIndex] . '">' . (string) $Line[$feldIndex] . '</td>';
+                }
+                $HTMLData .= '</tr>' . PHP_EOL;
+                $pos++;
+            }
+        }
+        $HTMLData .= $this->GetTableFooter();
+        $this->SetValueString('Playlists', $HTMLData);
     }
-  private function GetTableHeader($Config)
+
+    private function GetTableHeader($Config)
     {
 //	$felder = array('Icon'=>'Typ', 'Date'=>'Datum', 'Name'=>'Name', 'Caller'=>'Rufnummer', 'Device'=>'Nebenstelle', 'Called'=>'Eigene Rufnummer', 'Duration'=>'Dauer','AB'=>'Nachricht');
         // Kopf der Tabelle erzeugen
@@ -428,7 +456,41 @@ class LMSSplitter extends IPSModule
         return $html;
     }
 
-  
+    private function RegisterHook($WebHook, $TargetID)
+    {
+        $ids = IPS_GetInstanceListByModuleID("{015A6EB8-D6E5-4B93-B496-0D3F77AE9FE1}");
+        if (sizeof($ids) > 0)
+        {
+            $hooks = json_decode(IPS_GetProperty($ids[0], "Hooks"), true);
+            $found = false;
+            foreach ($hooks as $index => $hook)
+            {
+                if ($hook['Hook'] == $WebHook)
+                {
+                    if ($hook['TargetID'] == $TargetID)
+                        return;
+                    $hooks[$index]['TargetID'] = $TargetID;
+                    $found = true;
+                }
+            }
+            if (!$found)
+            {
+                $hooks[] = Array("Hook" => $WebHook, "TargetID" => $TargetID);
+            }
+            IPS_SetProperty($ids[0], "Hooks", json_encode($hooks));
+            IPS_ApplyChanges($ids[0]);
+        }
+    }
+
+    private function CreateWebHookScript()
+    {
+        $Script = '<?
+            var_dump($_GET);
+            $Players = IPS_GetObjectIDByIdent("PlayerSelect",IPS_GetParent($_IPS["SELF"]));
+            var_dump(GetValueInteger($Players);
+';
+    }
+
     private function CreatePlaylistConfigScript()
     {
         $Script = '<?
@@ -448,7 +510,7 @@ if ($_IPS["SENDER"] <> "LMS")
 $Config["Spalten"] = array(
 "Id" =>"",
 "Playlist"=>"Playlist-Name",
-"Tracks"=>"Anzahl der Tracks",
+"Tracks"=>"Tracks",
 "Duration"=>"Dauer"
 );
 #### Mögliche Index-Felder
@@ -464,9 +526,9 @@ $Config["Spalten"] = array(
 // Breite der Spalten (Reihenfolge ist egal)
 $Config["Breite"] = array(
 "Id" =>"100em",
-    "Playlist" => "200em",
+    "Playlist" => "400em",
     "Tracks" => "50em",
-    "Duration" => "50em"
+    "Duration" => "75em"
 );
 // Style Informationen der Tabelle
 $Config["Style"] = array(
@@ -493,14 +555,14 @@ $Config["Style"] = array(
     "DFGId" => "text-align:center;",
     "DFUId" => "text-align:center;",
     // <td>-Tag Feld Playlist:
-    "DFGPlaylist" => "text-align:center;",
-    "DFUPlaylist" => "text-align:center;",
+    "DFGPlaylist" => "text-align:left;",
+    "DFUPlaylist" => "text-align:left;",
     // <td>-Tag Feld Tracks:
-    "DFGTracks" => "text-align:center;",
-    "DFUTracks" => "text-align:center;",
+    "DFGTracks" => "text-align:right;",
+    "DFUTracks" => "text-align:right;",
     // <td>-Tag Feld Duration:
-    "DFGDuration" => "text-align:center;",
-    "DFUDuration" => "text-align:center;",
+    "DFGDuration" => "text-align:right;",
+    "DFUDuration" => "text-align:right;",
     // ^- Der Buchstabe "G" steht für gerade, "U" für ungerade.
  );
 ### Konfig ENDE !!!
@@ -515,6 +577,9 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
     {
         switch ($LMSData->Data[0])
         {
+            case "listen":
+                return true;
+                break;
             case "scanner":
                 switch ($LMSData->Data[1])
                 {
@@ -547,28 +612,28 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
                 }
                 break;
             case "rescan":
-                $this->SetValueInteger("RescanState", 3);
-                break;
-            case "rescan":
                 if (!isset($LMSData->Data[1]))
                 {
-                    $this->SetValueInteger("RescanState", 1);
+                    $this->SetValueInteger("RescanState", 2); // einfacher
                     return true;
-
-                    //start   
                 }
                 else
                 {
                     if ($LMSData->Data[1] == 'done')
                     {
-                        $this->SetValueInteger("RescanState", 0);
+                        $this->SetValueInteger("RescanState", 0); // fertig
+                        $this->RefreshPlaylists();
                         return true;
-                        //done
+                    }
+                    elseif ($LMSData->Data[1] == 'playlists')
+                    {
+                        $this->SetValueInteger("RescanState", 3); // Playlists
+                        return true;
                     }
                     else
                     {
                         //start   
-                        $this->SetValueInteger("RescanState", 2);
+                        $this->SetValueInteger("RescanState", 2); // einfacher ?
                         return true;
                     }
                 }
@@ -628,6 +693,7 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
         $ReceiveOK = true;
         foreach ($packet as $part)
         {
+            $part = trim($part);
             $Data = new LMSResponse($part);
 // Server Antworten hier verarbeiten
             if ($Data->Device == LMSResponse::isServer)
@@ -661,6 +727,17 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
                 catch (Exception $exc)
                 {
                     $ret = new Exception($exc);
+                }
+                if ($Data->Data[0] == LSQResponse::client) // Client änderungen auch hier verarbeiten!
+                {
+                    try
+                    {
+                        $this->RefreshPlayerList();
+                    }
+                    catch (Exception $exc)
+                    {
+                        unset($exc);
+                    }
                 }
             }
         }
@@ -992,6 +1069,47 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
     {
         if ($InstanceStatus <> IPS_GetInstance($this->InstanceID)['InstanceStatus'])
             parent::SetStatus($InstanceStatus);
+    }
+
+    //Remove on next Symcon update
+    protected function RegisterProfileInteger($Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, $StepSize)
+    {
+
+        if (!IPS_VariableProfileExists($Name))
+        {
+            IPS_CreateVariableProfile($Name, 1);
+        }
+        else
+        {
+            $profile = IPS_GetVariableProfile($Name);
+            if ($profile['ProfileType'] != 1)
+                throw new Exception("Variable profile type does not match for profile " . $Name);
+        }
+
+        IPS_SetVariableProfileIcon($Name, $Icon);
+        IPS_SetVariableProfileText($Name, $Prefix, $Suffix);
+        IPS_SetVariableProfileValues($Name, $MinValue, $MaxValue, $StepSize);
+    }
+
+    protected function RegisterProfileIntegerEx($Name, $Icon, $Prefix, $Suffix, $Associations)
+    {
+        if (sizeof($Associations) === 0)
+        {
+            $MinValue = 0;
+            $MaxValue = 0;
+        }
+        else
+        {
+            $MinValue = $Associations[0][0];
+            $MaxValue = $Associations[sizeof($Associations) - 1][0];
+        }
+
+        $this->RegisterProfileInteger($Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, 0);
+
+        foreach ($Associations as $Association)
+        {
+            IPS_SetVariableProfileAssociation($Name, $Association[0], $Association[1], $Association[2], $Association[3]);
+        }
     }
 
 }
