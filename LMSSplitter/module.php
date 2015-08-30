@@ -105,8 +105,8 @@ class LMSSplitter extends IPSModule
             $this->SendLMSData($Data);
             $Data = new LMSData("rescan", "?", false);
             $this->SendLMSData($Data);
-            $this->RefreshPlayerList();
             $this->RefreshPlaylists();
+            $this->RefreshPlayerList();
         }
     }
 
