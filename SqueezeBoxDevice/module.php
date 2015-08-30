@@ -2031,10 +2031,10 @@ LSQ_DisplayPlaylist($_IPS["TARGET"],$Config);
                 $this->unlock("LSQData");
                 throw $exc;
             }
-            // SendeLock  velassen
-            $this->unlock("LSQData");
             // Auf Antwort warten....
             $ret = $this->WaitForResponse();
+            // SendeLock  velassen
+            $this->unlock("LSQData");
 
             if ($ret === false) // Warteschleife lief in Timeout
             {
