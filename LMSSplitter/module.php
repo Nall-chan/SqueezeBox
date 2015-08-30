@@ -742,7 +742,7 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
                 }
                 if ($Data->Data[0] == LSQResponse::client) // Client änderungen auch hier verarbeiten!
                 {
-                    IPS_RunScriptText('LMS_RefreshPlayerList(' . $this->InstanceID . ');');
+                    IPS_RunScriptText("<?\nLMS_RefreshPlayerList(" . $this->InstanceID . ");");
                 }
             }
         }
