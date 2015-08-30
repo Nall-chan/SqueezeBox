@@ -192,6 +192,13 @@ class LMSSplitter extends IPSModule
                 $Pair->Value = rawurldecode($Pair->Value);
             $LSQEvent[ucfirst($Pair->Command)] = $Pair->Value;
         }
+        $DevicesIDs = IPS_GetInstanceListByModuleID("{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}");
+        $FoundId = 0;
+        foreach ($DevicesIDs as $Device)
+        {
+            if (IPS_GetProperty($Device, 'Address') == $LSQEvent['Playerid']) $FoundId = $Device;
+        }
+        $LSQEvent['Instanceid'] = $FoundId;       
         return $LSQEvent;
     }
 
@@ -493,8 +500,20 @@ class LMSSplitter extends IPSModule
     {
         $Script = '<?
             var_dump($_GET);
-            $Players = IPS_GetObjectIDByIdent("PlayerSelect",IPS_GetParent($_IPS["SELF"]));
-            var_dump(GetValueInteger($Players));
+            $PlayerSelect = IPS_GetObjectIDByIdent("PlayerSelect",IPS_GetParent($_IPS["SELF"]));
+            $PlayerID = GetValueInteger($PlayerSelect);
+            if ($PlayerID == -1)
+            {
+            // Alle
+            }
+            elseif($PlayerID >= 0)
+            {
+                $Player = LMS_GetPlayerInfo(IPS_GetParent($_IPS["SELF"]),$PlayerID);
+                if ($Player["Instanceid"] > 0)
+                {
+                    LSQ_LoadPlaylistByPlaylistID($Player["Instanceid"],$_GET["Playlistid"]);
+                }
+            }
 ';
         return $Script;
     }
@@ -1110,10 +1129,20 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
         }
 
         $this->RegisterProfileInteger($Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, 0);
-
+        $old = IPS_GetVariableProfile($Name)["Associations"];
+        $OldValues = array_column($old,'Value');
         foreach ($Associations as $Association)
         {
             IPS_SetVariableProfileAssociation($Name, $Association[0], $Association[1], $Association[2], $Association[3]);
+            $OldKey = array_search($Association[0],$OldValues);
+            if (!($OldKey === false ))
+            {
+                unset($OldValues[$OldKey]);
+            }
+        }
+        foreach ($OldValues as $OldKey => $OldValue)
+        {
+            IPS_SetVariableProfileAssociation($Name, $OldValue, '', '', 0);
         }
     }
 
