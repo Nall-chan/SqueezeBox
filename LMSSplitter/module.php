@@ -368,15 +368,15 @@ class LMSSplitter extends IPSModule
     public function RefreshPlayerList()
     {
         $players = $this->GetNumberOfPlayers();
-
-        $Assosiation[0] = array(-2, 'Keiner', "", 0x00ff00);
-        $Assosiation[1] = array(-1, 'Alle', "", 0xff0000);
+        $Assosiation = array();
+        $Assosiation[] = array(-2, 'Keiner', "", 0x00ff00);
+        $Assosiation[] = array(-1, 'Alle', "", 0xff0000);
         for ($i = 0; $i < $players; $i++)
         {
             $PlayerName = rawurldecode($this->SendLMSData(new LMSData(array('player', 'name', $i), '?')));
-            $Assosiation[$i + 2] = array($i, $PlayerName, "", -1);
+            $Assosiation[] = array($i, $PlayerName, "", -1);
         }
-        IPS_LogMessage(print_r($Assosiation,1));
+        IPS_LogMessage('Data', print_r($Assosiation, 1));
         $this->RegisterProfileIntegerEx("PlayerSelect" . $this->InstanceID . ".SqueezeboxServer", "Speaker", "", "", $Assosiation);
         $this->SetValueInteger('PlayerSelect', -2);
     }
@@ -742,7 +742,7 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
                 }
                 if ($Data->Data[0] == LSQResponse::client) // Client änderungen auch hier verarbeiten!
                 {
-                    IPS_RunScriptText('LMS_RefreshPlayerList(' .$this->InstanceID. ');');
+                    IPS_RunScriptText('LMS_RefreshPlayerList(' . $this->InstanceID . ');');
                 }
             }
         }
