@@ -365,7 +365,7 @@ class LMSSplitter extends IPSModule
 
 ################## Privat
 
-    private function RefreshPlayerList()
+    public function RefreshPlayerList()
     {
         $players = $this->GetNumberOfPlayers();
 
@@ -493,7 +493,7 @@ class LMSSplitter extends IPSModule
         $Script = '<?
             var_dump($_GET);
             $Players = IPS_GetObjectIDByIdent("PlayerSelect",IPS_GetParent($_IPS["SELF"]));
-            var_dump(GetValueInteger($Players);
+            var_dump(GetValueInteger($Players));
 ';
         return $Script;
     }
@@ -741,14 +741,7 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
                 }
                 if ($Data->Data[0] == LSQResponse::client) // Client änderungen auch hier verarbeiten!
                 {
-                    try
-                    {
-                        $this->RefreshPlayerList();
-                    }
-                    catch (Exception $exc)
-                    {
-                        unset($exc);
-                    }
+                    IPS_RunScriptText('LMS_RefreshPlayerList(' .$this->InstanceID. ');');
                 }
             }
         }
