@@ -376,6 +376,7 @@ class LMSSplitter extends IPSModule
             $PlayerName = rawurldecode($this->SendLMSData(new LMSData(array('player', 'name', $i), '?')));
             $Assosiation[$i + 2] = array($i, $PlayerName, "", -1);
         }
+        IPS_LogMessage(print_r($Assosiation,1));
         $this->RegisterProfileIntegerEx("PlayerSelect" . $this->InstanceID . ".SqueezeboxServer", "Speaker", "", "", $Assosiation);
         $this->SetValueInteger('PlayerSelect', -2);
     }
