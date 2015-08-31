@@ -511,9 +511,10 @@ class LMSSplitter extends IPSModule
                 $Player = LMS_GetPlayerInfo(IPS_GetParent($_IPS["SELF"]),$PlayerID);
                 if ($Player["Instanceid"] > 0)
                 {
-                    LSQ_LoadPlaylistByPlaylistID($Player["Instanceid"],$_GET["Playlistid"]);
+                    LSQ_LoadPlaylistByPlaylistID($Player["Instanceid"],(integer)$_GET["Playlistid"]);
                 }
             }
+            SetValueInteger($PlayerSelect,-2);
 ';
         return $Script;
     }
