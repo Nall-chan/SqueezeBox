@@ -773,7 +773,7 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
     }
 
 // Sende-Routine an den Parent
-    protected function SendDataToParent(LMSData $LMSData)
+    protected function SendDataToParent($LMSData)
     {
         if (is_array($LMSData->Command))
             $Commands = implode(' ', $LMSData->Command);

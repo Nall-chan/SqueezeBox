@@ -15,7 +15,8 @@
                     "name": "Port",
                     "type": "NumberSpinner",
                     "caption": "CLI Port"
-                }, {
+                },
+                {
                     "name": "Webport",
                     "type": "NumberSpinner",
                     "caption": "Webserver Port"

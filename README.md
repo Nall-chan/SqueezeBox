@@ -3,13 +3,63 @@ Ermöglich die Steuerung sowie die Darstellung der Zustände
 von SqueezeBox Geräten in IPS, in Verbindung mit dem
 Logitech Media Server.
 
-## Doku:
+## Dokumentation
 
-### Funktionsreferenz LMSSplitter / Logitech Media Server:
+**Inhaltsverzeichnis**
+
+1. [Funktionsumfang](#1-funktionsumfang)  
+2. [Voraussetzungen](#2-voraussetzungen)  
+3. [Installation](#3-installation)  
+4. [Funktionsreferenz](#4-funktionsreferenz)  
+5. [Anhang](#5-anhang)  
+
+## 1. Funktionsumfang
+
+### Logitech Media Server:  
+
+ - Auslesen von Datenbank Informationen.  
+ - Auslesen und bearbeiten von Server-Playlisten.  
+ - Laden von Server-Playlisten über das WebFront in einen (mehrere) Player.  
+ - Steuern des Scanner der Datenbank inkl. Darstellung des laufenden Modi vom Scanner.  
+
+### SqueezeBoxe:  
+
+ - Steuern und Abfragen der diversen verschiedenen Zustände und Eigenschaften.  
+ - Abfragen, Laden, bearbeiten und speichern von der internen Playliste des Gerätes.  
+ - Syncronisierung steuern.  
+ - Fähigkeiten über das WebFront:  
+    *  Modus: Play,Pause, Stop
+    *  Audio: Lautstärke mit Stummschaltung, und wenn vom Gerät unterstützt, auch Tonhöhe sowie Höhen und Bass.
+    *  Bedienung der 6 Preset-Tasten vom Gerät
+    *  Sleeptimer: Setzen und löschen des Timer.
+    *  Playlist: Trackanwahl, nächster, vorheriger Track, Widerholung und Zufallsmodus
+    *  Darstellung der Daten zum aktuellen Track: Titel, Album, Interpret, Stilrichtung, Cover etc..
+
+## 2. Voraussetzungen
+
+ - IPS 4.x
+ - Logitech Media Server (getestet ab 7.8.1)
+ - kompatibler Player
+
+## 3. Installation
+
+### a. Laden des Modul
+
+   Über das 'Modul Control' folgende URL hinzufügen:  
+    `git://github.com/Nall-chan/IPSSqueezeBox.git`  
+
+### b. Einrichtung in IPS
+
+
+
+
+## 4. Funktionsreferenz
+
+### a. LMSSplitter / Logitech Media Server:
 Für alle Befehle gilt: Tritt ein Fehler auf, wird eine Exception geworfen.
 Dies gilt auch wenn ein Parameter nicht gültig ist, oder z.B. ein Index nicht in der Datenbank gefunden wurde.  
 
-#### Server:
+#### 1. Server:
 
 `string LMS_GetVersion(integer $InstanzID)`  
 Liefert die aktuell installierte Version des Logitech Media-Server.
@@ -21,7 +71,7 @@ Liefert `true` wenn Rescan gestartet wurde.
 `boolean LMS_GetRescanProgress(integer $InstanzID)`  
 Prüft ob aktuell ein Rescan läuft `true`, sonst `false`.
 
-#### Datenbank:
+#### 2. Datenbank:
 
 `array LMS_GetLibaryInfo (integer $InstanzID)`  
 Liefert Informationen über die Datenbank des LMS.  
@@ -85,7 +135,7 @@ Liefert Informationen über eine in `$FileURL` übergebene Datei.
 | Year             | integer | Jahr des Song, soweit hinterlegt    |
 
 
-#### Player:
+#### 3. Player:
 
 `integer LMS_GetNumberOfPlayers(integer $InstanzID)`  
 Fragt die aktuelle Anzahl aller bekannten Player vom Server ab.
@@ -116,10 +166,11 @@ Liefert Infomationen über ein Gerät.
 | Canpoweroff | integer | 1 wenn Gerät Standby unterstützt                  |
 | Connected   | integer | 1 wenn Gerät aktuell mit dem Server verbunden ist |
 
-### Funktionsreferenz LSQDevice / SqueezeboxDevice:
+
+### b. LSQDevice / SqueezeboxDevice:
 Für alle Befehle gilt: Tritt ein Fehler auf, wird eine Exception geworfen.
 
-#### Steuerung:
+#### 1. Steuerung:
 Alle Befehle liefern einen `boolean` als Rückgabewert.  
 `true` wenn der Befehl vom Server bestätigt wurde.  
 Wird der Befehl nicht bestätigt, so ist dise ein Fehler (Exception wird erzeugt).
@@ -139,7 +190,7 @@ Pausiert die Wiedergabe.
 `boolean LSQ_Stop (integer $InstanzID)`  
 Stoppt die Wiedergabe.  
 
-#### Playlist:
+#### 2. Playlist:
 Wird der Befehl nicht bestätigt, so ist dise ein Fehler (Exception wird erzeugt).  
 Wird ein übergebener Parameter nicht auf dem Server gefunden, so wird ebenfalls ein Fehler erzeugt.  
 
@@ -268,7 +319,7 @@ Simuliert einen Tastendruck auf den Vorwärts-Button des Gerätes.
 `boolean LSQ_PreviousButton (integer $InstanzID)`  
 Simuliert einen Tastendruck auf den Rückwerts-Button des Gerätes.  
 
-#### Setzen von Eigenschaften:
+#### 3. Setzen von Eigenschaften:
 
 Alle LSQ_Set* - Befehle liefern einen `boolean` als Rückgabewert.  
 `true` wenn der gleiche Wert vom Server bestätigt wurde.  
@@ -308,7 +359,7 @@ Setzt die Lautstärke auf `$Value`.
 Aktiviert den (Ein)Schlafmodus mit der unter `$Seconds`angegeben Sekunden.  
 0 deaktiviert den zuvor gesetzten Schlafmodus.  
 
-#### Lesen von Eigenschaften:
+#### 4. Lesen von Eigenschaften:
 
 Alle LSQ_Get* - Befehle liefern einen jeweils beschriebenen Rückgabewert.  
 Antwortet das Gerät nicht auf die Anfrage, so ist dies ein Fehler und eine Exception wird erzeugt.  
@@ -347,7 +398,7 @@ Liefert die verbleibende Zeit bis zum ausschalten des Gerätes bei aktivem Schlaf
 Ist der Schlafmodus nicht aktiv, wird 0 gemeldet.  
 
 
-#### Syncronisieren:
+#### 5. Syncronisieren:
 
 Alle LSQ_Set* - Befehle liefern einen `boolean` als Rückgabewert.  
 `true` wenn der gleiche Wert vom Server bestätigt wurde.  
@@ -367,7 +418,7 @@ Antwortet das Gerät nicht auf die Anfrage, so ist dies ein Fehler und eine Excep
 Liefert alle InstanzIDs der mit `$InstanzID` gesyncten Geräte als Array.  
 `false` wenn kein Sync aktiv ist.  
 
-### Funktionsreferenz SqueezeboxBattery:
+### c. Funktionsreferenz SqueezeboxBattery:
 
 **Wichtig**:  
 Getestet nur mit der SqueezeBox Radio und UE (mit SqueezeBox Firmware)!  
@@ -378,9 +429,9 @@ ist es notwenig den SSH-Zugang auf den Geräten zu aktivieren.
 Startet eine Statusabfrage der Instanz.  
 Bei Erfolg wird `true` zurück gegeben, sonst `false`.  
 
-### Konfiguration:
+## 5. Konfiguration:
 
-#### LMSSplitter:
+### a. LMSSplitter:
 
 | Eigenschaft | Typ     | Standardwert | Funktion                           |
 | :---------: | :-----: | :----------: | :--------------------------------: |
@@ -390,7 +441,7 @@ Bei Erfolg wird `true` zurück gegeben, sonst `false`.
 | Webport     | integer | 9000         | Port des LMS-Webserver             |
 
 
-#### LSQDevice:  
+### b. LSQDevice:  
 
 | Eigenschaft | Typ     | Standardwert | Funktion                                                              |
 | :---------: | :-----: | :----------: | :-------------------------------------------------------------------: |
@@ -398,7 +449,7 @@ Bei Erfolg wird `true` zurück gegeben, sonst `false`.
 | CoverSize   | string  | cover        | Größe vom Cover:  cover  cover150x150  cover300x300                   |
 | Interval    | integer | 2            | Abstand in welchen der LMS aktuelle Daten bei der Wiedergabe liefert. |
 
-#### SqueezeboxBattery:  
+### c. SqueezeboxBattery:  
 
 | Eigenschaft | Typ     | Standardwert | Funktion                                                                |
 | :---------: | :-----: | :----------: | :---------------------------------------------------------------------: |
@@ -407,9 +458,11 @@ Bei Erfolg wird `true` zurück gegeben, sonst `false`.
 | Interval    | integer | 30           | Abstand in welchen der Status abgefragt werden soll (<30 nicht möglich) |
 
 
-### GUIDs und Datenaustausch:
+## 6. Anhang
 
-#### LMSSplitter:
+###  b. GUIDs und Datenaustausch:
+
+#### 1. LMSSplitter:
 
 GUID: `{96A9AB3A-2538-42C5-A130-FC34205A706A}`  
 
@@ -425,7 +478,7 @@ Objekt vom Typ `LSQData`
 | needResponse | boolean | true wenn Gerät antworten muss      |
 
 
-#### LSQDevice:  
+#### 2. LSQDevice:  
 
 GUID: `{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}`  
 
@@ -440,6 +493,6 @@ Objekt vom Typ `LMSResponse`
 | IP          | string  | Absender IP-Adresse                                                   |
 | Data        | array   | Array mit allen empfangenen Roh-Daten vom Device                      |
 
-#### SqueezeboxBattery:
+#### 3. SqueezeboxBattery:
 
 GUID: `{718158BB-B247-4A71-9440-9C2FF1378752}`  
