@@ -136,13 +136,13 @@ class LSQTaggingData extends LSQEvent
         {
             $Command = explode(chr(0x20), $Command);
         }
-        if (isset($Part[1]))
+        if (count($Part) > 1)
         {
             $Value = implode('%3A', $Part);
         }
         else
         {
-            $Value = $Part;
+            $Value = array_shift($Part);
         }
         parent::__construct($Command, $Value, $isResponse);
         //return new LSQEvent($Command, $Value, $isResponse);
