@@ -7,12 +7,9 @@ class LMSSplitter extends IPSModule
 
     public function Create()
     {
-//Never delete this line!
+        //Never delete this line!
         parent::Create();
-//These lines are parsed on Instance creation
-// ClientSocket benötigt
         $this->RequireParent("{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}", "Logitech Media Server");
-
         $this->RegisterPropertyString("Host", "");
         $this->RegisterPropertyBoolean("Open", false);
         $this->RegisterPropertyInteger("Port", 9090);
@@ -24,11 +21,11 @@ class LMSSplitter extends IPSModule
 
     public function ApplyChanges()
     {
-//Never delete this line!
+        //Never delete this line!
         parent::ApplyChanges();
         $change = false;
 
-// Zwangskonfiguration des ClientSocket
+        // Zwangskonfiguration des ClientSocket
         $ParentID = $this->GetParent();
         if (!($ParentID === false))
         {
@@ -43,7 +40,7 @@ class LMSSplitter extends IPSModule
                 $change = true;
             }
             $ParentOpen = $this->ReadPropertyBoolean('Open');
-// Keine Verbindung erzwingen wenn Host leer ist, sonst folgt später Exception.
+            // Keine Verbindung erzwingen wenn Host leer ist, sonst folgt später Exception.
             if (!$ParentOpen)
                 $this->SetStatus(104);
 
@@ -61,7 +58,7 @@ class LMSSplitter extends IPSModule
             if ($change)
                 @IPS_ApplyChanges($ParentID);
         }
-// Eigene Profile
+        // Eigene Profile
         $this->RegisterProfileIntegerEx("Scanner.SqueezeboxServer", "Gear", "", "", Array(
             Array(0, "Standby", "", -1),
             Array(1, "Abbruch", "", -1),
@@ -70,7 +67,7 @@ class LMSSplitter extends IPSModule
             Array(4, "Vollständig", "", -1)
         ));
         $this->RegisterProfileInteger("PlayerSelect" . $this->InstanceID . ".SqueezeboxServer", "Speaker", "", "", 0, 0, 0);
-// Eigene Variablen
+        // Eigene Variablen
         $this->RegisterVariableInteger("RescanState", "Scanner", "Scanner.SqueezeboxServer", 1);
         $this->RegisterVariableString("RescanInfo", "Rescan Status", "", 2);
         $this->RegisterVariableString("RescanProgress", "Rescan Fortschritt", "", 3);
@@ -87,7 +84,7 @@ class LMSSplitter extends IPSModule
         $ID = $this->RegisterScript('PlaylistDesign', 'Playlist Config', $this->CreatePlaylistConfigScript(), -4);
         IPS_SetHidden($ID, true);
 
-//Workaround für persistente Daten der Instanz
+        //Workaround für persistente Daten der Instanz
         $this->RegisterVariableString("BufferIN", "BufferIN", "", -3);
         $this->RegisterVariableString("BufferOUT", "BufferOUT", "", -2);
         $this->RegisterVariableBoolean("WaitForResponse", "WaitForResponse", "", -1);
@@ -95,9 +92,7 @@ class LMSSplitter extends IPSModule
         IPS_SetHidden($this->GetIDForIdent('BufferOUT'), true);
         IPS_SetHidden($this->GetIDForIdent('WaitForResponse'), true);
 
-
-
-// Wenn wir verbunden sind, am LMS mit listen anmelden für Events
+        // Wenn wir verbunden sind, am LMS mit listen anmelden für Events
         if (($this->ReadPropertyBoolean('Open'))
                 and ( $this->HasActiveParent($ParentID)))
         {
