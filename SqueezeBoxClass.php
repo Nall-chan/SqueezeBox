@@ -142,7 +142,7 @@ class LSQTaggingData extends LSQEvent
         }
         else
         {
-            $Value = $Part[0];
+            $Value = $Part;
         }
         parent::__construct($Command, $Value, $isResponse);
         //return new LSQEvent($Command, $Value, $isResponse);
