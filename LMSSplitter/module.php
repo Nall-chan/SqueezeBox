@@ -378,7 +378,7 @@ class LMSSplitter extends IPSModule
             $PlayerName = rawurldecode($this->SendLMSData(new LMSData(array('player', 'name', $i), '?')));
             $Assosiation[] = array($i, $PlayerName, "", -1);
         }
-        IPS_LogMessage('Data', print_r($Assosiation, 1));
+//        IPS_LogMessage('Data', print_r($Assosiation, 1));
         $this->RegisterProfileIntegerEx("PlayerSelect" . $this->InstanceID . ".SqueezeboxServer", "Speaker", "", "", $Assosiation);
         $this->SetValueInteger('PlayerSelect', -2);
     }
@@ -408,12 +408,11 @@ class LMSSplitter extends IPSModule
         $HTMLData = $this->GetTableHeader($Config);
         $pos = 0;
 //          $CurrentTrack = GetValueInteger($this->GetIDForIdent('Index'));
-
         if (isset($Data))
         {
             foreach ($Data as $Position => $Line)
             {
-//          $Line['Position'] = $Position;
+                $Line['Position'] = $Position;
                 if ($Line['Duration'] > 3600)
                     $Line['Duration'] = @date("H:i:s", $Line['Duration'] - 3600);
                 else
