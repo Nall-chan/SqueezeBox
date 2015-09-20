@@ -1818,6 +1818,7 @@ LSQ_DisplayPlaylist($_IPS["TARGET"],$Config);
             IPS_SetIdent($CoverID, 'CoverIMG');
             IPS_SetName($CoverID, 'Cover');
             IPS_SetPosition($CoverID, 27);
+            IPS_SetMediaCached($CoverID);
             IPS_SetMediaFile($CoverID, "media".DIRECTORY_SEPARATOR."Cover_" . $this->InstanceID . ".png", False);
         }
         $ParentID = $this->GetParent();
