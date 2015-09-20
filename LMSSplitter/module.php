@@ -187,6 +187,8 @@ class LMSSplitter extends IPSModule
                 $Pair->Value = rawurldecode($Pair->Value);
             $LSQEvent[ucfirst($Pair->Command)] = $Pair->Value;
         }
+        if (!isset($LSQEvent['Playerid']))
+            throw new Exception('Invalid Index');
         $DevicesIDs = IPS_GetInstanceListByModuleID("{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}");
         $FoundId = 0;
         foreach ($DevicesIDs as $Device)
