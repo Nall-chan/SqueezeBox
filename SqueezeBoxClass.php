@@ -195,15 +195,16 @@ class LSMSongInfo extends stdClass
 //                IPS_LogMessage('LMSSongInfo','ROW: '.$Key.' ID: '.$id);                
                 continue;
             }
-            if (!is_array($LSQPart->Command) and ( $LSQPart->Command == LSQResponse::id))
+            if (is_array($LSQPart->Command))
+                continue;
+
+            if ($LSQPart->Command == LSQResponse::id)
             {
                 $id++;
             }
 
             if ($LSQPart->Command == LSQResponse::duration)
                 $Duration = +intval($LSQPart->Value);
-            if (is_array($LSQPart->Command))
-                IPS_LogMessage('DEBUG', print_r($LSQPart->Command, 1));
             $Index = ucfirst($LSQPart->Command);
             if (array_key_exists($Index, $SongFields))
             {
