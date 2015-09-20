@@ -73,13 +73,11 @@ class LMSResponse extends stdClass
         {
             $this->Device = LMSResponse::isMAC;
             $this->MAC = rawurldecode(array_shift($array));
-        }
-        elseif (strpos($array[0], '.')) //isIP
+        } elseif (strpos($array[0], '.')) //isIP
         {
             $this->Device = LMSResponse::isIP;
             $this->IP = array_shift($array);
-        }
-        else // isServer
+        } else // isServer
         {
             $this->Device = LMSResponse::isServer;
         }
@@ -139,8 +137,7 @@ class LSQTaggingData extends LSQEvent
         if (count($Part) > 1)
         {
             $Value = implode('%3A', $Part);
-        }
-        else
+        } else
         {
             $Value = array_shift($Part);
         }
@@ -205,7 +202,8 @@ class LSMSongInfo extends stdClass
 
             if ($LSQPart->Command == LSQResponse::duration)
                 $Duration = +intval($LSQPart->Value);
-
+            if (is_array($LSQPart->Command))
+                IPS_LogMessage('DEBUG', print_r($LSQPart->Command, 1));
             $Index = ucfirst($LSQPart->Command);
             if (array_key_exists($Index, $SongFields))
             {
@@ -238,10 +236,10 @@ class LSMSongInfo extends stdClass
 
     public function GetTotalDuration()
     {
-/*       if ($this->Duration > 3600)
-            return @date('Hi:s', $this->Duration - 3600);
-        else
-            return @date('i:s', $this->Duration);*/
+        /*       if ($this->Duration > 3600)
+          return @date('Hi:s', $this->Duration - 3600);
+          else
+          return @date('i:s', $this->Duration); */
         return $this->Duration;
     }
 
@@ -452,8 +450,7 @@ class LSQResponse extends stdClass
 
 //                    $this->Value[0] =  array_shift($Data->Data);
 //                    $this->Value[1] =  array_shift($Data->Data);
-                }
-                elseif (isset($Data->Data[0]))
+                } elseif (isset($Data->Data[0]))
                     $this->Value = array_shift($Data->Data);
                 break;
 
@@ -485,16 +482,17 @@ class LSQResponse extends stdClass
       } */
 }
 
-if(!function_exists("array_column"))
+if (!function_exists("array_column"))
 {
 
-    function array_column($array,$column_name)
+    function array_column($array, $column_name)
     {
 
-        return array_map(function($element) use($column_name){return $element[$column_name];}, $array);
-
+        return array_map(function($element) use($column_name)
+        {
+            return $element[$column_name];
+        }, $array);
     }
 
 }
-
 ?>
