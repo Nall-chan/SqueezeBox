@@ -21,7 +21,7 @@ class LMSData extends stdClass
 
 }
 
-// Klasse mit Daten zum SENDEN an ein Device ÜBER den LMS-Splitter
+// Klasse mit Daten zum SENDEN an ein Device ÃœBER den LMS-Splitter
 class LSQData extends stdClass
 {
 
@@ -475,7 +475,7 @@ class LSQResponse extends stdClass
         }
     }
 
-    // Liefert den Aktuellen Zustand (play,pause,stop) als integer für die Status-Variable
+    // Liefert den Aktuellen Zustand (play,pause,stop) als integer fÃ¼r die Status-Variable
     /*    public function GetModus()
       {
 

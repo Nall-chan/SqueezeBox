@@ -2,7 +2,7 @@
     "elements":
             [{
                     "type": "Label",
-                    "label": "MAC-Adresse für Squeezbox, IP-Adresse für andere Geräte"
+                    "label": "MAC-Adresse fÃ¼r Squeezbox, IP-Adresse fÃ¼r andere GerÃ¤te"
                 },
                 {
                     "name": "Address",
@@ -12,7 +12,7 @@
                 {
                     "name": "CoverSize",
                     "type": "Select",
-                    "caption": "Größe Cover",
+                    "caption": "GrÃ¶ÃŸe Cover",
                     "options": [
                         {
                             "label": "Original",
@@ -100,7 +100,7 @@
                 {
                     "code": 102,
                     "icon": "active",
-                    "caption": "Konfiguration gültig."
+                    "caption": "Konfiguration gÃ¼ltig."
                 },
                 {
                     "code": 104,
@@ -110,7 +110,7 @@
                 {
                     "code": 202,
                     "icon": "error",
-                    "caption": "MAC/IP Adresse ungültig."
+                    "caption": "MAC/IP Adresse ungÃ¼ltig."
                 },
                 {
                     "code": 203,

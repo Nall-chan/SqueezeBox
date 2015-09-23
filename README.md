@@ -1,6 +1,6 @@
 # IPSSqueezeBox
-Ermöglich die Steuerung sowie die Darstellung der Zustände
-von SqueezeBox Geräten in IPS, in Verbindung mit dem
+ErmÃ¶glich die Steuerung sowie die Darstellung der ZustÃ¤nde
+von SqueezeBox GerÃ¤ten in IPS, in Verbindung mit dem
 Logitech Media Server.
 
 ## Dokumentation
@@ -19,20 +19,20 @@ Logitech Media Server.
 
  - Auslesen von Datenbank Informationen.  
  - Auslesen und bearbeiten von Server-Playlisten.  
- - Laden von Server-Playlisten über das WebFront in einen (mehrere) Player.  
+ - Laden von Server-Playlisten Ã¼ber das WebFront in einen (mehrere) Player.  
  - Steuern des Scanner der Datenbank inkl. Darstellung des laufenden Modi vom Scanner.  
 
 ### SqueezeBoxe:  
 
- - Steuern und Abfragen der diversen verschiedenen Zustände und Eigenschaften.  
- - Abfragen, Laden, bearbeiten und speichern von der internen Playliste des Gerätes.  
+ - Steuern und Abfragen der diversen verschiedenen ZustÃ¤nde und Eigenschaften.  
+ - Abfragen, Laden, bearbeiten und speichern von der internen Playliste des GerÃ¤tes.  
  - Syncronisierung steuern.  
- - Fähigkeiten über das WebFront:  
+ - FÃ¤higkeiten Ã¼ber das WebFront:  
     *  Modus: Play,Pause, Stop
-    *  Audio: Lautstärke mit Stummschaltung, und wenn vom Gerät unterstützt, auch Tonhöhe sowie Höhen und Bass.
-    *  Bedienung der 6 Preset-Tasten vom Gerät
-    *  Sleeptimer: Setzen und löschen des Timer.
-    *  Playlist: Trackanwahl, nächster, vorheriger Track, Widerholung und Zufallsmodus
+    *  Audio: LautstÃ¤rke mit Stummschaltung, und wenn vom GerÃ¤t unterstÃ¼tzt, auch TonhÃ¶he sowie HÃ¶hen und Bass.
+    *  Bedienung der 6 Preset-Tasten vom GerÃ¤t
+    *  Sleeptimer: Setzen und lÃ¶schen des Timer.
+    *  Playlist: Trackanwahl, nÃ¤chster, vorheriger Track, Widerholung und Zufallsmodus
     *  Darstellung der Daten zum aktuellen Track: Titel, Album, Interpret, Stilrichtung, Cover etc..
 
 ## 2. Voraussetzungen
@@ -45,7 +45,7 @@ Logitech Media Server.
 
 ### a. Laden des Modul
 
-   Über das 'Modul Control' folgende URL hinzufügen:  
+   Ãœber das 'Modul Control' folgende URL hinzufÃ¼gen:  
     `git://github.com/Nall-chan/IPSSqueezeBox.git`  
 
 ### b. Einrichtung in IPS
@@ -56,8 +56,8 @@ Logitech Media Server.
 ## 4. Funktionsreferenz
 
 ### a. LMSSplitter / Logitech Media Server:
-Für alle Befehle gilt: Tritt ein Fehler auf, wird eine Exception geworfen.
-Dies gilt auch wenn ein Parameter nicht gültig ist, oder z.B. ein Index nicht in der Datenbank gefunden wurde.  
+FÃ¼r alle Befehle gilt: Tritt ein Fehler auf, wird eine Exception geworfen.
+Dies gilt auch wenn ein Parameter nicht gÃ¼ltig ist, oder z.B. ein Index nicht in der Datenbank gefunden wurde.  
 
 #### 1. Server:
 
@@ -69,12 +69,12 @@ Startet einen schnellen Rescan der Library.
 Liefert `true` wenn Rescan gestartet wurde.
 
 `boolean LMS_GetRescanProgress(integer $InstanzID)`  
-Prüft ob aktuell ein Rescan läuft `true`, sonst `false`.
+PrÃ¼ft ob aktuell ein Rescan lÃ¤uft `true`, sonst `false`.
 
 #### 2. Datenbank:
 
 `array LMS_GetLibaryInfo (integer $InstanzID)`  
-Liefert Informationen über die Datenbank des LMS.  
+Liefert Informationen Ã¼ber die Datenbank des LMS.  
 
 **Array:**  
 
@@ -86,7 +86,7 @@ Liefert Informationen über die Datenbank des LMS.
 | Songs   | integer | Anzahl aller Titel          |
 
 `array LMS_GetSongInfoByFileID (integer $InstanzID, integer $FileID)`  
-Liefert Informationen über eine in `$FileID` übergebene Datei.  
+Liefert Informationen Ã¼ber eine in `$FileID` Ã¼bergebene Datei.  
 
 **Array:**  
 
@@ -97,7 +97,7 @@ Liefert Informationen über eine in `$FileID` übergebene Datei.
 | Genre            | string  | Genre                               |
 | Album            | string  | Album                               |
 | Artist           | string  | Interpret                           |
-| Duration         | integer | Länge in Sekunden                   |
+| Duration         | integer | LÃ¤nge in Sekunden                   |
 | Disc             | integer | Aktuelles Medium                    |
 | Disccount        | integer | Anzahl aller Medien dieses Albums   |
 | Bitrate          | string  | Bitrate in Klartext                 |
@@ -111,7 +111,7 @@ Liefert Informationen über eine in `$FileID` übergebene Datei.
   
 `array LMS_GetSongInfoByFileURL (integer $InstanzID, string $FileURL)`  
 
-Liefert Informationen über eine in `$FileURL` übergebene Datei.  
+Liefert Informationen Ã¼ber eine in `$FileURL` Ã¼bergebene Datei.  
 
 **Array:**  
 
@@ -122,7 +122,7 @@ Liefert Informationen über eine in `$FileURL` übergebene Datei.
 | Genre            | string  | Genre                               |
 | Album            | string  | Album                               |
 | Artist           | string  | Interpret                           |
-| Duration         | integer | Länge in Sekunden                   |
+| Duration         | integer | LÃ¤nge in Sekunden                   |
 | Disc             | integer | Aktuelles Medium                    |
 | Disccount        | integer | Anzahl aller Medien dieses Albums   |
 | Bitrate          | string  | Bitrate in Klartext                 |
@@ -141,15 +141,15 @@ Liefert Informationen über eine in `$FileURL` übergebene Datei.
 Fragt die aktuelle Anzahl aller bekannten Player vom Server ab.
 **Hinweis:**
     Der Server 'vergisst' Player welche komplett vom Stromnetz/Netzwerk getrennt wurden.
-    Somit muss die Anzahl nicht mit allen registrieren Geräten übereinstimmen.
+    Somit muss die Anzahl nicht mit allen registrieren GerÃ¤ten Ã¼bereinstimmen.
 
 `array LMS_CreateAllPlayer(integer $InstanzID)`  
     Erzeugt und konfiguriert alle noch nicht in IPS vorhandenen SqueezeBox-Devices,   
     welche der Server aktuell kennt.  
-    Das Array enthält alle erzeugten Instanzen.  
+    Das Array enthÃ¤lt alle erzeugten Instanzen.  
 
 `array LMS_GetPlayerInfo(integer $InstanzID, integer $Index)`  
-Liefert Infomationen über ein Gerät.  
+Liefert Infomationen Ã¼ber ein GerÃ¤t.  
 
 **Array:**  
 
@@ -159,24 +159,24 @@ Liefert Infomationen über ein Gerät.
 | Playerid    | string  | MAC oder IP-Adresse                               |
 | Uuid        | string  | 32-stellige eindeutige Kennung                    |
 | Ip          | string  | IP-Adresse und Port                               |
-| Name        | string  | Name des Gerätes                                  |
-| Model       | string  | Model des Gerätes                                 |
-| Isplayer    | integer | 1 wenn Gerät der SqueezeBox-Familie               |
+| Name        | string  | Name des GerÃ¤tes                                  |
+| Model       | string  | Model des GerÃ¤tes                                 |
+| Isplayer    | integer | 1 wenn GerÃ¤t der SqueezeBox-Familie               |
 | Displaytype | string  | Typ vom verbauten Display                         |
-| Canpoweroff | integer | 1 wenn Gerät Standby unterstützt                  |
-| Connected   | integer | 1 wenn Gerät aktuell mit dem Server verbunden ist |
+| Canpoweroff | integer | 1 wenn GerÃ¤t Standby unterstÃ¼tzt                  |
+| Connected   | integer | 1 wenn GerÃ¤t aktuell mit dem Server verbunden ist |
 
 
 ### b. LSQDevice / SqueezeboxDevice:
-Für alle Befehle gilt: Tritt ein Fehler auf, wird eine Exception geworfen.
+FÃ¼r alle Befehle gilt: Tritt ein Fehler auf, wird eine Exception geworfen.
 
 #### 1. Steuerung:
-Alle Befehle liefern einen `boolean` als Rückgabewert.  
-`true` wenn der Befehl vom Server bestätigt wurde.  
-Wird der Befehl nicht bestätigt, so ist dise ein Fehler (Exception wird erzeugt).
+Alle Befehle liefern einen `boolean` als RÃ¼ckgabewert.  
+`true` wenn der Befehl vom Server bestÃ¤tigt wurde.  
+Wird der Befehl nicht bestÃ¤tigt, so ist dise ein Fehler (Exception wird erzeugt).
 
 `boolean LSQ_Power (integer $InstanzID, boolean $Value)`  
-Schaltet das Gerät ein `true` oder aus `false`.  
+Schaltet das GerÃ¤t ein `true` oder aus `false`.  
 
 `boolean LSQ_SelectPreset(integer $InstanzID, integer $Value)`  
 Simuliert einen Tastendruck der Preset-Tasten 1-6 `$Value`.  
@@ -191,46 +191,46 @@ Pausiert die Wiedergabe.
 Stoppt die Wiedergabe.  
 
 #### 2. Playlist:
-Wird der Befehl nicht bestätigt, so ist dise ein Fehler (Exception wird erzeugt).  
-Wird ein übergebener Parameter nicht auf dem Server gefunden, so wird ebenfalls ein Fehler erzeugt.  
+Wird der Befehl nicht bestÃ¤tigt, so ist dise ein Fehler (Exception wird erzeugt).  
+Wird ein Ã¼bergebener Parameter nicht auf dem Server gefunden, so wird ebenfalls ein Fehler erzeugt.  
 
 `string LSQ_LoadPlaylist (integer $InstanzID, string $Name)`  
-Lädt die unter `$Name`übergebene Playlist.  
+LÃ¤dt die unter `$Name`Ã¼bergebene Playlist.  
 Die Wiedergabe wird nicht automatisch gestartet.  
 Liefert den Pfad der Playlist.  
 
 `string LSQ_ResumePlaylist(integer $InstanzID, string $Name)`  
-Lädt die unter `$Name`übergebene Playlist, und springt auf den zuletzt wiedergegeben Track.  
+LÃ¤dt die unter `$Name`Ã¼bergebene Playlist, und springt auf den zuletzt wiedergegeben Track.  
 Die Wiedergabe wird nicht automatisch gestartet.  
 Liefert den Pfad der Playlist.  
 
 `boolean LSQ_LoadTempPlaylist (integer $InstanzID)`  
-Lädt eine zuvor mit LSQ_SaveTempPlaylist gespeicherte Playlist, und springt auf den zuletzt wiedergegeben Track.  
+LÃ¤dt eine zuvor mit LSQ_SaveTempPlaylist gespeicherte Playlist, und springt auf den zuletzt wiedergegeben Track.  
 Die Wiedergabe wird nicht automatisch gestartet.  
 Liefert `true`bei Erfolg.  
 
 `boolean LSQ_LoadPlaylistByAlbumID (integer $InstanzID, integer $AlbumID)`  
-Lädt eine Playlist bestehend aus der in `$AlbumID` übergeben ID eines Albums.  
+LÃ¤dt eine Playlist bestehend aus der in `$AlbumID` Ã¼bergeben ID eines Albums.  
 Liefert `true`bei Erfolg.  
 
 `boolean LSQ_LoadPlaylistByGenreID (integer $InstanzID, integer $GenreID)`  
-Lädt eine Playlist bestehend aus der in `$GenreID` übergeben ID eines Genres.  
+LÃ¤dt eine Playlist bestehend aus der in `$GenreID` Ã¼bergeben ID eines Genres.  
 Liefert `true`bei Erfolg.  
 
 `boolean LSQ_LoadPlaylistByArtistID (integer $InstanzID, integer $ArtistID)`  
-Lädt eine Playlist bestehend aus der in `$ArtistID` übergeben ID eines Artist.  
+LÃ¤dt eine Playlist bestehend aus der in `$ArtistID` Ã¼bergeben ID eines Artist.  
 Liefert `true`bei Erfolg.  
 
 `boolean LSQ_LoadPlaylistByPlaylistID (integer $InstanzID, integer $PlaylistID)`  
-Lädt eine Playlist bestehend aus der in `$PlaylistID` übergeben ID einer Playlist.  
+LÃ¤dt eine Playlist bestehend aus der in `$PlaylistID` Ã¼bergeben ID einer Playlist.  
 Liefert `true`bei Erfolg.  
 
 `array LSQ_GetPlaylistInfo(integer $InstanzID)`  
-Liefert Informationen über die Playlist.  
+Liefert Informationen Ã¼ber die Playlist.  
 **Hinweis:**
 Funktioniert nur, wenn wirklich eine Playlist aus den vorhandnene Server-Playlisten geladen wurde.  
 Und auch nur, wenn Sie manuell am Player oder per `LSQ_LoadPlaylistByPlaylistID` geladen wurde.
-Playlisten welche mit ihrem Namen über `LSQ_LoadPlaylist` geladen wurden, liefern leider keine Informationen.  
+Playlisten welche mit ihrem Namen Ã¼ber `LSQ_LoadPlaylist` geladen wurden, liefern leider keine Informationen.  
 
 **Array:**  
 
@@ -238,11 +238,11 @@ Playlisten welche mit ihrem Namen über `LSQ_LoadPlaylist` geladen wurden, liefer
 | :-------: | :-----: | :-----------------------------------: |
 | Id        | integer | UID der Playlist in der LMS-Datenbank |
 | Name      | string  | Name der Playlist                     |
-| Modified  | boolean | `true` wenn Playlist verändert wurde  |
+| Modified  | boolean | `true` wenn Playlist verÃ¤ndert wurde  |
 | Url       | string  | Pfad der Playlist                     |
 
 `array LSQ_GetSongInfoOfCurrentPlaylist (integer $InstanzID)`  
-Liefert Informationen über alle Songs in der Playlist.  
+Liefert Informationen Ã¼ber alle Songs in der Playlist.  
 Mehrdimensionales Array, wobei der erste Index der Trackposition entspricht.  
 
 **Array:**  
@@ -254,7 +254,7 @@ Mehrdimensionales Array, wobei der erste Index der Trackposition entspricht.
 | Genre            | string  | Genre                               |
 | Album            | string  | Album                               |
 | Artist           | string  | Interpret                           |
-| Duration         | integer | Länge in Sekunden                   |
+| Duration         | integer | LÃ¤nge in Sekunden                   |
 | Disc             | integer | Aktuelles Medium                    |
 | Disccount        | integer | Anzahl aller Medien dieses Albums   |
 | Bitrate          | string  | Bitrate in Klartext                 |
@@ -268,8 +268,8 @@ Mehrdimensionales Array, wobei der erste Index der Trackposition entspricht.
 | Remote_title     | string  | Titel des Stream                    |
 
 `array LSQ_GetSongInfoByTrackIndex (integer $InstanzID, integer $Index)`  
-Liefert Informationen über den Song mit dem `$Index` der aktuellen Playlist.  
-Wird als `$Index` 0 übergeben, so wird der aktuelle Song genutzt.  
+Liefert Informationen Ã¼ber den Song mit dem `$Index` der aktuellen Playlist.  
+Wird als `$Index` 0 Ã¼bergeben, so wird der aktuelle Song genutzt.  
 
 **Array:**  
 
@@ -280,7 +280,7 @@ Wird als `$Index` 0 übergeben, so wird der aktuelle Song genutzt.
 | Genre            | string  | Genre                               |
 | Album            | string  | Album                               |
 | Artist           | string  | Interpret                           |
-| Duration         | integer | Länge in Sekunden                   |
+| Duration         | integer | LÃ¤nge in Sekunden                   |
 | Disc             | integer | Aktuelles Medium                    |
 | Disccount        | integer | Anzahl aller Medien dieses Albums   |
 | Bitrate          | string  | Bitrate in Klartext                 |
@@ -293,38 +293,38 @@ Wird als `$Index` 0 übergeben, so wird der aktuelle Song genutzt.
 | Year             | integer | Jahr des Song, soweit hinterlegt    |
 | Remote_title     | string  | Titel des Stream                    |
 
-Alle anderen Befehle liefern einen `boolean` als Rückgabewert.  
-`true` wenn der Befehl vom Server bestätigt wurde.  
-Wird der Befehl nicht bestätigt, so ist die ein Fehler (Exception wird erzeugt).  
+Alle anderen Befehle liefern einen `boolean` als RÃ¼ckgabewert.  
+`true` wenn der Befehl vom Server bestÃ¤tigt wurde.  
+Wird der Befehl nicht bestÃ¤tigt, so ist die ein Fehler (Exception wird erzeugt).  
 
 `boolean LSQ_SavePlaylist (integer $InstanzID, string $Name)`  
-Speichert eine Playlist unter den mit `$Name` übergebenen Namen.  
+Speichert eine Playlist unter den mit `$Name` Ã¼bergebenen Namen.  
 
 `boolean LSQ_SaveTempPlaylist (integer $InstanzID)`  
-Speichert eine temporäre Playlist, welche beim Laden per LSQ_LoadTempPlaylist automatisch vom Server gelöscht wird.  
-Eine zuvor nicht geladene temporäre Playlist wird dabei überschrieben.
+Speichert eine temporÃ¤re Playlist, welche beim Laden per LSQ_LoadTempPlaylist automatisch vom Server gelÃ¶scht wird.  
+Eine zuvor nicht geladene temporÃ¤re Playlist wird dabei Ã¼berschrieben.
 
 `boolean LSQ_PlayTrack (integer $InstanzID, integer $Index)`  
-Springt in der Playlist auf den mit `$Index` übergebe Position.  
+Springt in der Playlist auf den mit `$Index` Ã¼bergebe Position.  
 
 `boolean LSQ_NextTrack (integer $InstanzID)`  
-Springt in der Playlist auf den nächsten Track.  
+Springt in der Playlist auf den nÃ¤chsten Track.  
 
 `boolean LSQ_PreviousTrack (integer $InstanzID)`  
 Springt in der Playlist auf den vorherigen Track.  
 
 `boolean LSQ_NextButton (integer $InstanzID)`  
-Simuliert einen Tastendruck auf den Vorwärts-Button des Gerätes.  
+Simuliert einen Tastendruck auf den VorwÃ¤rts-Button des GerÃ¤tes.  
 
 `boolean LSQ_PreviousButton (integer $InstanzID)`  
-Simuliert einen Tastendruck auf den Rückwerts-Button des Gerätes.  
+Simuliert einen Tastendruck auf den RÃ¼ckwerts-Button des GerÃ¤tes.  
 
 #### 3. Setzen von Eigenschaften:
 
-Alle LSQ_Set* - Befehle liefern einen `boolean` als Rückgabewert.  
-`true` wenn der gleiche Wert vom Server bestätigt wurde.  
-`false` wenn der bestätigte Wert abweicht.  
-Wird der Befehl nicht bestätigt, so ist dies ein Fehler (Exception wird erzeugt).  
+Alle LSQ_Set* - Befehle liefern einen `boolean` als RÃ¼ckgabewert.  
+`true` wenn der gleiche Wert vom Server bestÃ¤tigt wurde.  
+`false` wenn der bestÃ¤tigte Wert abweicht.  
+Wird der Befehl nicht bestÃ¤tigt, so ist dies ein Fehler (Exception wird erzeugt).  
 
 `boolean LSQ_SetBass (integer $InstanzID, integer $Value)`  
 Setzt den Bass auf `$Value`. (Nur SliMP3 & SqueezeBox1 / SB1 )  
@@ -333,27 +333,27 @@ Setzt den Bass auf `$Value`. (Nur SliMP3 & SqueezeBox1 / SB1 )
 Stummschaltung aktiv `true`oder deaktiv `false`.  
 
 `boolean LSQ_SetName (integer $InstanzID, string $Name)`  
-Setzt den Namen des Gerätes auf `$Name`.  
+Setzt den Namen des GerÃ¤tes auf `$Name`.  
 
 `boolean LSQ_SetPitch (integer $InstanzID, integer $Value)`  
-Setzt den Tonhöhe auf `$Value`. (Nur SqueezeBox1 / SB1 )  
+Setzt den TonhÃ¶he auf `$Value`. (Nur SqueezeBox1 / SB1 )  
 
 `boolean LSQ_SetPosition (integer $InstanzID, integer $Value)`  
 Springt im aktuellen Track auf die Zeit in Sekunden von `$Value`.  
 
 `boolean LSQ_SetRepeat (integer $InstanzID, integer $Value)`  
-Setzt dem Modus für Wiederholungen. `$Value` kann die Werte 0 für aus,  
-1 für den aktuellen Titel, oder 2 für die aktuelle Playlist enthalten.  
+Setzt dem Modus fÃ¼r Wiederholungen. `$Value` kann die Werte 0 fÃ¼r aus,  
+1 fÃ¼r den aktuellen Titel, oder 2 fÃ¼r die aktuelle Playlist enthalten.  
 
 `boolean LSQ_SetShuffle (integer $InstanzID, integer $Value)`  
-Setzt dem Modus für die zufällige Wiedergabe. `$Value` kann die Werte 0 für aus,  
-1 für den alle Titel in der Playlist, oder 2 für das die verschiednen Alben in der Playlist enthalten.  
+Setzt dem Modus fÃ¼r die zufÃ¤llige Wiedergabe. `$Value` kann die Werte 0 fÃ¼r aus,  
+1 fÃ¼r den alle Titel in der Playlist, oder 2 fÃ¼r das die verschiednen Alben in der Playlist enthalten.  
 
 `boolean LSQ_SetTreble (integer $InstanzID, integer $Value)`  
-Setzt die Höhen auf `$Value`. (Nur SliMP3 & SqueezeBox1 / SB1 )  
+Setzt die HÃ¶hen auf `$Value`. (Nur SliMP3 & SqueezeBox1 / SB1 )  
 
 `boolean LSQ_SetVolume (integer $InstanzID, integer $Value)`  
-Setzt die Lautstärke auf `$Value`.  
+Setzt die LautstÃ¤rke auf `$Value`.  
 
 `boolean LSQ_SetSleep(integer $InstanzID, integer $Seconds)`  
 Aktiviert den (Ein)Schlafmodus mit der unter `$Seconds`angegeben Sekunden.  
@@ -361,8 +361,8 @@ Aktiviert den (Ein)Schlafmodus mit der unter `$Seconds`angegeben Sekunden.
 
 #### 4. Lesen von Eigenschaften:
 
-Alle LSQ_Get* - Befehle liefern einen jeweils beschriebenen Rückgabewert.  
-Antwortet das Gerät nicht auf die Anfrage, so ist dies ein Fehler und eine Exception wird erzeugt.  
+Alle LSQ_Get* - Befehle liefern einen jeweils beschriebenen RÃ¼ckgabewert.  
+Antwortet das GerÃ¤t nicht auf die Anfrage, so ist dies ein Fehler und eine Exception wird erzeugt.  
 
 `integer LSQ_GetBass (integer $InstanzID)`  
 Liefert den aktuellen Wert vom Bass. (Nur SliMP3 & SqueezeBox1 / SB1 )  
@@ -371,51 +371,51 @@ Liefert den aktuellen Wert vom Bass. (Nur SliMP3 & SqueezeBox1 / SB1 )
 Liefert `true` wenn Stummschaltung aktiv ist. Sonst `false`.  
 
 `string LSQ_GetName (integer $InstanzID)`  
-Liefert den aktuellen Names des Gerätes.  
+Liefert den aktuellen Names des GerÃ¤tes.  
 
 `integer LSQ_GetPitch (integer $InstanzID)`  
-Liefert den aktuellen Wert der eingestellten Tonhöhe. (Nur SqueezeBox1 / SB1 )  
+Liefert den aktuellen Wert der eingestellten TonhÃ¶he. (Nur SqueezeBox1 / SB1 )  
 
 `integer LSQ_GetPosition (integer $InstanzID)`  
 Liefert die Zeit in Sekunden welche vom aktuellen Track schon gespielt wurde.  
 
 `integer LSQ_GetRepeat (integer $InstanzID)`  
-Liefert den aktuellen Modus für Wiederholungen. Es werden die Werte 0 für aus,  
-1 für den aktuellen Titel, oder 2 für das aktuelle Album/Playlist gemeldet.  
+Liefert den aktuellen Modus fÃ¼r Wiederholungen. Es werden die Werte 0 fÃ¼r aus,  
+1 fÃ¼r den aktuellen Titel, oder 2 fÃ¼r das aktuelle Album/Playlist gemeldet.  
 
 `integer LSQ_GetShuffle (integer $InstanzID)`  
-Liefert den aktuellen Modus für sie zufällige Wiedergabe. Es werden die Werte 0 für aus,  
-1 für den aktuellen ?Titel?, oder 2 für das aktuelle Album/Playlist gemeldet.  
+Liefert den aktuellen Modus fÃ¼r sie zufÃ¤llige Wiedergabe. Es werden die Werte 0 fÃ¼r aus,  
+1 fÃ¼r den aktuellen ?Titel?, oder 2 fÃ¼r das aktuelle Album/Playlist gemeldet.  
 
 `integer LSQ_GetTreble (integer $InstanzID)`  
-Liefert den aktuellen Wert der eingestellten Tonhöhe. (Nur SliMP3 & SqueezeBox1 / SB1 )  
+Liefert den aktuellen Wert der eingestellten TonhÃ¶he. (Nur SliMP3 & SqueezeBox1 / SB1 )  
 
 `integer LSQ_GetVolume (integer $InstanzID)`  
- Liefert den aktuellen Wert der Lautstärke.  
+ Liefert den aktuellen Wert der LautstÃ¤rke.  
 
 `integer LSQ_GetSleep(integer $InstanzID)`  
-Liefert die verbleibende Zeit bis zum ausschalten des Gerätes bei aktivem Schlafmodus.  
+Liefert die verbleibende Zeit bis zum ausschalten des GerÃ¤tes bei aktivem Schlafmodus.  
 Ist der Schlafmodus nicht aktiv, wird 0 gemeldet.  
 
 
 #### 5. Syncronisieren:
 
-Alle LSQ_Set* - Befehle liefern einen `boolean` als Rückgabewert.  
-`true` wenn der gleiche Wert vom Server bestätigt wurde.  
-`false` wenn der bestätigte Wert abweicht.  
-Wird der Befehl nicht bestätigt, so ist dies ein Fehler (Exception wird erzeugt).  
+Alle LSQ_Set* - Befehle liefern einen `boolean` als RÃ¼ckgabewert.  
+`true` wenn der gleiche Wert vom Server bestÃ¤tigt wurde.  
+`false` wenn der bestÃ¤tigte Wert abweicht.  
+Wird der Befehl nicht bestÃ¤tigt, so ist dies ein Fehler (Exception wird erzeugt).  
 
 `boolean LSQ_SetSync(integer $InstanzID, integer $SlaveInstanzID)`  
 `$SlaveInstanzID` wird als Client der `$InstanzID` zugeordnet.
 
 `boolean LSQ_SetUnSync(integer $InstanzID)`  
-Löst `$InstanzID` aus der Syncronisierung von dem Master.
+LÃ¶st `$InstanzID` aus der Syncronisierung von dem Master.
 
-Alle LSQ_Get* - Befehle liefern einen jeweils beschriebenen Rückgabewert.  
-Antwortet das Gerät nicht auf die Anfrage, so ist dies ein Fehler und eine Exception wird erzeugt.  
+Alle LSQ_Get* - Befehle liefern einen jeweils beschriebenen RÃ¼ckgabewert.  
+Antwortet das GerÃ¤t nicht auf die Anfrage, so ist dies ein Fehler und eine Exception wird erzeugt.  
 
 `mixed (array or boolean) LSQ_GetSync(integer $InstanzID)`  
-Liefert alle InstanzIDs der mit `$InstanzID` gesyncten Geräte als Array.  
+Liefert alle InstanzIDs der mit `$InstanzID` gesyncten GerÃ¤te als Array.  
 `false` wenn kein Sync aktiv ist.  
 
 ### c. Funktionsreferenz SqueezeboxBattery:
@@ -423,11 +423,11 @@ Liefert alle InstanzIDs der mit `$InstanzID` gesyncten Geräte als Array.
 **Wichtig**:  
 Getestet nur mit der SqueezeBox Radio und UE (mit SqueezeBox Firmware)!  
 Damit der Status des Akku und Ladeteiles von der SqueezeBox abgefragt werden kann,
-ist es notwenig den SSH-Zugang auf den Geräten zu aktivieren.
+ist es notwenig den SSH-Zugang auf den GerÃ¤ten zu aktivieren.
 
 `boolean LSQB_RequestState(integer $InstanzID)`  
 Startet eine Statusabfrage der Instanz.  
-Bei Erfolg wird `true` zurück gegeben, sonst `false`.  
+Bei Erfolg wird `true` zurÃ¼ck gegeben, sonst `false`.  
 
 ## 5. Konfiguration:
 
@@ -445,8 +445,8 @@ Bei Erfolg wird `true` zurück gegeben, sonst `false`.
 
 | Eigenschaft | Typ     | Standardwert | Funktion                                                              |
 | :---------: | :-----: | :----------: | :-------------------------------------------------------------------: |
-| Address     | string  |              | MAC [inkl. : ] bei SqueezeBox-Geräten IP-Adresse bei Anderen          |
-| CoverSize   | string  | cover        | Größe vom Cover:  cover  cover150x150  cover300x300                   |
+| Address     | string  |              | MAC [inkl. : ] bei SqueezeBox-GerÃ¤ten IP-Adresse bei Anderen          |
+| CoverSize   | string  | cover        | GrÃ¶ÃŸe vom Cover:  cover  cover150x150  cover300x300                   |
 | Interval    | integer | 2            | Abstand in welchen der LMS aktuelle Daten bei der Wiedergabe liefert. |
 
 ### c. SqueezeboxBattery:  
@@ -455,7 +455,7 @@ Bei Erfolg wird `true` zurück gegeben, sonst `false`.
 | :---------: | :-----: | :----------: | :---------------------------------------------------------------------: |
 | Address     | string  |              | IP-Adresse der SqueezeBox                                               |
 | Password    | string  | 1234         | root-Passwort der SqueezeBox. Standard-Passwort ist 1234                |
-| Interval    | integer | 30           | Abstand in welchen der Status abgefragt werden soll (<30 nicht möglich) |
+| Interval    | integer | 30           | Abstand in welchen der Status abgefragt werden soll (<30 nicht mÃ¶glich) |
 
 
 ## 6. Anhang
@@ -472,10 +472,10 @@ Objekt vom Typ `LSQData`
 
 | Eigenschaft  | Typ     | Funktion                            |
 | :----------: | :-----: | :---------------------------------: |
-| Address      | string  | Empfänger Adresse                   |
+| Address      | string  | EmpfÃ¤nger Adresse                   |
 | Command      | mixed   | String oder Array mit den Commandos |
 | Value        | mixed   | String oder Array mit den Werten    |
-| needResponse | boolean | true wenn Gerät antworten muss      |
+| needResponse | boolean | true wenn GerÃ¤t antworten muss      |
 
 
 #### 2. LSQDevice:  
@@ -488,7 +488,7 @@ Objekt vom Typ `LMSResponse`
 
 | Eigenschaft | Typ     | Funktion                                                              |
 | :---------: | :-----: | :-------------------------------------------------------------------: |
-| Device      | enum    | 1 = Gerät mit MAC-Adresse, 2 = Gerät mit IP-Adresse                   |
+| Device      | enum    | 1 = GerÃ¤t mit MAC-Adresse, 2 = GerÃ¤t mit IP-Adresse                   |
 | MAC         | string  | Absender MAC-Adresse                                                  |
 | IP          | string  | Absender IP-Adresse                                                   |
 | Data        | array   | Array mit allen empfangenen Roh-Daten vom Device                      |

@@ -38,7 +38,7 @@
                 {
                     "code": 102,
                     "icon": "active",
-                    "caption": "Konfiguration gültig."
+                    "caption": "Konfiguration gÃ¼ltig."
                 },
                 {
                     "code": 104,
@@ -48,7 +48,7 @@
                 {
                     "code": 202,
                     "icon": "error",
-                    "caption": "IP Adresse ungültig."
+                    "caption": "IP Adresse ungÃ¼ltig."
                 },
                 {
                     "code": 203,

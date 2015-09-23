@@ -40,7 +40,7 @@ class LMSSplitter extends IPSModule
                 $change = true;
             }
             $ParentOpen = $this->ReadPropertyBoolean('Open');
-            // Keine Verbindung erzwingen wenn Host leer ist, sonst folgt später Exception.
+            // Keine Verbindung erzwingen wenn Host leer ist, sonst folgt spÃ¤ter Exception.
             if (!$ParentOpen)
                 $this->SetStatus(104);
 
@@ -64,7 +64,7 @@ class LMSSplitter extends IPSModule
             Array(1, "Abbruch", "", -1),
             Array(2, "Scan", "", -1),
             Array(3, "Nur Playlists", "", -1),
-            Array(4, "Vollständig", "", -1)
+            Array(4, "VollstÃ¤ndig", "", -1)
         ));
         $this->RegisterProfileInteger("PlayerSelect" . $this->InstanceID . ".SqueezeboxServer", "Speaker", "", "", 0, 0, 0);
         // Eigene Variablen
@@ -72,7 +72,7 @@ class LMSSplitter extends IPSModule
         $this->RegisterVariableString("RescanInfo", "Rescan Status", "", 2);
         $this->RegisterVariableString("RescanProgress", "Rescan Fortschritt", "", 3);
         $this->EnableAction("RescanState");
-        $this->RegisterVariableInteger("PlayerSelect", "Player wählen", "PlayerSelect" . $this->InstanceID . ".SqueezeboxServer", 4);
+        $this->RegisterVariableInteger("PlayerSelect", "Player wÃ¤hlen", "PlayerSelect" . $this->InstanceID . ".SqueezeboxServer", 4);
         $this->EnableAction("PlayerSelect");
         $this->RegisterVariableString("Playlists", "Playlisten", "~HTMLBox", 5);
 
@@ -84,7 +84,7 @@ class LMSSplitter extends IPSModule
         $ID = $this->RegisterScript('PlaylistDesign', 'Playlist Config', $this->CreatePlaylistConfigScript(), -4);
         IPS_SetHidden($ID, true);
 
-        //Workaround für persistente Daten der Instanz
+        //Workaround fÃ¼r persistente Daten der Instanz
         $this->RegisterVariableString("BufferIN", "BufferIN", "", -3);
         $this->RegisterVariableString("BufferOUT", "BufferOUT", "", -2);
         $this->RegisterVariableBoolean("WaitForResponse", "WaitForResponse", "", -1);
@@ -92,7 +92,7 @@ class LMSSplitter extends IPSModule
         IPS_SetHidden($this->GetIDForIdent('BufferOUT'), true);
         IPS_SetHidden($this->GetIDForIdent('WaitForResponse'), true);
 
-        // Wenn wir verbunden sind, am LMS mit listen anmelden für Events
+        // Wenn wir verbunden sind, am LMS mit listen anmelden fÃ¼r Events
         if (($this->ReadPropertyBoolean('Open'))
                 and ( $this->HasActiveParent($ParentID)))
         {
@@ -522,28 +522,28 @@ class LMSSplitter extends IPSModule
 
 if ($_IPS["SENDER"] <> "LMS")
 {
-	echo "Dieses Script kann nicht direkt ausgeführt werden!";
+	echo "Dieses Script kann nicht direkt ausgefÃ¼hrt werden!";
 	return;
 }
 ##########   KONFIGURATION
 #### Tabellarische Ansicht
-# Folgende Parameter bestimmen das Aussehen der HTML-Tabelle in der die WLAN-Geräte aufgelistet werden.
+# Folgende Parameter bestimmen das Aussehen der HTML-Tabelle in der die WLAN-GerÃ¤te aufgelistet werden.
 
-// Reihenfolge und Überschriften der Tabelle. Der vordere Wert darf nicht verändert werden.
-// Die Reihenfolge, der hintere Wert (Anzeigetext) und die Reihenfolge sind beliebig änderbar.
+// Reihenfolge und Ãœberschriften der Tabelle. Der vordere Wert darf nicht verÃ¤ndert werden.
+// Die Reihenfolge, der hintere Wert (Anzeigetext) und die Reihenfolge sind beliebig Ã¤nderbar.
 $Config["Spalten"] = array(
 "Id" =>"",
 "Playlist"=>"Playlist-Name",
 "Tracks"=>"Tracks",
 "Duration"=>"Dauer"
 );
-#### Mögliche Index-Felder
+#### MÃ¶gliche Index-Felder
 /*
 | Index            | Typ     | Beschreibung                        |
 | :--------------: | :-----: | :---------------------------------: |
 | Id               | integer | UID der Playlist in der LMS-Datenbank  |
 | Playlist         | string  | Name der Playlist                   |
-| Duration         | integer | Länge der Playlist in Klartext      |
+| Duration         | integer | LÃ¤nge der Playlist in Klartext      |
 | Url              | string  | Pfad der Playlist                   |
 | Tracks           | integer | Anzahl der enthaltenen Tracks       |
 */
@@ -587,7 +587,7 @@ $Config["Style"] = array(
     // <td>-Tag Feld Duration:
     "DFGDuration" => "text-align:right;",
     "DFUDuration" => "text-align:right;",
-    // ^- Der Buchstabe "G" steht für gerade, "U" für ungerade.
+    // ^- Der Buchstabe "G" steht fÃ¼r gerade, "U" fÃ¼r ungerade.
  );
 ### Konfig ENDE !!!
 LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
@@ -636,7 +636,7 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
                 }
                 break;
             case"wipecache":
-                $this->SetValueInteger("RescanState", 4); // Vollständig
+                $this->SetValueInteger("RescanState", 4); // VollstÃ¤ndig
                 return true;
 
             case "rescan":
@@ -677,16 +677,16 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
     {
         $Data = json_decode($JSONString);
 
-// Daten annehmen und Command zusammenfügen wenn Array
+// Daten annehmen und Command zusammenfÃ¼gen wenn Array
         if (is_array($Data->LSQ->Command))
 //            $Data->LSQ->Command = implode(' ', $Data->LSQ->Command);
             $Data->LSQ->Command[0] = $Data->LSQ->Address . ' ' . $Data->LSQ->Command[0];
         else
             $Data->LSQ->Command = $Data->LSQ->Address . ' ' . $Data->LSQ->Command;
-// LMS-Objekt erzeugen und Daten mit Adresse ergänzen.
+// LMS-Objekt erzeugen und Daten mit Adresse ergÃ¤nzen.
 //        $LMSData = new LMSData($Data->LSQ->Address . ' ' . $Data->LSQ->Command, $Data->LSQ->Value, false);
         $LMSData = new LMSData($Data->LSQ->Command, $Data->LSQ->Value, false);
-// Senden über die Warteschlange
+// Senden Ã¼ber die Warteschlange
         $ret = $this->SendLMSData($LMSData);
         return $ret;
     }
@@ -703,7 +703,7 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
             throw new Exception("ReceiveBuffer is locked");
         }
 
-// Datenstream zusammenfügen
+// Datenstream zusammenfÃ¼gen
         $head = GetValueString($bufferID);
         SetValueString($bufferID, '');
 
@@ -729,9 +729,9 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
                 $isResponse = $this->WriteResponse($Data->Data);
                 if ($isResponse === true)
                 {
-// TODO LMS-Statusvariablen nachführen....
+// TODO LMS-Statusvariablen nachfÃ¼hren....
 // 
-                    continue; // später unnötig
+                    continue; // spÃ¤ter unnÃ¶tig
                 }
                 elseif ($isResponse === false)
                 { //Info Daten von Server verarbeiten
@@ -756,7 +756,7 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
                 {
                     $ret = new Exception($exc);
                 }
-                if ($Data->Data[0] == LSQResponse::client) // Client änderungen auch hier verarbeiten!
+                if ($Data->Data[0] == LSQResponse::client) // Client Ã¤nderungen auch hier verarbeiten!
                 {
                     IPS_RunScriptText("<?\nLMS_RefreshPlayerList(" . $this->InstanceID . ");");
                 }
@@ -819,7 +819,7 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
             throw new Exception('Instance has no active parent.');
         if ($LMSData->needResponse)
         {
-//Semaphore setzen für Sende-Routine
+//Semaphore setzen fÃ¼r Sende-Routine
             if (!$this->lock("LMSData"))
             {
                 throw new Exception("Can not send to LMS");
@@ -835,7 +835,7 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
               $WaitData = $LMSData->Data;
               } */
 
-// Anfrage für die Warteschleife schreiben
+// Anfrage fÃ¼r die Warteschleife schreiben
             if (!$this->SetWaitForResponse($LMSData->Command))
             {
 // Konnte Daten nicht in den ResponseBuffer schreiben
@@ -852,7 +852,7 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
             catch (Exception $exc)
             {
 // Konnte nicht senden
-//Daten in ResponseBuffer löschen
+//Daten in ResponseBuffer lÃ¶schen
                 $this->ResetWaitForResponse();
 // Lock der Sende-Routine aufheben.
                 $this->unlock("LMSData");
@@ -867,13 +867,13 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
 
             if ($ret === false) // Response-Warteschleife lief in Timeout
             {
-//  Daten in ResponseBuffer löschen                
+//  Daten in ResponseBuffer lÃ¶schen                
                 $this->ResetWaitForResponse();
 // Fehler
                 throw new Exception("No answer from LMS");
             }
 
-// Rückgabe ist eine Bestätigung von einem Befehl
+// RÃ¼ckgabe ist eine BestÃ¤tigung von einem Befehl
             /*            if ($LMSData->Typ == LMSData::SendCommand)
               {
               if (trim($LMSData->Data) == trim($ret))
@@ -881,7 +881,7 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
               else
               return false;
               }
-              // Rückgabe ist ein Wert auf eine Anfrage
+              // RÃ¼ckgabe ist ein Wert auf eine Anfrage
 
               else
               {

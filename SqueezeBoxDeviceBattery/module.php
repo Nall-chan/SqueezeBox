@@ -26,7 +26,7 @@ class SqueezeboxBattery extends IPSModule
         //Never delete this line!
         parent::ApplyChanges();
 
-        // Addresse prüfen
+        // Addresse prÃ¼fen
         $Address = $this->ReadPropertyString('Address');
         if ($Address == '')
         {
@@ -63,15 +63,15 @@ class SqueezeboxBattery extends IPSModule
 
         //Status-Variablen anlegen
         $this->RegisterVariableInteger("State", "Status", "Power.Squeezebox", 1);
-        $this->RegisterVariableFloat("SysVoltage", "Gerätespannung", "~Volt", 2);
+        $this->RegisterVariableFloat("SysVoltage", "GerÃ¤tespannung", "~Volt", 2);
         $this->RegisterVariableFloat("WallVoltage", "Netzspannung", "~Volt", 3);
         $this->RegisterVariableInteger("ChargeState", "Ladestatus", "Charge.Squeezebox", 4);
-        $this->RegisterVariableFloat("BatteryLevel", "Akkuladekapazität", "~Intensity.1", 5);
+        $this->RegisterVariableFloat("BatteryLevel", "AkkuladekapazitÃ¤t", "~Intensity.1", 5);
         $this->RegisterVariableFloat("BatteryTemperature", "Akkutemperatur", "~Temperature", 6);
         $this->RegisterVariableFloat("BatteryVoltage", "Akkuspannung", "~Volt", 7);
         $this->RegisterVariableFloat("BatteryVMon1", "Akku vmon1", "~Volt", 8);
         $this->RegisterVariableFloat("BatteryVMon2", "Akku vmon2", "~Volt", 9);
-        $this->RegisterVariableInteger("BatteryCapacity", "Akkukapazität", "mAh.Squeezebox", 10);
+        $this->RegisterVariableInteger("BatteryCapacity", "AkkukapazitÃ¤t", "mAh.Squeezebox", 10);
 //        $this->RegisterVariableInteger("BatteryChargeRate", "Ladezyklen Akku", "", 11);
 //        $this->RegisterVariableInteger("BatteryDischargeRate", "Entladezyklen Akku", "", 12);
         if ($this->Init(false))

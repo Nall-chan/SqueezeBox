@@ -15,7 +15,7 @@ class SqueezeboxDevice extends IPSModule
         //Never delete this line!
         parent::Create();
 
-        // 1. Verfügbarer LMS-Splitter wird verbunden oder neu erzeugt, wenn nicht vorhanden.
+        // 1. VerfÃ¼gbarer LMS-Splitter wird verbunden oder neu erzeugt, wenn nicht vorhanden.
         $this->ConnectParent("{96A9AB3A-2538-42C5-A130-FC34205A706A}");
 
         $this->RegisterPropertyString("Address", "");
@@ -41,7 +41,7 @@ class SqueezeboxDevice extends IPSModule
         //Never delete this line!
         parent::ApplyChanges();
 
-        // Addresse prüfen
+        // Addresse prÃ¼fen
         $Address = $this->ReadPropertyString('Address');
         if ($Address == '')
         {
@@ -55,8 +55,8 @@ class SqueezeboxDevice extends IPSModule
                 if (!strpos($Address, ':')) //keine MAC mit :
                 {
                     if (!strpos($Address, '-')) //keine MAC mit -
-                    {// : einfügen 
-                        //Länge muss 12 sein, sonst löschen
+                    {// : einfÃ¼gen 
+                        //LÃ¤nge muss 12 sein, sonst lÃ¶schen
                         if (strlen($Address) == 12)
                         {
                             $Address = implode(":", str_split($Address, 2));
@@ -83,7 +83,7 @@ class SqueezeboxDevice extends IPSModule
                             // STATUS config OK
                         }
                         else
-                        {                    //Länge muss 17 sein, sonst löschen
+                        {                    //LÃ¤nge muss 17 sein, sonst lÃ¶schen
                             $this->SetStatus(202);
 
                             $Address = '';
@@ -95,10 +95,10 @@ class SqueezeboxDevice extends IPSModule
                     }
                 }
                 else
-                { // OK : nun Länge prüfen
-                    //Länge muss 17 sein, sonst löschen                
+                { // OK : nun LÃ¤nge prÃ¼fen
+                    //LÃ¤nge muss 17 sein, sonst lÃ¶schen                
                     if (strlen($Address) <> 17)
-                    {                    //Länge muss 17 sein, sonst löschen
+                    {                    //LÃ¤nge muss 17 sein, sonst lÃ¶schen
                         $this->SetStatus(202);
 
                         $Address = '';
@@ -109,7 +109,7 @@ class SqueezeboxDevice extends IPSModule
                     }
                 }
             }
-            // TODO IP-Adresse prüfen fehlt !!!!
+            // TODO IP-Adresse prÃ¼fen fehlt !!!!
         }
 
 
@@ -189,12 +189,12 @@ class SqueezeboxDevice extends IPSModule
         $this->EnableAction("Position2");
         $this->RegisterVariableString("Playlist", "Playlist", "~HTMLBox", 29);
 
-        $this->RegisterVariableInteger("Signalstrength", utf8_encode("Signalstärke"), "Intensity.Squeezebox", 30);
+        $this->RegisterVariableInteger("Signalstrength", utf8_encode("SignalstÃ¤rke"), "Intensity.Squeezebox", 30);
         $this->RegisterVariableInteger("SleepTimer", "Einschlaftimer", "SleepTimer.Squeezebox", 31);
         $this->EnableAction("SleepTimer");
         $this->RegisterVariableString("SleepTimeout", "Ausschalten in ", "", 32);
 
-        // Workaround für persistente Daten der Instanz.
+        // Workaround fÃ¼r persistente Daten der Instanz.
         $this->RegisterVariableBoolean("can_seek", "can_seek", "", -5);
         $this->RegisterVariableString("BufferOUT", "BufferOUT", "", -4);
         $this->RegisterVariableBoolean("WaitForResponse", "WaitForResponse", "", -5);
@@ -331,7 +331,7 @@ if (isset($_GET["Index"]))
      *
      * @param string $Name 
      * @return boolean
-     * true bei erfolgreicher Ausführung und Rückmeldung
+     * true bei erfolgreicher AusfÃ¼hrung und RÃ¼ckmeldung
      * @exception 
      */
     public function SetName(string $Name)
@@ -379,7 +379,7 @@ if (isset($_GET["Index"]))
     }
 
     /**
-     * Gibt alle mit diesem Gerät syncronisierte Instanzen zurück
+     * Gibt alle mit diesem GerÃ¤t syncronisierte Instanzen zurÃ¼ck
      *
      * @return string|array
      * @exception 
@@ -421,9 +421,9 @@ if (isset($_GET["Index"]))
     }
 
     /**
-     * Sync dieses Gerätes aufheben
+     * Sync dieses GerÃ¤tes aufheben
      *
-     * @return boolean true bei erfolgreicher Ausführung und Rückmeldung
+     * @return boolean true bei erfolgreicher AusfÃ¼hrung und RÃ¼ckmeldung
      * @exception 
      */
     public function SetUnSync()
@@ -436,7 +436,7 @@ if (isset($_GET["Index"]))
      * Restzeit bis zum Sleep setzen.
      *
      * @return boolean
-     * true bei erfolgreicher Ausführung und Rückmeldung
+     * true bei erfolgreicher AusfÃ¼hrung und RÃ¼ckmeldung
      * @exception 
      */
     public function SetSleep(integer $Seconds)
@@ -463,7 +463,7 @@ if (isset($_GET["Index"]))
      * Simuliert einen Tastendruck.
      *
      * @return boolean
-     * true bei erfolgreicher Ausführung und Rückmeldung
+     * true bei erfolgreicher AusfÃ¼hrung und RÃ¼ckmeldung
      * @exception 
      */
     public function PreviousButton()
@@ -482,7 +482,7 @@ if (isset($_GET["Index"]))
      * Simuliert einen Tastendruck.
      *
      * @return boolean
-     * true bei erfolgreicher Ausführung und Rückmeldung
+     * true bei erfolgreicher AusfÃ¼hrung und RÃ¼ckmeldung
      * @exception 
      */
     public function NextButton()
@@ -500,7 +500,7 @@ if (isset($_GET["Index"]))
     /**
      * Startet die Wiedergabe
      * @return boolean
-     * true bei erfolgreicher Ausführung und Rückmeldung
+     * true bei erfolgreicher AusfÃ¼hrung und RÃ¼ckmeldung
      * @exception 
      */
     public function Play()
@@ -518,7 +518,7 @@ if (isset($_GET["Index"]))
     /**
      * Stoppt die Wiedergabe
      * @return boolean
-     * true bei erfolgreicher Ausführung und Rückmeldung
+     * true bei erfolgreicher AusfÃ¼hrung und RÃ¼ckmeldung
      * @exception 
      */
     public function Stop()
@@ -536,7 +536,7 @@ if (isset($_GET["Index"]))
     /**
      * Pausiert die Wiedergabe
      * @return boolean
-     * true bei erfolgreicher Ausführung und Rückmeldung
+     * true bei erfolgreicher AusfÃ¼hrung und RÃ¼ckmeldung
      * @exception 
      */
     public function Pause()
@@ -552,11 +552,11 @@ if (isset($_GET["Index"]))
     }
 
     /**
-     * Setzten der Lautstärke.
+     * Setzten der LautstÃ¤rke.
      *
      * @param integer $Value 
      * @return boolean
-     * true bei erfolgreicher Ausführung und Rückmeldung
+     * true bei erfolgreicher AusfÃ¼hrung und RÃ¼ckmeldung
      * @exception 
      */
     public function SetVolume(integer $Value)
@@ -571,7 +571,7 @@ if (isset($_GET["Index"]))
     }
 
     /**
-     * Liefert die aktuelle Lautstärke von dem Device.
+     * Liefert die aktuelle LautstÃ¤rke von dem Device.
      *
      * @return integer
      * @exception 
@@ -590,7 +590,7 @@ if (isset($_GET["Index"]))
      *
      * @param integer $Value 
      * @return boolean
-     * true bei erfolgreicher Ausführung und Rückmeldung
+     * true bei erfolgreicher AusfÃ¼hrung und RÃ¼ckmeldung
      * @exception 
      */
     public function SetBass(integer $Value)
@@ -621,7 +621,7 @@ if (isset($_GET["Index"]))
      *
      * @param integer $Value 
      * @return boolean
-     * true bei erfolgreicher Ausführung und Rückmeldung
+     * true bei erfolgreicher AusfÃ¼hrung und RÃ¼ckmeldung
      * @exception 
      */
     public function SetTreble(integer $Value)
@@ -651,7 +651,7 @@ if (isset($_GET["Index"]))
      *
      * @param integer $Value 
      * @return boolean
-     * true bei erfolgreicher Ausführung und Rückmeldung
+     * true bei erfolgreicher AusfÃ¼hrung und RÃ¼ckmeldung
      * @exception 
      */
     public function SetPitch(integer $Value)
@@ -683,7 +683,7 @@ if (isset($_GET["Index"]))
      * true = Stumm an
      * false = Stumm aus
      * @return boolean
-     * true bei erfolgreicher Ausführung und Rückmeldung
+     * true bei erfolgreicher AusfÃ¼hrung und RÃ¼ckmeldung
      * @exception 
      */
     public function SetMute(boolean $Value)
@@ -720,7 +720,7 @@ if (isset($_GET["Index"]))
      * 1 = Titel
      * 2 = Album
      * @return boolean
-     * true bei erfolgreicher Ausführung und Rückmeldung
+     * true bei erfolgreicher AusfÃ¼hrung und RÃ¼ckmeldung
      * @exception 
      */
     public function SetRepeat(integer $Value)
@@ -758,7 +758,7 @@ if (isset($_GET["Index"]))
      * 1 = Titel
      * 2 = Album
      * @return boolean
-     * true bei erfolgreicher Ausführung und Rückmeldung
+     * true bei erfolgreicher AusfÃ¼hrung und RÃ¼ckmeldung
      * @exception 
      */
     public function SetShuffle(integer $Value)
@@ -795,7 +795,7 @@ if (isset($_GET["Index"]))
      * @param integer $Value 
      * 1 - 6 = Taste 1 bis 6
      * @return boolean
-     * true bei erfolgreicher Ausführung und Rückmeldung
+     * true bei erfolgreicher AusfÃ¼hrung und RÃ¼ckmeldung
      * @exception 
      */
     public function SelectPreset(integer $Value)
@@ -807,14 +807,14 @@ if (isset($_GET["Index"]))
     }
 
     /**
-     * Schaltet das Gerät ein oder aus.
+     * Schaltet das GerÃ¤t ein oder aus.
      *
      * @access public
      * @param boolean $Value 
      * false  = ausschalten
      * true = einschalten
      * @return boolean
-     * true bei erfolgreicher Ausführung und Rückmeldung
+     * true bei erfolgreicher AusfÃ¼hrung und RÃ¼ckmeldung
      * @exception 
      */
     public function Power(boolean $Value)
@@ -832,7 +832,7 @@ if (isset($_GET["Index"]))
      * @param integer $Value 
      * Track in der Wiedergabeliste auf welchen gesprungen werden soll.
      * @return boolean
-     * true bei erfolgreicher Ausführung und Rückmeldung
+     * true bei erfolgreicher AusfÃ¼hrung und RÃ¼ckmeldung
      * @exception 
      */
     public function PlayTrack(integer $Index)
@@ -843,10 +843,10 @@ if (isset($_GET["Index"]))
     }
 
     /**
-     * Springt in der aktuellen Wiedergabeliste auf den nächsten Titel.
+     * Springt in der aktuellen Wiedergabeliste auf den nÃ¤chsten Titel.
      *
      * @return boolean
-     * true bei erfolgreicher Ausführung und Rückmeldung
+     * true bei erfolgreicher AusfÃ¼hrung und RÃ¼ckmeldung
      * @exception 
      */
     public function NextTrack()
@@ -860,7 +860,7 @@ if (isset($_GET["Index"]))
      * Springt in der aktuellen Wiedergabeliste auf den vorherigen Titel.
      *
      * @return boolean
-     * true bei erfolgreicher Ausführung und Rückmeldung
+     * true bei erfolgreicher AusfÃ¼hrung und RÃ¼ckmeldung
      * @exception 
      */
     public function PreviousTrack()
@@ -874,8 +874,8 @@ if (isset($_GET["Index"]))
      * Setzt eine absolute Zeit-Position des aktuellen Titels.
      *
      * @param integer $Value Zeit in Sekunden.
-     * @return boolean true bei erfolgreicher Ausführung und Rückmeldung.
-     * @exception Wenn Befehl nicht ausgeführt werden konnte.
+     * @return boolean true bei erfolgreicher AusfÃ¼hrung und RÃ¼ckmeldung.
+     * @exception Wenn Befehl nicht ausgefÃ¼hrt werden konnte.
      */
     public function SetPosition(integer $Value)
     {
@@ -901,12 +901,12 @@ if (isset($_GET["Index"]))
     }
 
     /**
-     * Speichert die aktuelle Wiedergabeliste vom Gerät in einer unter $Name angegebenen Wiedergabelisten-Datei auf dem LMS-Server.
+     * Speichert die aktuelle Wiedergabeliste vom GerÃ¤t in einer unter $Name angegebenen Wiedergabelisten-Datei auf dem LMS-Server.
      *
      * @param string $Name
-     * Der Name der Wiedergabeliste. Ist diese Liste auf dem Server schon vorhanden, wird sie überschrieben.
+     * Der Name der Wiedergabeliste. Ist diese Liste auf dem Server schon vorhanden, wird sie Ã¼berschrieben.
      * @return boolean
-     * true bei erfolgreicher Ausführung und Rückmeldung
+     * true bei erfolgreicher AusfÃ¼hrung und RÃ¼ckmeldung
      * @exception 
      */
     public function SavePlaylist(string $Name)
@@ -918,10 +918,10 @@ if (isset($_GET["Index"]))
     }
 
     /**
-     * Speichert die aktuelle Wiedergabeliste vom Gerät in einer festen Wiedergabelisten-Datei auf dem LMS-Server.
+     * Speichert die aktuelle Wiedergabeliste vom GerÃ¤t in einer festen Wiedergabelisten-Datei auf dem LMS-Server.
      *
      * @return boolean
-     * true bei erfolgreicher Ausführung und Rückmeldung
+     * true bei erfolgreicher AusfÃ¼hrung und RÃ¼ckmeldung
      * @exception 
      */
     public function SaveTempPlaylist()
@@ -933,7 +933,7 @@ if (isset($_GET["Index"]))
     }
 
     /**
-     * Lädt eine Wiedergabelisten-Datei aus dem LMS-Server und startet die Wiedergabe derselben auf dem Gerät.
+     * LÃ¤dt eine Wiedergabelisten-Datei aus dem LMS-Server und startet die Wiedergabe derselben auf dem GerÃ¤t.
      *
      * @param string $Name
      * Der Name der Wiedergabeliste.
@@ -952,7 +952,7 @@ if (isset($_GET["Index"]))
     }
 
     /**
-     * Lädt eine Wiedergabelisten-Datei aus dem LMS-Server und spring an die zuletzt abgespielten Track.
+     * LÃ¤dt eine Wiedergabelisten-Datei aus dem LMS-Server und spring an die zuletzt abgespielten Track.
      *
      * @param string $Name
      * Der Name der Wiedergabeliste.
@@ -971,10 +971,10 @@ if (isset($_GET["Index"]))
     }
 
     /**
-     * Lädt eine zuvor gespeicherte Wiedergabelisten-Datei und setzt die Wiedergabe fort.
+     * LÃ¤dt eine zuvor gespeicherte Wiedergabelisten-Datei und setzt die Wiedergabe fort.
      *
      * @return boolean
-     * true bei erfolgreicher Ausführung und Rückmeldung
+     * true bei erfolgreicher AusfÃ¼hrung und RÃ¼ckmeldung
      * @exception 
      */
     public function LoadTempPlaylist()
@@ -1059,11 +1059,11 @@ if (isset($_GET["Index"]))
     }
 
     /**
-     * Liefert Informationen über einen Song aus der aktuelle Wiedergabeliste.
+     * Liefert Informationen Ã¼ber einen Song aus der aktuelle Wiedergabeliste.
      *
      * @param integer $Index
-     * $Index für die absolute Position des Titels in der Wiedergabeliste.
-     * 0 für den aktuellen Titel
+     * $Index fÃ¼r die absolute Position des Titels in der Wiedergabeliste.
+     * 0 fÃ¼r den aktuellen Titel
      *  
      * @return array
      *  ["duration"]=>string
@@ -1096,7 +1096,7 @@ if (isset($_GET["Index"]))
     }
 
     /**
-     * Liefert Informationen über alle Songs aus der aktuelle Wiedergabeliste.
+     * Liefert Informationen Ã¼ber alle Songs aus der aktuelle Wiedergabeliste.
      *
      * @return array[index]
      *      ["duration"]=>string
@@ -1701,15 +1701,15 @@ if (isset($_GET["Index"]))
 
 if ($_IPS["SENDER"] <> "SqueezeBox")
 {
-	echo "Dieses Script kann nicht direkt ausgeführt werden!";
+	echo "Dieses Script kann nicht direkt ausgefÃ¼hrt werden!";
 	return;
 }
 ##########   KONFIGURATION
 #### Tabellarische Ansicht
-# Folgende Parameter bestimmen das Aussehen der HTML-Tabelle in der die WLAN-Geräte aufgelistet werden.
+# Folgende Parameter bestimmen das Aussehen der HTML-Tabelle in der die WLAN-GerÃ¤te aufgelistet werden.
 
-// Reihenfolge und Überschriften der Tabelle. Der vordere Wert darf nicht verändert werden.
-// Die Reihenfolge, der hintere Wert (Anzeigetext) und die Reihenfolge sind beliebig änderbar.
+// Reihenfolge und Ãœberschriften der Tabelle. Der vordere Wert darf nicht verÃ¤ndert werden.
+// Die Reihenfolge, der hintere Wert (Anzeigetext) und die Reihenfolge sind beliebig Ã¤nderbar.
 $Config["Spalten"] = array(
 "Play" =>"",
 "Position"=>"Pos",
@@ -1718,7 +1718,7 @@ $Config["Spalten"] = array(
 "Bitrate"=>"Bitrate",
 "Duration"=>"Dauer"
 );
-#### Mögliche Index-Felder
+#### MÃ¶gliche Index-Felder
 /*
 | Index            | Typ     | Beschreibung                        |
 | :--------------: | :-----: | :---------------------------------: |
@@ -1729,7 +1729,7 @@ $Config["Spalten"] = array(
 | Genre            | string  | Genre                               |
 | Album            | string  | Album                               |
 | Artist           | string  | Interpret                           |
-| Duration         | integer | Länge in Sekunden                   |
+| Duration         | integer | LÃ¤nge in Sekunden                   |
 | Disc             | integer | Aktuelles Medium                    |
 | Disccount        | integer | Anzahl aller Medien dieses Albums   |
 | Bitrate          | string  | Bitrate in Klartext                 |
@@ -1800,7 +1800,7 @@ $Config["Style"] = array(
     "DFGDuration" => "text-align:center;",
     "DFUDuration" => "text-align:center;",
     "DFADuration" => "text-align:center;"
-    // ^- Der Buchstabe "G" steht für gerade, "U" für ungerade., "A" für Aktiv
+    // ^- Der Buchstabe "G" steht fÃ¼r gerade, "U" fÃ¼r ungerade., "A" fÃ¼r Aktiv
  );
 ### Konfig ENDE !!!
 LSQ_DisplayPlaylist($_IPS["TARGET"],$Config);
@@ -1928,16 +1928,16 @@ LSQ_DisplayPlaylist($_IPS["TARGET"],$Config);
         if ($this->Address === '') //Keine Adresse Daten nicht verarbeiten
             return false;
 
-        // Adressen stimmen überein, die Daten sind für uns.
+        // Adressen stimmen Ã¼berein, die Daten sind fÃ¼r uns.
         if (($this->Address == $Data->LMS->MAC) or ( $this->Address == $Data->LMS->IP))
         {
-            // Objekt erzeugen welches die Commands und die Values enthält.
+            // Objekt erzeugen welches die Commands und die Values enthÃ¤lt.
             $Response = new LSQResponse($Data->LMS);
 
             // Ist das Command schon bekannt ?
             if ($Response->Command <> false)
             {
-                // Daten prüfen ob Antwort
+                // Daten prÃ¼fen ob Antwort
                 $isResponse = $this->WriteResponse($Response->Command, $Response->Value);
                 if (is_bool($isResponse))
                 {
@@ -1962,7 +1962,7 @@ LSQ_DisplayPlaylist($_IPS["TARGET"],$Config);
               return true;
               } */
         }
-        // Daten waren nicht für uns
+        // Daten waren nicht fÃ¼r uns
         return false;
     }
 
@@ -1997,7 +1997,7 @@ LSQ_DisplayPlaylist($_IPS["TARGET"],$Config);
     private function SendLSQData($LSQData)
     {
         $this->init();
-        // prüfen ob Player connected ?
+        // prÃ¼fen ob Player connected ?
         // nur senden wenn connected ODER wir eine connected anfrage senden wollen
         if ((!$this->Connected) and ( $LSQData->Command <> LSQResponse::connected))
         {
@@ -2031,7 +2031,7 @@ LSQ_DisplayPlaylist($_IPS["TARGET"],$Config);
             }
             catch (Exception $exc)
             {
-                //  Daten in Warteschleife l?¶schen
+                //  Daten in Warteschleife l?Â¶schen
                 $this->ResetWaitForResponse();
                 $this->unlock("LSQData");
                 throw $exc;
@@ -2043,7 +2043,7 @@ LSQ_DisplayPlaylist($_IPS["TARGET"],$Config);
 
             if ($ret === false) // Warteschleife lief in Timeout
             {
-                //  Daten in Warteschleife l?¶schen                
+                //  Daten in Warteschleife l?Â¶schen                
                 $this->ResetWaitForResponse();
                 // Fehler
                 throw new Exception("No answer from LMS");
