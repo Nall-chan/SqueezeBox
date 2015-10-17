@@ -330,7 +330,7 @@ class LMSSplitter extends IPSModule
         $Playlists = $SongInfo->GetAllSongs();
         foreach ($Playlists as $Key => $Playlist)
         {
-            $raw = LMS_SendRaw(15277 /* [Logitech Media Server] */, array('playlists', 'tracks'), array(0, 10000, 'playlist_id:' . $Playlist['Id'], 'tags:d'), true);
+            $raw = LMS_SendRaw($this->InstanceID, array('playlists', 'tracks'), array(0, 10000, 'playlist_id:' . $Playlist['Id'], 'tags:d'), true);
             $SongInfo = new LSMSongInfo($raw);
             $Playlists[$Key]['Tracks'] = $SongInfo->CountAllSongs();
             $Playlists[$Key]['Duration'] = $SongInfo->GetTotalDuration();

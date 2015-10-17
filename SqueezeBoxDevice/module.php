@@ -142,12 +142,12 @@ class SqueezeboxDevice extends IPSModule
         ));
         $this->RegisterProfileInteger("Tracklist.Squeezebox." . $this->InstanceID, "", "", "", 1, 1, 1);
         $this->RegisterProfileIntegerEx("SleepTimer.Squeezebox", "Gear", "", "", Array(
-            Array(0, "%d", "", -1),
-            Array(900, "%d", "", -1),
-            Array(1800, "%d", "", -1),
-            Array(2700, "%d", "", -1),
-            Array(3600, "%d", "", -1),
-            Array(5400, "%d", "", -1)
+            Array(0, "0", "", -1),
+            Array(900, "900", "", -1),
+            Array(1800, "1800", "", -1),
+            Array(2700, "2700", "", -1),
+            Array(3600, "3600", "", -1),
+            Array(5400, "5400", "", -1)
         ));
 
 
@@ -1773,9 +1773,9 @@ $Config["Style"] = array(
     // <tbody>-Tag:
     "B"    => "",
     // <tr>-Tag:
-    "BRG"  => "background-color:#000000; color:ffff00;",
-    "BRU"  => "background-color:#080808; color:ffff00;",
-    "BRA"  => "background-color:#808000; color:ffff00;",
+    "BRG"  => "background-color:#000000; color:ffffff;",
+    "BRU"  => "background-color:#080808; color:ffffff;",
+    "BRA"  => "background-color:#808000; color:ffffff;",
     // <td>-Tag Feld Play:
     "DFGPlay" => "text-align:center;",
     "DFUPlay" => "text-align:center;",
