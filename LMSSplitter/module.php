@@ -81,7 +81,7 @@ class LMSSplitter extends IPSModule
         IPS_SetHidden($ID, true);
         $this->RegisterHook('/hook/LMSPlaylist' . $this->InstanceID, $ID);
 
-        $ID = $this->RegisterScript('PlaylistDesign', 'Playlist Config', $this->CreatePlaylistConfigScript(), -4);
+        $ID = $this->RegisterScript('PlaylistDesign', 'Playlist Config', $this->CreatePlaylistConfigScript(), -7);
         IPS_SetHidden($ID, true);
 
         //Workaround für persistente Daten der Instanz
@@ -98,10 +98,11 @@ class LMSSplitter extends IPSModule
         {
             $Data = new LMSData("listen", "1");
             $this->SendLMSData($Data);
+            $this->RefreshPlayerList();            
             $Data = new LMSData("rescan", "?", false);
             $this->SendLMSData($Data);
-            $this->RefreshPlaylists();
-            $this->RefreshPlayerList();
+//            $this->RefreshPlaylists();
+
         }
     }
 
