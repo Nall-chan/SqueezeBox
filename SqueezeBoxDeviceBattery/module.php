@@ -30,15 +30,15 @@ class SqueezeboxBattery extends IPSModule
         $Address = $this->ReadPropertyString('Address');
         if ($Address == '')
         {
-            $this->SetStatus(104);
-        }
-        else
+            $this->SetStatus(IS_ACTIVE);
+        } else
         {
             if (strpos($Address, '.')) // IP ?
             {
-                $this->SetStatus(102);
                 if ($this->ReadPropertyInteger("Interval") < 30)
                     $this->SetStatus(203);
+                else
+                    $this->SetStatus(IS_ACTIVE);
             }
         }
 
@@ -79,14 +79,12 @@ class SqueezeboxBattery extends IPSModule
             if ($this->ReadPropertyInteger("Interval") >= 30)
             {
                 $this->SetTimerInterval("RequestState", $this->ReadPropertyInteger("Interval"));
-            }
-            else
+            } else
             {
                 $this->SetTimerInterval("RequestState", 0);
             }
             $this->RequestState();
-        }
-        else
+        } else
         {
             $this->SetTimerInterval("RequestState", 0);
         }
@@ -109,7 +107,9 @@ class SqueezeboxBattery extends IPSModule
      */
     public function RequestState()
     {
-        $this->Init();
+        if($this->Init()=== false)
+            return false;
+        
         set_include_path(__DIR__);
         require_once (__DIR__ . '/Net/SSH2.php');
 
@@ -117,6 +117,7 @@ class SqueezeboxBattery extends IPSModule
         $login = @$ssh->login('root', $this->ReadPropertyString("Password"));
         if ($login == false)
         {
+            trigger_error('Could not log in on SqueezeBox',E_USER_NOTICE);
             return false;
         }
         $PowerMode = (int) $ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/power_mode");
@@ -152,8 +153,7 @@ class SqueezeboxBattery extends IPSModule
 //            $this->SetValueInteger('BatteryChargeRate', $BatteryChargeRate);
 //            $BatteryDischargeRate = (int) $ssh->exec("cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_discharge_rate");
 //            $this->SetValueInteger('BatteryDischargeRate', $BatteryDischargeRate);
-        }
-        else
+        } else
         {
             $this->SetValueFloat('BatteryLevel', 0.0);
             $this->SetValueInteger('BatteryCapacity', 0);
@@ -180,9 +180,12 @@ class SqueezeboxBattery extends IPSModule
         $this->Address = $this->ReadPropertyString("Address");
         if ($this->Address == '')
         {
-            $this->SetStatus(202);
+            $this->SetStatus(IS_INACTIVE);
             if ($throwException)
-                throw new Exception('Address not set.');
+            {
+                trigger_error('Address not set.', E_USER_NOTICE);
+                return false;
+            }
             else
                 return false;
         }
@@ -226,12 +229,11 @@ class SqueezeboxBattery extends IPSModule
         if (!IPS_VariableProfileExists($Name))
         {
             IPS_CreateVariableProfile($Name, 1);
-        }
-        else
+        } else
         {
             $profile = IPS_GetVariableProfile($Name);
             if ($profile['ProfileType'] != 1)
-                throw new Exception("Variable profile type does not match for profile " . $Name);
+                throw new Exception("Variable profile type does not match for profile " . $Name, E_USER_WARNING);
         }
 
         IPS_SetVariableProfileIcon($Name, $Icon);
@@ -245,8 +247,7 @@ class SqueezeboxBattery extends IPSModule
         {
             $MinValue = 0;
             $MaxValue = 0;
-        }
-        else
+        } else
         {
             $MinValue = $Associations[0][0];
             $MaxValue = $Associations[sizeof($Associations) - 1][0];
@@ -270,7 +271,7 @@ class SqueezeboxBattery extends IPSModule
         if ($id > 0)
         {
             if (!IPS_EventExists($id))
-                throw new Exception("Ident with name " . $Name . " is used for wrong object type");
+                throw new Exception("Ident with name " . $Name . " is used for wrong object type", E_USER_WARNING);
 
             if (IPS_GetEvent($id)['EventType'] <> 1)
             {
@@ -293,8 +294,7 @@ class SqueezeboxBattery extends IPSModule
             IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, $Interval);
 
             IPS_SetEventActive($id, true);
-        }
-        else
+        } else
         {
             IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, 1);
 
@@ -308,7 +308,7 @@ class SqueezeboxBattery extends IPSModule
         if ($id > 0)
         {
             if (!IPS_EventExists($id))
-                throw new Exception('Timer not present');
+                throw new Exception('Timer not present', E_USER_WARNING);
             IPS_DeleteEvent($id);
         }
     }
@@ -317,9 +317,9 @@ class SqueezeboxBattery extends IPSModule
     {
         $id = @IPS_GetObjectIDByIdent($Name, $this->InstanceID);
         if ($id === false)
-            throw new Exception('Timer not present');
+            throw new Exception('Timer not present', E_USER_WARNING);
         if (!IPS_EventExists($id))
-            throw new Exception('Timer not present');
+            throw new Exception('Timer not present', E_USER_WARNING);
 
         $Event = IPS_GetEvent($id);
 
@@ -336,7 +336,6 @@ class SqueezeboxBattery extends IPSModule
                 IPS_SetEventActive($id, true);
         }
     }
-
 
     protected function SetStatus($InstanceStatus)
     {
