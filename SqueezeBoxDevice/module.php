@@ -1628,6 +1628,8 @@ if (isset($_GET["Index"]))
                         onclick="window.xhrGet=function xhrGet(o) {var HTTP = new XMLHttpRequest();HTTP.open(\'GET\',o.url,true);HTTP.send();};window.xhrGet({ url: \'hook/SqueezeBoxPlaylist' . $this->InstanceID . '?Index=' . $Line['Position'] . '\' })">';
                 foreach ($Config['Spalten'] as $feldIndex => $value)
                 {
+                    if (!array_key_exists($feldIndex, $Line))
+                        $Line[$feldIndex] = '';
                     $HTMLData .= '<td style="' . $Config['Style']['DF' . ($Line['Position'] == $CurrentTrack ? 'A' : ($pos % 2 ? 'U' : 'G')) . $feldIndex] . '">' . (string) $Line[$feldIndex] . '</td>';
                 }
                 $HTMLData .= '</tr>' . PHP_EOL;
@@ -1818,8 +1820,8 @@ LSQ_DisplayPlaylist($_IPS["TARGET"],$Config);
             IPS_SetIdent($CoverID, 'CoverIMG');
             IPS_SetName($CoverID, 'Cover');
             IPS_SetPosition($CoverID, 27);
-            IPS_SetMediaCached($CoverID,true);
-            IPS_SetMediaFile($CoverID, "media".DIRECTORY_SEPARATOR."Cover_" . $this->InstanceID . ".png", False);
+            IPS_SetMediaCached($CoverID, true);
+            IPS_SetMediaFile($CoverID, "media" . DIRECTORY_SEPARATOR . "Cover_" . $this->InstanceID . ".png", False);
         }
         $ParentID = $this->GetParent();
         if (!($ParentID === false))

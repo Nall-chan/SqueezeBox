@@ -174,7 +174,10 @@ class LMSSplitter extends IPSModule
     public function GetPlayerInfo(integer $Index)
     {
         if (!is_int($Index))
-            throw new Exception("Index must be integer.");
+        {
+            trigger_error("Index must be integer.",E_USER_NOTICE);
+            return false;
+        }
         $ret = $this->SendLMSData(new LMSData(array('players', (string) $Index, '1')));
 //        $LSQEvent = new LSQTaggingData($ret, true);
         $Data = new LMSResponse($ret);
@@ -189,7 +192,10 @@ class LMSSplitter extends IPSModule
             $LSQEvent[ucfirst($Pair->Command)] = $Pair->Value;
         }
         if (!isset($LSQEvent['Playerid']))
-            throw new Exception('Invalid Index');
+        {
+            trigger_error('Invalid Index',E_USER_NOTICE);
+            return false;
+        }
         $DevicesIDs = IPS_GetInstanceListByModuleID("{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}");
         $FoundId = 0;
         foreach ($DevicesIDs as $Device)
@@ -222,7 +228,10 @@ class LMSSplitter extends IPSModule
         $SongInfo = new LSMSongInfo($Data);
         $Song = $SongInfo->GetSong();
         if (is_null($Song))
-            throw new Exception("FileID not valid.");
+        {
+            trigger_error("FileID not valid.",E_USER_NOTICE);
+            return false;
+        }
         return $Song;
     }
 
@@ -232,7 +241,10 @@ class LMSSplitter extends IPSModule
         $SongInfo = new LSMSongInfo($Data);
         $Song = $SongInfo->GetSong();
         if (count($Song) == 1)
-            throw new Exception("FileURL not valid.");
+        {
+            trigger_error("FileURL not valid.",E_USER_NOTICE);
+            return false;
+        }
         return $Song;
     }
 
@@ -272,7 +284,8 @@ class LMSSplitter extends IPSModule
         }
         else
         {
-            throw new Exception("Playlist already exists.");
+            trigger_error("Playlist already exists.",E_USER_NOTICE);
+            return false;
         }
     }
 
@@ -280,8 +293,10 @@ class LMSSplitter extends IPSModule
     public function DeletePlaylist(integer $PlayListId) // ToDo antwort zerlegen
     {
         if (!is_int($PlayListId))
-            throw new Exception("PlayListId must be integer.");
-
+        {
+            trigger_error("PlayListId must be integer.",E_USER_NOTICE);
+            return false;
+        }
         $raw = $this->SendLMSData(new LMSData(array('playlists', 'delete'), 'playlist_id:' . $PlayListId));
         $Data = new LMSTaggingData($raw);
         if (property_exists($Data, 'playlist_id'))
@@ -290,7 +305,8 @@ class LMSSplitter extends IPSModule
         }
         else
         {
-            throw new Exception("Error deleting Playlist.");
+            trigger_error("Error deleting Playlist.",E_USER_NOTICE);
+            return false;
         }
     }
 
@@ -306,7 +322,8 @@ class LMSSplitter extends IPSModule
         }
         else
         {
-            throw new Exception("Error add File to Playlist.");
+            trigger_error("Error add File to Playlist.",E_USER_NOTICE);
+            return false;
         }
         if (!is_null($Track))
         {
@@ -359,7 +376,10 @@ class LMSSplitter extends IPSModule
                 elseif ($Value == 4)
                     $ret = $this->SendLMSData(new LMSData('wipecache', '', false));
                 if (($Value <> 0) and ( !$ret))
-                    throw new Exception('Error on send Scan Command');
+                {
+                    echo 'Error on send Scan Command';
+                    return false;
+                }
                 $this->SetValueInteger('RescanState', $Value);
                 break;
             default:
@@ -397,7 +417,7 @@ class LMSSplitter extends IPSModule
     public function DisplayPlaylist($Config)
     {
         if (($Config === false) or ( !is_array($Config)))
-            throw new Exception('Error on read Playlistconfig-Script');
+            trigger_error('Error on read Playlistconfig-Script',E_USER_NOTICE);
 
         try
         {
@@ -405,8 +425,9 @@ class LMSSplitter extends IPSModule
         }
         catch (Exception $exc)
         {
-            unset($exc);
-            throw new Exception('Error on read Playlist');
+            trigger_error($exc->getMessage(),$exc->getCode());
+            trigger_error('Error on read Playlist',E_USER_NOTICE);
+            return false;
         }
         $HTMLData = $this->GetTableHeader($Config);
         $pos = 0;
@@ -701,7 +722,8 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
 // Empfangs Lock setzen
         if (!$this->lock("bufferin"))
         {
-            throw new Exception("ReceiveBuffer is locked");
+            trigger_error("ReceiveBuffer is locked",E_USER_WARNING);
+            return false;
         }
 
 // Datenstream zusammenfügen
@@ -750,12 +772,14 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
             {
                 try
                 {
-                    if (!$this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "LMS" => $Data))))
-                        $ReceiveOK = false;
+                    $ReceiveOK = $this->SendDataToChildren(json_encode(Array("DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}", "LMS" => $Data)));
+                        
                 }
                 catch (Exception $exc)
                 {
-                    $ret = new Exception($exc);
+                    $ReceiveOK=false;
+                    trigger_error($exc->getMessage(),E_USER_NOTICE);
+//                    $ret = new Exception($exc);
                 }
                 if ($Data->Data[0] == LSQResponse::client) // Client änderungen auch hier verarbeiten!
                 {
@@ -763,9 +787,6 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
                 }
             }
         }
-// Ist ein Fehler aufgetreten ?
-        if (isset($ret))
-            throw $ret; // dann erst jetzt werfen
         return $ReceiveOK;
     }
 
@@ -784,7 +805,7 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
 //Semaphore setzen
         if (!$this->lock("ToParent"))
         {
-            throw new Exception("Can not send to LMS");
+            throw new Exception("Can not send to LMS",E_USER_NOTICE);
         }
 // Daten senden
         try
@@ -795,7 +816,7 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
         {
 // Senden fehlgeschlagen
             $this->unlock("ToParent");
-            throw new Exception("LMS not reachable");
+            throw new Exception("LMS not reachable",E_USER_NOTICE);
         }
         $this->unlock("ToParent");
         return $ret;
@@ -814,16 +835,16 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
     {
         $ParentID = $this->GetParent();
         if ($ParentID === false)
-            throw new Exception('Instance has no parent.');
+            throw new Exception('Instance has no parent.',E_USER_NOTICE);
         else
         if (!$this->HasActiveParent($ParentID))
-            throw new Exception('Instance has no active parent.');
+            throw new Exception('Instance has no active parent.',E_USER_NOTICE);
         if ($LMSData->needResponse)
         {
 //Semaphore setzen für Sende-Routine
             if (!$this->lock("LMSData"))
             {
-                throw new Exception("Can not send to LMS");
+                throw new Exception("Can not send to LMS",E_USER_NOTICE);
             }
 
 // Noch Umbauen wie das Device ?!?!
@@ -842,7 +863,7 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
 // Konnte Daten nicht in den ResponseBuffer schreiben
 // Lock der Sende-Routine aufheben.
                 $this->unlock("LMSData");
-                throw new Exception("Can not send to LMS");
+                throw new Exception("Can not send to LMS",E_USER_NOTICE);
             }
 
             try
@@ -871,7 +892,7 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
 //  Daten in ResponseBuffer löschen                
                 $this->ResetWaitForResponse();
 // Fehler
-                throw new Exception("No answer from LMS");
+                throw new Exception("No answer from LMS",E_USER_NOTICE);
             }
 
 // Rückgabe ist eine Bestätigung von einem Befehl
@@ -1105,7 +1126,7 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
         {
             $profile = IPS_GetVariableProfile($Name);
             if ($profile['ProfileType'] != 1)
-                throw new Exception("Variable profile type does not match for profile " . $Name);
+                throw new Exception("Variable profile type does not match for profile " . $Name,E_USER_NOTICE);
         }
 
         IPS_SetVariableProfileIcon($Name, $Icon);
