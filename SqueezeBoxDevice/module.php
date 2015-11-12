@@ -1681,7 +1681,7 @@ if (isset($_GET["Index"]))
         $html .= '<tr style="' . $Config['Style']['HR'] . '">';
         foreach ($Config['Spalten'] as $Index => $Value)
         {
-            $html .= '<th style="color:ffff00; ' . $Config['Style']['HF' . $Index] . '">' . $Value . '</th>';
+            $html .= '<th style="color:#ffffff; ' . $Config['Style']['HF' . $Index] . '">' . $Value . '</th>';
         }
         $html .= '</tr>' . PHP_EOL;
         $html .= '</thead>' . PHP_EOL;
@@ -1775,9 +1775,9 @@ $Config["Style"] = array(
     // <tbody>-Tag:
     "B"    => "",
     // <tr>-Tag:
-    "BRG"  => "background-color:#000000; color:ffffff;",
-    "BRU"  => "background-color:#080808; color:ffffff;",
-    "BRA"  => "background-color:#808000; color:ffffff;",
+    "BRG"  => "background-color:#000000; color:#ffffff;",
+    "BRU"  => "background-color:#080808; color:#ffffff;",
+    "BRA"  => "background-color:#808000; color:#ffffff;",
     // <td>-Tag Feld Play:
     "DFGPlay" => "text-align:center;",
     "DFUPlay" => "text-align:center;",
