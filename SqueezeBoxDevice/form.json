@@ -45,7 +45,7 @@
                 {
                     "type": "Button",
                     "label": "Request State",
-                    "onClick": "LSQ_RequestState($id);"
+                    "onClick": "LSQ_RequestAllState($id);"
                 },
                 {
                     "type": "Switch",
