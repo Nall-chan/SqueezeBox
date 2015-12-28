@@ -11,7 +11,8 @@ Logitech Media Server.
 2. [Voraussetzungen](#2-voraussetzungen)  
 3. [Installation](#3-installation)  
 4. [Funktionsreferenz](#4-funktionsreferenz)  
-5. [Anhang](#5-anhang)  
+5. [Konfiguration] (#5-konfiguration)
+6. [Anhang](#6-anhang)  
 
 ## 1. Funktionsumfang
 
