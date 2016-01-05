@@ -441,10 +441,13 @@ class LMSSplitter extends IPSModule
         $Playlists = $SongInfo->GetAllSongs();
         foreach ($Playlists as $Key => $Playlist)
         {
-            $raw = @$this->SendLMSData(new LMSData(array('playlists', 'tracks'), array(0, 10000, 'playlist_id:' . $Playlist['Id'], 'tags:d'), true));
+            $raw = $this->SendLMSData(new LMSData(array('playlists', 'tracks'), array(0, 10000, 'playlist_id:' . $Playlist['Id'], 'tags:d'), true));
             if ($raw === false)
             {
                 trigger_error("Error read Playlist " . $Playlist['Id'] . ".", E_USER_NOTICE);
+                $Playlists[$Key]['Name'] = $Playlists[$Key]['Name']." (ERROR ON READ DATA)";
+                $Playlists[$Key]['Tracks'] = "";
+                $Playlists[$Key]['Duration'] = "";
                 continue;
             }
             $SongInfo = new LSMSongInfo($raw);
@@ -528,19 +531,19 @@ class LMSSplitter extends IPSModule
             foreach ($Data as $Position => $Line)
             {
                 $Line['Position'] = $Position;
-                if (array_key_exists('Duration', $Line))
-                {
+//                if (array_key_exists('Duration', $Line))
+//                {
                     if ($Line['Duration'] > 3600)
                         $Line['Duration'] = @date("H:i:s", $Line['Duration'] - 3600);
                     else
                         $Line['Duration'] = @date("i:s", $Line['Duration']);
-                } else
+/*                } else
                 {
                     $Line['Duration'] = '';
                 }
                 if (!array_key_exists('Tracks', $Line))
                     $Line['Tracks'] = '';
-
+*/
 //          $Line['Play'] = $Line['Position'] == $CurrentTrack ? '<div class="ipsIconArrowRight" is="null"></div>' : '';
 
                 $HTMLData .='<tr style="' . $Config['Style']['BR' . ($pos % 2 ? 'U' : 'G')] . '"
