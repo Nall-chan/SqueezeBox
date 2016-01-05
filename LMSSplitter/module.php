@@ -185,7 +185,7 @@ class LMSSplitter extends IPSModule
     public function GetNumberOfPlayers()
     {
         $players = $this->SendLMSData(new LMSData(array('player', 'count'), '?'));
-        if ($ret === false)
+        if ($players === false)
             return false;
         return (int) $players;
     }
@@ -721,8 +721,8 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
                 {
                     case "notify":
                         $Data = new LMSTaggingData($LMSData->Data[2]);
-                        IPS_LogMessage("scanner progress", print_r($Data, 1));
-                        IPS_LogMessage("scanner progress2", print_r($Data->{0}, 1));
+//                        IPS_LogMessage("scanner progress", print_r($Data, 1));
+//                        IPS_LogMessage("scanner progress2", print_r($Data->{0}, 1));
                         switch (array_keys(get_object_vars($Data))[0])
                         {
                             case "end":
@@ -770,7 +770,7 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
                         $this->SetValueInteger("RescanState", 3); // Playlists
                         return true;
                     }
-                    elseif ((int) $LMSData->Data[1] == 1)
+                    elseif ($LMSData->Data[1] == '1')
                     {
                         //start   
                         $this->SetValueInteger("RescanState", 2); // einfacher
