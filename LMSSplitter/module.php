@@ -441,11 +441,11 @@ class LMSSplitter extends IPSModule
         $Playlists = $SongInfo->GetAllSongs();
         foreach ($Playlists as $Key => $Playlist)
         {
-            $raw = $this->SendLMSData(new LMSData(array('playlists', 'tracks'), array(0, 10000, 'playlist_id:' . $Playlist['Id'], 'tags:d'), true));
+            $raw = @$this->SendLMSData(new LMSData(array('playlists', 'tracks'), array(0, 10000, 'playlist_id:' . $Playlist['Id'], 'tags:d'), true));
             if ($raw === false)
             {
                 trigger_error("Error read Playlist " . $Playlist['Id'] . ".", E_USER_NOTICE);
-                $Playlists[$Key]['Name'] = $Playlists[$Key]['Name']." (ERROR ON READ DATA)";
+                $Playlists[$Key]['Playlist'] = $Playlists[$Key]['Playlist'] . " (ERROR ON READ DATA)";
                 $Playlists[$Key]['Tracks'] = "";
                 $Playlists[$Key]['Duration'] = "";
                 continue;
@@ -533,17 +533,17 @@ class LMSSplitter extends IPSModule
                 $Line['Position'] = $Position;
 //                if (array_key_exists('Duration', $Line))
 //                {
-                    if ($Line['Duration'] > 3600)
-                        $Line['Duration'] = @date("H:i:s", $Line['Duration'] - 3600);
-                    else
-                        $Line['Duration'] = @date("i:s", $Line['Duration']);
-/*                } else
-                {
-                    $Line['Duration'] = '';
-                }
-                if (!array_key_exists('Tracks', $Line))
-                    $Line['Tracks'] = '';
-*/
+                if ($Line['Duration'] > 3600)
+                    $Line['Duration'] = @date("H:i:s", $Line['Duration'] - 3600);
+                else
+                    $Line['Duration'] = @date("i:s", $Line['Duration']);
+                /*                } else
+                  {
+                  $Line['Duration'] = '';
+                  }
+                  if (!array_key_exists('Tracks', $Line))
+                  $Line['Tracks'] = '';
+                 */
 //          $Line['Play'] = $Line['Position'] == $CurrentTrack ? '<div class="ipsIconArrowRight" is="null"></div>' : '';
 
                 $HTMLData .='<tr style="' . $Config['Style']['BR' . ($pos % 2 ? 'U' : 'G')] . '"
@@ -741,7 +741,6 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
                                 $this->SetValueString("RescanInfo", "");
                                 $this->SetValueString("RescanProgress", "");
                                 return true;
-                                break;
                             case "progress":
                                 $Info = explode("||", $Data->progress);
                                 $StepInfo = $Info[2];
@@ -753,7 +752,6 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
                                 $StepProgress = $Info[3] . " von " . $Info[4];
                                 $this->SetValueString("RescanProgress", $StepProgress);
                                 return true;
-                                break;
                         }
                         break;
                 }
@@ -772,8 +770,8 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
                 {
                     if (($LMSData->Data[1] == 'done') or ( $LMSData->Data[1] == '0'))
                     {
-                        $this->SetValueInteger("RescanState", 0); // fertig
-                        $this->RefreshPlaylists();
+                        if ($this->SetValueInteger("RescanState", 0))   // fertig
+                            $this->RefreshPlaylists();
                         return true;
                     }
                     elseif ($LMSData->Data[1] == 'playlists')
