@@ -257,7 +257,7 @@ if (isset($_GET["Index"]))
      *
      * @return boolean
      */
-    public function RequestState()
+    public function RequestAllState()
     {
         $this->Init();
         /*        $this->init();
@@ -315,6 +315,57 @@ if (isset($_GET["Index"]))
           $this->SetValueBoolean('Power', false);
           } */
         return true;
+    }
+
+    /**
+     * Setzten den Namen in dem Device.
+     *
+     * @param string $Name 
+     * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception 
+     */
+    public function RequestState(string $Ident)
+    {
+        switch ($Ident)
+        {
+            case "Power":
+                $Data = new LSQData(LSQResponse::power, '?', false);
+                break;
+
+            case "Status":
+                $Data = new LSQData(LSQResponse::status, '?', false);
+                break;
+            case "Mute":
+                break;
+            case "Volume":
+                break;
+            case "Bass":
+                break;
+            case "Treble":
+                break;
+            case "Pitch":
+                break;
+            case "Shuffle":
+                break;
+            case "Repeat":
+                break;
+            case "Tracks":
+            case "Index":
+            case "Album":
+            case "Title":
+            case "Interpret":
+            case "Genre":
+            case "Duration":
+            case "Position":
+                break;
+            case "Signalstrength":
+                break;
+
+            case "SleepTimeout":
+            default:
+                break;
+        }
     }
 
     public function RawSend($Command, $Value, $needResponse)
@@ -1844,7 +1895,7 @@ LSQ_DisplayPlaylist($_IPS["TARGET"],$Config);
         $this->Connected = $Status;
         $this->Init(false);
         if ($Status === true)
-            $this->RequestState();
+            $this->RequestAllState();
     }
 
     private function Init($throwException = true)

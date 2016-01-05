@@ -23,8 +23,30 @@ class LMSSplitter extends IPSModule
     {
         //Never delete this line!
         parent::ApplyChanges();
-        $change = false;
+        $ChangeParentSetting = false;
+        $Open = $this->ReadPropertyBoolean('Open');
+        $NewState = IS_ACTIVE;
 
+        if (!$Open)
+            $NewState = IS_INACTIVE;
+
+        if ($this->ReadPropertyString('Host') == '')
+        {
+            if ($Open)
+            {
+                $NewState = IS_EBASE + 2;
+                $Open = false;
+            }
+        }
+
+        if ($this->ReadPropertyString('Port') == '')
+        {
+            if ($Open)
+            {
+                $NewState = IS_EBASE + 2;
+                $Open = false;
+            }
+        }
         // Zwangskonfiguration des ClientSocket
         $ParentID = $this->GetParent();
         if ($ParentID > 0)
@@ -32,30 +54,20 @@ class LMSSplitter extends IPSModule
             if (IPS_GetProperty($ParentID, 'Host') <> $this->ReadPropertyString('Host'))
             {
                 IPS_SetProperty($ParentID, 'Host', $this->ReadPropertyString('Host'));
-                $change = true;
+                $ChangeParentSetting = true;
             }
             if (IPS_GetProperty($ParentID, 'Port') <> $this->ReadPropertyInteger('Port'))
             {
                 IPS_SetProperty($ParentID, 'Port', $this->ReadPropertyInteger('Port'));
-                $change = true;
+                $ChangeParentSetting = true;
             }
-            $ParentOpen = $this->ReadPropertyBoolean('Open');
             // Keine Verbindung erzwingen wenn Host leer ist, sonst folgt später Exception.
-            if (!$ParentOpen)
-                $this->SetStatus(104);
-
-            if ($this->ReadPropertyString('Host') == '')
+            if (IPS_GetProperty($ParentID, 'Open') <> $Open)
             {
-                if ($ParentOpen)
-                    $this->SetStatus(202);
-                $ParentOpen = false;
+                IPS_SetProperty($ParentID, 'Open', $Open);
+                $ChangeParentSetting = true;
             }
-            if (IPS_GetProperty($ParentID, 'Open') <> $ParentOpen)
-            {
-                IPS_SetProperty($ParentID, 'Open', $ParentOpen);
-                $change = true;
-            }
-            if ($change)
+            if ($ChangeParentSetting)
                 @IPS_ApplyChanges($ParentID);
         }
         // Eigene Profile
@@ -93,40 +105,50 @@ class LMSSplitter extends IPSModule
         IPS_SetHidden($this->GetIDForIdent('WaitForResponse'), true);
 
         // Wenn wir verbunden sind, am LMS mit listen anmelden für Events
-        if (($this->ReadPropertyBoolean('Open'))
+        if (($Open)
                 and ( $this->HasActiveParent($ParentID)))
         {
             switch (IPS_GetKernelRunlevel())
             {
                 case KR_READY:
-                    $Data = new LMSData("listen", "1");
-                    try
+                    $this->SetStatus($NewState);
+                    if ($NewState == IS_ACTIVE)
                     {
-                        $this->SendLMSData($Data);
-                        $this->RefreshPlayerList();
-                        $Data = new LMSData("rescan", "?", false);
-                        $this->SendLMSData($Data);
-                    }
-                    catch (Exception $exc)
-                    {
-                        trigger_error($exc->getMessage(), $exc->getCode());
-                        return false;
-                    }
 
-                    $DevicesIDs = IPS_GetInstanceListByModuleID("{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}");
-                    foreach ($DevicesIDs as $Device)
-                    {
-                        if (IPS_GetInstance($Device)['ConnectionID'] == $this->InstanceID)
+                        $Data = new LMSData("listen", "1");
+                        try
                         {
-                            @IPS_ApplyChanges($Device);
+                            $this->SendLMSData($Data);
+                            $this->RefreshPlayerList();
+                            $Data = new LMSData("rescan", "?", false);
+                            $this->SendLMSData($Data);
+                        }
+                        catch (Exception $exc)
+                        {
+                            trigger_error($exc->getMessage(), $exc->getCode());
+                            return false;
+                        }
+
+                        $DevicesIDs = IPS_GetInstanceListByModuleID("{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}");
+                        foreach ($DevicesIDs as $Device)
+                        {
+                            if (IPS_GetInstance($Device)['ConnectionID'] == $this->InstanceID)
+                            {
+                                @IPS_ApplyChanges($Device);
+                            }
                         }
                     }
                     break;
                 case KR_INIT:
-                    $this->SetStatus(203);
+                    if ($NewState == IS_ACTIVE)
+                        $this->SetStatus(203);
+                    else
+                        $this->SetStatus($NewState);
                     break;
             }
         }
+        else
+            $this->SetStatus($NewState);
     }
 
 ################## PUBLIC
@@ -138,15 +160,7 @@ class LMSSplitter extends IPSModule
     public function SendRaw($Command, $Value, $needResponse)
     {
         $LMSData = new LMSData($Command, $Value, $needResponse);
-        try
-        {
-            $ret = $this->SendLMSData($LMSData);
-        }
-        catch (Exception $exc)
-        {
-            trigger_error($exc->getMessage(), $exc->getCode());
-            return false;
-        }
+        $ret = $this->SendLMSData($LMSData);
 //        if (is_bool($ret))
 //            return $ret;
         return $ret;
@@ -156,21 +170,14 @@ class LMSSplitter extends IPSModule
 
     public function Rescan()
     {
-        try
-        {
-            $ret = $this->SendLMSData(new LMSData('rescan'));
-        }
-        catch (Exception $exc)
-        {
-            trigger_error($exc->getMessage(), $exc->getCode());
-            return false;
-        }
-        return $ret;
+        return $this->SendLMSData(new LMSData('rescan'));
     }
 
     public function GetRescanProgress()
     {
         $ret = $this->SendLMSData(new LMSData('rescanprogress'));
+        if ($ret === false)
+            return false;
         $LSQEvent = new LSQTaggingData($ret, true);
         return (bool) $LSQEvent->Value;
     }
@@ -178,12 +185,16 @@ class LMSSplitter extends IPSModule
     public function GetNumberOfPlayers()
     {
         $players = $this->SendLMSData(new LMSData(array('player', 'count'), '?'));
+        if ($ret === false)
+            return false;
         return (int) $players;
     }
 
     public function CreateAllPlayer()
     {
         $players = $this->GetNumberOfPlayers();
+        if ($players === false)
+            return false;
         $DevicesIDs = IPS_GetInstanceListByModuleID("{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}");
         $CreatedPlayers = array();
         foreach ($DevicesIDs as $Device)
@@ -192,8 +203,12 @@ class LMSSplitter extends IPSModule
         }
         for ($i = 0; $i < $players; $i++)
         {
-            $player = rawurldecode($this->SendLMSData(new LMSData(array('player', 'id', $i), '?')));
-            if (in_array($player, $KnownDevices))
+            $player = $this->SendLMSData(new LMSData(array('player', 'id', $i), '?'));
+            if ($player === false)
+                continue;
+            $playermac = rawurldecode($player);
+
+            if (in_array($playermac, $KnownDevices))
                 continue;
             $NewDevice = IPS_CreateInstance("{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}");
             $playerName = $this->SendLMSData(new LMSData(array('player', 'name', $i), '?'));
@@ -203,7 +218,7 @@ class LMSSplitter extends IPSModule
                 @IPS_DisconnectInstance($NewDevice);
                 IPS_ConnectInstance($NewDevice, $this->InstanceID);
             }
-            IPS_SetProperty($NewDevice, 'Address', $player);
+            IPS_SetProperty($NewDevice, 'Address', $playermac);
             IPS_ApplyChanges($NewDevice);
             $CreatedPlayers[] = $NewDevice;
         }
@@ -219,6 +234,11 @@ class LMSSplitter extends IPSModule
         }
         $ret = $this->SendLMSData(new LMSData(array('players', (string) $Index, '1')));
 //        $LSQEvent = new LSQTaggingData($ret, true);
+        if ($ret === false)
+        {
+            trigger_error("Error read player info.", E_USER_NOTICE);
+            return false;
+        }
         $Data = new LMSResponse($ret);
         $LSQEvent = array();
         foreach ($Data->Data as $Part)
@@ -248,11 +268,19 @@ class LMSSplitter extends IPSModule
 
     public function GetLibaryInfo()
     {
-        $genres = intval($this->SendLMSData(new LMSData(array('info', 'total', 'genres'), '?')));
-        $artists = intval($this->SendLMSData(new LMSData(array('info', 'total', 'artists'), '?')));
-        $albums = intval($this->SendLMSData(new LMSData(array('info', 'total', 'albums'), '?')));
-        $songs = intval($this->SendLMSData(new LMSData(array('info', 'total', 'songs'), '?')));
-        $ret = array('Genres' => $genres, 'Artists' => $artists, 'Albums' => $albums, 'Songs' => $songs);
+        $genres = $this->SendLMSData(new LMSData(array('info', 'total', 'genres'), '?'));
+        if ($genres === false)
+            return false;
+        $artists = $this->SendLMSData(new LMSData(array('info', 'total', 'artists'), '?'));
+        if ($artists === false)
+            return false;
+        $albums = $this->SendLMSData(new LMSData(array('info', 'total', 'albums'), '?'));
+        if ($albums === false)
+            return false;
+        $songs = $this->SendLMSData(new LMSData(array('info', 'total', 'songs'), '?'));
+        if ($songs === false)
+            return false;
+        $ret = array('Genres' => intval($genres), 'Artists' => intval($artists), 'Albums' => intval($albums), 'Songs' => intval($songs));
         return $ret;
     }
 
@@ -264,7 +292,14 @@ class LMSSplitter extends IPSModule
 
     public function GetSongInfoByFileID(integer $FileID)
     {
+        if (!is_int($FileID))
+        {
+            trigger_error("FileID must be integer.", E_USER_NOTICE);
+            return false;
+        }
         $Data = $this->SendLMSData(new LMSData(array('songinfo', '0', '20'), array('track_id:' . $FileID, 'tags:gladiqrRtueJINpsy')));
+        if ($Data === false)
+            return FALSE;
         $SongInfo = new LSMSongInfo($Data);
         $Song = $SongInfo->GetSong();
         if (is_null($Song))
@@ -277,7 +312,14 @@ class LMSSplitter extends IPSModule
 
     public function GetSongInfoByFileURL(string $FileURL)
     {
+        if (!is_string($FileURL))
+        {
+            trigger_error("FileURL must be string.", E_USER_NOTICE);
+            return false;
+        }
         $Data = $this->SendLMSData(new LMSData(array('songinfo', '0', '20'), array('url:' . rawurlencode($FileURL), 'tags:gladiqrRtueJINpsy')));
+        if ($Data === false)
+            return FALSE;
         $SongInfo = new LSMSongInfo($Data);
         $Song = $SongInfo->GetSong();
         if (count($Song) == 1)
@@ -291,7 +333,7 @@ class LMSSplitter extends IPSModule
     public function GetSyncGroups()
     {
         $ret = $this->SendLMSData(new LMSData('syncgroups', '?'));
-        if ($ret === true)
+        if (is_bool($ret))
             return false;
 
         $Data = new LMSTaggingData($ret);
@@ -316,7 +358,14 @@ class LMSSplitter extends IPSModule
 //
     public function CreatePlaylist(string $Name) // ToDo antwort zerlegen
     {
+        if (!is_string($Name))
+        {
+            trigger_error("Name must be string.", E_USER_NOTICE);
+            return false;
+        }
         $raw = $this->SendLMSData(new LMSData(array('playlists', 'new'), 'name:' . $Name));
+        if ($raw === false)
+            return false;
         $Data = new LMSTaggingData($raw);
         if (property_exists($Data, 'playlist_id'))
         {
@@ -338,6 +387,8 @@ class LMSSplitter extends IPSModule
             return false;
         }
         $raw = $this->SendLMSData(new LMSData(array('playlists', 'delete'), 'playlist_id:' . $PlayListId));
+        if ($raw === false)
+            return false;
         $Data = new LMSTaggingData($raw);
         if (property_exists($Data, 'playlist_id'))
         {
@@ -384,11 +435,18 @@ class LMSSplitter extends IPSModule
     public function GetPlaylists()
     {
         $ret = $this->SendLMSData(new LMSData('playlists', array(0, 10000, 'tags:u')));
+        if ($ret === false)
+            return false;
         $SongInfo = new LSMSongInfo($ret);
         $Playlists = $SongInfo->GetAllSongs();
         foreach ($Playlists as $Key => $Playlist)
         {
-            $raw = LMS_SendRaw($this->InstanceID, array('playlists', 'tracks'), array(0, 10000, 'playlist_id:' . $Playlist['Id'], 'tags:d'), true);
+            $raw = @$this->SendLMSData(new LMSData(array('playlists', 'tracks'), array(0, 10000, 'playlist_id:' . $Playlist['Id'], 'tags:d'), true));
+            if ($raw === false)
+            {
+                trigger_error("Error read Playlist " . $Playlist['Id'] . ".", E_USER_NOTICE);
+                continue;
+            }
             $SongInfo = new LSMSongInfo($raw);
             $Playlists[$Key]['Tracks'] = $SongInfo->CountAllSongs();
             $Playlists[$Key]['Duration'] = $SongInfo->GetTotalDuration();
@@ -459,16 +517,9 @@ class LMSSplitter extends IPSModule
         if (($Config === false) or ( !is_array($Config)))
             trigger_error('Error on read Playlistconfig-Script', E_USER_NOTICE);
 
-        try
-        {
-            $Data = $this->GetPlaylists();
-        }
-        catch (Exception $exc)
-        {
-            trigger_error($exc->getMessage(), $exc->getCode());
-            trigger_error('Error on read Playlist', E_USER_NOTICE);
+        $Data = $this->GetPlaylists();
+        if ($Data === false)
             return false;
-        }
         $HTMLData = $this->GetTableHeader($Config);
         $pos = 0;
 //          $CurrentTrack = GetValueInteger($this->GetIDForIdent('Index'));
@@ -502,7 +553,7 @@ class LMSSplitter extends IPSModule
     {
 //	$felder = array('Icon'=>'Typ', 'Date'=>'Datum', 'Name'=>'Name', 'Caller'=>'Rufnummer', 'Device'=>'Nebenstelle', 'Called'=>'Eigene Rufnummer', 'Duration'=>'Dauer','AB'=>'Nachricht');
         // Kopf der Tabelle erzeugen
-        $html = "<table bgcolor='#000000'><body scroll=no><body bgcolor='#000000'><table style=" . $Config['Style']['T'] . '">' . PHP_EOL;
+        $html = '<table style="' . $Config['Style']['T'] . '">' . PHP_EOL;
         $html .= '<colgroup>' . PHP_EOL;
         foreach ($Config['Spalten'] as $Index => $Value)
         {
@@ -557,7 +608,6 @@ class LMSSplitter extends IPSModule
     private function CreateWebHookScript()
     {
         $Script = '<?
-            var_dump($_GET);
             $PlayerSelect = IPS_GetObjectIDByIdent("PlayerSelect",IPS_GetParent($_IPS["SELF"]));
             $PlayerID = GetValueInteger($PlayerSelect);
             if ($PlayerID == -1)
@@ -872,97 +922,108 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
 
     private function SendLMSData(LMSData $LMSData)
     {
-        $ParentID = $this->GetParent();
-        if ($ParentID === false)
-            throw new Exception('Instance has no parent.', E_USER_NOTICE);
-        else
-        if (!$this->HasActiveParent($ParentID))
-            throw new Exception('Instance has no active parent.', E_USER_NOTICE);
-        if ($LMSData->needResponse)
+        try
         {
-//Semaphore setzen für Sende-Routine
-            if (!$this->lock("LMSData"))
+
+
+
+            $ParentID = $this->GetParent();
+            if ($ParentID === false)
+                throw new Exception('Instance has no parent.', E_USER_NOTICE);
+            else
+            if (!$this->HasActiveParent($ParentID))
+                throw new Exception('Instance has no active parent.', E_USER_NOTICE);
+            if ($LMSData->needResponse)
             {
-                throw new Exception("Can not send to LMS", E_USER_NOTICE);
-            }
+//Semaphore setzen für Sende-Routine
+                if (!$this->lock("LMSData"))
+                {
+                    throw new Exception("Can not send to LMS", E_USER_NOTICE);
+                }
 
 // Noch Umbauen wie das Device ?!?!
-            /*            if ($LMSData->Typ == LMSData::GetData)
-              {
-              $WaitData = substr($LMSData->Data, 0, -2);
-              }
-              else
-              {
-              $WaitData = $LMSData->Data;
-              } */
+                /*            if ($LMSData->Typ == LMSData::GetData)
+                  {
+                  $WaitData = substr($LMSData->Data, 0, -2);
+                  }
+                  else
+                  {
+                  $WaitData = $LMSData->Data;
+                  } */
 
 // Anfrage für die Warteschleife schreiben
-            if (!$this->SetWaitForResponse($LMSData->Command))
-            {
+                if (!$this->SetWaitForResponse($LMSData->Command))
+                {
 // Konnte Daten nicht in den ResponseBuffer schreiben
 // Lock der Sende-Routine aufheben.
-                $this->unlock("LMSData");
-                throw new Exception("Can not send to LMS, Buffer is locked", E_USER_NOTICE);
-            }
+                    $this->unlock("LMSData");
+                    throw new Exception("Can not send to LMS, Buffer is locked", E_USER_NOTICE);
+                }
 
-            try
-            {
+                try
+                {
 // Senden an Parent
-                $this->SendDataToParent($LMSData);
-            }
-            catch (Exception $exc)
-            {
+                    $this->SendDataToParent($LMSData);
+                }
+                catch (Exception $exc)
+                {
 // Konnte nicht senden
 //Daten in ResponseBuffer löschen
-                $this->ResetWaitForResponse();
+                    $this->ResetWaitForResponse();
+// Lock der Sende-Routine aufheben.
+                    $this->unlock("LMSData");
+                    throw $exc;
+                }
+// Auf Antwort warten....
+                $ret = $this->WaitForResponse();
 // Lock der Sende-Routine aufheben.
                 $this->unlock("LMSData");
-                throw $exc;
-            }
-// Auf Antwort warten....
-            $ret = $this->WaitForResponse();
-// Lock der Sende-Routine aufheben.
-            $this->unlock("LMSData");
 
 
 
-            if ($ret === false) // Response-Warteschleife lief in Timeout
-            {
+                if ($ret === false) // Response-Warteschleife lief in Timeout
+                {
 //  Daten in ResponseBuffer löschen                
-                $this->ResetWaitForResponse();
+                    $this->ResetWaitForResponse();
 // Fehler
-                throw new Exception("No answer from LMS", E_USER_NOTICE);
-            }
+                    throw new Exception("No answer from LMS", E_USER_NOTICE);
+                }
 
 // Rückgabe ist eine Bestätigung von einem Befehl
-            /*            if ($LMSData->Typ == LMSData::SendCommand)
-              {
-              if (trim($LMSData->Data) == trim($ret))
-              return true;
-              else
-              return false;
-              }
-              // Rückgabe ist ein Wert auf eine Anfrage
+                /*            if ($LMSData->Typ == LMSData::SendCommand)
+                  {
+                  if (trim($LMSData->Data) == trim($ret))
+                  return true;
+                  else
+                  return false;
+                  }
+                  // Rückgabe ist ein Wert auf eine Anfrage
 
-              else
-              {
-              // Abschneiden der Anfrage.
-              $ret = str_replace($WaitData, "", $ret);
-              return $ret;
-              } */
-            return $ret;
-        }
+                  else
+                  {
+                  // Abschneiden der Anfrage.
+                  $ret = str_replace($WaitData, "", $ret);
+                  return $ret;
+                  } */
+                return $ret;
+            }
 // ohne Response, also ohne warten raussenden, 
-        else
+            else
+            {
+                try
+                {
+                    $this->SendDataToParent($LMSData);
+                }
+                catch (Exception $exc)
+                {
+                    throw $exc;
+                }
+            }
+        }
+        catch (Exception $exc)
         {
-            try
-            {
-                $this->SendDataToParent($LMSData);
-            }
-            catch (Exception $exc)
-            {
-                throw $exc;
-            }
+            trigger_error($exc->getMessage(), $exc->getCode());
+            return false;
         }
     }
 
