@@ -528,10 +528,18 @@ class LMSSplitter extends IPSModule
             foreach ($Data as $Position => $Line)
             {
                 $Line['Position'] = $Position;
-                if ($Line['Duration'] > 3600)
-                    $Line['Duration'] = @date("H:i:s", $Line['Duration'] - 3600);
-                else
-                    $Line['Duration'] = @date("i:s", $Line['Duration']);
+                if (array_key_exists('Duration', $Line))
+                {
+                    if ($Line['Duration'] > 3600)
+                        $Line['Duration'] = @date("H:i:s", $Line['Duration'] - 3600);
+                    else
+                        $Line['Duration'] = @date("i:s", $Line['Duration']);
+                } else
+                {
+                    $Line['Duration'] = '';
+                }
+                if (!array_key_exists('Tracks', $Line))
+                    $Line['Tracks'] = '';
 
 //          $Line['Play'] = $Line['Position'] == $CurrentTrack ? '<div class="ipsIconArrowRight" is="null"></div>' : '';
 
