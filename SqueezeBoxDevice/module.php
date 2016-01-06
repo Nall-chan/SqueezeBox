@@ -1476,8 +1476,8 @@ if (isset($_GET["Index"]))
                 //  $this->SendLSQData(new LSQData(LSQResponse::duration, '?', false));
                 //  $this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::tracks), '?', false));
                 $this->SetCover();
-                if ($this->SetValueInteger('Index', $currentTrack))
-                    $this->RefreshPlaylist();
+                $this->SetValueInteger('Index', $currentTrack);
+                $this->RefreshPlaylist();
                 break;
             case LSQResponse::newmetadata:
                 $this->SetCover();
