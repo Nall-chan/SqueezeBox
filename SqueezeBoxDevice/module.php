@@ -309,6 +309,9 @@ if (isset($_GET["Index"]))
                 new LSQData(LSQResponse::name, '?', false)
         );
         // Playlist holen
+        $this->SetCover();
+        $this->RefreshPlaylist();
+
         /*        }
           else
           {
@@ -1169,6 +1172,7 @@ if (isset($_GET["Index"]))
         $SongInfo = new LSMSongInfo($Data);
         return $SongInfo->GetAllSongs();
     }
+
 ################## ActionHandler
 
     public function RequestAction($Ident, $Value)
@@ -1498,7 +1502,7 @@ if (isset($_GET["Index"]))
                 break;
             case LSQResponse::load_done:
                 $this->RefreshPlaylist();
-        
+
                 break;
             case LSQResponse::prefset:
                 if ($LSQEvent->Command[0] == 'server')
@@ -1589,7 +1593,7 @@ if (isset($_GET["Index"]))
                 if ($LSQEvent->Command[0] == '-')// and ( $LSQEvent->Command[1] == '1') and ( strpos($Event, "subscribe%3A") > 0))
                 {
 
-                $remote = false;
+                    $remote = false;
                     foreach ($LSQEvent->Value as $Data)
                     {
 //                        $LSQPart = $this->decodeLSQTaggingData($Data, $LSQEvent->isResponse);
@@ -1682,7 +1686,7 @@ if (isset($_GET["Index"]))
                 {
                     $Line['Duration'] = '---';
                 }
-                
+
                 $Line['Play'] = $Line['Position'] == $CurrentTrack ? '<div class="ipsIconArrowRight" is="null"></div>' : '';
 
                 $HTMLData .='<tr style="' . $Config['Style']['BR' . ($Line['Position'] == $CurrentTrack ? 'A' : ($pos % 2 ? 'U' : 'G'))] . '"
@@ -2061,68 +2065,76 @@ LSQ_DisplayPlaylist($_IPS["TARGET"],$Config);
     {
         $this->init();
         // prüfen ob Player connected ?
-        // nur senden wenn connected ODER wir eine connected anfrage senden wollen
-        if ((!$this->Connected) and ( $LSQData->Command <> LSQResponse::connected))
+        try
         {
-            throw new Exception("Device not connected");
-        }
-        $ParentID = $this->GetParent();
-        if (!($ParentID === false))
-        {
-            if (!$this->HasActiveParent($ParentID))
+            // nur senden wenn connected ODER wir eine connected anfrage senden wollen
+            if ((!$this->Connected) and ( $LSQData->Command <> LSQResponse::connected))
+            {
+                throw new Exception("Device not connected");
+            }
+            $ParentID = $this->GetParent();
+            if (!($ParentID === false))
+            {
+                if (!$this->HasActiveParent($ParentID))
+                    return;
+            }
+            else
                 return;
-        }
-        else
-            return;
 
-        if ($LSQData->needResponse)
-        {
-            //Semaphore setzen
-            if (!$this->lock("LSQData"))
+            if ($LSQData->needResponse)
             {
-                throw new Exception("Can not send to LMS-Splitter");
-            }
-            // Anfrage f??r die Warteschleife schreiben
-            if (!$this->SetWaitForResponse($LSQData->Command))
-            {
+                //Semaphore setzen
+                if (!$this->lock("LSQData"))
+                {
+                    throw new Exception("Can not send to LMS-Splitter");
+                }
+                // Anfrage f??r die Warteschleife schreiben
+                if (!$this->SetWaitForResponse($LSQData->Command))
+                {
+                    $this->unlock("LSQData");
+                    throw new Exception("Can not send to LMS-Splitter");
+                }
+                try
+                {
+                    $this->SendDataToParent($LSQData);
+                }
+                catch (Exception $exc)
+                {
+                    //  Daten in Warteschleife l?¶schen
+                    $this->ResetWaitForResponse();
+                    $this->unlock("LSQData");
+                    throw $exc;
+                }
+                // Auf Antwort warten....
+                $ret = $this->WaitForResponse();
+                // SendeLock  velassen
                 $this->unlock("LSQData");
-                throw new Exception("Can not send to LMS-Splitter");
-            }
-            try
-            {
-                $this->SendDataToParent($LSQData);
-            }
-            catch (Exception $exc)
-            {
-                //  Daten in Warteschleife l?¶schen
-                $this->ResetWaitForResponse();
-                $this->unlock("LSQData");
-                throw $exc;
-            }
-            // Auf Antwort warten....
-            $ret = $this->WaitForResponse();
-            // SendeLock  velassen
-            $this->unlock("LSQData");
 
-            if ($ret === false) // Warteschleife lief in Timeout
-            {
-                //  Daten in Warteschleife l?¶schen                
-                $this->ResetWaitForResponse();
-                // Fehler
-                throw new Exception("No answer from LMS");
+                if ($ret === false) // Warteschleife lief in Timeout
+                {
+                    //  Daten in Warteschleife l?¶schen                
+                    $this->ResetWaitForResponse();
+                    // Fehler
+                    throw new Exception("No answer from LMS");
+                }
+                return $ret;
             }
-            return $ret;
+            else
+            {
+                try
+                {
+                    $this->SendDataToParent($LSQData);
+                }
+                catch (Exception $exc)
+                {
+                    throw $exc;
+                }
+            }
         }
-        else
+        catch (Exception $exc)
         {
-            try
-            {
-                $this->SendDataToParent($LSQData);
-            }
-            catch (Exception $exc)
-            {
-                throw $exc;
-            }
+            trigger_error($exc->getMessage(), E_USER_NOTICE);
+            return false;
         }
     }
 
