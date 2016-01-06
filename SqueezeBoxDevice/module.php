@@ -265,9 +265,9 @@ if (isset($_GET["Index"]))
           if ($this->Connected)
           { */
 
-        $this->SendLSQData(
-                new LSQData(LSQResponse::listen, '1')//, false)
-        );
+        if ($this->SendLSQData(new LSQData(LSQResponse::listen, '1')) <> '1')
+            return false;
+
         $this->SendLSQData(
                 new LSQData(LSQResponse::power, '?', false)
         );
@@ -1909,7 +1909,8 @@ LSQ_DisplayPlaylist($_IPS["TARGET"],$Config);
         $this->Connected = $Status;
         $this->Init(false);
         if ($Status === true)
-            $this->RequestAllState();
+            LSQ_RequestAllState($this->InstanceID);
+//            $this->RequestAllState();
     }
 
     private function Init($throwException = true)
