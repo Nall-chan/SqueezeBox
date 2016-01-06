@@ -17,6 +17,13 @@ class LMSSplitter extends IPSModule
         $ID = $this->RegisterScript('PlaylistDesign', 'Playlist Config', $this->CreatePlaylistConfigScript(), -7);
         IPS_SetHidden($ID, true);
         $this->RegisterPropertyInteger("Playlistconfig", $ID);
+        $this->RegisterTimer('KeepAlive', 0, 'LMS_KeepAlive($_IPS["TARGET"]);');
+    }
+
+    public function Destroy()
+    {
+        //Never delete this line!
+        parent::Destroy();
     }
 
     public function ApplyChanges()
@@ -114,10 +121,9 @@ class LMSSplitter extends IPSModule
                     $this->SetStatus($NewState);
                     if ($NewState == IS_ACTIVE)
                     {
-
-                        $Data = new LMSData("listen", "1");
                         try
                         {
+                            $Data = new LMSData("listen", "1");
                             $this->SendLMSData($Data);
                             $this->RefreshPlayerList();
                             $Data = new LMSData("rescan", "?", false);
@@ -141,7 +147,7 @@ class LMSSplitter extends IPSModule
                     break;
                 case KR_INIT:
                     if ($NewState == IS_ACTIVE)
-                        $this->SetStatus(203);
+                        $this->SetStatus(IS_EBASE+3);
                     else
                         $this->SetStatus($NewState);
                     break;
@@ -156,6 +162,23 @@ class LMSSplitter extends IPSModule
      * This function will be available automatically after the module is imported with the module control.
      * Using the custom prefix this function will be callable from PHP and JSON-RPC through:
      */
+
+    public function KeepAlive()
+    {
+        try
+        {
+            $Data = new LMSData("listen", "1");
+            $this->SendLMSData($Data);
+            $this->RefreshPlayerList();
+            $Data = new LMSData("rescan", "?", false);
+            $this->SendLMSData($Data);
+        }
+        catch (Exception $exc)
+        {
+            trigger_error($exc->getMessage(), $exc->getCode());
+            return false;
+        }
+    }
 
     public function SendRaw($Command, $Value, $needResponse)
     {
@@ -995,6 +1018,7 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
 //  Daten in ResponseBuffer löschen                
                     $this->ResetWaitForResponse();
 // Fehler
+                    $this->SetStatus(IS_EBASE+3);
                     throw new Exception("No answer from LMS", E_USER_NOTICE);
                 }
 
@@ -1220,7 +1244,13 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
     protected function SetStatus($InstanceStatus)
     {
         if ($InstanceStatus <> IPS_GetInstance($this->InstanceID)['InstanceStatus'])
+        {
             parent::SetStatus($InstanceStatus);
+            if ($InstanceStatus == IS_ACTIVE)
+                $this->SetTimerInterval('KeepAlive', 3600000);
+            else
+                $this->SetTimerInterval('KeepAlive', 0);
+        }
     }
 
     //Remove on next Symcon update
