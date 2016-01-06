@@ -966,7 +966,7 @@ if (isset($_GET["Index"]))
     public function SavePlaylist(string $Name)
     {
         $this->Init();
-        $raw = $this->SendLSQData(new LSQData(array(LSQResponse::playlist, 'save'), array($Name, 'silent:1')));
+        $raw = $this->SendLSQData(new LSQData(array(LSQResponse::playlist, 'save'), array(rawurlencode($Name), 'silent:1')));
         $ret = explode(' ', $raw);
         return (rawurldecode($ret[0]) == $Name);
     }
@@ -998,7 +998,7 @@ if (isset($_GET["Index"]))
     public function LoadPlaylist(string $Name)
     {
         $this->Init();
-        $raw = $this->SendLSQData(new LSQData(array(LSQResponse::playlist, 'load'), array($Name, 'noplay:1')));
+        $raw = $this->SendLSQData(new LSQData(array(LSQResponse::playlist, 'load'), array(rawurlencode($Name), 'noplay:1')));
         $ret = rawurldecode(explode(' ', $raw)[0]);
         if (($ret == '/' . $Name) or ( $ret == '\\' . $Name))
             throw new Exception("Playlist not found.");
@@ -1017,7 +1017,7 @@ if (isset($_GET["Index"]))
     public function ResumePlaylist(string $Name)
     {
         $this->Init();
-        $raw = $this->SendLSQData(new LSQData(array(LSQResponse::playlist, 'resume'), array($Name, 'noplay:1')));
+        $raw = $this->SendLSQData(new LSQData(array(LSQResponse::playlist, 'resume'), array(rawurlencode($Name), 'noplay:1')));
         $ret = rawurldecode(explode(' ', $raw)[0]);
         if (($ret == '/' . $Name) or ( $ret == '\\' . $Name))
             throw new Exception("Playlist not found.");
