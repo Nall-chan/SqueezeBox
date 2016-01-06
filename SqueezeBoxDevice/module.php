@@ -259,7 +259,8 @@ if (isset($_GET["Index"]))
      */
     public function RequestAllState()
     {
-        $this->Init();
+        if (!$this->init()) return false;
+
         /*        $this->init();
 
           if ($this->Connected)
@@ -373,7 +374,7 @@ if (isset($_GET["Index"]))
 
     public function RawSend($Command, $Value, $needResponse)
     {
-        $this->Init();
+        if (!$this->init()) return false;
 
         $LSQData = new LSQData($Command, $Value, $needResponse);
         return $this->SendLSQData($LSQData);
@@ -390,7 +391,7 @@ if (isset($_GET["Index"]))
      */
     public function SetName(string $Name)
     {
-        $this->Init();
+        if (!$this->init()) return false;
 
         $ret = rawurldecode($this->SendLSQData(new LSQData(LSQResponse::name, rawurlencode((string) $Name))));
         if ($ret == $Name)
@@ -409,7 +410,8 @@ if (isset($_GET["Index"]))
      */
     public function GetName()
     {
-        $this->Init();
+                if (!$this->init()) return false;
+
 
         $Name = rawurldecode($this->SendLSQData(new LSQData(LSQResponse::name, '?')));
         $this->_NewName($Name);
@@ -522,7 +524,7 @@ if (isset($_GET["Index"]))
      */
     public function PreviousButton()
     {
-        $this->Init();
+        if (!$this->init()) return false;
 
         if ($this->SendLSQData(new LSQData(array('button', 'jump_rew'), '')))
         {
@@ -541,7 +543,7 @@ if (isset($_GET["Index"]))
      */
     public function NextButton()
     {
-        $this->Init();
+        if (!$this->init()) return false;
 
         if ($this->SendLSQData(new LSQData(array('button', 'jump_fwd'), '')))
         {
@@ -559,7 +561,8 @@ if (isset($_GET["Index"]))
      */
     public function Play()
     {
-        $this->Init();
+                if (!$this->init()) return false;
+
 
         if ($this->SendLSQData(new LSQData('play', '')))
         {
@@ -577,7 +580,8 @@ if (isset($_GET["Index"]))
      */
     public function Stop()
     {
-        $this->Init();
+                if (!$this->init()) return false;
+
 
         if ($this->SendLSQData(new LSQData('stop', '')))
         {
@@ -595,7 +599,8 @@ if (isset($_GET["Index"]))
      */
     public function Pause()
     {
-        $this->Init();
+                if (!$this->init()) return false;
+
 
         if ((bool) $this->SendLSQData(new LSQData('pause', '1')))
         {
@@ -615,7 +620,8 @@ if (isset($_GET["Index"]))
      */
     public function SetVolume(integer $Value)
     {
-        $this->Init();
+                if (!$this->init()) return false;
+
 
         if (($Value < 0) or ( $Value > 100))
             throw new Exception("Value invalid.");
@@ -632,7 +638,8 @@ if (isset($_GET["Index"]))
      */
     public function GetVolume()
     {
-        $this->Init();
+                if (!$this->init()) return false;
+
 
         $ret = intval($this->SendLSQData(new LSQData(array('mixer', 'volume'), '?')));
         $this->_NewVolume($ret);
@@ -649,7 +656,8 @@ if (isset($_GET["Index"]))
      */
     public function SetBass(integer $Value)
     {
-        $this->Init();
+                if (!$this->init()) return false;
+
 
         $ret = intval($this->SendLSQData(new LSQData(array('mixer', 'bass'), $Value)));
         $this->SetValueInteger('Bass', $ret);
@@ -664,7 +672,8 @@ if (isset($_GET["Index"]))
      */
     public function GetBass()
     {
-        $this->Init();
+                if (!$this->init()) return false;
+
         $ret = intval($this->SendLSQData(new LSQData(array('mixer', 'bass'), '?')));
         $this->SetValueInteger('Bass', $ret);
         return $ret;
@@ -680,7 +689,8 @@ if (isset($_GET["Index"]))
      */
     public function SetTreble(integer $Value)
     {
-        $this->Init();
+                if (!$this->init()) return false;
+
         $ret = intval($this->SendLSQData(new LSQData(array('mixer', 'treble'), $Value)));
         $this->SetValueInteger('Treble', $ret);
         return ($ret == $Value);
@@ -694,7 +704,8 @@ if (isset($_GET["Index"]))
      */
     public function GetTreble()
     {
-        $this->Init();
+                if (!$this->init()) return false;
+
         $ret = intval($this->SendLSQData(new LSQData(array('mixer', 'treble'), '?')));
         $this->SetValueInteger('Treble', $ret);
         return $ret;
@@ -710,7 +721,8 @@ if (isset($_GET["Index"]))
      */
     public function SetPitch(integer $Value)
     {
-        $this->Init();
+                if (!$this->init()) return false;
+
         $ret = intval($this->SendLSQData(new LSQData(array('mixer', 'pitch'), $Value)));
         $this->SetValueInteger('Pitch', $ret);
         return ($ret == $Value);
@@ -724,7 +736,8 @@ if (isset($_GET["Index"]))
      */
     public function GetPitch()
     {
-        $this->Init();
+                if (!$this->init()) return false;
+
         $ret = intval($this->SendLSQData(new LSQData(array('mixer', 'pitch'), '?')));
         $this->SetValueInteger('Pitch', $ret);
         return $ret;
@@ -742,7 +755,8 @@ if (isset($_GET["Index"]))
      */
     public function SetMute(boolean $Value)
     {
-        $this->Init();
+                if (!$this->init()) return false;
+
         if (!is_bool($Value))
             throw new Exception("Value must boolean.");
         $ret = (bool) $this->SendLSQData(new LSQData(array(LSQResponse::mixer, LSQResponse::muting), intval($Value)));
@@ -760,7 +774,8 @@ if (isset($_GET["Index"]))
      */
     public function GetMute()
     {
-        $this->Init();
+                if (!$this->init()) return false;
+
         $ret = (bool) $this->SendLSQData(new LSQData(array(LSQResponse::mixer, LSQResponse::muting), '?'));
         $this->SetValueBoolean('Mute', $ret);
         return $ret;
@@ -779,7 +794,8 @@ if (isset($_GET["Index"]))
      */
     public function SetRepeat(integer $Value)
     {
-        $this->Init();
+                if (!$this->init()) return false;
+
         if (($Value < 0) or ( $Value > 2))
             throw new Exception("Value must be 0, 1 or 2.");
         $ret = intval($this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::repeat), intval($Value))));
@@ -798,7 +814,8 @@ if (isset($_GET["Index"]))
      */
     public function GetRepeat()
     {
-        $this->Init();
+                if (!$this->init()) return false;
+
         $ret = intval($this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::repeat), '?')));
         $this->SetValueInteger('Repeat', $ret);
         return $ret;
@@ -817,7 +834,8 @@ if (isset($_GET["Index"]))
      */
     public function SetShuffle(integer $Value)
     {
-        $this->Init();
+                if (!$this->init()) return false;
+
         if (($Value < 0) or ( $Value > 2))
             throw new Exception("Value must be 0, 1 or 2.");
         $ret = intval($this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::shuffle), intval($Value))));
@@ -837,7 +855,8 @@ if (isset($_GET["Index"]))
      */
     public function GetShuffle()
     {
-        $this->Init();
+                if (!$this->init()) return false;
+
         $ret = intval($this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::shuffle), '?')));
         $this->SetValueInteger('Shuffle', $ret);
         return $ret;
@@ -854,7 +873,8 @@ if (isset($_GET["Index"]))
      */
     public function SelectPreset(integer $Value)
     {
-        $this->Init();
+                if (!$this->init()) return false;
+
         if (($Value < 1) or ( $Value > 6))
             throw new Exception("Value invalid.");
         return (bool) $this->SendLSQData(new LSQData(array(LSQResponse::button, 'preset_' . intval($Value) . '.single'), ''));
@@ -873,7 +893,8 @@ if (isset($_GET["Index"]))
      */
     public function Power(boolean $Value)
     {
-        $this->Init();
+                if (!$this->init()) return false;
+
         if (!is_bool($Value))
             throw new Exception("Value must boolean.");
         $ret = (bool) $this->SendLSQData(new LSQData(LSQResponse::power, intval($Value)));
@@ -891,7 +912,8 @@ if (isset($_GET["Index"]))
      */
     public function PlayTrack(integer $Index)
     {
-        $this->Init();
+                if (!$this->init()) return false;
+
         $ret = intval($this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::index), intval($Index) - 1))) + 1;
         return ($ret == $Index);
     }
@@ -905,7 +927,8 @@ if (isset($_GET["Index"]))
      */
     public function NextTrack()
     {
-        $this->Init();
+                if (!$this->init()) return false;
+
         $ret = trim(rawurldecode($this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::index), '+1'))));
         return ($ret == "+1");
     }
@@ -919,7 +942,8 @@ if (isset($_GET["Index"]))
      */
     public function PreviousTrack()
     {
-        $this->Init();
+                if (!$this->init()) return false;
+
         $ret = trim(rawurldecode($this->SendLSQData(new LSQData(array(LSQResponse::playlist, LSQResponse::index), '-1'))));
         return ($ret == "-1");
     }
@@ -933,7 +957,8 @@ if (isset($_GET["Index"]))
      */
     public function SetPosition(integer $Value)
     {
-        $this->Init();
+                if (!$this->init()) return false;
+
         if (!is_int($Value))
             throw new Exception("Value must be integer.");
         $ret = intval($this->SendLSQData(new LSQData(LSQResponse::time, $Value)));
@@ -949,7 +974,8 @@ if (isset($_GET["Index"]))
      */
     public function GetPosition()
     {
-        $this->Init();
+                if (!$this->init()) return false;
+
         $ret = intval($this->SendLSQData(new LSQData(LSQResponse::time, '?')));
         return $ret;
     }
@@ -965,7 +991,8 @@ if (isset($_GET["Index"]))
      */
     public function SavePlaylist(string $Name)
     {
-        $this->Init();
+                if (!$this->init()) return false;
+
         $raw = $this->SendLSQData(new LSQData(array(LSQResponse::playlist, 'save'), array(rawurlencode($Name), 'silent:1')));
         $ret = explode(' ', $raw);
         return (rawurldecode($ret[0]) == $Name);
@@ -980,7 +1007,8 @@ if (isset($_GET["Index"]))
      */
     public function SaveTempPlaylist()
     {
-        $this->Init();
+                if (!$this->init()) return false;
+
         $raw = $this->SendLSQData(new LSQData(array(LSQResponse::playlist, 'save'), array((string) $this->InstanceID, 'silent:1')));
         $ret = explode(' ', $raw);
         return (rawurldecode($ret[0]) == (string) $this->InstanceID);
@@ -997,7 +1025,8 @@ if (isset($_GET["Index"]))
      */
     public function LoadPlaylist(string $Name)
     {
-        $this->Init();
+                if (!$this->init()) return false;
+
         $raw = $this->SendLSQData(new LSQData(array(LSQResponse::playlist, 'load'), array(rawurlencode($Name), 'noplay:1')));
         $ret = rawurldecode(explode(' ', $raw)[0]);
         if (($ret == '/' . $Name) or ( $ret == '\\' . $Name))
@@ -1016,7 +1045,8 @@ if (isset($_GET["Index"]))
      */
     public function ResumePlaylist(string $Name)
     {
-        $this->Init();
+                if (!$this->init()) return false;
+
         $raw = $this->SendLSQData(new LSQData(array(LSQResponse::playlist, 'resume'), array(rawurlencode($Name), 'noplay:1')));
         $ret = rawurldecode(explode(' ', $raw)[0]);
         if (($ret == '/' . $Name) or ( $ret == '\\' . $Name))
@@ -1033,7 +1063,8 @@ if (isset($_GET["Index"]))
      */
     public function LoadTempPlaylist()
     {
-        $this->Init();
+                if (!$this->init()) return false;
+
         $raw = $this->SendLSQData(new LSQData(array(LSQResponse::playlist, 'resume'), array((string) $this->InstanceID, 'wipePlaylist:1', 'noplay:1')));
         $ret = explode(' ', $raw);
         return (rawurldecode($ret[0]) == (string) $this->InstanceID);
@@ -1041,7 +1072,8 @@ if (isset($_GET["Index"]))
 
     public function LoadPlaylistByAlbumID(integer $AlbumID)
     {
-        $this->Init();
+                if (!$this->init()) return false;
+
         if (!is_int($AlbumID))
             throw new Exception("AlbumID must be integer.");
 
@@ -1057,7 +1089,8 @@ if (isset($_GET["Index"]))
 
     public function LoadPlaylistByGenreID(integer $GenreID)
     {
-        $this->Init();
+                if (!$this->init()) return false;
+
         if (!is_int($GenreID))
             throw new Exception("GenreID must be integer.");
         $raw = $this->SendLSQData(new LSQData(LSQResponse::playlistcontrol, array('cmd:load', 'genre_id:' . $GenreID)));
@@ -1072,7 +1105,8 @@ if (isset($_GET["Index"]))
 
     public function LoadPlaylistByArtistID(integer $ArtistID)
     {
-        $this->Init();
+                if (!$this->init()) return false;
+
         if (!is_int($ArtistID))
             throw new Exception("ArtistID must be integer.");
 
@@ -1088,7 +1122,8 @@ if (isset($_GET["Index"]))
 
     public function LoadPlaylistByPlaylistID(integer $PlaylistID)
     {
-        $this->Init();
+                if (!$this->init()) return false;
+
         if (!is_int($PlaylistID))
             throw new Exception("PlaylistID must be integer.");
 
@@ -1104,7 +1139,8 @@ if (isset($_GET["Index"]))
 
     public function GetPlaylistInfo()
     {
-        $this->Init();
+                if (!$this->init()) return false;
+
         $raw = $this->SendLSQData(new LSQData(array(LSQResponse::playlist, 'playlistsinfo'), ''));
         if ($raw === true)
             return false;
@@ -1134,7 +1170,8 @@ if (isset($_GET["Index"]))
      */
     public function GetSongInfoByTrackIndex(integer $Index)
     {
-        $this->Init();
+                if (!$this->init()) return false;
+
         if (is_int($Index))
             $Index--;
         else
@@ -1921,35 +1958,43 @@ LSQ_DisplayPlaylist($_IPS["TARGET"],$Config);
         $this->Address = $this->ReadPropertyString("Address");
         $this->Interval = $this->ReadPropertyInteger("Interval");
         $this->Connected = GetValueBoolean($this->GetIDForIdent('Connected'));
-        if ($this->Address == '')
+        try
         {
-            $this->SetStatus(202);
-            if ($throwException)
-                throw new Exception('Address not set.');
+            if ($this->Address == '')
+            {
+                $this->SetStatus(202);
+                if ($throwException)
+                    throw new Exception('Address not set.');
+                else
+                    return false;
+            }
+            $ParentID = $this->GetParent();
+            if ($ParentID === false)
+            {
+                $this->SetStatus(104);
+                if ($throwException)
+                    throw new Exception('Instance has no parent.');
+                else
+                    return false;
+            }
             else
-                return false;
-        }
-        $ParentID = $this->GetParent();
-        if ($ParentID === false)
-        {
-            $this->SetStatus(104);
-            if ($throwException)
-                throw new Exception('Instance has no parent.');
-            else
-                return false;
-        }
-        else
-        if (!$this->HasActiveParent($ParentID))
-        {
-            $this->SetStatus(203);
-            if ($throwException)
-                throw new Exception('Instance has no active parent.');
-            else
-                return false;
-        }
-        $this->SetStatus(102);
+            if (!$this->HasActiveParent($ParentID))
+            {
+                $this->SetStatus(203);
+                if ($throwException)
+                    throw new Exception('Instance has no active parent.');
+                else
+                    return false;
+            }
+            $this->SetStatus(102);
 
-        return true;
+            return true;
+        }
+        catch (Exception $exc)
+        {
+            trigger_error($exc->getMessage(), E_USER_NOTICE);
+            return false;
+        }
     }
 
     private function SetValueBoolean($Ident, $value)
@@ -2064,7 +2109,8 @@ LSQ_DisplayPlaylist($_IPS["TARGET"],$Config);
 
     private function SendLSQData($LSQData)
     {
-        $this->init();
+                if (!$this->init()) return false;
+
         // prüfen ob Player connected ?
         try
         {
