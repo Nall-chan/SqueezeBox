@@ -1465,7 +1465,7 @@ if (isset($_GET["Index"]))
                 else
                 {
                     $title = $LSQEvent->Value;
-                    $currentTrack = 0;
+                    $currentTrack = 1;
                 }
                 $this->SetValueInteger('Status', 2);
                 $this->SetValueString('Title', trim(rawurldecode($title)));
@@ -1498,7 +1498,7 @@ if (isset($_GET["Index"]))
                 break;
             case LSQResponse::load_done:
                 $this->RefreshPlaylist();
-
+        
                 break;
             case LSQResponse::prefset:
                 if ($LSQEvent->Command[0] == 'server')
@@ -1588,10 +1588,16 @@ if (isset($_GET["Index"]))
                 array_shift($LSQEvent->Value);
                 if ($LSQEvent->Command[0] == '-')// and ( $LSQEvent->Command[1] == '1') and ( strpos($Event, "subscribe%3A") > 0))
                 {
+
+                $remote = false;
                     foreach ($LSQEvent->Value as $Data)
                     {
 //                        $LSQPart = $this->decodeLSQTaggingData($Data, $LSQEvent->isResponse);
                         $LSQPart = new LSQTaggingData($Data, $LSQEvent->isResponse);
+                        if ($LSQPart->Command == LSQResponse::remote)
+                            $remote = ($LSQPart->Value == 1);
+//                        if (($LSQPart->Command == LSQResponse::title) and $remote) continue;
+//                        if (($LSQPart->Command == LSQResponse::current_title) and $remote) continue;
                         $this->decodeLSQEvent($LSQPart);
                     }
                 }
@@ -1666,16 +1672,16 @@ if (isset($_GET["Index"]))
             foreach ($Data as $Position => $Line)
             {
                 $Line['Position'] = $Position;
-//                if (array_key_exists('Duration', $Line))
-//                {
+                if (array_key_exists('Duration', $Line))
+                {
                     if ($Line['Duration'] > 3600)
                         $Line['Duration'] = @date("H:i:s", $Line['Duration'] - 3600);
                     else
                         $Line['Duration'] = @date("i:s", $Line['Duration']);
-/*                } else
+                } else
                 {
                     $Line['Duration'] = '---';
-                }*/
+                }
                 
                 $Line['Play'] = $Line['Position'] == $CurrentTrack ? '<div class="ipsIconArrowRight" is="null"></div>' : '';
 
