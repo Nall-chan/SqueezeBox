@@ -1169,7 +1169,6 @@ if (isset($_GET["Index"]))
         $SongInfo = new LSMSongInfo($Data);
         return $SongInfo->GetAllSongs();
     }
-
 ################## ActionHandler
 
     public function RequestAction($Ident, $Value)
@@ -1667,12 +1666,17 @@ if (isset($_GET["Index"]))
             foreach ($Data as $Position => $Line)
             {
                 $Line['Position'] = $Position;
-
-                if ($Line['Duration'] > 3600)
-                    $Line['Duration'] = @date("H:i:s", $Line['Duration'] - 3600);
-                else
-                    $Line['Duration'] = @date("i:s", $Line['Duration']);
-
+//                if (array_key_exists('Duration', $Line))
+//                {
+                    if ($Line['Duration'] > 3600)
+                        $Line['Duration'] = @date("H:i:s", $Line['Duration'] - 3600);
+                    else
+                        $Line['Duration'] = @date("i:s", $Line['Duration']);
+/*                } else
+                {
+                    $Line['Duration'] = '---';
+                }*/
+                
                 $Line['Play'] = $Line['Position'] == $CurrentTrack ? '<div class="ipsIconArrowRight" is="null"></div>' : '';
 
                 $HTMLData .='<tr style="' . $Config['Style']['BR' . ($Line['Position'] == $CurrentTrack ? 'A' : ($pos % 2 ? 'U' : 'G'))] . '"
