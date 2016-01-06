@@ -386,7 +386,7 @@ class LMSSplitter extends IPSModule
             trigger_error("Name must be string.", E_USER_NOTICE);
             return false;
         }
-        $raw = $this->SendLMSData(new LMSData(array('playlists', 'new'), 'name:' . $Name));
+        $raw = $this->SendLMSData(new LMSData(array('playlists', 'new'), 'name:' . rawurlencode($Name)));
         if ($raw === false)
             return false;
         $Data = new LMSTaggingData($raw);
@@ -427,7 +427,7 @@ class LMSSplitter extends IPSModule
 //
     public function AddFileToPlaylist(integer $PlayListId, string $SongUrl, integer $Track = null)
     {
-        $raw = $this->SendLMSData(new LMSData(array('playlists', 'edit'), array('cmd:add', 'playlist_id:' . $PlayListId, 'url:' . $SongUrl)));
+        $raw = $this->SendLMSData(new LMSData(array('playlists', 'edit'), array('cmd:add', 'playlist_id:' . $PlayListId, 'url:' . rawurlencode($SongUrl))));
         $Data = new LMSTaggingData($raw);
         if (property_exists($Data, 'url'))
         {
