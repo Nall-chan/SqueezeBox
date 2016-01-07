@@ -598,7 +598,7 @@ class LMSSplitter extends IPSModule
         $html .= '<tr style="' . $Config['Style']['HR'] . '">';
         foreach ($Config['Spalten'] as $Index => $Value)
         {
-            $html .= '<th style="color:#ffffff; ' . $Config['Style']['HF' . $Index] . '">' . $Value . '</th>';
+            $html .= '<th style="' . $Config['Style']['HF' . $Index] . '">' . $Value . '</th>';
         }
         $html .= '</tr>' . PHP_EOL;
         $html .= '</thead>' . PHP_EOL;
@@ -709,13 +709,13 @@ $Config["Style"] = array(
     // <tr>-Tag im thead-Bereich:
     "HR"   => "",
     // <th>-Tag Feld Id:
-    "HFId"  => "width:35px; align:left;",
+    "HFId"  => "color:#ffffff; width:35px; align:left;",
     // <th>-Tag Feld Playlist:
-    "HFPlaylist"  => "width:35px; align:left;",
+    "HFPlaylist"  => "color:#ffffff; width:35px; align:left;",
     // <th>-Tag Feld Tracks:
-    "HFTracks"  => "width:35px; align:left;",
+    "HFTracks"  => "color:#ffffff; width:35px; align:left;",
     // <th>-Tag Feld Duration:
-    "HFDuration"  => "width:35px; align:left;",
+    "HFDuration"  => "color:#ffffff; width:35px; align:left;",
     // <tbody>-Tag:
     "B"    => "",
     // <tr>-Tag:
