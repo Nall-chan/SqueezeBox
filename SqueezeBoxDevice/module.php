@@ -1,4 +1,4 @@
-t<?
+<?
 
 require_once(__DIR__ . "/../SqueezeBoxClass.php");  // diverse Klassen
 
