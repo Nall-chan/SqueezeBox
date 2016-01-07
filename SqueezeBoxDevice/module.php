@@ -59,7 +59,7 @@ class SqueezeboxDevice extends IPSModule
                         //Länge muss 12 sein, sonst löschen
                         if (strlen($Address) == 12)
                         {
-                            $Address = implode(":", str_split($Address, 2));
+                            $Address = strtolower(implode(":", str_split($Address, 2)));
                             $this->SetStatus(102);
                             // STATUS config OK
                         }
@@ -78,7 +78,7 @@ class SqueezeboxDevice extends IPSModule
                         if (strlen($Address) == 17)
                         {
                             //- gegen : ersetzen                    
-                            $Address = str_replace('-', ':', $Address);
+                            $Address = strtolower(str_replace('-', ':', $Address));
                             $this->SetStatus(102);
                             // STATUS config OK
                         }
@@ -106,6 +106,14 @@ class SqueezeboxDevice extends IPSModule
                         IPS_SetProperty($this->InstanceID, 'Address', $Address);
                         IPS_ApplyChanges($this->InstanceID);
                         return;
+                    } else {
+                        if ($Address <> strtolower($Address))
+                        {
+                        IPS_SetProperty($this->InstanceID, 'Address', strtolower($Address));
+                        IPS_ApplyChanges($this->InstanceID);
+                        return;
+                            
+                        }
                     }
                 }
             }
