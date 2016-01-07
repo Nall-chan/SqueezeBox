@@ -1,4 +1,4 @@
-<?
+t<?
 
 require_once(__DIR__ . "/../SqueezeBoxClass.php");  // diverse Klassen
 
@@ -1811,9 +1811,8 @@ if (isset($_GET["Index"]))
 
     private function GetTableHeader($Config)
     {
-//	$felder = array('Icon'=>'Typ', 'Date'=>'Datum', 'Name'=>'Name', 'Caller'=>'Rufnummer', 'Device'=>'Nebenstelle', 'Called'=>'Eigene Rufnummer', 'Duration'=>'Dauer','AB'=>'Nachricht');
         // Kopf der Tabelle erzeugen
-        $html = "<table style=" . $Config['Style']['T'] . '">' . PHP_EOL;
+        $html = '<table style="' . $Config['Style']['T'] . '">' . PHP_EOL;
         $html .= '<colgroup>' . PHP_EOL;
         foreach ($Config['Spalten'] as $Index => $Value)
         {

@@ -585,7 +585,6 @@ class LMSSplitter extends IPSModule
 
     private function GetTableHeader($Config)
     {
-//	$felder = array('Icon'=>'Typ', 'Date'=>'Datum', 'Name'=>'Name', 'Caller'=>'Rufnummer', 'Device'=>'Nebenstelle', 'Called'=>'Eigene Rufnummer', 'Duration'=>'Dauer','AB'=>'Nachricht');
         // Kopf der Tabelle erzeugen
         $html = '<table style="' . $Config['Style']['T'] . '">' . PHP_EOL;
         $html .= '<colgroup>' . PHP_EOL;
@@ -702,7 +701,7 @@ $Config["Breite"] = array(
 );
 // Style Informationen der Tabelle
 $Config["Style"] = array(
-    // <table>-Tag:
+    // <table>-Tag:;
     "T"    => "margin:0 auto; font-size:0.8em;",
     // <thead>-Tag:
     "H"    => "",
