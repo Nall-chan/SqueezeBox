@@ -1994,7 +1994,7 @@ LSQ_DisplayPlaylist($_IPS["TARGET"],$Config);
         $this->Connected = $Status;
         $this->Init(false);
         if ($Status === true)
-            LSQ_RequestAllState($this->InstanceID);
+            IPS_RunScriptText("<?\nLSQ_RequestAllState(" . $this->InstanceID . ");");
 //            $this->RequestAllState();
     }
 
