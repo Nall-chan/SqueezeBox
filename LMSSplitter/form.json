@@ -27,6 +27,25 @@
                     "caption": "Playlist Config"
                 }
             ],
+    "actions":
+            [
+                {
+                    "type": "Button",
+                    "label": "Rescan",
+                    "onClick": "LMS_Rescan($id);"
+                },
+                {
+                    "type": "Switch",
+                    "label": "Aktive Player in IPS erzeugen",
+                    "onClick": "LMS_CreateAllPlayer($id);"
+                },
+                {
+                    "type": "Switch",
+                    "label": "Lade Server Playlisten",
+                    "onClick": "LMS_RefreshPlayerList($id);"
+                }
+
+            ],
     "status":
             [
                 {

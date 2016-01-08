@@ -197,7 +197,7 @@ class SqueezeboxDevice extends IPSModule
         $this->EnableAction("Position2");
         $this->RegisterVariableString("Playlist", "Playlist", "~HTMLBox", 29);
 
-        $this->RegisterVariableInteger("Signalstrength", utf8_encode("Signalstärke"), "Intensity.Squeezebox", 30);
+        $this->RegisterVariableInteger("Signalstrength", "Signalstärke", "Intensity.Squeezebox", 30);
         $this->RegisterVariableInteger("SleepTimer", "Einschlaftimer", "SleepTimer.Squeezebox", 31);
         $this->EnableAction("SleepTimer");
         $this->RegisterVariableString("SleepTimeout", "Ausschalten in ", "", 32);
@@ -1332,7 +1332,7 @@ if (isset($_GET["Index"]))
         }
         if ($result == false)
         {
-            throw new Exception("Error on RequestAction for ident " . $Ident);
+            trigger_error("Error on RequestAction",E_USER_NOTICE);
         }
     }
 
