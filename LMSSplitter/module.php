@@ -147,7 +147,7 @@ class LMSSplitter extends IPSModule
                     break;
                 case KR_INIT:
                     if ($NewState == IS_ACTIVE)
-                        $this->SetStatus(IS_EBASE+3);
+                        $this->SetStatus(IS_EBASE + 3);
                     else
                         $this->SetStatus($NewState);
                     break;
@@ -881,7 +881,7 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
                 { //Info Daten von Server verarbeiten
 // TODO
                     if (!$this->DecodeLMSEvent($Data))
-                        IPS_LogMessage('LMSEvent', print_r($Data, 1));
+                        ; //IPS_LogMessage('LMSEvent', print_r($Data, 1));
                 }
                 else
                 {
@@ -1017,7 +1017,7 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
 //  Daten in ResponseBuffer löschen                
                     $this->ResetWaitForResponse();
 // Fehler
-                    $this->SetStatus(IS_EBASE+3);
+                    $this->SetStatus(IS_EBASE + 3);
                     throw new Exception("No answer from LMS", E_USER_NOTICE);
                 }
 
