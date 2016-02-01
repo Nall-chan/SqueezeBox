@@ -92,7 +92,7 @@ class LMSSplitter extends IPSModule
 
                 @IPS_ApplyChanges($ParentID);
                 if (!$this->HasActiveParent($ParentID) and $Open)
-                $NewState = IS_EBASE + 3;
+                    $NewState = IS_EBASE + 3;
             }
         }
         else
@@ -146,16 +146,16 @@ class LMSSplitter extends IPSModule
             switch (IPS_GetKernelRunlevel())
             {
                 case KR_READY:
-            IPS_LogMessage('LMS', '31');
+                    IPS_LogMessage('LMS', '31');
 
                     $hasNewState = $this->SetStatus($NewState);
-            IPS_LogMessage('LMS hasnewstate', print_r($hasNewState,1));
-            IPS_LogMessage('LMS NewState', print_r($NewState,1));
-                    
-                    if (($NewState == IS_ACTIVE) and ($hasNewState===true))
+                    IPS_LogMessage('LMS hasnewstate', print_r($hasNewState, 1));
+                    IPS_LogMessage('LMS NewState', print_r($NewState, 1));
+
+                    if (($NewState == IS_ACTIVE) and $hasNewState === true)
                     {
-            IPS_LogMessage('LMS', '32');
-                        
+                        IPS_LogMessage('LMS', '32');
+
                         try
                         {
                             $Data = new LMSData("listen", "1");
@@ -181,8 +181,8 @@ class LMSSplitter extends IPSModule
                     }
                     break;
                 case KR_INIT:
-            IPS_LogMessage('LMS', '33');
-                    
+                    IPS_LogMessage('LMS', '33');
+
                     if ($NewState == IS_ACTIVE)
                         $this->SetStatus(IS_EBASE + 3);
                     else
@@ -193,7 +193,7 @@ class LMSSplitter extends IPSModule
         else
         {
             IPS_LogMessage('LMS', '40');
-            
+
             $this->SetStatus($NewState);
         }
     }
@@ -1283,20 +1283,31 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
 
     protected function SetStatus($InstanceStatus)
     {
+                        IPS_LogMessage('LMS new', $InstanceStatus);
+        
         if (IPS_GetKernelRunlevel() == KR_READY)
             $OldStatus = IPS_GetInstance($this->InstanceID)['InstanceStatus'];
         else
             $OldStatus = -1;
+
+                                IPS_LogMessage('LMS new', $OldStatus);
+
+                                
         if ($InstanceStatus <> $OldStatus)
         {
             parent::SetStatus($InstanceStatus);
             if ($InstanceStatus == IS_ACTIVE)
+            {
                 $this->SetTimerInterval('KeepAlive', 3600000);
+            }
             else
+            {
                 $this->SetTimerInterval('KeepAlive', 0);
+            }
             return true;
         }
-        return false;
+        else
+            return false;
     }
 
     //Remove on next Symcon update
