@@ -996,15 +996,24 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
     {
         try
         {
-
-
+            if ($this->ReadPropertyBoolean('Open') === false)
+            {
+                $this->SetStatus(IS_INACTIVE);
+                throw new Exception('Instance inactiv.', E_USER_NOTICE);
+            }
 
             $ParentID = $this->GetParent();
             if ($ParentID === false)
+            {
+                $this->SetStatus(IS_INACTIVE);
                 throw new Exception('Instance has no parent.', E_USER_NOTICE);
+            }
             else
             if (!$this->HasActiveParent($ParentID))
+            {
+                $this->SetStatus(IS_EBASE);
                 throw new Exception('Instance has no active parent.', E_USER_NOTICE);
+            }
             if ($LMSData->needResponse)
             {
 //Semaphore setzen für Sende-Routine
@@ -1223,11 +1232,11 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
             $parent = IPS_GetInstance($ParentID);
             if ($parent['InstanceStatus'] == 102)
             {
-                $this->SetStatus(102);
+//                $this->SetStatus(102);
                 return true;
             }
         }
-        $this->SetStatus(203);
+//        $this->SetStatus(203);
         return false;
     }
 
@@ -1283,16 +1292,16 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
 
     protected function SetStatus($InstanceStatus)
     {
-                        IPS_LogMessage('LMS new', $InstanceStatus);
-        
+        IPS_LogMessage('LMS new', $InstanceStatus);
+
         if (IPS_GetKernelRunlevel() == KR_READY)
             $OldStatus = IPS_GetInstance($this->InstanceID)['InstanceStatus'];
         else
             $OldStatus = -1;
 
-                                IPS_LogMessage('LMS new', $OldStatus);
+        IPS_LogMessage('LMS old', $OldStatus);
 
-                                
+
         if ($InstanceStatus <> $OldStatus)
         {
             parent::SetStatus($InstanceStatus);
