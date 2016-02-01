@@ -149,6 +149,9 @@ class LMSSplitter extends IPSModule
             IPS_LogMessage('LMS', '31');
 
                     $hasNewState = $this->SetStatus($NewState);
+            IPS_LogMessage('LMS hasnewstate', print_r($hasNewState,1));
+            IPS_LogMessage('LMS NewState', print_r($NewState,1));
+                    
                     if (($NewState == IS_ACTIVE) and ($hasNewState===true))
                     {
             IPS_LogMessage('LMS', '32');
