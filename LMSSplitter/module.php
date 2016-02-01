@@ -75,8 +75,6 @@ class LMSSplitter extends IPSModule
                 $Open = @Sys_Ping($this->ReadPropertyString('Host'), 500);
                 if (!$Open)
                 {
-                    //IPS_LogMessage('Kodi', '10');
-
                     $NewState = IS_EBASE + 3;
                 }
             }
@@ -88,8 +86,6 @@ class LMSSplitter extends IPSModule
 
             if (IPS_HasChanges($ParentID))
             {
-                //IPS_LogMessage('Kodi', '12');
-
                 @IPS_ApplyChanges($ParentID);
                 if (!$this->HasActiveParent($ParentID) and $Open)
                     $NewState = IS_EBASE + 3;
@@ -142,20 +138,12 @@ class LMSSplitter extends IPSModule
         if (($Open)
                 and ( $this->HasActiveParent($ParentID)))
         {
-            IPS_LogMessage('LMS', '30');
             switch (IPS_GetKernelRunlevel())
             {
                 case KR_READY:
-                    IPS_LogMessage('LMS', '31');
-
                     $hasNewState = $this->SetStatus($NewState);
-                    IPS_LogMessage('LMS hasnewstate', print_r($hasNewState, 1));
-                    IPS_LogMessage('LMS NewState', print_r($NewState, 1));
-
                     if (($NewState == IS_ACTIVE) and $hasNewState === true)
                     {
-                        IPS_LogMessage('LMS', '32');
-
                         try
                         {
                             $Data = new LMSData("listen", "1");
@@ -181,7 +169,6 @@ class LMSSplitter extends IPSModule
                     }
                     break;
                 case KR_INIT:
-                    IPS_LogMessage('LMS', '33');
 
                     if ($NewState == IS_ACTIVE)
                         $this->SetStatus(IS_EBASE + 3);
@@ -192,7 +179,6 @@ class LMSSplitter extends IPSModule
         }
         else
         {
-            IPS_LogMessage('LMS', '40');
 
             $this->SetStatus($NewState);
         }
@@ -566,7 +552,6 @@ class LMSSplitter extends IPSModule
             $PlayerName = rawurldecode($this->SendLMSData(new LMSData(array('player', 'name', $i), '?')));
             $Assosiation[] = array($i, $PlayerName, "", -1);
         }
-//        IPS_LogMessage('Data', print_r($Assosiation, 1));
         $this->RegisterProfileIntegerEx("PlayerSelect" . $this->InstanceID . ".SqueezeboxServer", "Speaker", "", "", $Assosiation);
         $this->SetValueInteger('PlayerSelect', -2);
     }
@@ -1292,27 +1277,18 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
 
     protected function SetStatus($InstanceStatus)
     {
-        IPS_LogMessage('LMS new', $InstanceStatus);
-
         if (IPS_GetKernelRunlevel() == KR_READY)
             $OldStatus = IPS_GetInstance($this->InstanceID)['InstanceStatus'];
         else
             $OldStatus = -1;
 
-        IPS_LogMessage('LMS old', $OldStatus);
-
-
         if ($InstanceStatus <> $OldStatus)
         {
             parent::SetStatus($InstanceStatus);
             if ($InstanceStatus == IS_ACTIVE)
-            {
                 $this->SetTimerInterval('KeepAlive', 3600000);
-            }
             else
-            {
                 $this->SetTimerInterval('KeepAlive', 0);
-            }
             return true;
         }
         else
