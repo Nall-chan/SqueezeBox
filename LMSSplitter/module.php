@@ -142,12 +142,17 @@ class LMSSplitter extends IPSModule
         if (($Open)
                 and ( $this->HasActiveParent($ParentID)))
         {
+            IPS_LogMessage('LMS', '30');
             switch (IPS_GetKernelRunlevel())
             {
                 case KR_READY:
+            IPS_LogMessage('LMS', '31');
+
                     $hasNewState = $this->SetStatus($NewState);
-                    if (($NewState == IS_ACTIVE) and $hasNewState)
+                    if (($NewState == IS_ACTIVE) and ($hasNewState===true))
                     {
+            IPS_LogMessage('LMS', '32');
+                        
                         try
                         {
                             $Data = new LMSData("listen", "1");
@@ -173,6 +178,8 @@ class LMSSplitter extends IPSModule
                     }
                     break;
                 case KR_INIT:
+            IPS_LogMessage('LMS', '33');
+                    
                     if ($NewState == IS_ACTIVE)
                         $this->SetStatus(IS_EBASE + 3);
                     else
@@ -181,7 +188,11 @@ class LMSSplitter extends IPSModule
             }
         }
         else
+        {
+            IPS_LogMessage('LMS', '40');
+            
             $this->SetStatus($NewState);
+        }
     }
 
 ################## PUBLIC

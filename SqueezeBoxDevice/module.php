@@ -1730,7 +1730,7 @@ if (isset($_GET["Index"]))
         if (isset($this->tempData['Duration']) and isset($this->tempData['Position']))
         {
             $Value = (100 / $this->tempData['Duration']) * $this->tempData['Position'];
-            $this->SetValueInteger('Position2', round($Value));
+            $this->SetValueInteger('Position2', intval(round($Value)));
         }
     }
 
