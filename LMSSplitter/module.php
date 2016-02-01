@@ -91,7 +91,7 @@ class LMSSplitter extends IPSModule
                 //IPS_LogMessage('Kodi', '12');
 
                 @IPS_ApplyChanges($ParentID);
-                if (!$this->HasActiveParent($ParentID))
+                if (!$this->HasActiveParent($ParentID) and $Open)
                 $NewState = IS_EBASE + 3;
             }
         }
