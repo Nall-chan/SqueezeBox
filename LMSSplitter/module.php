@@ -61,21 +61,47 @@ class LMSSplitter extends IPSModule
             if (IPS_GetProperty($ParentID, 'Host') <> $this->ReadPropertyString('Host'))
             {
                 IPS_SetProperty($ParentID, 'Host', $this->ReadPropertyString('Host'));
-                $ChangeParentSetting = true;
+//                $ChangeParentSetting = true;
             }
             if (IPS_GetProperty($ParentID, 'Port') <> $this->ReadPropertyInteger('Port'))
             {
                 IPS_SetProperty($ParentID, 'Port', $this->ReadPropertyInteger('Port'));
-                $ChangeParentSetting = true;
+//                $ChangeParentSetting = true;
             }
             // Keine Verbindung erzwingen wenn Host leer ist, sonst folgt später Exception.
+            if ($Open)
+            {
+
+                $Open = @Sys_Ping($this->ReadPropertyString('Host'), 500);
+                if (!$Open)
+                {
+                    //IPS_LogMessage('Kodi', '10');
+
+                    $NewState = IS_EBASE + 3;
+                }
+            }
             if (IPS_GetProperty($ParentID, 'Open') <> $Open)
             {
                 IPS_SetProperty($ParentID, 'Open', $Open);
-                $ChangeParentSetting = true;
+//                $ChangeParentSetting = true;
             }
-            if ($ChangeParentSetting)
+
+            if (IPS_HasChanges($ParentID))
+            {
+                //IPS_LogMessage('Kodi', '12');
+
                 @IPS_ApplyChanges($ParentID);
+                if (!$this->HasActiveParent($ParentID)
+                $NewState = IS_EBASE + 3;
+            }
+        }
+        else
+        {
+            if ($Open)
+            {
+                $NewState = IS_INACTIVE;
+                $Open = false;
+            }
         }
         // Eigene Profile
         $this->RegisterProfileIntegerEx("Scanner.SqueezeboxServer", "Gear", "", "", Array(
