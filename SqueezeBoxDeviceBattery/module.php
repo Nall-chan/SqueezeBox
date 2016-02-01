@@ -483,7 +483,11 @@ class SqueezeboxBattery extends IPSModule
 
     protected function SetStatus($InstanceStatus)
     {
-        if ($InstanceStatus <> IPS_GetInstance($this->InstanceID)['InstanceStatus'])
+        if (IPS_GetKernelRunlevel() == KR_READY)
+            $OldStatus = IPS_GetInstance($this->InstanceID)['InstanceStatus'];
+        else
+            $OldStatus =-1;
+        if ($InstanceStatus <> $OldStatus)
             parent::SetStatus($InstanceStatus);
     }
 

@@ -98,7 +98,8 @@ class LMSSplitter extends IPSModule
         // Eigene Scripte
         $ID = $this->RegisterScript("WebHookPlaylist", "WebHookPlaylist", $this->CreateWebHookScript(), -8);
         IPS_SetHidden($ID, true);
-        $this->RegisterHook('/hook/LMSPlaylist' . $this->InstanceID, $ID);
+        if (IPS_GetKernelRunlevel() == KR_READY)
+            $this->RegisterHook('/hook/LMSPlaylist' . $this->InstanceID, $ID);
 
         $ID = $this->RegisterScript('PlaylistDesign', 'Playlist Config', $this->CreatePlaylistConfigScript(), -7);
         IPS_SetHidden($ID, true);
@@ -1242,7 +1243,11 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
 
     protected function SetStatus($InstanceStatus)
     {
-        if ($InstanceStatus <> IPS_GetInstance($this->InstanceID)['InstanceStatus'])
+        if (IPS_GetKernelRunlevel() == KR_READY)
+            $OldStatus = IPS_GetInstance($this->InstanceID)['InstanceStatus'];
+        else
+            $OldStatus = -1;
+        if ($InstanceStatus <> $OldStatus)
         {
             parent::SetStatus($InstanceStatus);
             if ($InstanceStatus == IS_ACTIVE)

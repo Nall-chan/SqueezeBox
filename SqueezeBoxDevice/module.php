@@ -106,13 +106,14 @@ class SqueezeboxDevice extends IPSModule
                         IPS_SetProperty($this->InstanceID, 'Address', $Address);
                         IPS_ApplyChanges($this->InstanceID);
                         return;
-                    } else {
+                    }
+                    else
+                    {
                         if ($Address <> strtolower($Address))
                         {
-                        IPS_SetProperty($this->InstanceID, 'Address', strtolower($Address));
-                        IPS_ApplyChanges($this->InstanceID);
-                        return;
-                            
+                            IPS_SetProperty($this->InstanceID, 'Address', strtolower($Address));
+                            IPS_ApplyChanges($this->InstanceID);
+                            return;
                         }
                     }
                 }
@@ -223,7 +224,8 @@ if (isset($_GET["Index"]))
     LSQ_PlayTrack(' . $this->InstanceID . ',$_GET["Index"]);
 ', -8);
         IPS_SetHidden($sid, true);
-        $this->RegisterHook('/hook/SqueezeBoxPlaylist' . $this->InstanceID, $sid);
+        if (IPS_GetKernelRunlevel() == KR_READY)
+            $this->RegisterHook('/hook/SqueezeBoxPlaylist' . $this->InstanceID, $sid);
 
         $ID = $this->RegisterScript('PlaylistDesign', 'Playlist Config', $this->CreatePlaylistConfigScript(), -7);
         IPS_SetHidden($ID, true);
@@ -1332,7 +1334,7 @@ if (isset($_GET["Index"]))
         }
         if ($result == false)
         {
-            trigger_error("Error on RequestAction",E_USER_NOTICE);
+            trigger_error("Error on RequestAction", E_USER_NOTICE);
         }
     }
 
@@ -1421,13 +1423,13 @@ if (isset($_GET["Index"]))
 
         switch ($MainCommand)
         {
-            case LSQResponse::player_connected:
-                if (GetValueBoolean($this->GetIDForIdent('Connected')) <> (bool) $LSQEvent->Value)
-                {
-                    $this->SetConnected(true);
-                }
+            /*            case LSQResponse::player_connected:
+              if (GetValueBoolean($this->GetIDForIdent('Connected')) <> (bool) $LSQEvent->Value)
+              {
+              $this->SetConnected(true);
+              }
 
-                break;
+              break; */
             case LSQResponse::connected:
                 if (!$LSQEvent->isResponse) //wenn Response, dann macht der Anfrager das selbst
                 {
@@ -1437,14 +1439,14 @@ if (isset($_GET["Index"]))
                         $this->SetConnected(false);
                 }
                 break;
-            case LSQResponse::client:
-                if (!$LSQEvent->isResponse) //wenn Response, dann macht der Anfrager das selbst                
-                {
-                    if ($LSQEvent->Value == 'disconnect')
-                        $this->SetConnected(false);
-                    elseif (($LSQEvent->Value == 'new') or ( $LSQEvent->Value == 'reconnect'))
-                        $this->SetConnected(true);
-                }
+            case LSQResponse::client:  // Nur Event
+//                if (!$LSQEvent->isResponse) //wenn Response, dann macht der Anfrager das selbst                
+//                {
+                if ($LSQEvent->Value == 'disconnect')
+                    $this->SetConnected(false);
+                elseif (($LSQEvent->Value == 'new') or ( $LSQEvent->Value == 'reconnect'))
+                    $this->SetConnected(true);
+//                }
                 break;
             case LSQResponse::player_name:
             case LSQResponse::name:
@@ -2013,8 +2015,6 @@ LSQ_DisplayPlaylist($_IPS["TARGET"],$Config);
                 $this->SetStatus(202);
                 if ($throwException)
                     throw new Exception('Address not set.');
-                else
-                    return false;
             }
             $ParentID = $this->GetParent();
             if ($ParentID === false)
@@ -2022,17 +2022,13 @@ LSQ_DisplayPlaylist($_IPS["TARGET"],$Config);
                 $this->SetStatus(104);
                 if ($throwException)
                     throw new Exception('Instance has no parent.');
-                else
-                    return false;
             }
             else
             if (!$this->HasActiveParent($ParentID))
             {
                 $this->SetStatus(203);
-                if ($throwException)
-                    throw new Exception('Instance has no active parent.');
-                else
-                    return false;
+
+                throw new Exception('Instance has no active parent.');
             }
             $this->SetStatus(102);
 
@@ -2040,7 +2036,8 @@ LSQ_DisplayPlaylist($_IPS["TARGET"],$Config);
         }
         catch (Exception $exc)
         {
-            trigger_error($exc->getMessage(), E_USER_NOTICE);
+            if ($throwException)
+                trigger_error($exc->getMessage(), E_USER_NOTICE);
             return false;
         }
     }
@@ -2407,7 +2404,11 @@ LSQ_DisplayPlaylist($_IPS["TARGET"],$Config);
 
     protected function SetStatus($InstanceStatus)
     {
-        if ($InstanceStatus <> IPS_GetInstance($this->InstanceID)['InstanceStatus'])
+        if (IPS_GetKernelRunlevel() == KR_READY)
+            $OldStatus = IPS_GetInstance($this->InstanceID)['InstanceStatus'];
+        else
+            $OldStatus =-1;
+        if ($InstanceStatus <> $OldStatus)
             parent::SetStatus($InstanceStatus);
     }
 
