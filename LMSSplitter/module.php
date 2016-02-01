@@ -119,8 +119,8 @@ class LMSSplitter extends IPSModule
             switch (IPS_GetKernelRunlevel())
             {
                 case KR_READY:
-                    $this->SetStatus($NewState);
-                    if ($NewState == IS_ACTIVE)
+                    $hasNewState = $this->SetStatus($NewState);
+                    if (($NewState == IS_ACTIVE) and $hasNewState)
                     {
                         try
                         {
@@ -1254,7 +1254,9 @@ LMS_DisplayPlaylist($_IPS["TARGET"],$Config);
                 $this->SetTimerInterval('KeepAlive', 3600000);
             else
                 $this->SetTimerInterval('KeepAlive', 0);
+            return true;
         }
+        return false;
     }
 
     //Remove on next Symcon update
