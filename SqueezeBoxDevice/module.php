@@ -1352,31 +1352,20 @@ if (isset($_GET["Index"]))
     private function _SetPlay()
     {
         $this->SetValueBoolean('Power', true);
-        if (GetValueInteger($this->GetIDForIdent('Status')) <> 2)
-        {
-
-            $this->SetValueInteger('Status', 2);
+        if ($this->SetValueInteger('Status', 2))
             $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:' . $this->ReadPropertyInteger('Interval'), false));
-        }
     }
 
     private function _SetStop()
     {
-        if (GetValueInteger($this->GetIDForIdent('Status')) <> 1)
-        {
+        if ($this->SetValueInteger('Status', 1))
             $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:0', false));
-            $this->SetValueInteger('Status', 1);
-        }
     }
 
     private function _SetPause()
     {
-        if (GetValueInteger($this->GetIDForIdent('Status')) <> 3)
-        {
-
+        if ($this->SetValueInteger('Status', 3))
             $this->SendLSQData(new LSQData(array('status', '-', '1',), 'subscribe:0', false));
-            $this->SetValueInteger('Status', 3);
-        }
     }
 
     private function _NewVolume($Value)
@@ -1461,7 +1450,10 @@ if (isset($_GET["Index"]))
             case LSQResponse::power:
                 $this->SetValueBoolean('Power', (bool) $LSQEvent->Value);
                 if ((bool) $LSQEvent->Value == false)
+                {
+                    $this->_SetStop();
                     $this->_SetSleep(0);
+                }
                 break;
 
             case LSQResponse::play:
@@ -1597,10 +1589,10 @@ if (isset($_GET["Index"]))
                 {
                     $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[1], $LSQEvent->Value, $LSQEvent->isResponse));
                 }
-/*                else
-                {
-                    IPS_LogMessage('prefsetLSQEvent', 'Namespace' . $LSQEvent->Command[0] . ':' . $LSQEvent->Value);
-                }*/
+                /*                else
+                  {
+                  IPS_LogMessage('prefsetLSQEvent', 'Namespace' . $LSQEvent->Command[0] . ':' . $LSQEvent->Value);
+                  } */
                 break;
             case LSQResponse::title:
                 $this->SetValueString('Title', trim(rawurldecode($LSQEvent->Value)));
@@ -1720,12 +1712,12 @@ if (isset($_GET["Index"]))
                     $this->SetValueString('Position', @date("i:s", (int) $LSQEvent->Value));
 
                 break;
-/*            default:
-                if (is_array($LSQEvent->Value))
-                    IPS_LogMessage('ToDoLSQEvent', 'LSQResponse-' . $MainCommand . '-' . print_r($LSQEvent->Value, 1));
-                else
-                    IPS_LogMessage('ToDoLSQEvent', 'LSQResponse-' . $MainCommand . '-' . $LSQEvent->Value);
-                break;*/
+            /*            default:
+              if (is_array($LSQEvent->Value))
+              IPS_LogMessage('ToDoLSQEvent', 'LSQResponse-' . $MainCommand . '-' . print_r($LSQEvent->Value, 1));
+              else
+              IPS_LogMessage('ToDoLSQEvent', 'LSQResponse-' . $MainCommand . '-' . $LSQEvent->Value);
+              break; */
         }
         if (isset($this->tempData['Duration']) and isset($this->tempData['Position']))
         {
@@ -1997,6 +1989,8 @@ LSQ_DisplayPlaylist($_IPS["TARGET"],$Config);
         $this->Init(false);
         if ($Status === true)
             IPS_RunScriptText("<?\nLSQ_RequestAllState(" . $this->InstanceID . ");");
+        else
+            $this->_SetStop();
 //            $this->RequestAllState();
     }
 
@@ -2407,7 +2401,7 @@ LSQ_DisplayPlaylist($_IPS["TARGET"],$Config);
         if (IPS_GetKernelRunlevel() == KR_READY)
             $OldStatus = IPS_GetInstance($this->InstanceID)['InstanceStatus'];
         else
-            $OldStatus =-1;
+            $OldStatus = -1;
         if ($InstanceStatus <> $OldStatus)
             parent::SetStatus($InstanceStatus);
     }
