@@ -48,12 +48,12 @@
                     "onClick": "LSQ_RequestAllState($id);"
                 },
                 {
-                    "type": "Switch",
+                    "type": "Button",
                     "label": "ON",
                     "onClick": "LSQ_Power($id,true);"
                 },
                 {
-                    "type": "Switch",
+                    "type": "Button",
                     "label": "OFF",
                     "onClick": "LSQ_Power($id,false);"
                 },
@@ -74,7 +74,7 @@
                 },
                 {
                     "type": "Button",
-                    "label": "Prev",
+                    "label": "Back",
                     "onClick": "LSQ_Prev($id);"
                 },
                 {

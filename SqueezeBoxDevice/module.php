@@ -1597,10 +1597,10 @@ if (isset($_GET["Index"]))
                 {
                     $this->decodeLSQEvent(new LSQEvent($LSQEvent->Command[1], $LSQEvent->Value, $LSQEvent->isResponse));
                 }
-                else
+/*                else
                 {
                     IPS_LogMessage('prefsetLSQEvent', 'Namespace' . $LSQEvent->Command[0] . ':' . $LSQEvent->Value);
-                }
+                }*/
                 break;
             case LSQResponse::title:
                 $this->SetValueString('Title', trim(rawurldecode($LSQEvent->Value)));
@@ -1720,12 +1720,12 @@ if (isset($_GET["Index"]))
                     $this->SetValueString('Position', @date("i:s", (int) $LSQEvent->Value));
 
                 break;
-            default:
+/*            default:
                 if (is_array($LSQEvent->Value))
                     IPS_LogMessage('ToDoLSQEvent', 'LSQResponse-' . $MainCommand . '-' . print_r($LSQEvent->Value, 1));
                 else
                     IPS_LogMessage('ToDoLSQEvent', 'LSQResponse-' . $MainCommand . '-' . $LSQEvent->Value);
-                break;
+                break;*/
         }
         if (isset($this->tempData['Duration']) and isset($this->tempData['Position']))
         {
