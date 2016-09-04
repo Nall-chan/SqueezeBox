@@ -30,11 +30,12 @@ class SqueezeboxDevice extends IPSModule
     public function Destroy()
     {
         parent::Destroy();
-
+        if (IPS_GetKernelRunlevel() <> KR_READY)
+            return;
         $CoverID = @IPS_GetObjectIDByIdent('CoverIMG', $this->InstanceID);
-        if ($CoverID !== false)
+        if ($CoverID > 0)
             @IPS_DeleteMedia($CoverID, true);
-    }
+    }        
 
     public function ApplyChanges()
     {
@@ -1766,7 +1767,7 @@ if (isset($_GET["Index"]))
                 {
                     $Line['Duration'] = '---';
                 }
-              
+
                 $Line['Play'] = $Line['Position'] == $CurrentTrack ? '<div class="iconMediumSpinner ipsIconArrowRight" style="width: 100%; background-position: center center;"></div>' : '';
 
                 $HTMLData .='<tr style="' . $Config['Style']['BR' . ($Line['Position'] == $CurrentTrack ? 'A' : ($pos % 2 ? 'U' : 'G'))] . '"

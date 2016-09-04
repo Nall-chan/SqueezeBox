@@ -148,24 +148,152 @@ if (@constant('IPS_BASE') == null) //Nur wenn Konstanten noch nicht bekannt sind
 class LMSData extends stdClass
 {
 
-//    const SendCommand = 0;
-//    const GetData = 1;
-
+    public $Address;
+    public $Command;
     public $Data;
-    public $Typ;
     public $needResponse;
 
-    public function __construct($Command, $Data = '', /* $Typ = LMSData::SendCommand, */ $needResponse = true)
+    public function __construct($Address = '', $Command = '', $Data = '', $needResponse = true)
     {
+        $this->Address = $Address;
         $this->Command = $Command;
         $this->Data = $Data;
-//        $this->Typ = $Typ;
         $this->needResponse = $needResponse;
+    }
+
+    public function ToJSONStringForLMS($GUID)
+    {
+        if (is_array($this->Command))
+            $Command = implode(' ', $this->Command);
+        else
+            $Command = $this->Command;
+        if (is_array($this->Data))
+            $Data = implode(' ', $this->Data);
+        else
+            $Data = $this->Data;
+        $SendLine = trim($Command . ' ' . $Data) . chr(0x0d);
+        return json_encode(Array("DataID" => "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}", "Buffer" => utf8_encode($SendLine)));
+    }
+
+    public function GetSearchPatter()
+    {
+        return array('Address' => $this->Address, 'Command' => $this->Command);
+    }
+
+    public function CreateFromGenericObject($Data)
+    {
+        $this->Address = $this->DecodeUTF8($Data->Address);
+        $this->Command = $this->DecodeUTF8($Data->Command);
+        $this->Data = $this->DecodeUTF8($Data->Data);
+        $this->needResponse = $Data->needResponse;
+    }
+
+    /**
+     * Führt eine UTF8-Dekodierung für einen String oder ein Objekt durch (rekursiv)
+     * 
+     * @access private
+     * @param string|object $item Zu dekodierene Daten.
+     * @return string|object Dekodierte Daten.
+     */
+    private function DecodeUTF8($item)
+    {
+        if (is_string($item))
+            $item = utf8_decode($item);
+        else if (is_object($item))
+        {
+            foreach ($item as $property => $value)
+            {
+                $item->{$property} = $this->DecodeUTF8($value);
+            }
+        }
+        else if (is_array($item))
+        {
+            foreach ($item as $property => $value)
+            {
+                $item[$property] = $this->DecodeUTF8($value);
+            }
+        }
+
+        return $item;
+    }
+
+    /**
+     * Führt eine UTF8-Enkodierung für einen String oder ein Objekt durch (rekursiv)
+     * 
+     * @access private
+     * @param string|object $item Zu Enkodierene Daten.
+     * @return string|object Enkodierte Daten.
+     */
+    private function EncodeUTF8($item)
+    {
+        if (is_string($item))
+            $item = utf8_encode($item);
+        else if (is_object($item))
+        {
+            foreach ($item as $property => $value)
+            {
+                $item->{$property} = $this->EncodeUTF8($value);
+            }
+        }
+        else if (is_array($item))
+        {
+            foreach ($item as $property => $value)
+            {
+                $item[$property] = $this->EncodeUTF8($value);
+            }
+        }
+        return $item;
     }
 
 }
 
-// Klasse mit Daten zum SENDEN an ein Device ÜBER den LMS-Splitter
+// Klasse mit den Empfangenen Daten vom LMS
+class LMSResponse extends LMSData
+{
+
+    const isServer = 0;
+    const isMAC = 1;
+    const isIP = 2;
+
+    public $Device;
+
+    public function __construct(string $RawString)
+    {
+        $array = explode(' ', $RawString); // Antwortstring in Array umwandeln
+        if (strpos($array[0], '%3A') == 2) //isMAC
+        {
+            $this->Device = LMSResponse::isMAC;
+            $this->Address = rawurldecode(array_shift($array));
+        }
+        elseif (strpos($array[0], '.')) //isIP
+        {
+            $this->Device = LMSResponse::isIP;
+            $this->Address = array_shift($array);
+        }
+        else // isServer
+        {
+            $this->Device = LMSResponse::isServer;
+        }
+
+//        $this->Command = array_shift($this->EncodeUTF8($array));
+        $this->Command = array_shift($array);
+//        $this->Data = $this->EncodeUTF8($array);
+        $this->Data = $array;
+    }
+
+    public function ToJSONStringForDevice($GUID)
+    {
+        return json_encode(Array(
+            "DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}",
+            "Address" => $this->EncodeUTF8($this->Address),
+            "Command" => $this->EncodeUTF8($this->Command),
+            "Data" => $this->EncodeUTF8($this->Data)
+        ));
+    }
+
+}
+
+// Klasse mit Daten zum SENDEN von ein Device an den LMS-Splitter
 class LSQData extends stdClass
 {
 
@@ -191,43 +319,10 @@ class LMSTaggingData extends stdClass
         foreach (explode(' ', $TaggedDataLine) as $Line)
         {
             $Data = new LSQTaggingData($Line, false);
-            $this->{$Data->Command} = rawurldecode($Data->Value);
-        }
-    }
+            $this->
+                    {
 
-}
-
-// Klasse mit den Empfangenen Daten vom LMS
-class LMSResponse extends stdClass
-{
-
-    const isServer = 0;
-    const isMAC = 1;
-    const isIP = 2;
-
-    public $Device;
-    public $MAC;
-    public $IP;
-    public $Data;
-
-    public function __construct($Data)
-    {
-        $array = explode(' ', $Data); // Antwortstring in Array umwandeln
-        if (strpos($array[0], '%3A') == 2) //isMAC
-        {
-            $this->Device = LMSResponse::isMAC;
-            $this->MAC = rawurldecode(array_shift($array));
-        } elseif (strpos($array[0], '.')) //isIP
-        {
-            $this->Device = LMSResponse::isIP;
-            $this->IP = array_shift($array);
-        } else // isServer
-        {
-            $this->Device = LMSResponse::isServer;
-        }
-        foreach ($array as $Part)
-        {
-            $this->Data[] = utf8_encode($Part);
+                    $Data->Command} = rawurldecode($Data->Value);
         }
     }
 
@@ -281,7 +376,8 @@ class LSQTaggingData extends LSQEvent
         if (count($Part) > 1)
         {
             $Value = implode('%3A', $Part);
-        } else
+        }
+        else
         {
             $Value = array_shift($Part);
         }
@@ -330,7 +426,7 @@ class LSMSongInfo extends stdClass
         foreach (explode(' ', $TaggedDataLine) as $Line)
         {
 
-//            $LSQPart = $this->decodeLSQTaggingData($Line, false);
+//            $LSQPart = $this->decodeLSQTag gingData($Line, false);
             $LSQPart = new LSQTaggingData($Line, false);
 
             if (is_array($LSQPart->Command) and ( $LSQPart->Command[0] == LSQResponse::playlist) and ( $LSQPart->Command[1] == LSQResponse::index))
@@ -354,6 +450,7 @@ class LSMSongInfo extends stdClass
             {
                 if ($SongFields[$Index] == 0)
                     $Songs[$id][$Index] = (bool) ($LSQPart->Value);
+
                 elseif ($SongFields[$Index] == 1)
                     $Songs[$id][$Index] = intval($LSQPart->Value);
                 else
@@ -535,6 +632,7 @@ class LSQResponse extends stdClass
             $this->Address = $Data->IP;
         foreach ($Data->Data as $Key => $Value)
         {
+
             $Data->Data[$Key] = utf8_decode($Value);
         }
         switch ($Data->Data[0])
@@ -595,7 +693,8 @@ class LSQResponse extends stdClass
 
 //                    $this->Value[0] =  array_shift($Data->Data);
 //                    $this->Value[1] =  array_shift($Data->Data);
-                } elseif (isset($Data->Data[0]))
+                }
+                elseif (isset($Data->Data[0]))
                     $this->Value = array_shift($Data->Data);
                 break;
 
@@ -608,11 +707,13 @@ class LSQResponse extends stdClass
                     $this->Value = array_shift($Data->Data);
                 break;
             default:
+
                 $this->Command = array_shift($Data->Data);
                 if (isset($Data->Data[0]))
                     $this->Value = array_shift($Data->Data);
                 break;
-            case 'displaynotify': //ignorieren
+            case 'displaynotif
+                    y': //ignorieren
             case 'menustatus': //ignorieren                
                 $this->Command = false;
                 break;
@@ -636,7 +737,8 @@ if (!function_exists("array_column"))
         return array_map(function($element) use($column_name)
         {
             return $element[$column_name];
-        }, $array);
+        }, $array
+        );
     }
 
 }

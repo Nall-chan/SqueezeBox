@@ -31,17 +31,17 @@
             [
                 {
                     "type": "Button",
-                    "label": "Rescan",
+                    "label": "DB Rescan",
                     "onClick": "LMS_Rescan($id);"
                 },
                 {
-                    "type": "Switch",
-                    "label": "Aktive Player in IPS erzeugen",
+                    "type": "Button",
+                    "label": "Create all active players in IPS",
                     "onClick": "LMS_CreateAllPlayer($id);"
                 },
                 {
-                    "type": "Switch",
-                    "label": "Lade Server Playlisten",
+                    "type": "Button",
+                    "label": "Load Server-Playlists",
                     "onClick": "LMS_RefreshPlayerList($id);"
                 }
 
@@ -51,22 +51,27 @@
                 {
                     "code": 102,
                     "icon": "active",
-                    "caption": "LMS ereichbar."
+                    "caption": "LMS avaiable."
                 },
                 {
                     "code": 104,
                     "icon": "inactive",
-                    "caption": "Interface geschlossen."
+                    "caption": "Interface closed."
                 },
                 {
                     "code": 202,
                     "icon": "error",
-                    "caption": "LMS Adresse darf nicht leer sein."
+                    "caption": "LMS Host is empty."
                 },
                 {
                     "code": 203,
                     "icon": "error",
-                    "caption": "Verbindung zu LMS verloren."
+                    "caption": "LMS Port is empty."
+                },
+                {
+                    "code": 204,
+                    "icon": "error",
+                    "caption": "Not connected to LMS."
                 }
             ]
 }

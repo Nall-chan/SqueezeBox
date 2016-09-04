@@ -1,0 +1,18 @@
+{
+    "translations": {
+        "de": {
+            "Open": "Socket öffnen",
+            "LMS Host": "LMS Adresse",
+            "CLI Port": "CLI Port",
+            "Webserver Port": "Webserver Port",
+            "Playlist Config": "Playlist Script",
+            "DB Rescan": "DB Scan",
+            "Create all active players in IPS": "Aktive Player in IPS erzeugen",
+            "Load Server-Playlists": "Lade Server Playlisten",
+            "LMS avaiable.": "LMS ereichbar.",
+            "Interface closed.": "Interface geschlossen.",
+            "LMS Host is empty.": "LMS Adresse darf nicht leer sein.",
+            "Not connected to LMS.": "Keine Verbindung zum LMS."
+        }
+    }
+}
