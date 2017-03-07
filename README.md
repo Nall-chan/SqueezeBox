@@ -35,10 +35,11 @@ Logitech Media Server.
     *  Sleeptimer: Setzen und löschen des Timer.
     *  Playlist: Trackanwahl, nächster, vorheriger Track, Widerholung und Zufallsmodus
     *  Darstellung der Daten zum aktuellen Track: Titel, Album, Interpret, Stilrichtung, Cover etc..
+    *  Darstellen der Server-Playlisten sowie laden derselben auf Player.
 
 ## 2. Voraussetzungen
 
- - IPS 4.x
+ - IPS 4.1 oder höher
  - Logitech Media Server (getestet ab 7.8.1)
  - kompatibler Player
 

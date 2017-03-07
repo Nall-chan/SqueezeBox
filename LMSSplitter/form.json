@@ -22,9 +22,18 @@
                     "caption": "Webserver Port"
                 },
                 {
+                    "name": "showPlaylist",
+                    "type": "CheckBox",
+                    "caption": "Show playlist as HTML-Box"
+                },
+                {
+                    "type": "Label",
+                    "label": "Script for HTML-Box Desgin:"
+                },
+                {
                     "name": "Playlistconfig",
                     "type": "SelectScript",
-                    "caption": "Playlist Config"
+                    "caption": "Script:"
                 }
             ],
     "actions":

@@ -1,0 +1,11 @@
+{
+    "id": "{35028918-3F9C-4524-9FB4-DBAF429C6E18}",
+    "name": "LMSConfigurator",
+    "type": 2,
+    "vendor": "Logitech",
+    "aliases": ["Logitech Media Server Configurator"],
+    "parentRequirements": ["{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}"],
+    "childRequirements": [],
+    "implemented": ["{CB5950B3-593C-4126-9F0F-8655A3944419}"],
+    "prefix": "LMC"
+}

@@ -1,5 +1,18 @@
 <?
 
+/*
+ * @addtogroup squeezebox
+ * @{
+ *
+ * @package       Squeezebox
+ * @file          SqueezeBoxClass.php
+ * @author        Michael Tröger <micha@nall-chan.net>
+ * @copyright     2016 Michael Tröger
+ * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
+ * @version       1.0
+ *
+ */
+
 if (@constant('IPS_BASE') == null) //Nur wenn Konstanten noch nicht bekannt sind.
 {
 // --- BASE MESSAGE
@@ -144,40 +157,62 @@ if (@constant('IPS_BASE') == null) //Nur wenn Konstanten noch nicht bekannt sind
     define('vtString', 3);
 }
 
-// Klasse mit Daten zum SENDEN an den LMS
+/**
+ * Definiert eine Datensatz zum Versenden an des LMS.
+ * 
+ * @package       Squeezebox
+ * @author        Michael Tröger <micha@nall-chan.net>
+ * @copyright     2016 Michael Tröger
+ * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
+ * @version       1.0
+ * @example <b>Ohne</b>
+ */
 class LMSData extends stdClass
 {
+
+    use UTF8Coder;
 
     public $Address;
     public $Command;
     public $Data;
     public $needResponse;
+    private $SendValues;
 
-    public function __construct($Address = '', $Command = '', $Data = '', $needResponse = true)
+    public function __construct($Command = '', $Data = '', $needResponse = true)
     {
-        $this->Address = $Address;
-        $this->Command = $Command;
-        $this->Data = $Data;
+        $this->Address = '';
+        if (is_array($Command))
+            $this->Command = $Command;
+        else
+            $this->Command = array($Command);
+        if (is_array($Data))
+            $this->Data = array_map('rawurlencode', $Data);
+        else
+            $this->Data = rawurlencode($Data);
         $this->needResponse = $needResponse;
     }
 
     public function ToJSONStringForLMS($GUID)
     {
-        if (is_array($this->Command))
-            $Command = implode(' ', $this->Command);
-        else
-            $Command = $this->Command;
+        $this->SendValues = count($this->Data);
+        return json_encode(Array("DataID" => $GUID, "Buffer" => utf8_encode($this->ToRawStringForLMS())));
+    }
+
+    public function ToRawStringForLMS()
+    {
+        $Command = implode(' ', $this->Command);
+        $this->SendValues = count($this->Data);
+
         if (is_array($this->Data))
             $Data = implode(' ', $this->Data);
         else
             $Data = $this->Data;
-        $SendLine = trim($Command . ' ' . $Data) . chr(0x0d);
-        return json_encode(Array("DataID" => "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}", "Buffer" => utf8_encode($SendLine)));
+        return trim($this->Address . ' ' . trim($Command) . ' ' . trim($Data)) . chr(0x0d);
     }
 
     public function GetSearchPatter()
     {
-        return array('Address' => $this->Address, 'Command' => $this->Command);
+        return $this->Address . implode('', $this->Command);
     }
 
     public function CreateFromGenericObject($Data)
@@ -185,17 +220,657 @@ class LMSData extends stdClass
         $this->Address = $this->DecodeUTF8($Data->Address);
         $this->Command = $this->DecodeUTF8($Data->Command);
         $this->Data = $this->DecodeUTF8($Data->Data);
-        $this->needResponse = $Data->needResponse;
+        if (property_exists($Data, 'needResponse'))
+            $this->needResponse = $Data->needResponse;
     }
+
+    public function SliceData()
+    {
+        $this->Data = array_slice($this->Data, $this->SendValues);
+    }
+
+    public function ToJSONString($GUID)
+    {
+        return json_encode(Array("DataID" => $GUID,
+            "Address" => $this->EncodeUTF8($this->Address),
+            "Command" => $this->EncodeUTF8($this->Command),
+            "Data" => $this->EncodeUTF8($this->Data),
+            "needResponse" => $this->needResponse
+        ));
+    }
+
+}
+
+/**
+ * Klasse mit den Empfangenen Daten vom LMS
+ * 
+ * @package       Squeezebox
+ * @author        Michael Tröger <micha@nall-chan.net>
+ * @copyright     2016 Michael Tröger
+ * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
+ * @version       1.0
+ * @example <b>Ohne</b>
+ */
+class LMSResponse extends LMSData
+{
+
+    /**
+     * Antwort ist vom LMS-Server
+     * 
+     * @static
+     */
+    const isServer = 0;
+
+    /**
+     * Antwort ist von einer MAC-Adresse.
+     * 
+     * @static
+     */
+    const isMAC = 1;
+
+    /**
+     * Antwort ist von einer IP-Adresse.
+     * 
+     * @static
+     */
+    const isIP = 2;
+
+    /**
+     * Enthält den Type des Versenders einer Antwort
+     * 
+     * @var int Kann ::isServer, ::isMAC oder ::isIP sein.
+     */
+    public $Device;
+
+    /**
+     * Zerlegt eine Antwort des LMS und erzeugt daraus ein LMSResponse-Objekt.
+     * 
+     * @param string $RawString
+     */
+    public function __construct(string $RawString)
+    {
+        $array = explode(' ', $RawString); // Antwortstring in Array umwandeln
+        if (strpos($array[0], '%3A') == 2) //isMAC
+        {
+            $this->Device = LMSResponse::isMAC;
+            $this->Address = rawurldecode(array_shift($array));
+        }
+        elseif (strpos($array[0], '.')) //isIP
+        {
+            $this->Device = LMSResponse::isIP;
+            $this->Address = array_shift($array);
+        }
+        else // isServer
+        {
+            $this->Device = LMSResponse::isServer;
+            $this->Address = "";
+        }
+        $this->Command = array(array_shift($array));
+        if ($this->Device == LMSResponse::isServer)
+        {
+            if (count($array) <> 0)
+            {
+                switch ($this->Command[0])
+                {
+                    case 'player':
+                        $this->Command[1] = array_shift($array);
+                        if ($this->Command[1] == "name")
+                            $this->Command[2] = array_shift($array);
+                        break;
+                    case 'songinfo':
+                    case 'info':
+                        $this->Command[1] = array_shift($array);
+                        $this->Command[2] = array_shift($array);
+                        break;
+                    case 'playlists':
+                        if (in_array($array[0], array('rename', 'delete', 'new', 'tracks', 'edit')))
+                            $this->Command[1] = array_shift($array);
+                        break;
+                    case 'alarm':
+                    case 'favorites':
+                        $this->Command[1] = array_shift($array);
+                        break;
+                }
+            }
+        }
+        else
+        {
+            if (count($array) <> 0)
+            {
+                switch ($this->Command[0])
+                {
+
+//                    case 'alarm':
+                    case 'mixer':
+                    case 'playlist':
+                        $this->Command[1] = array_shift($array);
+                        break;
+//                    case 'prefset':
+                    case 'status':
+                        $this->Command[1] = array_shift($array);
+                        $this->Command[2] = array_shift($array);
+                        break;
+//                    case 'prefset':
+                    case 'signalstrength':
+                    case 'name':
+                    case 'connected':
+                    case 'client':
+                    case 'sleep':
+                    case 'button':
+                    case 'power':
+                    case 'play':
+                    case 'stop':
+                    case 'pause':
+                    case 'mode':
+                    case 'time':
+                    case 'genre':
+                    case 'artist':
+                    case 'album':
+                    case 'title':
+                    case 'duration':
+                    case 'remote':
+                    case 'status':
+                    case 'newmetadata':
+                    case 'playlistcontrol':
+                    case 'sync':
+//                    case 'ignore':
+                        break;
+
+                    case 'displaynotify':
+                    case 'menustatus':
+                    case 'prefset':
+
+                    case 'alarm':
+                    default:
+                        $this->Command[1] = $this->Command[0];
+                        $this->Command[0] = 'ignore';
+                        break;
+
+//                        $this->Command[1] = $this->Command[0];
+//                        $this->Command[0] = false;
+                }
+            }
+        }
+        if (count($array) == 0)
+            $array[0] = "";
+
+        //parent::__construct($Command, $array);
+        $this->Data = array_map('rawurldecode', $array);
+//        $this->Data = $array;
+    }
+
+    /**
+     * Erzeugt aus dem Objekt einen JSON-String.
+     * 
+     * @param string $GUID GUID welche in den JSON-String eingebunden wird.
+     * @return string Der JSON-String für den Datenaustausch
+     */
+    public function ToJSONStringForDevice(string $GUID)
+    {
+        return json_encode(Array(
+            "DataID" => $GUID,
+            "Address" => $this->EncodeUTF8($this->Address),
+            "Command" => $this->EncodeUTF8($this->Command),
+            "Data" => $this->EncodeUTF8($this->Data)
+        ));
+    }
+
+}
+
+/**
+ * Zerlegt einen getaggten Datensatz in Name und Wert.
+ * 
+ * @package       Squeezebox
+ * @author        Michael Tröger <micha@nall-chan.net>
+ * @copyright     2016 Michael Tröger
+ * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
+ * @version       1.0
+ * @example <b>Ohne</b>
+ */
+class LMSTaggingData extends stdClass
+{
+
+    /**
+     * @access public
+     * @var string Der Name des Datensatzes.
+     */
+    public $Name;
+
+    /**
+     * @access public
+     * @var string Der Inhalt des Datensatzen.
+     */
+    public $Value;
+
+    /**
+     * Erzeugt ein LMSTaggingData-Objekt aus $TaggedDataLine.
+     * 
+     * @access public
+     * @param string $TaggedDataLine Die Rohdaten.
+     */
+    public function __construct($TaggedDataLine)
+    {
+        //$Part = explode('%3A', $TaggedDataLine); //        
+        $Part = explode(':', $TaggedDataLine); //                
+//        $this->Name = rawurldecode(array_shift($Part));
+        $this->Name = array_shift($Part);
+        if (count($Part) > 1)
+            $this->Value = implode(':', $Part);
+//            $this->Value = implode('%3A', $Part);
+        else
+            $this->Value = array_shift($Part);
+        if (is_numeric($this->Value))
+            $this->Value = (int) $this->Value;
+        else
+            $this->Value = (string) $this->Value;
+//            $this->Value = rawurldecode($this->Value);        
+    }
+
+}
+
+/**
+ * Zerlegt einen Array aus getaggten Datensätzen.
+ * 
+ * @package       Squeezebox
+ * @author        Michael Tröger <micha@nall-chan.net>
+ * @copyright     2016 Michael Tröger
+ * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
+ * @version       1.0
+ * @example <b>Ohne</b>
+ */
+class LMSTaggingArray extends stdClass
+{
+
+    /**
+     * @var array Enthält die Nutzdaten
+     */
+    private $DataArray;
+
+    /**
+     *
+     * @var array Enthält alle zu dekodierenen Index mit ihren Typenumwandlungen.
+     */
+    static $DataFields = array(
+        'Id' => 1,
+//        'Title' => 3,
+        'Genre' => 3, // g
+        'Album' => 3, // l
+        'Artist' => 3, // a
+//        'Duration' => 1, // d
+        'Category' => 3,
+        'Coverid' => 1, // i
+        'Count' => 1,
+//        'Disc' => 1, // i
+//        'Disccount' => 1, // q
+//        'Bitrate' => 3, // r
+        'Filename' => 3,
+//        'Tracknum' => 1, // t
+        'Playerindex' => 3,
+        'Playerid' => 3,
+        'Uuid' => 3,
+        'Ip' => 3,
+        'Model' => 3,
+        'Connected' => 0,
+        'Url' => 3, // u
+//        'Remote' => 0,
+//        'Rating' => 1, // R
+//        'Album_id' => 1, // e
+//        'Artwork_track_id' => 3, // J
+//        'Samplesize' => 3, // I
+//        'Remote_title' => 3, //N 
+//        'Genre_id' => 1, //p
+//        'Artist_id' => 1, //s
+        'Year' => 1, // Y
+        'Name' => 3,
+        'Type' => 3,
+        'Title' => 3,
+//        'Singleton'=>0,
+        'Isaudio' => 0,
+        'Hasitems' => 1,
+//        'Modified' => 0,
+//        'Playlist' => 3
+    );
+
+    /**
+     * Erzeugt aus einem Array mit getaggten Daten ein mehrdimensionales Array.
+     * 
+     * @access public
+     * @param array $TaggedData Das Array mit allen getaggten Zeilen.
+     * @param string $UsedIdIndex Der zu verwendene Index welcher als Trenner zwischen den Objekten fungiert.
+     */
+    public function __construct(array $TaggedData, $UsedIdIndex = 'id')
+    {
+        $id = -1;
+        $DataArray = array();
+        if (count($TaggedData) > 0)
+        {
+            $UseIDs = ((new LMSTaggingData($TaggedData[0]))->Name == 'id') ? true : false;
+        }
+        foreach ($TaggedData as $Line)
+        {
+            $Part = new LMSTaggingData($Line);
+            if ($UseIDs)
+            {
+                if ($Part->Name == 'id')
+                {
+                    $id = $Part->Value;
+                    continue;
+                }
+            }
+            else
+            {
+                if ($Part->Name == $UsedIdIndex)
+                    $id++;
+            }
+            $Index = ucfirst($Part->Name);
+            if (!array_key_exists($Index, static::$DataFields))
+                continue;
+
+
+            if (static::$DataFields[$Index] == 0)
+                $DataArray[$id][$Index] = (bool) ($Part->Value);
+            elseif (static::$DataFields[$Index] == 1)
+            {
+                if (is_numeric($Part->Value))
+                    $DataArray[$id][$Index] = (int) $Part->Value;
+                else
+                    $DataArray[$id][$Index] = rawurldecode($Part->Value);
+            }
+            else
+                $DataArray[$id][$Index] = rawurldecode($Part->Value);
+        }
+        if (isset($DataArray[-1]))
+        {
+            if (count($DataArray) == 1)
+            {
+                $DataArray = $DataArray[-1];
+            }
+            else
+            {
+                unset($DataArray[-1]);
+            }
+        }
+        $this->DataArray = $DataArray;
+    }
+
+    /**
+     * Liefert das Array mit allen Nutzdaten
+     * 
+     * @access public
+     * @return array Das Array mit allen Nutzdaten.
+     */
+    public function DataArray()
+    {
+        return $this->DataArray;
+    }
+
+    /**
+     * Bricht das Array auf einen bestimmte Index runter.
+     * 
+     * @access public
+     * @param string $Index Der zu verwendende Index.
+     */
+    public function Compact(string $Index)
+    {
+        array_walk($this->DataArray, array($this, 'FlatDataArray'), $Index);
+    }
+
+    /**
+     * Callback-Funktion für Compact
+     * 
+     * @access protected
+     * @param mixed $Item Das aktuelle Item.
+     * @param mixed Der übergeben Index von Item.
+     * @param string $Index Der Index aus Item der hochkopiert wird.
+     */
+    protected function FlatDataArray(&$Item, $Key, $Index)
+    {
+        $Item = $Item[$Index];
+    }
+
+    /**
+     * Liefert die Anzahl der Daten im DataArray.
+     * 
+     * @access public
+     * @return int Anzahl der Einträge in DataArray.
+     */
+    public function Count()
+    {
+        return count($this->DataArray);
+    }
+
+}
+
+class LMSSongInfo extends stdClass
+{
+
+    private $SongArray;
+    private $Duration;
+    static $SongFields = array(
+        'Id' => 1,
+        'Title' => 3,
+        'Genre' => 3, // g
+        'Album' => 3, // l
+        'Artist' => 3, // a
+        'Duration' => 1, // d
+        'Disc' => 1, // i
+        'Disccount' => 1, // q
+        'Bitrate' => 3, // r
+        'Tracknum' => 1, // t
+        'Url' => 3, // u
+        'Remote' => 0,
+        'Rating' => 1, // R
+        'Album_id' => 1, // e
+        'Artwork_track_id' => 3, // J
+        'Samplesize' => 3, // I
+        'Remote_title' => 3, //N 
+        'Genre_id' => 1, //p
+        'Artist_id' => 1, //s
+        'Year' => 1, // Y
+        'Name' => 3,
+        'Modified' => 0,
+        'Playlist' => 3
+    );
+
+    public function __construct(array $TaggedData)
+    {
+        $id = -1;
+        $Songs = array();
+        $Duration = 0;
+        $Playlist = ((new LMSTaggingData($TaggedData[0]))->Name == 'playlist index') ? true : false;
+        foreach ($TaggedData as $Line)
+        {
+            $Part = new LMSTaggingData($Line);
+            if ($Playlist)
+            {
+                if ($Part->Name == 'playlist index')
+                {
+                    $id = (int) $Part->Value;
+                    continue;
+                }
+            }
+            else
+            {
+                if ($Part->Name == 'id')
+                    $id++;
+            }
+            $Index = ucfirst($Part->Name);
+            if (!array_key_exists($Index, static::$SongFields))
+                continue;
+
+
+            if ($Part->Name == 'duration')
+                $Duration = +intval($Part->Value);
+            if (static::$SongFields[$Index] == 0)
+                $Songs[$id][$Index] = (bool) ($Part->Value);
+            elseif (static::$SongFields[$Index] == 1)
+                $Songs[$id][$Index] = intval($Part->Value);
+            else
+                $Songs[$id][$Index] = rawurldecode($Part->Value);
+        }
+        if ((count($Songs) <> 1 ) and isset($Songs[-1]))
+            unset($Songs[-1]);
+        $this->SongArray = $Songs;
+        $this->Duration = $Duration;
+    }
+
+    public function GetSong()
+    {
+        return array_shift($this->SongArray);
+    }
+
+    public function GetAllSongs()
+    {
+        return $this->SongArray;
+    }
+
+    public function GetTotalDuration()
+    {
+        return $this->Duration;
+    }
+
+    public function CountAllSongs()
+    {
+        return count($this->SongArray);
+    }
+
+}
+
+trait LMSSongURL
+{
+
+    protected function GetValidSongURL(&$SongURL)
+    {
+        if (!is_string($SongURL))
+        {
+            trigger_error("URL must be string.", E_USER_NOTICE);
+            return false;
+        }
+        $valid = strpos($SongURL, 'file:///');
+        if ($valid === false)
+        {
+            $SongURL = 'file:///' . $SongURL;
+        }
+        elseif ($valid > 0)
+        {
+            trigger_error("URL not valid.", E_USER_NOTICE);
+            return false;
+        }
+        $SongURL = str_replace('\\', '/', $SongURL);
+        return true;
+    }
+
+}
+
+trait LMSHTMLTable
+{
+
+    /**
+     * Liefert den Header der HTML-Tabelle.
+     * 
+     * @access private
+     * @param array $Config Die Kofiguration der Tabelle
+     * @return string HTML-String
+     */
+    protected function GetTableHeader($Config)
+    {
+        $html = "";
+        // Button Styles erzeugen
+        if (isset($Config['Button']))
+        {
+            $html .= "<style>" . PHP_EOL;
+            foreach ($Config['Button'] as $Class => $Button)
+            {
+                $html .= '.' . $Class . ' {' . $Button . '}' . PHP_EOL;
+            }
+            $html .= "</style>" . PHP_EOL;
+        }
+        // Kopf der Tabelle erzeugen
+        $html .= '<table style="' . $Config['Style']['T'] . '">' . PHP_EOL;
+        // JS Rückkanal erzeugen
+        $html .= '<script type="text/javascript">
+function xhrGet' . $this->InstanceID . '(o)
+{
+    var HTTP = new XMLHttpRequest();
+    HTTP.open(\'GET\',o.url,true);
+    HTTP.send();
+    HTTP.addEventListener(\'load\', function(event)
+    {
+        if (HTTP.status >= 200 && HTTP.status < 300)
+        {
+            if (HTTP.responseText != \'OK\')
+                sendError' . $this->InstanceID . '(HTTP.responseText);
+        } else {
+            sendError' . $this->InstanceID . '(HTTP.statusText);
+        }
+    });
+}
+
+function sendError' . $this->InstanceID . '(data)
+{
+var notify = document.getElementsByClassName("ipsNotifications")[0];
+var newDiv = document.createElement("div");
+newDiv.innerHTML =\'<div style="height:auto; visibility: hidden; overflow: hidden; transition: height 500ms ease-in 0s" class="ipsNotification"><div class="spacer"></div><div class="message icon error" onclick="document.getElementsByClassName(\\\'ipsNotifications\\\')[0].removeChild(this.parentNode);"><div class="ipsIconClose"></div><div class="content"><div class="title">Fehler</div><div class="text">\' + data + \'</div></div></div></div>\';
+if (notify.childElementCount == 0)
+	var thisDiv = notify.appendChild(newDiv.firstChild);
+else
+	var thisDiv = notify.insertBefore(newDiv.firstChild,notify.childNodes[0]);
+var newheight = window.getComputedStyle(thisDiv, null)["height"];
+thisDiv.style.height = "0px";
+thisDiv.style.visibility = "visible";
+function sleep (time) {
+  return new Promise((resolve) => setTimeout(resolve, time));
+}
+sleep(10).then(() => {
+	thisDiv.style.height = newheight;
+})
+}
+
+</script>';
+        $html .= '<colgroup>' . PHP_EOL;
+        foreach ($Config['Spalten'] as $Index => $Value)
+        {
+            $html .= '<col width="' . $Config['Breite'][$Index] . '" />' . PHP_EOL;
+        }
+        $html .= '</colgroup>' . PHP_EOL;
+        $html .= '<thead style="' . $Config['Style']['H'] . '">' . PHP_EOL;
+        $html .= '<tr style="' . $Config['Style']['HR'] . '">';
+        foreach ($Config['Spalten'] as $Index => $Value)
+        {
+            $html .= '<th style="' . $Config['Style']['HF' . $Index] . '">' . $Value . '</th>';
+        }
+        $html .= '</tr>' . PHP_EOL;
+        $html .= '</thead>' . PHP_EOL;
+        $html .= '<tbody style="' . $Config['Style']['B'] . '">' . PHP_EOL;
+        return $html;
+    }
+
+    /**
+     * Liefert den Footer der HTML-Tabelle.
+     * 
+     * @access private
+     * @return string HTML-String
+     */
+    protected function GetTableFooter()
+    {
+        $html = '</tbody>' . PHP_EOL;
+        $html .= '</table>' . PHP_EOL;
+        return $html;
+    }
+
+}
+
+trait UTF8Coder
+{
 
     /**
      * Führt eine UTF8-Dekodierung für einen String oder ein Objekt durch (rekursiv)
      * 
-     * @access private
+     * @access protected
      * @param string|object $item Zu dekodierene Daten.
      * @return string|object Dekodierte Daten.
      */
-    private function DecodeUTF8($item)
+    protected function DecodeUTF8($item)
     {
         if (is_string($item))
             $item = utf8_decode($item);
@@ -220,11 +895,11 @@ class LMSData extends stdClass
     /**
      * Führt eine UTF8-Enkodierung für einen String oder ein Objekt durch (rekursiv)
      * 
-     * @access private
+     * @access protected
      * @param string|object $item Zu Enkodierene Daten.
      * @return string|object Enkodierte Daten.
      */
-    private function EncodeUTF8($item)
+    protected function EncodeUTF8($item)
     {
         if (is_string($item))
             $item = utf8_encode($item);
@@ -247,48 +922,427 @@ class LMSData extends stdClass
 
 }
 
-// Klasse mit den Empfangenen Daten vom LMS
-class LMSResponse extends LMSData
+trait LMSCover
 {
 
-    const isServer = 0;
-    const isMAC = 1;
-    const isIP = 2;
-
-    public $Device;
-
-    public function __construct(string $RawString)
+    protected function GetCover(int $SplitterID, string $CoverID, string $Size, string $Player)
     {
-        $array = explode(' ', $RawString); // Antwortstring in Array umwandeln
-        if (strpos($array[0], '%3A') == 2) //isMAC
+        $Host = IPS_GetProperty($SplitterID, 'Host') . ":" . IPS_GetProperty($SplitterID, 'Webport');
+        if ($Player <> "")
         {
-            $this->Device = LMSResponse::isMAC;
-            $this->Address = rawurldecode(array_shift($array));
+            $Player = "?player=" . rawurlencode($Player);
+            $CoverID = "current";
         }
-        elseif (strpos($array[0], '.')) //isIP
-        {
-            $this->Device = LMSResponse::isIP;
-            $this->Address = array_shift($array);
-        }
-        else // isServer
-        {
-            $this->Device = LMSResponse::isServer;
-        }
-
-//        $this->Command = array_shift($this->EncodeUTF8($array));
-        $this->Command = array_shift($array);
-//        $this->Data = $this->EncodeUTF8($array);
-        $this->Data = $array;
+        return @Sys_GetURLContent("http://" . $Host . "/music/" . $CoverID . "/" . $Size . ".png" . $Player);
     }
 
-    public function ToJSONStringForDevice($GUID)
+}
+
+trait VariableHelper
+{
+    ################## VARIABLEN - protected
+
+    protected function ConvertSeconds(int $Time)
     {
-        return json_encode(Array(
-            "DataID" => "{CB5950B3-593C-4126-9F0F-8655A3944419}",
-            "Address" => $this->EncodeUTF8($this->Address),
-            "Command" => $this->EncodeUTF8($this->Command),
-            "Data" => $this->EncodeUTF8($this->Data)
-        ));
+        if ($Time > 3600)
+            return @date("H:i:s", $Time);
+        else
+            return @date("i:s", $Time);
+    }
+
+    /**
+     * Setzte eine IPS-Variable vom Typ bool auf den Wert von $value
+     *
+     * @access protected
+     * @param string $Ident Ident der Statusvariable.
+     * @param bool $value Neuer Wert der Statusvariable.
+     * @return bool true wenn der neue Wert vom alten abweicht, sonst false.
+     */
+    protected function SetValueBoolean($Ident, $value)
+    {
+        $id = @$this->GetIDForIdent($Ident);
+        if ($id == false)
+            return false;
+        if (GetValueBoolean($id) <> $value)
+        {
+            SetValueBoolean($id, $value);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Setzte eine IPS-Variable vom Typ integer auf den Wert von $value.
+     *
+     * @access protected
+     * @param string $Ident Ident der Statusvariable.
+     * @param int $value Neuer Wert der Statusvariable.
+     * @return bool true wenn der neue Wert vom alten abweicht, sonst false.
+     */
+    protected function SetValueInteger($Ident, $value)
+    {
+        $id = @$this->GetIDForIdent($Ident);
+        if ($id == false)
+            return false;
+        if (GetValueInteger($id) <> $value)
+        {
+            SetValueInteger($id, $value);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Setzte eine IPS-Variable vom Typ string auf den Wert von $value.
+     *
+     * @access protected
+     * @param string $Ident Ident der Statusvariable.
+     * @param string $value Neuer Wert der Statusvariable.
+     * @return bool true wenn der neue Wert vom alten abweicht, sonst false.
+     */
+    protected function SetValueString($Ident, $value)
+    {
+        $id = @$this->GetIDForIdent($Ident);
+        if ($id == false)
+            return false;
+        if (GetValueString($id) <> $value)
+        {
+            SetValueString($id, $value);
+            return true;
+        }
+        return false;
+    }
+
+}
+
+/**
+ * Trait mit Hilfsfunktionen für Variablenprofile.
+ */
+trait Profile
+{
+
+    /**
+     * Erstell und konfiguriert ein VariablenProfil für den Typ integer mit Assoziationen
+     *
+     * @access protected
+     * @param string $Name Name des Profils.
+     * @param string $Icon Name des Icon.
+     * @param string $Prefix Prefix für die Darstellung.
+     * @param string $Suffix Suffix für die Darstellung.
+     * @param array $Associations Assoziationen der Werte als Array.
+     */
+    protected function RegisterProfileIntegerEx($Name, $Icon, $Prefix, $Suffix, $Associations)
+    {
+        if (sizeof($Associations) === 0)
+        {
+            $MinValue = 0;
+            $MaxValue = 0;
+        }
+        else
+        {
+            $MinValue = $Associations[0][0];
+            $MaxValue = $Associations[sizeof($Associations) - 1][0];
+        }
+
+        $this->RegisterProfileInteger($Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, 0);
+        $old = IPS_GetVariableProfile($Name)["Associations"];
+        $OldValues = array_column($old, 'Value');
+        foreach ($Associations as $Association)
+        {
+            IPS_SetVariableProfileAssociation($Name, $Association[0], $Association[1], $Association[2], $Association[3]);
+            $OldKey = array_search($Association[0], $OldValues);
+            if (!($OldKey === false ))
+                unset($OldValues[$OldKey]);
+        }
+        foreach ($OldValues as $OldKey => $OldValue)
+        {
+            IPS_SetVariableProfileAssociation($Name, $OldValue, '', '', 0);
+        }
+    }
+
+    /**
+     * Erstell und konfiguriert ein VariablenProfil für den Typ integer
+     *
+     * @access protected
+     * @param string $Name Name des Profils.
+     * @param string $Icon Name des Icon.
+     * @param string $Prefix Prefix für die Darstellung.
+     * @param string $Suffix Suffix für die Darstellung.
+     * @param int $MinValue Minimaler Wert.
+     * @param int $MaxValue Maximaler wert.
+     * @param int $StepSize Schrittweite
+     */
+    protected function RegisterProfileInteger($Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, $StepSize)
+    {
+
+        if (!IPS_VariableProfileExists($Name))
+        {
+            IPS_CreateVariableProfile($Name, 1);
+        }
+        else
+        {
+            $profile = IPS_GetVariableProfile($Name);
+            if ($profile['ProfileType'] != 1)
+                throw new Exception("Variable profile type does not match for profile " . $Name, E_USER_NOTICE);
+        }
+
+        IPS_SetVariableProfileIcon($Name, $Icon);
+        IPS_SetVariableProfileText($Name, $Prefix, $Suffix);
+        IPS_SetVariableProfileValues($Name, $MinValue, $MaxValue, $StepSize);
+    }
+
+    /**
+     * Löscht ein VariablenProfil.
+     *
+     * @access protected
+     * @param string $Name Name des Profils.
+     */
+    protected function UnregisterProfile($Name)
+    {
+        if (IPS_VariableProfileExists($Name))
+            IPS_DeleteVariableProfile($Name);
+    }
+
+}
+
+/**
+ * Trait mit Hilfsfunktionen für den Datenaustausch.
+ */
+trait InstanceStatus
+{
+
+    /**
+     * Liefert den Parent der Instanz.
+     * 
+     * @return int|bool InstanzID des Parent, false wenn kein Parent vorhanden.
+     */
+    protected function GetParent()
+    {
+        $instance = IPS_GetInstance($this->InstanceID);
+        return ($instance['ConnectionID'] > 0) ? $instance['ConnectionID'] : false;
+    }
+
+    /**
+     * Ermittelt den Parent und verwaltet die Einträge des Parent im MessageSink
+     * Ermöglicht es das Statusänderungen des Parent empfangen werden können.
+     * 
+     * @access private
+     */
+    protected function GetParentData()
+    {
+        $OldParentId = $this->GetBuffer('Parent');
+        $ParentId = @IPS_GetInstance($this->InstanceID)['ConnectionID'];
+        if ($OldParentId > 0)
+            $this->UnregisterMessage($OldParentId, IM_CHANGESTATUS);
+        if ($ParentId > 0)
+        {
+            $this->RegisterMessage($ParentId, IM_CHANGESTATUS);
+            $this->SetBuffer('Parent', $ParentId);
+        }
+        else
+            $this->SetBuffer('Parent', 0);
+    }
+
+    /**
+     * Prüft den Parent auf vorhandensein und Status.
+     * 
+     * @return bool True wenn Parent vorhanden und in Status 102, sonst false.
+     */
+    protected function HasActiveParent()
+    {
+        $ParentID = $this->GetParent();
+        if ($ParentID !== false)
+        {
+            if (IPS_GetInstance($ParentID)['InstanceStatus'] == 102)
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * Setzt den Status dieser Instanz auf den übergebenen Status.
+     * Prüft vorher noch ob sich dieser vom aktuellen Status unterscheidet.
+     * 
+     * @access protected
+     * @param int $InstanceStatus
+     */
+    protected function SetStatus($InstanceStatus)
+    {
+        if ($InstanceStatus <> IPS_GetInstance($this->InstanceID)['InstanceStatus'])
+            parent::SetStatus($InstanceStatus);
+    }
+
+}
+
+################## SEMAPHOREN Helper  - protected  
+
+/**
+ * Biete Funktionen um Thread-Safe auf Objekte zuzugrifen.
+ */
+trait Semaphore
+{
+
+    /**
+     * Versucht eine Semaphore zu setzen und wiederholt dies bei Misserfolg bis zu 100 mal.
+     * @param string $ident Ein String der den Lock bezeichnet.
+     * @return boolean TRUE bei Erfolg, FALSE bei Misserfolg.
+     */
+    private function lock($ident)
+    {
+        for ($i = 0; $i < 100; $i++)
+        {
+            if (IPS_SemaphoreEnter("LMS_" . (string) $this->InstanceID . (string) $ident, 1))
+            {
+                return true;
+            }
+            else
+            {
+                IPS_Sleep(mt_rand(1, 5));
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Löscht eine Semaphore.
+     * @param string $ident Ein String der den Lock bezeichnet.
+     */
+    private function unlock($ident)
+    {
+        IPS_SemaphoreLeave("LMS_" . (string) $this->InstanceID . (string) $ident);
+    }
+
+}
+
+################## WEBHOOK Helper  - protected  
+
+trait Webhook
+{
+
+    /**
+     * Erstellt einen WebHook, wenn nicht schon vorhanden.
+     *
+     * @access protected
+     * @param string $WebHook URI des WebHook.
+     */
+    protected function RegisterHook($WebHook)
+    {
+        $ids = IPS_GetInstanceListByModuleID("{015A6EB8-D6E5-4B93-B496-0D3F77AE9FE1}");
+        if (sizeof($ids) > 0)
+        {
+            $hooks = json_decode(IPS_GetProperty($ids[0], "Hooks"), true);
+            $found = false;
+            foreach ($hooks as $index => $hook)
+            {
+                if ($hook['Hook'] == $WebHook)
+                {
+                    if ($hook['TargetID'] == $this->InstanceID)
+                        return;
+                    $hooks[$index]['TargetID'] = $this->InstanceID;
+                    $found = true;
+                }
+            }
+            if (!$found)
+            {
+                $hooks[] = Array("Hook" => $WebHook, $this->InstanceID);
+            }
+            IPS_SetProperty($ids[0], "Hooks", json_encode($hooks));
+            IPS_ApplyChanges($ids[0]);
+        }
+    }
+
+    /**
+     * Löscht einen WebHook, wenn vorhanden.
+     *
+     * @access protected
+     * @param string $WebHook URI des WebHook.
+     */
+    protected function UnregisterHook($WebHook)
+    {
+        $ids = IPS_GetInstanceListByModuleID("{015A6EB8-D6E5-4B93-B496-0D3F77AE9FE1}");
+        if (sizeof($ids) > 0)
+        {
+            $hooks = json_decode(IPS_GetProperty($ids[0], "Hooks"), true);
+            $found = false;
+            foreach ($hooks as $index => $hook)
+            {
+                if ($hook['Hook'] == $WebHook)
+                {
+                    $found = $index;
+                    break;
+                }
+            }
+
+            if ($found !== false)
+            {
+                array_splice($hooks, $index, 1);
+                IPS_SetProperty($ids[0], "Hooks", json_encode($hooks));
+                IPS_ApplyChanges($ids[0]);
+            }
+        }
+    }
+
+}
+
+################## DEBUG - protected
+
+/**
+ * DebugHelper ergänzt SendDebug um die Möglichkeit Array und Objekte auszugeben.
+ * 
+ */
+trait DebugHelper
+{
+
+    /**
+     * Formatiert eine DebugAusgabe und gibt sie an IPS weiter.
+     *
+     * @access protected
+     * @param string $Message Nachrichten-Feld.
+     * @param string|array|LMSData|LMSResponse $Data Daten-Feld.
+     * @param int $Format Ausgabe in Klartext(0) oder Hex(1)
+     */
+    protected function SendDebug($Message, $Data, $Format)
+    {
+        if (is_a($Data, 'LMSResponse'))
+        {
+            $this->SendDebug($Message . " LMSResponse:Address", $Data->Address, 0);
+            $this->SendDebug($Message . " LMSResponse:Command", $Data->Command, 0);
+            $this->SendDebug($Message . " LMSResponse:Data", $Data->Data, 0);
+        }
+        else if (is_a($Data, 'LMSData'))
+        {
+            $this->SendDebug($Message . " LMSData:Address", $Data->Address, 0);
+            $this->SendDebug($Message . " LMSData:Command", $Data->Command, 0);
+            $this->SendDebug($Message . " LMSData:Data", $Data->Data, 0);
+            $this->SendDebug($Message . " LMSData:needResponse", ($Data->needResponse ? 'true' : 'false'), 0);
+        }
+        elseif (is_array($Data))
+        {
+            if (count($Data) > 25)
+            {
+                $this->SendDebug($Message, array_slice($Data, 0, 20), 0);
+                $this->SendDebug($Message . ':CUT', '-------------CUT-----------------', 0);
+                $this->SendDebug($Message, array_slice($Data, -5, null, true), 0);
+            }
+            else
+            {
+                foreach ($Data as $Key => $DebugData)
+                {
+                    $this->SendDebug($Message . ":" . $Key, $DebugData, 0);
+                }
+            }
+        }
+        else if (is_object($Data))
+        {
+            foreach ($Data as $Key => $DebugData)
+            {
+                $this->SendDebug($Message . "->" . $Key, $DebugData, 0);
+            }
+        }
+        else
+        {
+            parent::SendDebug($Message, $Data, $Format);
+        }
     }
 
 }
@@ -297,6 +1351,8 @@ class LMSResponse extends LMSData
 class LSQData extends stdClass
 {
 
+    use UTF8Coder;
+
     public $Address; //DeviceID
     public $Command;
     public $Value;
@@ -304,26 +1360,33 @@ class LSQData extends stdClass
 
     public function __construct($Command, $Value, $needResponse = true)
     {
-        $this->Command = $Command;
+        if (is_array($Command))
+            $this->Command = $Command;
+        else
+            $this->Command = array($Command);
+
         $this->Value = $Value;
         $this->needResponse = $needResponse;
     }
 
-}
-
-class LMSTaggingData extends stdClass
-{
-
-    public function __construct($TaggedDataLine)
+    public function ToJSONStringForSplitter($GUID)
     {
-        foreach (explode(' ', $TaggedDataLine) as $Line)
-        {
-            $Data = new LSQTaggingData($Line, false);
-            $this->
-                    {
+        return json_encode(Array("DataID" => $GUID,
+            "Address" => $this->EncodeUTF8($this->Address),
+            "Command" => $this->EncodeUTF8($this->Command),
+            "Value" => $this->EncodeUTF8($this->Value),
+            "needResponse" => $this->needResponse
+        ));
+    }
 
-                    $Data->Command} = rawurldecode($Data->Value);
-        }
+    public function ToRawStringForLMS()
+    {
+        $Command = implode(' ', $this->Command);
+        if (is_array($this->Value))
+            $Data = implode(' ', $this->Value);
+        else
+            $Data = $this->Value;
+        return trim($this->Address . ' ' . trim($Command) . ' ' . trim($Data)) . chr(0x0d);
     }
 
 }
@@ -387,6 +1450,7 @@ class LSQTaggingData extends LSQEvent
 
 }
 
+//OLD
 class LSMSongInfo extends stdClass
 {
 
@@ -423,12 +1487,14 @@ class LSMSongInfo extends stdClass
             'Modified' => 0,
             'Playlist' => 3
         );
-        foreach (explode(' ', $TaggedDataLine) as $Line)
+        if (!is_array($TaggedDataLine))
+            $TaggedDataLine = explode(' ', $TaggedDataLine);
+        foreach ($TaggedDataLine as $Line)
         {
 
 //            $LSQPart = $this->decodeLSQTag gingData($Line, false);
             $LSQPart = new LSQTaggingData($Line, false);
-
+//LMSTaggingData
             if (is_array($LSQPart->Command) and ( $LSQPart->Command[0] == LSQResponse::playlist) and ( $LSQPart->Command[1] == LSQResponse::index))
             {
                 $id = (int) $LSQPart->Value;
@@ -626,15 +1692,13 @@ class LSQResponse extends stdClass
 
     public function __construct($Data) // LMS->Data
     {
-        if ($Data->Device == LMSResponse::isMAC)
-            $this->Address = $Data->MAC;
-        elseif ($Data->Device == LMSResponse::isIP)
-            $this->Address = $Data->IP;
+        $this->Address = $Data->Address;
         foreach ($Data->Data as $Key => $Value)
         {
 
             $Data->Data[$Key] = utf8_decode($Value);
         }
+        array_unshift($Data->Data, utf8_decode($Data->Command[0]));
         switch ($Data->Data[0])
         {
             // 0 = Command 1 = Value
@@ -742,4 +1806,4 @@ if (!function_exists("array_column"))
     }
 
 }
-?>
+/** @} */
