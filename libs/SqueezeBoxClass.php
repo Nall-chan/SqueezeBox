@@ -561,7 +561,7 @@ class LMSTaggingArray extends stdClass
         //'Count' => 1,
         'Contributor_id' => 1,
         'Contributor' => 3,
-        'Cmd' => 1,
+        'Cmd' => 3,
         'Dow' => 3,
         'DowDel' => 1,
         'DowAdd' => 1,
@@ -570,11 +570,13 @@ class LMSTaggingArray extends stdClass
         'Disccount' => 1, // q
         'Displaytype' => 3,
         'Enabled' => 0,
+        'Exists' => 0,
         'Filename' => 3,
         'Genre' => 3, // g
         'Genre_id' => 1, //p
         'Hasitems' => 0,
         'Id' => 1,
+        'Index' => 3,
         'Ip' => 3,
         'Icon' => 3,
         'Isaudio' => 0,

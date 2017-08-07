@@ -1551,7 +1551,7 @@ class LMSSplitter extends IPSModule
         }
         return true;
     }
-  
+
     /**
      * IPS-Instanz-Funktion 'LMS_GetSongInfoByFileID'.
      * Liefert Details zu einem Song anhand der ID.
@@ -1869,7 +1869,7 @@ class LMSSplitter extends IPSModule
 
     /**
      * IPS-Instanz-Funktion 'LMS_RenameFavorite'.
-     * Benennt eine neue Favoriten um.
+     * Benennt eine Favoriten um.
      *
      * @access public
      * @param string $FavoriteID Die ID des Favoriten welcher umbenannt werden soll.
@@ -1943,7 +1943,8 @@ class LMSSplitter extends IPSModule
         if ($LMSData === null)
             return false;
         $LMSData->SliceData();
-        return ($LMSData->Data[0] == 1);
+        $Result = (new LMSTaggingArray($LMSData->Data))->DataArray();
+        return $Result;
     }
 
     public function ExistsIdInFavorite(int $ID)
@@ -1957,7 +1958,8 @@ class LMSSplitter extends IPSModule
         if ($LMSData === null)
             return false;
         $LMSData->SliceData();
-        return ($LMSData->Data[0] == 1);
+        $Result = (new LMSTaggingArray($LMSData->Data))->DataArray();
+        return $Result;
     }
 
     ///////////////////////////////////////////////////////////////
@@ -1984,9 +1986,14 @@ class LMSSplitter extends IPSModule
         return (new LMSTaggingArray($LMSData->Data, 'icon'))->DataArray();
     }
 
-    public function GetRadioOrAppData(string $DataID, string $FolderID)
+    public function GetRadioOrAppData(string $Cmd, string $FolderID)
     {
-        if (!is_string($DataID))
+        return $this->GetRadioOrAppDataEx($Cmd, $FolderID, '');
+    }
+
+    public function GetRadioOrAppDataEx(string $Cmd, string $FolderID, string $Search)
+    {
+        if (!is_string($Cmd))
         {
             trigger_error(sprintf($this->Translate("%s must be string."), "DataID"), E_USER_NOTICE);
             return false;
@@ -1996,11 +2003,21 @@ class LMSSplitter extends IPSModule
             trigger_error(sprintf($this->Translate("%s must be string."), "FolderID"), E_USER_NOTICE);
             return false;
         }
+        if (!is_string($Search))
+        {
+            trigger_error(sprintf($this->Translate("%s must be string."), "Search"), E_USER_NOTICE);
+            return false;
+        }
+        $Data = array(0, 100000, 'want_url:1');
         if ($FolderID == '')
-            $Data = array(0, 100000, 'want_url:1', 'item_id:.');
+            $Data[] = 'item_id:.';
         else
-            $Data = array(0, 100000, 'want_url:1', 'item_id:' . rawurlencode($FolderID));
-        $LMSData = $this->SendDirect(new LMSData(array($DataID, 'items'), $Data));
+            $Data[] = 'item_id:' . rawurlencode($FolderID);
+
+        if ($Search != '')
+            $Data[] = 'search:' . rawurlencode($Search);
+
+        $LMSData = $this->SendDirect(new LMSData(array($Cmd, 'items'), $Data));
         if ($LMSData === null)
             return false;
         $LMSData->SliceData();

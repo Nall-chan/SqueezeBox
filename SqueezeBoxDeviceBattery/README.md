@@ -13,7 +13,7 @@ Daten zur Stromversorgung und des Akkus in IPS einbinden.
 6. [WebFront](#6-webfront)
 7. [PHP-Befehlsreferenz](#7-php-befehlsreferenz) 
 8. [Anhang](#8-anhang)  
-9. [Lizenz](#9-lizenz)
+9. [Lizenzen](#9-lizenzen)
 
 ## 1. Funktionsumfang
 
@@ -75,7 +75,7 @@ Folgende Statusvariablen werden automatisch angelegt.
 ## 6. WebFront
 
 Die direkte Darstellung der Instanz im WebFront:  
-![WebFront Beispiel](dosc/wf.png)  
+![WebFront Beispiel](imgs/wf.png)  
 
 ## 7. PHP-Befehlsreferenz
 
@@ -94,7 +94,7 @@ oder `false` im Fehlerfall.
 Version 1.0:  
  - Erstes offizielles Release
 
-## 9. Lizenz
+## 9. Lizenzen
 
   IPS-Modul:  
   [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)  

@@ -8,13 +8,15 @@ von den in einer SqueezeBox eingerichteten Weckern in IPS.
 
 1. [Funktionsumfang](#1-funktionsumfang)  
 2. [Voraussetzungen](#2-voraussetzungen)  
-3. [Software-Installation](#3-software-installation) 
-4. [Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
-5. [Statusvariablen und Profile](#5-statusvariablen-und-profile)
-6. [WebFront](#6-webfront)
-7. [PHP-Befehlsreferenz](#7-php-befehlsreferenz) 
+3. [Software-Installation](#3-software-installation)  
+4. [Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)  
+5. [Statusvariablen und Profile](#5-statusvariablen-und-profile)  
+6. [WebFront](#6-webfront)  
+7. [PHP-Befehlsreferenz](#7-php-befehlsreferenz)  
+    1. [Allgemeine Befehle](#1-allgemeine-befehle)  
+    2. [Wecker Befehle](#2-wecker-befehle)  
 8. [Anhang](#8-anhang)  
-9. [Lizenz](#9-lizenz)
+9. [Lizenz](#9-lizenz)  
 
 ## 1. Funktionsumfang
 
@@ -124,13 +126,17 @@ Es ist der Ident der Statusvariable zu übergeben.
 Es wird `true` zurückgeben wenn der Befehl vom Server bestätigt wurde,  
 oder `false` im Fehlerfall.  
 
+---
+
 ```php
 bool LSA_SetAllActive(int $InstanzID, bool $Value)
 ```
-De/Aktiviert die Wekcer-Funktionen des Gerätes.  
+De/Aktiviert die Wecker-Funktionen des Gerätes.  
 `true` zum aktivieren, `false` zum deaktivieren.  
 Es wird `true` zurückgeben wenn der Befehl vom Server bestätigt wurde,  
 oder `false` im Fehlerfall.  
+
+---
 
 ```php
 bool LSA_SetDefaultVolume(int $InstanzID, int $Value)
@@ -140,6 +146,8 @@ Setzt die Standard-Lautstärke für neue Wecker.
 Es wird `true` zurückgeben wenn der Befehl vom Server bestätigt wurde,  
 oder `false` im Fehlerfall.  
 
+---
+
 ```php
 bool LSA_SetFadeIn(int $InstanzID, bool $Value)
 ```
@@ -148,12 +156,16 @@ De/Aktiviert das Einblenden der Wiedergabe.
 Es wird `true` zurückgeben wenn der Befehl vom Server bestätigt wurde,  
 oder `false` im Fehlerfall.  
 
+---
+
 ```php
 bool LSA_SetTimeout(int $InstanzID, int $Value)
 ```
 Setzt die Zeit in Sekunden bis ein Wecker automatisch beendent wird.  
 Es wird `true` zurückgeben wenn der Befehl vom Server bestätigt wurde,  
 oder `false` im Fehlerfall.  
+
+---
 
 ```php
 bool LSA_SetSnoozeSeconds(int $InstanzID, int $Value)
@@ -162,6 +174,8 @@ Setzt die Schlummerzeit in Sekunden.
 Es wird `true` zurückgeben wenn der Befehl vom Server bestätigt wurde,  
 oder `false` im Fehlerfall.  
 
+---
+
 ```php
 bool LSA_AlarmSnooze(int $InstanzID)
 ```
@@ -169,12 +183,16 @@ Sendet das Schlummersignal an das Gerät und pausiert somit einen aktiven Alarm.
 Es wird `true` zurückgeben wenn der Befehl vom Server bestätigt wurde,  
 oder `false` im Fehlerfall.  
 
+---
+
 ```php
 bool LSA_AlarmStop(int $InstanzID)
 ```
 Beendet ein aktiven Alarm.  
 Es wird `true` zurückgeben wenn der Befehl vom Server bestätigt wurde,  
 oder `false` im Fehlerfall.  
+
+---
 
 ```php
 int|bool LSA_AddAlarm(int $InstanzID)
@@ -194,6 +212,8 @@ Löscht einen Wecker.
 Es wird `true` zurückgeben wenn der Befehl vom Server bestätigt wurde,  
 oder `false` im Fehlerfall.  
 
+---
+
 ```php
 bool LSA_SetPlaylist(int $InstanzID, int $AlarmIndex, string $Url)
 ```
@@ -201,6 +221,8 @@ Setzt die Playliste bzw. die Wiedergabe für den Wecker.
 Die wiederzugebene URL muss in $Url übergeben werden.  
 Es wird `true` zurückgeben wenn der Befehl vom Server bestätigt wurde,  
 oder `false` im Fehlerfall.  
+
+---
 
 ```php
 bool LSA_SetShuffle(int $InstanzID, int $AlarmIndex, int $Value)
@@ -210,6 +232,8 @@ Der Modus wird in $Value übergeben und kann 0=aus, 1=Titel oder 2=Album enthalt
 Es wird `true` zurückgeben wenn der Befehl vom Server bestätigt wurde,  
 oder `false` im Fehlerfall.  
 
+---
+
 ```php
 bool LSA_SetRepeat(int $InstanzID, int $AlarmIndex, bool $Value)
 ```
@@ -217,6 +241,8 @@ De/Aktiviert die Wiederholung.
 `true` zum aktivieren, `false` zum deaktivieren.  
 Es wird `true` zurückgeben wenn der Befehl vom Server bestätigt wurde,  
 oder `false` im Fehlerfall.  
+
+---
 
 ```php
 bool LSA_SetVolume(int $InstanzID, int $AlarmIndex, int $Value)
