@@ -1,19 +1,24 @@
 {
     "translations": {
         "de": {
-            "Open": "Socket öffnen",
-            "LMS Host": "LMS Adresse",
-            "CLI Port": "CLI Port",
-            "Webserver Port": "Webserver Port",
-            "Show playlist as HTML-Box": "Playlist als HTML-Box anlegen",
-            "Script for HTML-Box Desgin:": "Script für HTML-Box Aussehen:",
-            "DB Rescan": "DB Scan",
-            "Create all active players in IPS": "Aktive Player in IPS erzeugen",
-            "Load Server-Playlists": "Lade Server Playlisten",
-            "LMS avaiable.": "LMS erreichbar.",
-            "Interface closed.": "Interface geschlossen.",
-            "LMS Host is empty.": "LMS Adresse darf nicht leer sein.",
-            "Not connected to LMS.": "Keine Verbindung zum LMS."
+            "Reload": "Neu laden",
+            "No devices found!": "Keine Ger\u00e4te gefunden",
+            "List of Players with MAC\/IP": "Liste der Player mit MAC\/IP",
+            "No new devices found!": "Keine neuen Ger\u00e4te gefunden!",
+            "No disconnected devices found!": "Keine getrennten Ger\u00e4te gefunden!",
+            "Name": "Name",
+            "MAC\/IP": "MAC\/IP",
+            "Location": "Lokation",
+            "InstanceID": "InstanzID",
+            "List of Battery-Instances with IP": "Liste von Batterie-Instanzen mit IP",
+            "IP": "IP",
+            "Create Player-Instance": "Player-Instanz erzeugen",
+            "Create Player Battery-Instance": "Batterie-Instanz erzeugen",
+            "Create Alarm-Instance": "Wecker-Instanz erzeugen",
+            "Devices found: %d": "Ger\u00e4te gefunden: %d",
+            "New devices: %d": "Neue Ger\u00e4te: %d",
+            "Disconnected devices: %d": "Getrennte Ger\u00e4te: %d",
+            "Sorry please close and reopen configurator.": "Bitte Konfigurator schlie\u00dfen und neu \u00f6ffnen."
         }
     }
 }

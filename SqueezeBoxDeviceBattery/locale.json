@@ -1,16 +1,37 @@
 {
     "translations": {
         "de": {
-            "Trigger for refresh": "Trigger für Refresh",
-            "seconds": "Sekunden",
-            "emulate state": "Status emulieren",
-            "enable alarm variable": "Alarm-Variablen aktiv",
-            "Alarmmanagement-Script": "Script für Alarmverarbeitung",
-            "Configuration is valid.": "Konfiguration gültig.",
-            "No trigger or interval active.": "Kein Trigger oder Interval aktiv.",
-            "Interval to small.": "Interval darf nicht kleiner 1 sein.",
-            "Interval smaller as 5 not possible.": "Interval kleiner 5 nicht möglich.",
-            "read CCU": "CCU auslesen"
+            "IP-Address of Squeezbox Radio": "IP-Adresse der Squeezbox Radio",
+            "IP Address": "IP Adresse",
+            "Default SSH password: 1234": "Standard SSH Passwort: 1234",
+            "Password": "Passwort",
+            "Interval": "Intervall",
+            "Request state": "Zustandsabfrage",
+            "Configuration valid.": "Konfiguration gültig.",
+            "Instance is inactive.": "Instanz ist inaktiv.",
+            "Interval to small (<30).": "Intervall zu klein (<30).",
+            "Login failed.": "Anmeldung gescheitert.",
+            "Address not set.": "Adresse nicht gesetzt.",
+            "State": "Status",
+            "Device voltage": "Gerätespannung",
+            "Line voltage": "Netzspannung",
+            "Charge state": "Ladestatus",
+            "Battery level": "Akkuladekapazität",
+            "Battery temperature": "Akkutemperatur",
+            "Battery voltage total": "Akkuspannung Summe",
+            "Battery voltage 1": "Akkuspannung 1",
+            "Battery voltage 2": "Akkuspannung 2",
+            "Battery capacity": "Akkukapazität",
+            "offline": "offline",
+            "on main": "Netzbetrieb",
+            "on battery": "Akkubetrieb",
+            "on main and battery": "Netz- und Akkubetrieb",
+            "not installed": "Keine installiert",
+            "standby": "Ruhezustand",
+            "discharging": "wird entladen",
+            "charging": "wird geladen",
+            "load cycle wait state": "Ladezyklus pausiert",
+            "warning": "Warnung"
         }
     }
 }

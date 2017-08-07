@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        <!--#########################################################################-->
+        <!-- SYNC COMMANDS                                                         -->
+        <!--#########################################################################-->
+
+
+        <br>
+        <p id="sync">
+            <strong>
+                <code>
+                    &lt;playerid&gt;
+                    sync 
+                    &lt;playerindex|playerid|-|?&gt;
+                </code>
+            </strong>
+        </p>
+        <p>
+            The "sync" command specifies the player to synchronise with the 
+            given playerid. The command accepts only one playerindex or playerid. 
+            To unsync the player, use the "-" parameter.
+            <br>
+            Note that in both cases the first <code>&lt;playerid&gt;</code> is the player which
+            is already a member of a sync group. When adding a player to a sync group,
+            the second specified player will be added to the group which includes the first player,
+            if necessary first removing the second player from its existing sync-group.
+            <br>
+            You may query which players are already synced with this player by passing 
+            in a "?" parameter.  Multiple playerids are separated by a comma. 
+            If the player is not synced, "-" is returned.
+        </p>
+        <p>
+            Examples:
+        </p>
+        <blockquote>
+            <p>
+                Request: "04:20:00:12:23:45 sync 1&lt;LF&gt;"
+                <br>
+                Response: "04:20:00:12:23:45 sync 1&lt;LF&gt;"
+            </p>
+            <p>
+                Request: "04:20:00:12:23:45 sync ?&lt;LF&gt;"
+                <br>
+                Response: "04:20:00:12:23:45 sync 04:20:00:12:23:21&lt;LF&gt;"
+            </p>
+            <p>
+                Request: "04:20:00:12:23:45 sync -&lt;LF&gt;"
+                <br>
+                Response: "04:20:00:12:23:45 sync -&lt;LF&gt;"
+            </p>
+        </blockquote>
+
+        <br>
+        <p id="syncgroups">
+            <strong>
+                <code>
+                    syncgroups ? 
+                </code>
+            </strong>
+        </p>
+        <p>
+            The "syncgroups" query returns a comma separated list of sync 
+            groups members (IDs and names).
+        </p>
+        <p>
+            Examples:
+        </p>
+        <blockquote>
+            <p>
+                Request: "syncgroups ?&lt;LF&gt;"
+                <br>
+                Response: "syncgroups sync_members:04:20:00:12:23:45,04:20:00:12:34:56 sync_member_names:Living%20Room,Kitchen&lt;LF&gt;"
+            </p>
+        </blockquote>
+
+
+        <!--#########################################################################-->
+        <!-- COMPOUND QUERIES                                                        -->
+        <!--#########################################################################-->
+
+
+        <!--// LMS TODO
+        <p id="readdirectory">
+            <strong>
+                <code>
+                    readdirectory
+                    &lt;start&gt;
+                    &lt;itemsPerResponse&gt;
+                    &lt;taggedParameters&gt;
+                </code>
+            </strong>
+        </p>
+        <p>
+            The "readdirectory" query allows to browse filesystems from the server's point of view.
+            This can be used to eg. select music folders. Local filesystems are supported, as are UNC paths 
+            on Windows systems (eg. \\server\musicshare).
+            <br>
+            Please note that on Windows systems the back slashes must either be escaped or replaced by
+            normal slashes. The above path would better be written //server/musicshare. 
+        </p>
+        <p>
+            Accepted tagged parameters:
+        </p>
+        <table border="0" spacing="50">
+            <tbody><tr>
+                    <td width="150">
+                        <b>Tag</b>
+                    </td>
+                    <td>
+                        <b>Description</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        folder
+                    </td>
+                    <td>
+                        the path to the folder to be displayed, eg. c:/music, /Users/mh/Music, 
+                        //server/share etc.
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        filter
+                    </td>
+                    <td>Filter the output according to one of the following keywords (regulare expressions can be used):
+                        <ul>
+                            <li>filter:foldersonly - list folders only
+                            </li><li>filter:filesonly - list files only
+                            </li><li>filter:musicfiles - list all files considered music files by the server; 
+                                this is the same filter as is used when scanning the disk for music
+                            </li><li>filter:filetype:xyz - list file type .xyz only
+                            </li><li>filter:xyz - any expression filter path/filenames
+                            </li></ul></td>
+                </tr>
+            </tbody></table>
+        <p>
+            Returned tagged parameters:
+        </p>
+        <table border="0" spacing="50">
+            <tbody><tr>
+                    <td width="150">
+                        <b>Tag</b>
+                    </td>
+                    <td>
+                        <b>Description</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        item
+                    </td>
+                    <td>
+                        The folder's item: folder, files etc.
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        isfolder
+                    </td>
+                    <td>
+                        A flag whether an item is a folder or not.
+                    </td>
+                </tr>
+            </tbody></table>
+        <p>
+            Example:
+        </p>
+        <blockquote>
+            Request: "readdirectory 0 10 root://edelzwerg/mp3"
+            <br>
+            Response: "readdirectory 0 10 root%3A%2F%2Fedelzwerg%2Fmp3 count%3A251 item%3A%5C%5Cedelzwerg%5Cmp3%5CAerosmith isdir%3A1 item%3A%5C%5Cedelzwerg%5Cmp3%5CAir isdir%3A1 item%3A%5C%5Cedelzwerg%5Cmp3%5CAlanis%20Morissette isdir%3A1 item%3A%5C%5Cedelzwerg%5Cmp3%5CAldo%20Romano%2C%20Michel%20Benita%2C%20Glenn%20Ferris%2C%20Paolo%20Fresu isdir%3A1 item%3A%5C%5Cedelzwerg%5Cmp3%5CAli%20Farka%20Toure isdir%3A1 item%3A%5C%5Cedelzwerg%5Cmp3%5CAll%20Saints isdir%3A1 item%3A%5C%5Cedelzwerg%5Cmp3%5CManu%20Katche isdir%3A1 item%3A%5C%5Cedelzwerg%5Cmp3%5CSinead%20O'Connor isdir%3A1 item%3A%5C%5Cedelzwerg%5Cmp3%5CShakira isdir%3A1 item%3A%5C%5Cedelzwerg%5Cmp3%5CAnastacia isdir%3A1"
+        </blockquote> 
+
+-->
+
+        <!--#########################################################################-->
+        <!-- PLUGIN COMMANDS                                                         -->
+        <!--#########################################################################-->
+
+        <hr>
+        <h3 id="PG">
+            Plugins commands and queries
+        </h3>
+        <p>
+            The following command and queries are proposed by server plugins. The
+            plugin must be enabled in the server configuration for the commands
+            and queries to be available to the CLI client. Please use query 
+            "<a href="#can">can</a>" to determine if the given command or
+            query is available. Query "<a href="#radios">radios</a>" can
+            alternatively be used to get a list of available radio station plugin CLI 
+            queries.
+        </p>
+        <p>
+        </p>
+        <ul>
+            <li>
+                <strong><code><a href="#radios">radios</a></code></strong>
+            </li>
+            <li>
+                <strong><code><a href="#radios">apps</a></code></strong>
+            </li>
+            <li>
+                <strong><a href="#XMLBrowser">Live Music Archive, Live365, MP3tunes, Pandora, Podcasts, RadioTime, Napster, Shoutcast, Staff Picks, RSS</a></strong>
+            </li>
+            <li>
+                <strong><a href="#RandomPlay">RandomPlay</a></strong>
+            </li>
+            <li>
+                <strong><a href="#MusicIP">MusicIP</a></strong>
+            </li>
+        </ul>
+
+        <p>
+            <strong>
+                <code>
+                    &lt;playerid&gt;
+                    &lt;lma|live365|mp3tunes|pandora|podcast|radiotime|rhapsodydirect|shoutcast|picks|rss&gt;
+                    playlist
+                    &lt;play|load|insert|add&gt;
+                    &lt;taggedParameters&gt;
+                </code>
+            </strong>
+        </p>
+        <p>
+            This command adds or plays an item. Though playback of these stations could 
+            be achieved by the standard playlist methods, calling this command will 
+            ensure that the station's name is displayed, not only it's url (if 
+            possible). 
+            <br>
+            If item_id defines an item that can't be played, but contains playable 
+            subitems, then these will be played instead. This allows to eg. play all 
+            tracks of a genre.
+        </p>
+        <p>
+            Accepted tagged parameters:
+        </p>
+        <table border="0" spacing="50">
+            <tbody><tr>
+                    <td width="150">
+                        <b>Tag</b>
+                    </td>
+                    <td>
+                        <b>Description</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        item_id
+                    </td>
+                    <td>
+                        The id of an item to be played. The id represents the hierarchical 
+                        structure of the file using a dotted syntax similar to the one used
+                        in SNMP, like eg. 2.0.9.3
+                    </td>
+                </tr>
+            </tbody></table>
+        <p>
+            Example:
+        </p>
+        <blockquote> 
+            <p>
+                Request: "6e:ef:54:e9:02:b0 shoutcast playlist play item_id:1.1&lt;LF&gt;"
+                <br>
+                Response: "6e:ef:54:e9:02:b0 shoutcast playlist play item_id:1.1&lt;LF&gt;"
+            </p>
+        </blockquote>
+
+
+
+        <h3 id="RandomPlay">
+            RandomPlay
+        </h3>
+        <ul>
+            <li>
+                <strong><code><a href="#randomplay">randomplay</a></code></strong>
+            </li>
+            <li>
+                <strong><code><a href="#randomplaygenrelist">randomplaygenrelist</a></code></strong>
+            </li>
+            <li>
+                <strong><code><a href="#randomplaychoosegenre">randomplaychoosegenre</a></code></strong>
+            </li>
+            <li>
+                <strong><code><a href="#randomplaygenreselectall">randomplaygenreselectall</a></code></strong>
+            </li>
+            <li>
+                <strong><code><a href="#randomplayisactive">randomplayisactive</a></code></strong>
+            </li>
+        </ul>
+
+        <p id="randomplay">
+            <strong>
+                <code>
+                    &lt;playerid&gt;
+                    randomplay
+                    &lt;tracks|albums|contributors|year&gt;
+                </code>
+            </strong>
+        </p>
+        <p>
+            The "randomplay" command starts a random mix of the given 
+            type.
+        </p>
+        <p>
+            Example:
+        </p>
+        <blockquote> 
+            <p>
+                Request:  "04:20:00:12:23:45 randomplay albums&lt;LF&gt;"
+                <br>
+                Response: "04:20:00:12:23:45 randomplay albums&lt;LF&gt;"
+            </p>
+        </blockquote>
+
+        <p id="randomplaygenrelist">
+            <strong>
+                <code>
+                    &lt;playerid&gt;
+                    randomplaygenrelist
+                </code>
+            </strong>
+        </p>
+        <p>
+            This returns a formatted list of genres which is for use on the Jive platform
+        </p>
+        <p>
+            Example:
+        </p>
+        <blockquote> 
+            <p>
+                Request:  "04:20:00:12:23:45 randomplaygenrelist&lt;LF&gt;"
+                <br>
+                Response: "04:20:00:12:23:45 randomplaygenrelist count%3A103 offset%3A0 actions%3AHASH(0xb804350) checkbox%3A1 text%3A80s actions%3AHASH(0xb8042a8) checkbox%3A1 text%3AAcid%20Jazz actions%3AHASH(0xb80438c) checkbox%3A1 text%3AAcoustic actions%3AHASH(0xb804494) checkbox%3A0 text%3AAdvertisement actions%3AHASH(0xb8cdcc0) checkbox%3A1 text%3AAfropop actions%3AHASH(0xb8cdf9c) checkbox%3A1 &lt;LF&gt;"
+            </p>
+        </blockquote>
+
+
+        <p id="randomplayisactive">
+            <strong>
+                <code>
+                    &lt;playerid&gt;
+                    randomplayisactive
+                </code>
+            </strong>
+        </p>
+        <p>
+            Get to know whether RandomPlay is active for a given player, and what kind of mix it's playing.
+        </p>
+        <p>
+            Example:
+        </p>
+        <blockquote> 
+            <p>
+                Request:  "04:20:00:12:23:45 randomplaygisactive"
+                <br>
+                Response:  "04:20:00:12:23:45 randomplayisactive album"
+            </p>
+        </blockquote>
+
+
+        <h3 id="MusicIP">
+            MusicIP
+        </h3>
+        <ul>
+            <li>
+                <strong><code><a href="#musicip">musicip mix</a></code></strong>
+            </li>
+            <li>
+                <strong><code><a href="#musicipplayadd">musicip &lt;play|add&gt;</a></code></strong>
+            </li>
+            <li>
+                <strong><code><a href="#musicipmoods">musicip moods</a></code></strong>
+            </li>
+        </ul>
+
+        <p id="musicip">
+            <strong>
+                <code>
+                    &lt;playerid&gt;
+                    musicip mix
+                    &lt;taggedParameters&gt;
+                </code>
+            </strong>
+        </p>
+        <p>
+            The "musicip mix" query creates a MusicIP mix on the given additional
+            Parameters.
+        </p>
+        <p>
+            Accepted tagged parameters:
+        </p>
+        <table border="0" spacing="50">
+            <tbody><tr>
+                    <td width="100">
+                        <b>Tag</b>
+                    </td>
+                    <td>
+                        <b>Description</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        mood
+                    </td>
+                    <td>
+                        A MusicIP mood's name.
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        artist_id
+                    </td>
+                    <td>
+                        Artist ID, to create a mix based on that artist.
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        album_id
+                    </td>
+                    <td>
+                        Album ID, to create a mix based that album.
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        song_id
+                    </td>
+                    <td>
+                        Song ID, to reate a mix based track.
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        genre_id
+                    </td>
+                    <td>
+                        Genre ID, to create a mix based that genre.
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        year
+                    </td>
+                    <td>
+                        Year, to create a mix based on that year.
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        tags
+                    </td>
+                    <td>
+                        Determines which tags are returned. Each returned tag is identified
+                        by a letter (see command 
+                        "<a href="#songinfo">songinfo</a>" for a list of possible
+                        fields and their identifying letter). The default tags value for 
+                        this command is "gald".
+                    </td>
+                </tr>
+            </tbody></table>
+        <p>
+            Example:
+        </p>
+        <blockquote> 
+            <p>
+                Request:  "04:20:00:12:23:45 musicip album_id:23&lt;LF&gt;"
+                <br>
+                Response: "04:20:00:12:23:45 musicip album_id:23
+                id:2441 title:I'll%20Be%20Back artist:The%20Beatles album:A%20Hard%20Day's%20Night
+                id:1807 title:Ni%20Remords%2C%20Ni%20Regrets artist:Stephan%20Eicher album:Non%20Ci%20Badar%2C%20Guarda%20E%20Passa...
+                id:2506 title:Fire artist:Jimi%20Hendrix album:Are%20You%20Experienced
+                ...	&lt;LF&gt;"
+            </p>
+        </blockquote>
+
+        <p id="musicipplayadd">
+            <strong>
+                <code>
+                    &lt;playerid&gt;
+                    musicip
+                    &lt;play|add&gt;
+                </code>
+            </strong>
+        </p>
+        <p>
+            Play or add the last MusicIP mix.
+        </p>
+        <p>
+            Example:
+        </p>
+        <blockquote> 
+            <p>
+                Request:  "04:20:00:12:23:45 musicip play&lt;LF&gt;"
+                <br>
+                Response:  "04:20:00:12:23:45 musicip play&lt;LF&gt;"
+            </p>
+        </blockquote>
+
+        <p id="musicipmoods">
+            <strong>
+                <code>
+                    &lt;playerid&gt;
+                    musicip moods
+                </code>
+            </strong>
+        </p>
+        <p>
+            Return list of available moods
+        </p>
+        <p>
+            Example:
+        </p>
+        <blockquote> 
+            <p>
+                Request:  "04:20:00:12:23:45 musicip moods&lt;LF&gt;"
+                <br>
+                Response:  "04:20:00:12:23:45 musicip moods name:Soft name:Guitars count:2&lt;LF&gt;"
+            </p>
+        </blockquote>
+
+
+    </body>
+</html>

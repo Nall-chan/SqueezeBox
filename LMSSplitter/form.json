@@ -1,17 +1,11 @@
 {
     "elements":
             [
+
                 {
-                    "name": "Open",
-                    "type": "CheckBox",
-                    "caption": "Open"
-                },
-                {
-                    "name": "Host",
-                    "type": "ValidationTextBox",
-                    "caption": "LMS Adresse"
-                },
-                {
+                    "type": "Label",
+                    "label": "Enter Adress of LMS in the parent Client-Socket."
+                }, {
                     "name": "Port",
                     "type": "NumberSpinner",
                     "caption": "CLI Port"
@@ -22,13 +16,184 @@
                     "caption": "Webserver Port"
                 },
                 {
-                    "name": "showPlaylist",
-                    "type": "CheckBox",
-                    "caption": "Show playlist as HTML-Box"
+                    "type": "Label",
+                    "label": "Optional Authentification:"
+                },
+                {
+                    "name": "User",
+                    "type": "ValidationTextBox",
+                    "caption": "Username"
+                },
+                {
+                    "name": "Password",
+                    "type": "PasswordTextBox",
+                    "caption": "Password"
                 },
                 {
                     "type": "Label",
-                    "label": "Script for HTML-Box Desgin:"
+                    "label": "Optional LMS playlists:"
+                },
+                {
+                    "name": "showPlaylist",
+                    "type": "CheckBox",
+                    "caption": "Show playlist as HTML-Box"
+                }, {
+                    "type": "List",
+                    "name": "Table",
+                    "caption": "Playlist design",
+                    "rowCount": 4,
+                    "add": false,
+                    "delete": false,
+                    "columns": [{
+                            "name": "tag", 
+                            "label": "HTML-Tag",
+                            "width": "75px",
+                            "save": true
+                        }, {
+                            "label": "CSS",
+                            "name": "style", 
+                            "width": "auto",
+                            "edit": {
+                                "caption": "CSS:",                        
+                                "type": "ValidationTextBox"
+                            }
+                        }
+                    ]
+                }, {
+                    "type": "List",
+                    "name": "Columns",
+                    "caption": "Playlist columns",
+                    "rowCount": 5,
+                    "add": false,
+                    "delete": false,
+                    "sort": {
+                        "column": "index",
+                        "direction": "ascending"
+                    },
+                    "columns": [{
+                            "name": "key", 
+                            "label": "Data",
+                            "width": "75px",
+                            "save": true
+                        }, {
+                            "label": "Visible",
+                            "name": "show",
+                            "width": "50px",
+                            "edit": {
+                                "caption": "Visible as column ?",                        
+                                "type": "CheckBox"
+                            }
+                        }, {
+                            "label": "No.",
+                            "name": "index", 
+                            "width": "50px",
+                            "edit": {
+                                "caption": "Index of this column:",                        
+                                "type": "NumberSpinner"
+                            }
+                        }, {
+                            "label": "Display-Name",
+                            "name": "name", 
+                            "width": "75px",
+                            "edit": {
+                                "caption": "Display-Name:",                        
+                                "type": "ValidationTextBox"
+                            }
+                        }, {
+                            "label": "Width",
+                            "name": "width", 
+                            "width": "50px",
+                            "edit": {
+                                "caption": "Width of this column:",                        
+                                "type": "NumberSpinner"
+                            }
+                        }, {
+                            "label": "Alignment",
+                            "name": "align", 
+                            "width": "75px",
+                            "edit": {
+                                "type": "Select",
+                                "caption": "Text alignment",
+                                "options": [
+                                    {
+                                        "label": "Left",
+                                        "value": "left"
+                                    },
+                                    {
+                                        "label": "Center",
+                                        "value": "center"
+                                    },
+                                    {
+                                        "label": "Right",
+                                        "value": "right"
+                                    }
+                                ]
+                            }
+                        }, {
+                            "label": "Color",
+                            "name": "color", 
+                            "width": "75px",
+                            "edit": {
+                                "caption": "Color of Text:",                        
+                                "type": "SelectColor"
+                            }
+                        }, {
+                            "label": "CSS",
+                            "name": "style", 
+                            "width": "100px",
+                            "edit": {
+                                "caption": "CSS:",                        
+                                "type": "ValidationTextBox"
+                            }
+                        }
+                    ]
+                },  {
+                    "type": "List",
+                    "name": "Rows",
+                    "caption": "Playlist rows",
+                    "rowCount": 3,
+                    "add": false,
+                    "delete": false,
+                    "columns": [{
+                            "name": "row", 
+                            "label": "",
+                            "width": "75px",
+                            "save": true,
+                            "visible":false
+                        },{
+                            "name": "name", 
+                            "label": "Row",
+                            "width": "50px"
+                        }, {
+                            "label": "Backgroundcolor",
+                            "name": "bgcolor", 
+                            "width": "100px",
+                            "edit": {
+                                "caption": "Color of background:",
+                                "type": "SelectColor"
+                            }
+                        }, {
+                            "label": "Color",
+                            "name": "color", 
+                            "width": "75px",
+                            "edit": {
+                                "caption": "Color of Text:",
+                                "type": "SelectColor"
+                            }
+                        }, {
+                            "label": "CSS",
+                            "name": "style", 
+                            "width": "auto",
+                            "edit": {
+                                "caption": "CSS:",                        
+                                "type": "ValidationTextBox"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "Label",
+                    "label": "(REMOVE this) Script for HTML-Box desgin:"
                 },
                 {
                     "name": "Playlistconfig",
@@ -42,16 +207,6 @@
                     "type": "Button",
                     "label": "DB Rescan",
                     "onClick": "LMS_Rescan($id);"
-                },
-                {
-                    "type": "Button",
-                    "label": "Create all active players in IPS",
-                    "onClick": "LMS_CreateAllPlayer($id);"
-                },
-                {
-                    "type": "Button",
-                    "label": "Load Server-Playlists",
-                    "onClick": "LMS_RefreshPlayerList($id);"
                 }
 
             ],
@@ -66,16 +221,6 @@
                     "code": 104,
                     "icon": "inactive",
                     "caption": "Interface closed."
-                },
-                {
-                    "code": 202,
-                    "icon": "error",
-                    "caption": "LMS Host is empty."
-                },
-                {
-                    "code": 203,
-                    "icon": "error",
-                    "caption": "LMS Port is empty."
                 },
                 {
                     "code": 204,

@@ -1,18 +1,65 @@
 <?
 
-require_once(__DIR__ . "/../SqueezeBoxClass.php");  // diverse Klassen
+require_once(__DIR__ . "/../libs/SqueezeBoxClass.php");  // diverse Klassen
+require_once(__DIR__ . "/../libs/SqueezeBoxTraits.php");  // diverse Klassen
 
+/*
+ * @addtogroup squeezebox
+ * @{
+ *
+ * @package       Squeezebox
+ * @file          module.php
+ * @author        Michael Tröger <micha@nall-chan.net>
+ * @copyright     2017 Michael Tröger
+ * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
+ * @version       2.0
+ *
+ */
+
+/**
+ * SqueezeboxDevice Klasse für eine SqueezeBox-Instanz in IPS.
+ * Erweitert IPSModule.
+ *
+ * @package       Squeezebox
+ * @author        Michael Tröger <micha@nall-chan.net>
+ * @copyright     2017 Michael Tröger
+ * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
+ * @version       2.0
+ * @example <b>Ohne</b>
+ * @property int $ParentID
+ * @property array $Multi_Playlist Alle Datensätze der Playlisten
+ * @property int $PlayerMode
+ * @property int $PlayerConnected
+ * @property int $PlayerTrackIndex
+ * @property int $PlayerShuffle
+ * @property int $PlayerTracks
+ * @property int $PositionRAW
+ * @property bool $isSeekable
+ */
 class SqueezeboxDevice extends IPSModule
 {
 
     use LMSHTMLTable,
+        LMSSongURL,
         LMSCover,
+        LSQProfile,
         VariableHelper,
+        VariableProfile,
         DebugHelper,
+        BufferHelper,
         InstanceStatus,
-        Profile,
-        Semaphore,
-        Webhook;
+        Webhook
+    {
+        InstanceStatus::MessageSink as IOMessageSink;
+    }
+
+    private $Socket = false;
+
+    public function __destruct()
+    {
+        if ($this->Socket)
+            fclose($this->Socket);
+    }
 
     /**
      * Interne Funktion des SDK.
@@ -30,14 +77,24 @@ class SqueezeboxDevice extends IPSModule
         $this->RegisterPropertyBoolean("enableBass", true);
         $this->RegisterPropertyBoolean("enableTreble", true);
         $this->RegisterPropertyBoolean("enablePitch", true);
-
+        $this->RegisterPropertyBoolean("enableRandomplay", true);
         $this->RegisterPropertyBoolean("showPlaylist", true);
-        $ID = @$this->GetIDForIdent('PlaylistDesign');
-        if ($ID == false)
-            $ID = $this->RegisterScript('PlaylistDesign', 'Playlist Config', $this->CreatePlaylistConfigScript(), -7);
-        IPS_SetHidden($ID, true);
-        $this->RegisterPropertyInteger("Playlistconfig", $ID);
-        $this->RegisterPropertyBoolean('changeName', true);
+        $Style = $this->GenerateHTMLStyleProperty();
+        $this->RegisterPropertyString("Table", json_encode($Style['Table']));
+        $this->RegisterPropertyString("Columns", json_encode($Style['Columns']));
+        $this->RegisterPropertyString("Rows", json_encode($Style['Rows']));
+        $this->RegisterPropertyInteger("Playlistconfig", 0);
+        $this->RegisterPropertyBoolean('changeName', false);
+
+
+        $this->Multi_Playlist = array();
+        $this->ParentID = 0;
+        $this->PlayerConnected = 0;
+        $this->PlayerMode = 0;
+        $this->PlayerShuffle = 0;
+        $this->PlayerTrackIndex = 0;
+        $this->DurationRAW = 0;
+        $this->isSeekable = false;
     }
 
     /**
@@ -47,40 +104,15 @@ class SqueezeboxDevice extends IPSModule
      */
     public function Destroy()
     {
+        parent::Destroy();
+        if (IPS_GetKernelRunlevel() <> KR_READY)
+            return;
         $CoverID = @IPS_GetObjectIDByIdent('CoverIMG', $this->InstanceID);
         if ($CoverID > 0)
             @IPS_DeleteMedia($CoverID, true);
         $this->UnregisterHook('/hook/SqueezeBoxPlaylist' . $this->InstanceID);
-        $this->UnregisterProfile("Tracklist.Squeezebox." . $this->InstanceID);
-
+        $this->DeleteProfile();
         parent::Destroy();
-    }
-
-    /**
-     * Interne Funktion des SDK.
-     *
-     * @access public
-     */
-    public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
-    {
-        switch ($Message)
-        {
-
-            case DM_CONNECT:
-            case DM_DISCONNECT:
-                $this->ForceRefresh();
-                break;
-        }
-    }
-
-    /**
-     * Wird durch das Verbinden/Trennen eines Parent ausgelöst.
-     *
-     * @access public
-     */
-    protected function ForceRefresh()
-    {
-        $this->ApplyChanges();
     }
 
     /**
@@ -93,205 +125,544 @@ class SqueezeboxDevice extends IPSModule
         $this->SetReceiveDataFilter('.*"Address":"".*');
         $this->RegisterMessage($this->InstanceID, DM_CONNECT);
         $this->RegisterMessage($this->InstanceID, DM_DISCONNECT);
-        // Wenn Kernel nicht bereit, dann warten... KR_READY über Splitter kommt ja gleich
-
+        $this->Multi_Playlist = array();
+        $this->ParentID = 0;
+        $this->PlayerConnected = 0;
+        $this->PlayerMode = 0;
+        $this->PlayerShuffle = 0;
+        $this->PlayerTrackIndex = 0;
+        $this->DurationRAW = 0;
+        $this->isSeekable = false;
         parent::ApplyChanges();
-        if (IPS_GetKernelRunlevel() <> KR_READY)
+
+        // Update Config & Vars
+        if ($this->ConvertPlaylistConfig())
             return;
+
+        $vid = @$this->GetIDForIdent('Interpret');
+        if ($vid > 0)
+            @IPS_SetIdent($vid, 'Artist');
 
         // Addresse prüfen
         $Address = $this->ReadPropertyString('Address');
-        $NewState = IS_EBASE + 2;
         $changeAddress = false;
-        if ($Address == '')
-            $NewState = IS_INACTIVE;
-        else
+        //ip Adresse:
+        if (preg_match("/\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b/", $Address) !== 1)
         {
-            //ip Adresse:
-            if (preg_match("/\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b/", $Address) === 1)
-                $NewState = IS_ACTIVE;
-            else // Keine IP Adresse
+            // Keine IP Adresse
+            if (strlen($Address) == 12)
             {
-                if (strlen($Address) == 12)
-                {
-                    $Address = strtolower(implode(":", str_split($Address, 2)));
-                    $changeAddress = true;
-                }
-                if (preg_match("/^([0-9A-Fa-f]{2}[-]){5}([0-9A-Fa-f]{2})$/", $Address) === 1)
-                {
-                    $Address = strtolower(str_replace('-', ':', $Address));
-                    $changeAddress = true;
-                }
-                if ($Address <> strtolower($Address))
-                {
-                    $Address = strtolower($Address);
-                    $changeAddress = true;
-                }
-                if (preg_match("/^([0-9a-f]{2}[:]){5}([0-9a-f]{2})$/", $Address) === 1)
-                {
-                    $NewState = IS_ACTIVE;
-                }
+                $Address = strtolower(implode(":", str_split($Address, 2)));
+                $changeAddress = true;
             }
-            if ($changeAddress and ( $NewState == IS_ACTIVE))
+            if (preg_match("/^([0-9A-Fa-f]{2}[-]){5}([0-9A-Fa-f]{2})$/", $Address) === 1)
             {
-                IPS_SetProperty($this->InstanceID, 'Address', $Address);
-                IPS_ApplyChanges($this->InstanceID);
-                return;
+                $Address = strtolower(str_replace('-', ':', $Address));
+                $changeAddress = true;
+            }
+            if ($Address <> strtolower($Address))
+            {
+                $Address = strtolower($Address);
+                $changeAddress = true;
             }
         }
+        if ($changeAddress)
+        {
+            IPS_SetProperty($this->InstanceID, 'Address', $Address);
+            IPS_ApplyChanges($this->InstanceID);
+            return;
+        }
 
+        // Addresse als Filter setzen
+        $this->SetReceiveDataFilter('.*"Address":"' . $Address . '".*');
+        $this->SetSummary($Address);
 
         // Profile anlegen
-        $this->RegisterProfileIntegerEx("Status.Squeezebox", "Information", "", "", Array(
-            Array(0, "Prev", "", -1),
-            Array(1, "Stop", "", -1),
-            Array(2, "Play", "", -1),
-            Array(3, "Pause", "", -1),
-            Array(4, "Next", "", -1)
-        ));
-        $this->RegisterProfileInteger("Intensity.Squeezebox", "Intensity", "", " %", 0, 100, 1);
-        $this->RegisterProfileInteger("Pitch.Squeezebox", "Intensity", "", " %", 80, 120, 1);
-        $this->RegisterProfileIntegerEx("Shuffle.Squeezebox", "Shuffle", "", "", Array(
-            Array(0, "off", "", -1),
-            Array(1, "Title", "", -1),
-            Array(2, "Album", "", -1)
-        ));
-        $this->RegisterProfileIntegerEx("Repeat.Squeezebox", "Repeat", "", "", Array(
-            Array(0, "off", "", -1),
-            Array(1, "Title", "", -1),
-            Array(2, "Playlist", "", -1)
-        ));
-        $this->RegisterProfileIntegerEx("Preset.Squeezebox", "Speaker", "", "", Array(
-            Array(1, "1", "", -1),
-            Array(2, "2", "", -1),
-            Array(3, "3", "", -1),
-            Array(4, "4", "", -1),
-            Array(5, "5", "", -1),
-            Array(6, "6", "", -1)
-        ));
-        $this->RegisterProfileInteger("Tracklist.Squeezebox." . $this->InstanceID, "", "", "", 1, 1, 1);
-        $this->RegisterProfileIntegerEx("SleepTimer.Squeezebox", "Gear", "", "", Array(
-            Array(0, "0", "", -1),
-            Array(900, "900", "", -1),
-            Array(1800, "1800", "", -1),
-            Array(2700, "2700", "", -1),
-            Array(3600, "3600", "", -1),
-            Array(5400, "5400", "", -1)
-        ));
+        $this->CreateProfile();
 
-
-        //Status-Variablen anlegen
-
-        $this->RegisterVariableBoolean("Connected", "Player verbunden", "", 0);
-
+        //Status-Variablen anlegen & Profile updaten
+        $this->PlayerConnected = $this->RegisterVariableBoolean("Connected", $this->Translate("Player connected"), "", 0);
+        $this->RegisterMessage($this->PlayerConnected, VM_UPDATE);
         $this->RegisterVariableBoolean("Power", "Power", "~Switch", 1);
         $this->EnableAction("Power");
-        $this->RegisterVariableInteger("Status", "Status", "Status.Squeezebox", 3);
+        $this->PlayerMode = $this->RegisterVariableInteger("Status", $this->Translate("State"), "LSQ.Status", 3);
+        $this->RegisterMessage($this->PlayerMode, VM_UPDATE);
         $this->EnableAction("Status");
-        $this->RegisterVariableInteger("Preset", "Preset", "Preset.Squeezebox", 2);
+        // OLD PROFILE REMOVE
+        if (IPS_GetVariable($this->PlayerMode)['VariableCustomProfile'] == "Status.Squeezebox")
+            IPS_SetVariableCustomProfile($this->PlayerMode, '');
+
+        $vid = $this->RegisterVariableInteger("Preset", "Preset", "LSQ.Preset", 2);
         $this->EnableAction("Preset");
+        // OLD PROFILE REMOVE
+        if (IPS_GetVariable($vid)['VariableCustomProfile'] == "Preset.Squeezebox")
+            IPS_SetVariableCustomProfile($vid, '');
+
         $this->RegisterVariableBoolean("Mute", "Mute", "~Switch", 4);
         $this->EnableAction("Mute");
 
-        $this->RegisterVariableInteger("Volume", "Volume", "Intensity.Squeezebox", 5);
+        $vid = $this->RegisterVariableInteger("Volume", "Volume", "LSQ.Intensity", 5);
         $this->EnableAction("Volume");
+        // OLD PROFILE REMOVE
+        if (IPS_GetVariable($vid)['VariableCustomProfile'] == "Intensity.Squeezebox")
+            IPS_SetVariableCustomProfile($vid, '');
+
         if ($this->ReadPropertyBoolean('enableBass'))
         {
-            $this->RegisterVariableInteger("Bass", "Bass", "Intensity.Squeezebox", 6);
+            $vid = $this->RegisterVariableInteger("Bass", "Bass", "LSQ.Intensity", 6);
             $this->EnableAction("Bass");
+            // OLD PROFILE REMOVE
+            if (IPS_GetVariable($vid)['VariableCustomProfile'] == "Intensity.Squeezebox")
+                IPS_SetVariableCustomProfile($vid, '');
         }
         else
             $this->UnregisterVariable("Bass");
+
         if ($this->ReadPropertyBoolean('enableTreble'))
         {
-            $this->RegisterVariableInteger("Treble", "Treble", "Intensity.Squeezebox", 7);
+            $vid = $this->RegisterVariableInteger("Treble", "Treble", "LSQ.Intensity", 7);
             $this->EnableAction("Treble");
+            // OLD PROFILE REMOVE
+            if (IPS_GetVariable($vid)['VariableCustomProfile'] == "Intensity.Squeezebox")
+                IPS_SetVariableCustomProfile($vid, '');
         }
         else
             $this->UnregisterVariable("Treble");
 
         if ($this->ReadPropertyBoolean('enablePitch'))
         {
-            $this->RegisterVariableInteger("Pitch", "Pitch", "Pitch.Squeezebox", 8);
+            $vid = $this->RegisterVariableInteger("Pitch", "Pitch", "LSQ.Pitch", 8);
             $this->EnableAction("Pitch");
+            // OLD PROFILE REMOVE
+            if (IPS_GetVariable($vid)['VariableCustomProfile'] == "Pitch.Squeezebox")
+                IPS_SetVariableCustomProfile($vid, '');
         }
         else
             $this->UnregisterVariable("Pitch");
 
-        $this->RegisterVariableInteger("Shuffle", "Shuffle", "Shuffle.Squeezebox", 9);
+        if ($this->ReadPropertyBoolean('enableRandomplay'))
+        {
+            $vid = $this->RegisterVariableInteger("Randomplay", "Randomplay", "LSQ.Randomplay", 13);
+            $this->EnableAction("Randomplay");
+        }
+        else
+            $this->UnregisterVariable("Randomplay");
+
+        $this->PlayerShuffle = $this->RegisterVariableInteger("Shuffle", "Shuffle", "LSQ.Shuffle", 9);
         $this->EnableAction("Shuffle");
-        $this->RegisterVariableInteger("Repeat", "Repeat", "Repeat.Squeezebox", 10);
+        // OLD PROFILE REMOVE
+        if (IPS_GetVariable($this->PlayerShuffle)['VariableCustomProfile'] == "Shuffle.Squeezebox")
+            IPS_SetVariableCustomProfile($this->PlayerShuffle, '');
+        $this->RegisterMessage($this->PlayerShuffle, VM_UPDATE);
+
+        $vid = $this->RegisterVariableInteger("Repeat", "Repeat", "LSQ.Repeat", 10);
         $this->EnableAction("Repeat");
-        $this->RegisterVariableInteger("Tracks", "Playlist Anzahl Tracks", "", 11);
-        $this->RegisterVariableInteger("Index", "Playlist Position", "Tracklist.Squeezebox." . $this->InstanceID, 12);
+        // OLD PROFILE REMOVE
+        if (IPS_GetVariable($vid)['VariableCustomProfile'] == "Repeat.Squeezebox")
+            IPS_SetVariableCustomProfile($vid, '');
+
+        $this->PlayerTracks = $this->RegisterVariableInteger("Tracks", $this->Translate("Tracks in Playlist"), "", 11);
+        $this->RegisterMessage($this->PlayerTracks, VM_UPDATE);
+
+        $this->RegisterProfileInteger("LSQ.Tracklist." . $this->InstanceID, "", "", "", 1, GetValueInteger($this->PlayerTracks), 1);
+        $this->PlayerTrackIndex = $this->RegisterVariableInteger("Index", "Playlist Position", "LSQ.Tracklist." . $this->InstanceID, 12);
         $this->EnableAction("Index");
+        // OLD PROFILE REMOVE
+        if (IPS_GetVariable($this->PlayerTrackIndex)['VariableCustomProfile'] == "Tracklist.Squeezebox." . $this->InstanceID)
+            IPS_SetVariableCustomProfile($this->PlayerTrackIndex, '');
+        $this->RegisterMessage($this->PlayerTrackIndex, VM_UPDATE);
 
         $this->RegisterVariableString("Playlistname", "Playlist", "", 19);
         $this->RegisterVariableString("Album", "Album", "", 20);
-        $this->RegisterVariableString("Title", "Titel", "", 21);
-        $this->RegisterVariableString("Artist", "Interpret", "", 22);
-        $this->RegisterVariableString("Genre", "Stilrichtung", "", 23);
-        $this->RegisterVariableString("Duration", "Dauer", "", 24);
-        $this->RegisterVariableString("Position", "Spielzeit", "", 25);
-        $this->RegisterVariableInteger("Position2", "Position", "Intensity.Squeezebox", 26);
+        $this->RegisterVariableString("Title", $this->Translate("Title"), "", 21);
+        $this->RegisterVariableString("Artist", $this->Translate("Artist"), "", 22);
+        $this->RegisterVariableString("Genre", $this->Translate("Genre"), "", 23);
+        $this->RegisterVariableString("Duration", $this->Translate("Duration"), "", 24);
+        $this->RegisterVariableString("Position", $this->Translate("Position"), "", 25);
+        $vid = $this->RegisterVariableInteger("Position2", "Position", "LSQ.Intensity", 26);
         $this->DisableAction('Position2');
+        // OLD PROFILE REMOVE
+        if (IPS_GetVariable($vid)['VariableCustomProfile'] == "Intensity.Squeezebox")
+            IPS_SetVariableCustomProfile($vid, '');
 
-        $this->RegisterVariableInteger("Signalstrength", "Signalstärke", "Intensity.Squeezebox", 30);
-        $this->RegisterVariableInteger("SleepTimer", "Einschlaftimer", "SleepTimer.Squeezebox", 31);
+        $vid = $this->RegisterVariableInteger("Signalstrength", $this->Translate("Signalstrength"), "LSQ.Intensity", 30);
+        // OLD PROFILE REMOVE
+        if (IPS_GetVariable($vid)['VariableCustomProfile'] == "Intensity.Squeezebox")
+            IPS_SetVariableCustomProfile($vid, '');
+        $vid = $this->RegisterVariableInteger("SleepTimer", $this->Translate("Sleeptimer"), "LSQ.SleepTimer", 31);
         $this->EnableAction("SleepTimer");
-        $this->RegisterVariableString("SleepTimeout", "Ausschalten in ", "", 32);
+        // OLD PROFILE REMOVE
+        if (IPS_GetVariable($vid)['VariableCustomProfile'] == "SleepTimer.Squeezebox")
+            IPS_SetVariableCustomProfile($vid, '');
 
-
-        $this->UnregisterVariable("can_seek");
-        $this->UnregisterVariable("BufferOUT");
-        $this->UnregisterVariable("WaitForResponse");
-        //$this->UnregisterVariable("Connected");
-        $this->UnregisterVariable("PositionRAW");
-        $this->UnregisterVariable("DurationRAW");
+        $this->RegisterVariableString("SleepTimeout", $this->Translate("Switch off in"), "", 32);
 
         // Playlist
         if ($this->ReadPropertyBoolean('showPlaylist'))
-        {
             $this->RegisterVariableString("Playlist", "Playlist", "~HTMLBox", 29);
-            $sid = $this->RegisterScript("WebHookPlaylist", "WebHookPlaylist", '<? //Do not delete or modify.
-if (isset($_GET["Index"]))
-    if (LSQ_PlayTrack(' . $this->InstanceID . ',(int)$_GET["Index"])===true) echo "OK";
-', -8);
-            IPS_SetHidden($sid, true);
-            $this->RegisterHook('/hook/SqueezeBoxPlaylist' . $this->InstanceID, $sid);
-            $ID = @$this->GetIDForIdent('PlaylistDesign');
-            if ($ID == false)
-                $ID = $this->RegisterScript('PlaylistDesign', 'Playlist Config', $this->CreatePlaylistConfigScript(), -7);
-            IPS_SetHidden($ID, true);
-        }
         else
-        {
             $this->UnregisterVariable("Playlist");
-            $this->UnregisterScript("WebHookPlaylist");
-            $this->UnregisterHook('/hook/SqueezeBoxPlaylist' . $this->InstanceID);
-        }
-        $this->SetStatus($NewState);
 
-        switch ($NewState)
+        // Delete Old Profil
+        $this->DeleteOldProfile();
+
+        //remove old Workarounds 
+        $this->UnregisterVariable("can_seek");
+        $this->UnregisterVariable("BufferOUT");
+        $this->UnregisterVariable("WaitForResponse");
+        $this->UnregisterVariable("PositionRAW");
+        $this->UnregisterVariable("DurationRAW");
+        $this->UnregisterScript("WebHookPlaylist");
+
+        // Wenn Kernel nicht bereit, dann warten... wenn unser IO Aktiv wird, holen wir unsere Daten :)
+        if (IPS_GetKernelRunlevel() <> KR_READY)
+            return;
+
+        // Playlist
+        if ($this->ReadPropertyBoolean('showPlaylist'))
+            $this->RegisterHook('/hook/SqueezeBoxPlaylist' . $this->InstanceID);
+        else
+            $this->UnregisterHook('/hook/SqueezeBoxPlaylist' . $this->InstanceID);
+
+        // Wenn Parent aktiv, dann Anmeldung an der Hardware bzw. Datenabgleich starten
+        $this->RegisterParent();
+        if ($this->HasActiveParent())
+            $this->IOChangeState(IS_ACTIVE);
+    }
+
+    /**
+     * Interne Funktion des SDK.
+     *
+     * @access public
+     */
+    public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
+    {
+        $this->IOMessageSink($TimeStamp, $SenderID, $Message, $Data);
+        switch ($Message)
         {
-            case IS_ACTIVE:
-                // Addresse als Filter setzen
-                $this->SetReceiveDataFilter('.*"Address":"' . $Address . '".*');
-                $this->SetSummary($Address);
-                $this->RequestState('Connected');
-                // Ist Device (Player) connected ?
-//                $ret = $this->Send(new LMSData('connected', '?'));
-                // Dann Status von LMS holen
-//                $this->_SetConnected((int) $ret->Data[0] == 1);
-                break;
-            case IS_INACTIVE:
-                $this->SetSummary($Address);
-                $this->_SetConnected(false);
-                break;
-            case IS_EBASE + 2: //misconfig
-                trigger_error('Invalid Address', E_USER_NOTICE);
+            case VM_UPDATE:
+                $this->SendDebug('VMUPDATE:' . $SenderID, $Data, 0);
+                if ($SenderID == $this->PlayerConnected)
+                {
+                    if ($Data[0] == true)
+                        $this->RequestAllState();
+                    else
+                        $this->_SetNewPower(false);
+                }
+                if ($SenderID == $this->PlayerMode)
+                {
+                    if ($Data[0] == 2)
+                        $this->_StartSubscribe();
+                    else
+                        $this->_StopSubscribe();
+                }
+                if ($SenderID == $this->PlayerShuffle)
+                {
+//                    if ($Data[1] === true)
+                    $this->_RefreshPlaylist();
+                }
+                if ($SenderID == $this->PlayerTrackIndex)
+                {
+//                    if ($Data[1] == true)
+                    $this->_RefreshPlaylistIndex();
+                }
+                if ($SenderID == $this->PlayerTracks)
+                {
+                    $this->RegisterProfileInteger("LSQ.Tracklist." . $this->InstanceID, "", "", "", 1, $Data[0], 1);
+                    if ($Data[0] == 0)
+                        $this->_RefreshPlaylist(true);
+                    else
+                        $this->_RefreshPlaylist();
+                }
                 break;
         }
+    }
+
+    /**
+     * Wird ausgeführt wenn sich der Status vom Parent ändert.
+     * @access protected
+     */
+    protected function IOChangeState($State)
+    {
+        $Value = false;
+        if ($State == IS_ACTIVE)
+        {
+            $LMSResponse = $this->SendDirect(new LMSData('connected', '?'));
+            if ($LMSResponse != null)
+                $Value = ($LMSResponse->Data[0] == '1');
+        }
+        SetValueBoolean($this->GetIDForIdent('Connected'), $Value);
+    }
+
+    private function GenerateHTMLStyleProperty()
+    {
+
+        $ID = @$this->ReadPropertyInteger('Playlistconfig');
+        $OldConfig = false;
+        if ($ID > 0)
+        {
+            $OldScript = IPS_GetScriptContent($ID);
+            $Script = strstr($OldScript, '### Konfig ENDE', true);
+            $Script .= 'echo serialize($Config);';
+            $OldConfig = @unserialize(IPS_RunScriptTextWaitEx($Script, array('SENDER' => "SqueezeBox")));
+        }
+        $NewTableConfig = array(
+            array(
+                "tag" => "<table>",
+                "style" => "margin:0 auto; font-size:0.8em;"),
+            array(
+                "tag" => "<thead>",
+                "style" => ""),
+            array(
+                "tag" => "<tbody>",
+                "style" => "")
+        );
+        $NewColumnsConfig = array(
+            array(
+                "index" => 0,
+                "key" => "Play",
+                "name" => "",
+                "show" => true,
+                "width" => 50,
+                "color" => 0xffffff,
+                "align" => "center",
+                "style" => ""),
+            array(
+                "index" => 1,
+                "key" => "Position",
+                "name" => "Pos",
+                "show" => true,
+                "width" => 50,
+                "color" => 0xffffff,
+                "align" => "center",
+                "style" => ""),
+            array(
+                "index" => 2,
+                "key" => "Title",
+                "name" => "Title",
+                "show" => true,
+                "width" => 250,
+                "color" => 0xffffff,
+                "align" => "center",
+                "style" => ""),
+            array(
+                "index" => 3,
+                "key" => "Artist",
+                "name" => "Artist",
+                "show" => true,
+                "width" => 250,
+                "color" => 0xffffff,
+                "align" => "center",
+                "style" => ""),
+            array(
+                "index" => 4,
+                "key" => "Bitrate",
+                "name" => "Bitrate",
+                "show" => false,
+                "width" => 150,
+                "color" => 0xffffff,
+                "align" => "center",
+                "style" => ""),
+            array(
+                "index" => 5,
+                "key" => "Duration",
+                "name" => "Duration",
+                "show" => true,
+                "width" => 100,
+                "color" => 0xffffff,
+                "align" => "center",
+                "style" => ""),
+            array(
+                "index" => 6,
+                "key" => "Genre",
+                "name" => "Genre",
+                "show" => false,
+                "width" => 200,
+                "color" => 0xffffff,
+                "align" => "center",
+                "style" => ""),
+            array(
+                "index" => 7,
+                "key" => "Album",
+                "name" => "Album",
+                "show" => false,
+                "width" => 250,
+                "color" => 0xffffff,
+                "align" => "center",
+                "style" => ""),
+            array(
+                "index" => 8,
+                "key" => "Disc",
+                "name" => "Disc",
+                "show" => false,
+                "width" => 35,
+                "color" => 0xffffff,
+                "align" => "center",
+                "style" => ""),
+            array(
+                "index" => 9,
+                "key" => "Disccount",
+                "name" => "Disccount",
+                "show" => false,
+                "width" => 35,
+                "color" => 0xffffff,
+                "align" => "center",
+                "style" => ""),
+            array(
+                "index" => 10,
+                "key" => "Tracknum",
+                "name" => "Tracknum",
+                "show" => false,
+                "width" => 35,
+                "color" => 0xffffff,
+                "align" => "center",
+                "style" => ""),
+            array(
+                "index" => 11,
+                "key" => "Year",
+                "name" => "Year",
+                "show" => false,
+                "width" => 60,
+                "color" => 0xffffff,
+                "align" => "center",
+                "style" => ""),
+        );
+        $NewRowsConfig = array(
+            array(
+                "row" => "odd",
+                "name" => "odd",
+                "bgcolor" => 0x000000,
+                "color" => 0xffffff,
+                "style" => ""),
+            array(
+                "row" => "even",
+                "name" => "even",
+                "bgcolor" => 0x080808,
+                "color" => 0xffffff,
+                "style" => ""),
+            array(
+                "row" => "active",
+                "name" => "active",
+                "bgcolor" => 0x808000,
+                "color" => 0xffffff,
+                "style" => "")
+        );
+        if ($OldConfig === false)
+            return array('Table' => $NewTableConfig, 'Columns' => $NewColumnsConfig, 'Rows' => $NewRowsConfig);
+
+        foreach ($NewTableConfig as $x => $Tag)
+        {
+            switch ($Tag['tag'])
+            {
+                case "<table>":
+                    $OldKey = 'T';
+                    break;
+                case "<thead>":
+                    $OldKey = 'H';
+                    break;
+                case "<tbody>":
+                    $OldKey = 'B';
+                    break;
+                default:
+                    continue;
+            }
+            if (!array_key_exists($OldKey, $OldConfig['Style']))
+                continue;
+            $NewTableConfig[$x]['style'] = $OldConfig['Style'][$OldKey];
+        }
+
+        $OldSpalten = array_keys($OldConfig['Spalten']);
+        $UnusedIndex = count($OldSpalten);
+
+        foreach ($NewColumnsConfig as $x => $Column)
+        {
+            if (array_key_exists($Column['key'], $OldConfig['Spalten']))
+            {
+                $NewColumnsConfig[$x]['index'] = array_search($Column['key'], $OldSpalten);
+                $NewColumnsConfig[$x]['show'] = true;
+                $NewColumnsConfig[$x]['name'] = $OldConfig['Spalten'][$Column['key']];
+            }
+            else
+            {
+                $NewColumnsConfig[$x]['index'] = $UnusedIndex++;
+                $NewColumnsConfig[$x]['show'] = false;
+            }
+        }
+        foreach ($NewColumnsConfig as $x => $Column)
+        {
+            if (array_key_exists($Column['key'], $OldConfig['Breite']))
+                $NewColumnsConfig[$x]['width'] = (int) $OldConfig['Breite'][$Column['key']];
+        }
+
+        foreach ($NewColumnsConfig as $x => $Column)
+        {
+            if (array_key_exists('HF' . $Column['key'], $OldConfig['Style']))
+            {
+                $Styles = explode(';', $OldConfig['Style']['HF' . $Column['key']]);
+                foreach ($Styles as $Style)
+                {
+                    $Pair = explode(':', $Style);
+                    switch (trim($Pair[0]))
+                    {
+                        case 'color':
+                            $NewColumnsConfig[$x]['color'] = hexdec($Pair[1]);
+                            break;
+                        case 'width':
+                            $NewColumnsConfig[$x]['width'] = (int) $Pair[1];
+                            break;
+                        case 'align':
+                        case 'text-align':
+                            $NewColumnsConfig[$x]['align'] = trim($Pair[1]);
+                            break;
+                        case '':
+                            break;
+                        default:
+                            $NewColumnsConfig[$x]['style'] .= trim($Style) . ';';
+                            break;
+                    }
+                }
+            }
+        }
+
+        foreach ($NewRowsConfig as $x => $Row)
+        {
+            switch ($Row['row'])
+            {
+                case "odd":
+                    $OldKey = "BRU";
+                    break;
+                case "even":
+                    $OldKey = "BRG";
+                    break;
+                case "active":
+                    $OldKey = "BRA";
+                    break;
+                default:
+                    continue;
+            }
+            if (!array_key_exists($OldKey, $OldConfig['Style']))
+                continue;
+            $Styles = explode(';', $OldConfig['Style'][$OldKey]);
+            foreach ($Styles as $Style)
+            {
+                $Pair = explode(':', $Style);
+                switch (trim($Pair[0]))
+                {
+                    case 'color':
+                        $NewRowsConfig[$x]['color'] = hexdec($Pair[1]);
+                        break;
+                    case 'background-color':
+                        $NewRowsConfig[$x]['bgcolor'] = hexdec($Pair[1]);
+                        break;
+                    case '':
+                        break;
+                    default:
+                        $NewRowsConfig[$x]['style'] .= trim($Style) . ';';
+                        break;
+                }
+            }
+        }
+        return array('Table' => $NewTableConfig, 'Columns' => $NewColumnsConfig, 'Rows' => $NewRowsConfig);
     }
 
 ################## PUBLIC
@@ -304,32 +675,41 @@ if (isset($_GET["Index"]))
     public function RequestAllState()
     {
         //connected und Power nicht erlaubt sonst schleife        
-        if (!$this->RequestState('Signalstrength'))
+        if (!$this->RequestState('Name'))
             return false;
-        $this->RequestState('Name');
-        $this->RequestState('SleepTimeout');
-        $this->RequestState('Sync');
-        $this->RequestState('Volume');
-        $this->RequestState('Mute');
-        $this->RequestState('Bass');
-        $this->RequestState('Treble');
-        $this->RequestState('Pitch');
+        $this->RequestState('Power');
         $this->RequestState('Status');
-        $this->RequestState('Position');
-        $this->RequestState('Genre');
-        $this->RequestState('Artist');
-        $this->RequestState('Album');
-        $this->RequestState('Title');
-        $this->RequestState('Duration');
         $this->RequestState('Remote');
-        $this->RequestState('Tracks');
+        $this->RequestState('Mute');
+        $this->RequestState('Volume');
+        if ($this->ReadPropertyBoolean('enableBass'))
+            $this->RequestState('Bass');
+        if ($this->ReadPropertyBoolean('enableTreble'))
+            $this->RequestState('Treble');
+        if ($this->ReadPropertyBoolean('enablePitch'))
+            $this->RequestState('Pitch');
         $this->RequestState('Shuffle');
         $this->RequestState('Repeat');
-        $this->RequestState('Playlistname');
+        $this->RequestState('Tracks');
         $this->RequestState('Index');
-        $LMSData = $this->SendDirect(new LMSData(array('status', 0, '1'), 'tags:gladiqrRtueJINpsy'));
+        $this->RequestState('Playlistname');
+        $this->RequestState('Album');
+        $this->RequestState('Title');
+        $this->RequestState('Artist');
+        $this->RequestState('Genre');
+        $this->RequestState('Duration');
+        $this->RequestState('Position');
+        $this->RequestState('Signalstrength');
+        $this->RequestState('SleepTimeout');
+        $this->RequestState('Randomplay');
+
+// TODO
+//         $this->RequestState('Sync');
+
+        $LMSData = $this->SendDirect(new LMSData(array('status', '-', 1), 'tags:gladiqrRtueJINpsy'));
         if ($LMSData === NULL)
             return false;
+        $LMSData->SliceData();
         $this->DecodeLMSResponse($LMSData);
         $this->SetCover();
         $this->_RefreshPlaylist();
@@ -348,70 +728,49 @@ if (isset($_GET["Index"]))
     {
         switch ($Ident)
         {
-            case 'Signalstrength':
-                $LMSResponse = new LMSData('signalstrength', '?');
-                break;
             case 'Name':
                 $LMSResponse = new LMSData('name', '?');
-                break;
-            case 'Connected':
-                $LMSResponse = new LMSData('connected', '?');
-                break;
-            case 'SleepTimeout':
-                $LMSResponse = new LMSData('sleep', '?');
-                break;
-            case 'Sync':
-                $LMSResponse = new LMSData('sync', '?');
                 break;
             case 'Power':
                 $LMSResponse = new LMSData('power', '?');
                 break;
-            case 'Volume':
-                $LMSResponse = new LMSData(array('mixer', 'power'), '?');
+            case 'Status':
+                if (!GetValueBoolean($this->GetIDForIdent('Power')))
+                {
+                    $this->_SetModeToStop();
+                    return true;
+                }
+                $LMSResponse = new LMSData('mode', '?');
                 break;
             case 'Mute':
                 $LMSResponse = new LMSData(array('mixer', 'muting'), '?');
                 break;
+            case 'Volume':
+                $LMSResponse = new LMSData(array('mixer', 'power'), '?');
+                break;
             case 'Bass':
+                if (!$this->ReadPropertyBoolean('enableBass'))
+                {
+                    trigger_error($this->Translate('Invalid ident'));
+                    return false;
+                }
                 $LMSResponse = new LMSData(array('mixer', 'bass'), '?');
                 break;
             case 'Treble':
+                if (!$this->ReadPropertyBoolean('enableTreble'))
+                {
+                    trigger_error($this->Translate('Invalid ident'));
+                    return false;
+                }
                 $LMSResponse = new LMSData(array('mixer', 'treble'), '?');
                 break;
             case 'Pitch':
+                if (!$this->ReadPropertyBoolean('enablePitch'))
+                {
+                    trigger_error($this->Translate('Invalid ident'));
+                    return false;
+                }
                 $LMSResponse = new LMSData(array('mixer', 'pitch'), '?');
-                break;
-            case 'Status':
-                $LMSResponse = new LMSData('mode', '?');
-                break;
-            case 'Position2':
-            case 'Position':
-                $LMSResponse = new LMSData('time', '?');
-                break;
-            case 'Genre':
-                $LMSResponse = new LMSData('genre', '?');
-                break;
-            case 'Artist':
-                $LMSResponse = new LMSData('artist', '?');
-                break;
-            case 'Album':
-                $LMSResponse = new LMSData('album', '?');
-                break;
-            case 'Title':
-                $LMSResponse = new LMSData('title', '?');
-                break;
-            case 'Duration':
-                $LMSResponse = new LMSData('duration', '?');
-                break;
-            case 'Remote':
-                $LMSResponse = new LMSData('remote', '?');
-                break;
-            /*
-              <playerid> current_title ?
-              <playerid> path ?
-             */
-            case 'Tracks':
-                $LMSResponse = new LMSData(array('playlist', 'tracks'), '?');
                 break;
             case 'Shuffle':
                 $LMSResponse = new LMSData(array('playlist', 'shuffle'), '?');
@@ -419,18 +778,59 @@ if (isset($_GET["Index"]))
             case 'Repeat':
                 $LMSResponse = new LMSData(array('playlist', 'repeat'), '?');
                 break;
-            case 'Playlistname':
-                $LMSResponse = new LMSData(array('playlist', 'name'), '?');
+            case 'Tracks':
+                $LMSResponse = new LMSData(array('playlist', 'tracks'), '?');
                 break;
             case 'Index':
                 $LMSResponse = new LMSData(array('playlist', 'index'), '?');
                 break;
-//            case "SleepTimeout":
-            case 'SleepTimer':
-            case 'Preset':
-                return true;
+            case 'Playlistname':
+                $LMSResponse = new LMSData(array('playlist', 'name'), '?');
+                break;
+            case 'Album':
+                $LMSResponse = new LMSData('album', '?');
+                break;
+            case 'Title':
+//                if ($this->isSeekable)
+                $LMSResponse = new LMSData('title', '?');
+//                else
+//                    $LMSResponse = new LMSData('current_title', '?');
+                break;
+            case 'Artist':
+                $LMSResponse = new LMSData('artist', '?');
+                break;
+            case 'Genre':
+                $LMSResponse = new LMSData('genre', '?');
+                break;
+            case 'Duration':
+                $LMSResponse = new LMSData('duration', '?');
+                break;
+            case 'Position2':
+            case 'Position':
+                $LMSResponse = new LMSData('time', '?');
+                break;
+            case 'Signalstrength':
+                $LMSResponse = new LMSData('signalstrength', '?');
+                break;
+            case 'SleepTimeout':
+                $LMSResponse = new LMSData('sleep', '?');
+                break;
+            case 'Connected':
+                $LMSResponse = new LMSData('connected', '?');
+                break;
+            // START TODO 
+            case 'Sync':
+                $LMSResponse = new LMSData('sync', '?');
+                break;
+            // ENDE TODO
+            case 'Remote':
+                $LMSResponse = new LMSData('remote', '?');
+                break;
+            case 'Randomplay':
+                $LMSResponse = new LMSData('randomplayisactive', '');
+                break;
             default:
-                trigger_error('Ident not valid');
+                trigger_error($this->Translate('Invalid ident'));
                 return false;
         }
         $LMSResponse = $this->SendDirect($LMSResponse);
@@ -441,13 +841,277 @@ if (isset($_GET["Index"]))
         return $this->DecodeLMSResponse($LMSResponse);
     }
 
+    ///////////////////////////////////////////////////////////////
+    // START DEPRECATED
+    ///////////////////////////////////////////////////////////////
+
+    /**
+     * IPS-Instanz-Funktion 'LSQ_RawSend'.
+     * Sendet einen Anfrage an den LMS.
+     *
+     * @access public
+     * @deprecated since 4.3
+     * @param string|array $Command Das/Die zu sendende/n Kommando/s.
+     * @param string|array $Value Der/Die zu sendende/n Wert/e.
+     * @param bool $needResponse True wenn Antwort erwartet.
+     * @result array|bool Antwort des LMS als Array, false im Fehlerfall.
+     */
     public function RawSend($Command, $Value, $needResponse)
     {
+        trigger_error($this->Translate('Function ist deprecated. Use LSQ_SendSpecial.'), E_USER_DEPRECATED);
         $LMSData = new LMSData($Command, $Value, $needResponse);
-        return $this->SendDirect($LMSData);
+        $ret = $this->SendDirect($LMSData);
+        if ($ret == NULL)
+            return false;
+        return $ret->Data;
     }
 
     //fertig
+    /**
+     * Liefert den aktuellen Wert der Stummschaltung
+     *
+     * @deprecated since 4.3
+     * @return integer
+     * @exception
+     */
+    public function GetMute()
+    {
+        $this->RequestState("Mute");
+        trigger_error($this->Translate("This function is deprecated, use LSQ_RequestState an GetValue."), E_USER_DEPRECATED);
+        return GetValueBoolean($this->GetIDForIdent("Mute"));
+    }
+
+    //fertig
+    /**
+     * Liefert die aktuelle Lautstärke von dem Device.
+     *
+     * @deprecated since 4.3
+     * @return integer
+     * @exception
+     */
+    public function GetVolume()
+    {
+        $this->RequestState("Volume");
+        trigger_error($this->Translate("This function is deprecated, use LSQ_RequestState an GetValue."), E_USER_DEPRECATED);
+        return GetValueInteger($this->GetIDForIdent("Volume"));
+    }
+
+    //fertig
+    /**
+     * Liefert den aktuellen Bass-Wert.
+     *
+     * @deprecated since 4.3
+     * @return integer
+     * @exception
+     */
+    public function GetBass()
+    {
+        trigger_error($this->Translate("This function is deprecated, use LSQ_RequestState an GetValue."), E_USER_DEPRECATED);
+        if (!$this->ReadPropertyBoolean('enableBass'))
+            return false;
+        $this->RequestState("Bass");
+        return GetValueInteger($this->GetIDForIdent("Bass"));
+    }
+
+    //fertig
+    /**
+     * Liefert den aktuellen Treble-Wert.
+     *
+     * @deprecated since 4.3
+     * @return integer
+     * @exception
+     */
+    public function GetTreble()
+    {
+        trigger_error($this->Translate("This function is deprecated, use LSQ_RequestState an GetValue."), E_USER_DEPRECATED);
+        if (!$this->ReadPropertyBoolean('enableTreble'))
+            return false;
+        $this->RequestState("Treble");
+        return GetValueInteger($this->GetIDForIdent("Treble"));
+    }
+
+    //fertig
+    /**
+     * Liefert den aktuellen Pitch-Wert.
+     *
+     * @deprecated since 4.3
+     * @return integer
+     * @exception
+     */
+    public function GetPitch()
+    {
+        trigger_error($this->Translate("This function is deprecated, use LSQ_RequestState an GetValue."), E_USER_DEPRECATED);
+        if (!$this->ReadPropertyBoolean('enablePitch'))
+            return false;
+        $this->RequestState("Pitch");
+        return GetValueInteger($this->GetIDForIdent("Pitch"));
+    }
+
+    //fertig
+    /**
+     * Liefert den Zufallsmodus.
+     *
+     * @deprecated since 4.3
+     * @return integer
+     * 0 = aus
+     * 1 = Titel
+     * 2 = Album
+     * @exception
+     */
+    public function GetShuffle()
+    {
+        $this->RequestState("Shuffle");
+        trigger_error($this->Translate("This function is deprecated, use LSQ_RequestState an GetValue."), E_USER_DEPRECATED);
+        return GetValueInteger($this->GetIDForIdent("Shuffle"));
+    }
+
+    //fertig
+    /**
+     * Liefert den Wiederholungsmodus.
+     *
+     * @deprecated since 4.3
+     * @return integer
+     * 0 = aus
+     * 1 = Titel
+     * 2 = Album
+     * @exception
+     */
+    public function GetRepeat()
+    {
+        $this->RequestState("Repeat");
+        trigger_error($this->Translate("This function is deprecated, use LSQ_RequestState an GetValue."), E_USER_DEPRECATED);
+        return GetValueInteger($this->GetIDForIdent("Repeat"));
+    }
+
+    //fertig
+    /**
+     * Liest die aktuelle Zeit-Position des aktuellen Titels.
+     *
+     * @deprecated since 4.3
+     * @return false
+     */
+    public function GetPosition()
+    {
+        trigger_error($this->Translate("This function is deprecated."), E_USER_DEPRECATED);
+        return false;
+    }
+
+    /**
+     * Restzeit bis zum Sleep lesen.
+     *
+     * @deprecated since 4.3
+     * @return integer
+     * @exception
+     */
+    public function GetSleep()
+    {
+        trigger_error($this->Translate("This function is deprecated, use LSQ_RequestState an GetValue."), E_USER_DEPRECATED);
+        return false;
+    }
+
+    //fertig
+    /**
+     * Springt in der aktuellen Wiedergabeliste auf einen Titel.
+     *
+     * @deprecated since 4.3
+     * @param integer $Index
+     * Track in der Wiedergabeliste auf welchen gesprungen werden soll.
+     * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception
+     */
+    public function PlayTrack(int $Index)
+    {
+        trigger_error($this->Translate("This function is deprecated, use LSQ_GoToTrack."), E_USER_DEPRECATED);
+        return $this->GoToTrack($Index);
+    }
+
+    ///////////////////////////////////////////////////////////////
+    // ENDE DEPRECATED
+    ///////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////
+    // START TODO
+    ///////////////////////////////////////////////////////////////
+    /*
+      public function SetSync(int $SlaveInstanceID)
+      {
+      $id = @IPS_GetInstance($SlaveInstanceID);
+      if ($id === FALSE)
+      throw new Exception($this->Translate('Unknown LSQ_PlayerInstanz'));
+      if ($id['ModuleInfo']['ModuleID'] <> '{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}')
+      throw new Exception($this->Translate('SlaveInstance in not a LSQ_PlayerInstanz'));
+      $ClientMac = IPS_GetProperty($SlaveInstanceID, 'Address');
+      if (($ClientMac === '') or ( $ClientMac === false))
+      {
+      throw new Exception($this->Translate('SlaveInstance Address is not set.'));
+      }
+      $ret = $this->SendDirect(new LMSData('sync', $ClientMac));
+      return ($ret->Data[0] == $ClientMac);
+      }
+     */
+    /**
+     * Gibt alle mit diesem Gerät syncronisierte Instanzen zurück
+     *
+     * @return string|array
+     * @exception
+     */
+    /*
+      public function GetSync()
+      {
+      $Addresses = array();
+      $FoundInstanzIDs = array();
+      $AllPlayerIDs = IPS_GetInstanceListByModuleID('{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}');
+
+      foreach ($AllPlayerIDs as $DeviceID)
+      {
+      $Addresses[$DeviceID] = IPS_GetProperty($DeviceID, 'Address');
+      }
+
+      $ret = $this->SendDirect(new LMSData('sync', '?'))->Data[0];
+      if ($ret == '-')
+      return false;
+      if (strpos($ret, ',') === false)
+      {
+      $FoundInstanzIDs[0] = array_search($ret, $Addresses);
+      }
+      else
+      {
+      $Search = explode(',', $ret);
+      foreach ($Search as $Value)
+      {
+      $FoundInstanzIDs[] = array_search($Value, $Addresses);
+      }
+      }
+      if (count($FoundInstanzIDs) > 0)
+      {
+      return $FoundInstanzIDs;
+      }
+      else
+      {
+      return false;
+      }
+      }
+     */
+    /**
+     * Sync dieses Gerätes aufheben
+     *
+     * @return boolean true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception
+     */
+    /*
+      public function SetUnSync()
+      {
+      $ret = $this->SendDirect(new LMSData('sync', '-'))->Data[0];
+      return ($ret == '-');
+      }
+     */
+    ///////////////////////////////////////////////////////////////
+    // ENDE TODO
+    ///////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////
+    // START PLAYER
+    ///////////////////////////////////////////////////////////////
+
     /**
      * Setzten den Namen in dem Device.
      *
@@ -460,23 +1124,21 @@ if (isset($_GET["Index"]))
     {
         if (!is_string($Name))
         {
-            trigger_error("Name must be string", E_USER_NOTICE);
+            trigger_error(sprintf($this->Translate("%s must be string."), 'Name'), E_USER_NOTICE);
             return false;
         }
         if ($Name == "")
         {
-            trigger_error("Name cannot be empty", E_USER_NOTICE);
+            trigger_error(sprintf($this->Translate("%s can not be empty."), 'Name'), E_USER_NOTICE);
             return false;
         }
-        $LMSData = $this->SendDirect(new LMSData('name', rawurlencode($Name)));
-        //$ret = rawurldecode();
+        $LMSData = $this->SendDirect(new LMSData('name', $Name));
         if ($LMSData === NULL)
             return false;
-        $this->_SetNewName(rawurldecode($LMSData->Data[0]));
-        return (rawurldecode($LMSData->Data[0]) == $Name);
+        $this->_SetNewName($LMSData->Data[0]);
+        return ($LMSData->Data[0] == $Name);
     }
 
-    //fertig
     /**
      * Liefert den Namen von dem Device.
      *
@@ -486,87 +1148,38 @@ if (isset($_GET["Index"]))
     public function GetName()
     {
         $LMSData = $this->SendDirect(new LMSData('name', '?'));
-        //$ret = rawurldecode();
         if ($LMSData === NULL)
             return false;
-        $this->_SetNewName(rawurldecode($LMSData->Data[0]));
-        return rawurldecode($LMSData->Data[0]);
-    }
-
-    //////////////////////////////////////////Todo
-    public function SetSync(int $SlaveInstanceID)
-    {
-        $id = @IPS_GetInstance($SlaveInstanceID);
-        if ($id === FALSE)
-            throw new Exception('Unknown LSQ_PlayerInstanz');
-        if ($id['ModuleInfo']['ModuleID'] <> '{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}')
-            throw new Exception('SlaveInstance in not a LSQ_PlayerInstanz');
-        $ClientMac = IPS_GetProperty($SlaveInstanceID, 'Address');
-        if (($ClientMac === '') or ( $ClientMac === false))
-        {
-            throw new Exception('SlaveInstance Address is not set.');
-        }
-        $ret = $this->SendLSQData(new LSQData(LSQResponse::sync, $ClientMac));
-        return (rawurldecode($ret) == $ClientMac);
-    }
-
-    //////////////////////////////////////////Todo
-    /**
-     * Gibt alle mit diesem Gerät syncronisierte Instanzen zurück
-     *
-     * @return string|array
-     * @exception
-     */
-    public function GetSync()
-    {
-        $Addresses = array();
-        $FoundInstanzIDs = array();
-        $AllPlayerIDs = IPS_GetInstanceListByModuleID('{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}');
-
-        foreach ($AllPlayerIDs as $DeviceID)
-        {
-            $Addresses[$DeviceID] = IPS_GetProperty($DeviceID, 'Address');
-        }
-
-        $ret = $this->SendLSQData(new LSQData(LSQResponse::sync, '?'))->Data[0];
-        if ($ret == '-')
-            return false;
-        if (strpos($ret, ',') === false)
-        {
-            $FoundInstanzIDs[0] = array_search(rawurldecode($ret), $Addresses);
-        }
-        else
-        {
-            $Search = explode(',', $ret);
-            foreach ($Search as $Value)
-            {
-                $FoundInstanzIDs[] = array_search(rawurldecode($Value), $Addresses);
-            }
-        }
-        if (count($FoundInstanzIDs) > 0)
-        {
-            return $FoundInstanzIDs;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    //////////////////////////////////////////Todo
-    /**
-     * Sync dieses Gerätes aufheben
-     *
-     * @return boolean true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
-     */
-    public function SetUnSync()
-    {
-        $ret = $this->SendLSQData(new LSQData(LSQResponse::sync, '-'));
-        return ($ret == '-');
+        $this->_SetNewName($LMSData->Data[0]);
+        return $LMSData->Data[0];
     }
 
     //fertig
+    /**
+     * Schaltet das Gerät ein oder aus.
+     *
+     * @access public
+     * @param boolean $Value
+     * false  = ausschalten
+     * true = einschalten
+     * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception
+     */
+    public function Power(bool $Value)
+    {
+        if (!is_bool($Value))
+        {
+            trigger_error(sprintf($this->Translate("%s must be bool."), "Value"), E_USER_NOTICE);
+            return false;
+        }
+        $LMSData = $this->SendDirect(new LMSData('power', (int) $Value));
+        if ($LMSData === NULL)
+            return false;
+        return ((int) $LMSData->Data[0] == (int) $Value);
+    }
+
+//fertig
     /**
      * Restzeit bis zum Sleep setzen.
      *
@@ -578,33 +1191,169 @@ if (isset($_GET["Index"]))
     {
         if (!is_int($Seconds))
         {
-            trigger_error("Seconds must be integer", E_USER_NOTICE);
+            trigger_error(sprintf($this->Translate("%s must be integer."), "Seconds"), E_USER_NOTICE);
             return false;
         }
         if ($Seconds < 0)
         {
-            trigger_error("Seconds invalid.", E_USER_NOTICE);
+            trigger_error($this->Translate("Seconds invalid."), E_USER_NOTICE);
             return false;
         }
         $LMSData = $this->SendDirect(new LMSData('sleep', $Seconds));
         if ($LMSData === NULL)
             return false;
-//        $this->_SetSleep($Seconds);
+        $this->_SetNewSleepTimeout((int) $LMSData->Data[0]);
         return ((int) $LMSData->Data[0] == $Seconds);
     }
 
     //fertig
     /**
-     * Restzeit bis zum Sleep lesen.
+     * Setzten der Stummschaltung.
      *
-     * @return integer
+     * @param bolean $Value
+     * true = Stumm an
+     * false = Stumm aus
+     * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
      * @exception
      */
-    public function GetSleep()
+    public function SetMute(bool $Value)
     {
-        $this->RequestState("SleepTimeout");
-        trigger_error("This function is deprecated, use RequestState an GetValue.", E_USER_DEPRECATED);
-        return GetValueInteger($this->GetIDForIdent("SleepTimeout"));
+        if (!is_bool($Value))
+        {
+            trigger_error(sprintf($this->Translate("%s must boolean."), "Value"), E_USER_NOTICE);
+            return false;
+        }
+        $LMSData = $this->SendDirect(new LMSData(array('mixer', 'muting'), (int) $Value));
+        if ($LMSData === NULL)
+            return false;
+        return ((int) $LMSData->Data[0] == (int) $Value);
+    }
+
+    //fertig
+    /**
+     * Setzten der Lautstärke.
+     *
+     * @param integer $Value
+     * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception
+     */
+    public function SetVolume(int $Value)
+    {
+        if (!is_int($Value))
+        {
+            trigger_error(sprintf($this->Translate("%s must integer."), "Value"), E_USER_NOTICE);
+            return false;
+        }
+        if (($Value < 0) or ( $Value > 100))
+        {
+            trigger_error($this->Translate("Value invalid."), E_USER_NOTICE);
+            return false;
+        }
+        $LMSData = $this->SendDirect(new LMSData(array('mixer', 'volume'), $Value));
+//        $this->_NewVolume((int)$LMSData->Data[0]);
+        if ($LMSData === NULL)
+            return false;
+        return ((int) $LMSData->Data[0] == $Value);
+    }
+
+    //fertig
+    /**
+     * Setzt den Bass-Wert.
+     *
+     * @param integer $Value
+     * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception
+     */
+    public function SetBass(int $Value)
+    {
+        if (!$this->ReadPropertyBoolean('enableBass'))
+        {
+            trigger_error($this->Translate("bass control not enabled"), E_USER_NOTICE);
+            return false;
+        }
+        if (!is_int($Value))
+        {
+            trigger_error(sprintf($this->Translate("%s must integer."), "Value"), E_USER_NOTICE);
+            return false;
+        }
+        if (($Value < 0) or ( $Value > 100))
+        {
+            trigger_error($this->Translate("Value invalid."), E_USER_NOTICE);
+            return false;
+        }
+        $LMSData = $this->SendDirect(new LMSData(array('mixer', 'bass'), $Value));
+        if ($LMSData === NULL)
+            return false;
+        return ((int) $LMSData->Data[0] == $Value);
+    }
+
+    //fertig
+    /**
+     * Setzt den Treble-Wert.
+     *
+     * @param integer $Value
+     * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception
+     */
+    public function SetTreble(int $Value)
+    {
+        if (!$this->ReadPropertyBoolean('enableTreble'))
+        {
+            trigger_error($this->Translate("treble control not enabled"), E_USER_NOTICE);
+            return false;
+        }
+
+        if (!is_int($Value))
+        {
+            trigger_error(sprintf($this->Translate("%s must integer."), "Value"), E_USER_NOTICE);
+            return false;
+        }
+        if (($Value < 0) or ( $Value > 100))
+        {
+            trigger_error($this->Translate("Value invalid."), E_USER_NOTICE);
+            return false;
+        }
+        $LMSData = $this->SendDirect(new LMSData(array('mixer', 'treble'), $Value));
+        if ($LMSData === NULL)
+            return false;
+        return ((int) $LMSData->Data[0] == $Value);
+    }
+
+    //fertig
+    /**
+     * Setzt den Pitch-Wert.
+     *
+     * @param integer $Value
+     * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception
+     */
+    public function SetPitch(int $Value)
+    {
+        if (!$this->ReadPropertyBoolean('enablePitch'))
+        {
+            trigger_error($this->Translate("pitch control not enabled"), E_USER_NOTICE);
+            return false;
+        }
+
+        if (!is_int($Value))
+        {
+            trigger_error(sprintf($this->Translate("%s must integer."), "Value"), E_USER_NOTICE);
+            return false;
+        }
+        if (($Value < 80) or ( $Value > 120))
+        {
+            trigger_error($this->Translate("Value invalid."), E_USER_NOTICE);
+            return false;
+        }
+        $LMSData = $this->SendDirect(new LMSData(array('mixer', 'pitch'), $Value));
+        if ($LMSData === NULL)
+            return false;
+        return ((int) $LMSData->Data[0] == $Value);
     }
 
     //fertig
@@ -643,6 +1392,35 @@ if (isset($_GET["Index"]))
 
     //fertig
     /**
+     * Simuliert einen Tastendruck auf einen der Preset-Tasten.
+     *
+     * @param integer $Value
+     * 1 - 6 = Taste 1 bis 6
+     * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception
+     */
+    public function SelectPreset(int $Value)
+    {
+        if (!is_int($Value))
+        {
+            trigger_error(sprintf($this->Translate("%s must integer."), "Value"), E_USER_NOTICE);
+            return false;
+        }
+        if (($Value < 1) or ( $Value > 6))
+        {
+            trigger_error(sprintf($this->Translate("%s out of Range."), 'Value'), E_USER_NOTICE);
+            return false;
+        }
+        $Value = 'preset_' . $Value . '.single';
+        $LMSData = $this->SendDirect(new LMSData('button', $Value));
+        if ($LMSData === NULL)
+            return false;
+        return ( $LMSData->Data[0] == $Value);
+    }
+
+    //fertig
+    /**
      * Startet die Wiedergabe
      * @return boolean
      * true bei erfolgreicher Ausführung und Rückmeldung
@@ -653,7 +1431,21 @@ if (isset($_GET["Index"]))
         $LMSData = $this->SendDirect(new LMSData('play', ''));
         if ($LMSData === NULL)
             return false;
-//            $this->_SetPlay();
+        return true;
+    }
+
+    /**
+     * Startet die Wiedergabe
+     * @param FadeIn Einblendezeit
+     * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception
+     */
+    public function PlayEx(int $FadeIn)
+    {
+        $LMSData = $this->SendDirect(new LMSData('play', (int) $FadeIn));
+        if ($LMSData === NULL)
+            return false;
         return true;
     }
 
@@ -669,7 +1461,6 @@ if (isset($_GET["Index"]))
         $LMSData = $this->SendDirect(new LMSData('stop', ''));
         if ($LMSData === NULL)
             return false;
-//            $this->_SetStop();
         return true;
     }
 
@@ -685,393 +1476,960 @@ if (isset($_GET["Index"]))
         $LMSData = $this->SendDirect(new LMSData('pause', '1'));
         if ($LMSData === NULL)
             return false;
-//            $this->_SetPause();
         return ($LMSData->Data[0] == '1');
     }
 
-    //fertig
-    /**
-     * Setzten der Lautstärke.
+    /*
+     * Setzt eine absolute Zeit-Position des aktuellen Titels.
      *
-     * @param integer $Value
-     * @return boolean
-     * true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
+     * @param integer $Value Zeit in Sekunden.
+     * @return boolean true bei erfolgreicher Ausführung und Rückmeldung.
+     * @exception Wenn Befehl nicht ausgeführt werden konnte.
      */
-    public function SetVolume(int $Value)
+
+    public function SetPosition(int $Value)
     {
         if (!is_int($Value))
         {
-            trigger_error("Value must be integer", E_USER_NOTICE);
+            trigger_error(sprintf($this->Translate("%s must integer."), "Value"), E_USER_NOTICE);
             return false;
         }
-        if (($Value < 0) or ( $Value > 100))
+        if ($Value > $this->DurationRAW)
         {
-            trigger_error("Value invalid.", E_USER_NOTICE);
+            trigger_error($this->Translate("Value greater as duration"), E_USER_NOTICE);
             return false;
         }
-        $LMSData = $this->SendDirect(new LMSData(array('mixer', 'volume'), $Value));
-//        $this->_NewVolume((int)$LMSData->Data[0]);
+        $LMSData = $this->SendDirect(new LMSData('time', $Value));
         if ($LMSData === NULL)
             return false;
-        return ((int) $LMSData->Data[0] == $Value);
+        return ($Value == $LMSData->Data[0]);
     }
 
-    //fertig
-    /**
-     * Liefert die aktuelle Lautstärke von dem Device.
-     *
-     * @return integer
-     * @exception
-     */
-    public function GetVolume()
+    public function DisplayLine(string $Text, int $Duration)
     {
-        $this->RequestState("Volume");
-        trigger_error("This function is deprecated, use RequestState an GetValue.", E_USER_DEPRECATED);
-        return GetValueInteger($this->GetIDForIdent("Volume"));
+        if (!is_string($Text))
+        {
+            trigger_error(sprintf($this->Translate("%s must be string."), 'Text'), E_USER_NOTICE);
+            return false;
+        }
+        if (!is_int($Duration))
+        {
+            trigger_error(sprintf($this->Translate("%s must be integer."), 'Duration'), E_USER_NOTICE);
+            return false;
+        }
+        return $this->DisplayLines("", $Text, true, $Duration);
+    }
+
+    public function DisplayLineEx(string $Text, int $Duration, bool $Centered, int $Brightness)
+    {
+        if (!is_string($Text))
+        {
+            trigger_error(sprintf($this->Translate("%s must be string."), 'Text'), E_USER_NOTICE);
+            return false;
+        }
+        if (!is_int($Duration))
+        {
+            trigger_error(sprintf($this->Translate("%s must be integer."), 'Duration'), E_USER_NOTICE);
+            return false;
+        }
+        if (!is_bool($Centered))
+        {
+            trigger_error(sprintf($this->Translate("%s must be bool."), 'Centered'), E_USER_NOTICE);
+            return false;
+        }
+        if (!is_int($Brightness))
+        {
+            trigger_error(sprintf($this->Translate("%s must be integer."), 'Brightness'), E_USER_NOTICE);
+            return false;
+        }
+        return $this->DisplayLines("", $Text, true, $Duration, $Centered, $Brightness);
+    }
+
+    public function Display2Lines(string $Text1, string $Text2, int $Duration)
+    {
+        if (!is_string($Text1) or ! is_string($Text2))
+        {
+            trigger_error(sprintf($this->Translate("%s must be string."), 'Text'), E_USER_NOTICE);
+            return false;
+        }
+        if (!is_int($Duration))
+        {
+            trigger_error(sprintf($this->Translate("%s must be integer."), 'Duration'), E_USER_NOTICE);
+            return false;
+        }
+        return $this->DisplayLines($Text1, $Text2, false, $Duration);
+    }
+
+    public function Display2LinesEx(string $Text1, string $Text2, int $Duration, bool $Centered, int $Brightness)
+    {
+        if (!is_string($Text1) or ! is_string($Text2))
+        {
+            trigger_error(sprintf($this->Translate("%s must be string."), 'Text'), E_USER_NOTICE);
+            return false;
+        }
+        if (!is_int($Duration))
+        {
+            trigger_error(sprintf($this->Translate("%s must be integer."), 'Duration'), E_USER_NOTICE);
+            return false;
+        }
+        if (!is_bool($Centered))
+        {
+            trigger_error(sprintf($this->Translate("%s must be bool."), 'Centered'), E_USER_NOTICE);
+            return false;
+        }
+        if (!is_int($Brightness))
+        {
+            trigger_error(sprintf($this->Translate("%s must be integer."), 'Brightness'), E_USER_NOTICE);
+            return false;
+        }
+        return $this->DisplayLines($Text1, $Text2, false, $Duration, $Centered, $Brightness);
+    }
+
+    private function DisplayLines($Line1 = "", $Line2 = "", $Huge = false, $Duration = 3, $Centered = false, $Brightness = 4)
+    {
+        $Duration = ($Duration < 3 ? 3 : $Duration);
+        $Brightness = ($Brightness < 0 ? 0 : $Brightness);
+        $Brightness = ($Brightness > 4 ? 4 : $Brightness);
+        $Values = array();
+        if ($Line1 != "")
+            $Values[] = 'line1:' . utf8_decode($Line1);
+        if ($Line2 != "")
+            $Values[] = 'line2:' . utf8_decode($Line2);
+        $Values[] = 'duration:' . $Duration;
+        $Values[] = 'brightness:' . $Brightness;
+        if ($Huge)
+            $Values[] = 'font:huge';
+        if ($Centered)
+            $Values[] = 'centered:1';
+        $LMSData = $this->Send(new LMSData('show', $Values));
+        if ($LMSData === NULL)
+            return false;
+        return true;
+    }
+
+    public function DisplayText(string $Text1, string $Text2, int $Duration)
+    {
+        if (!is_string($Text1) or ! is_string($Text2))
+        {
+            trigger_error(sprintf($this->Translate("%s must be string."), 'Text'), E_USER_NOTICE);
+            return false;
+        }
+        if (!is_int($Duration))
+        {
+            trigger_error(sprintf($this->Translate("%s must be integer."), 'Duration'), E_USER_NOTICE);
+            return false;
+        }
+        $Duration = ($Duration < 3 ? 3 : $Duration);
+        if ($Text1 == "")
+            $Values[] = ' ';
+        else
+            $Values[] = utf8_decode($Text1);
+
+        if ($Text2 == "")
+            $Values[] = ' ';
+        else
+            $Values[] = utf8_decode($Text2);
+        $LMSData = $this->SendDirect(new LMSData('display', $Values));
+        if ($LMSData === NULL)
+            return false;
+        return true;
+    }
+
+    public function GetLinesPerScreen()
+    {
+        $LMSData = $this->SendDirect(new LMSData('linesperscreen', '?'));
+        if ($LMSData === NULL)
+            return false;
+        return $LMSData->Data[0];
+    }
+
+    public function GetDisplayedText()
+    {
+        $LMSData = $this->SendDirect(new LMSData('display', array('?', '?')));
+        if ($LMSData === NULL)
+            return false;
+        return $LMSData->Data;
+    }
+
+    public function GetDisplayedNow()
+    {
+        $LMSData = $this->SendDirect(new LMSData('displaynow', array('?', '?')));
+        if ($LMSData === NULL)
+            return false;
+        return $LMSData->Data;
+    }
+
+    public function PressButton(string $ButtonCode)
+    {
+        if (!is_string($ButtonCode))
+        {
+            trigger_error(sprintf($this->Translate("%s must be string."), 'ButtonCode'), E_USER_NOTICE);
+            return false;
+        }
+        $LMSData = $this->SendDirect(new LMSData('button', $ButtonCode));
+        if ($LMSData === NULL)
+            return false;
+        return ($ButtonCode == $LMSData->Data[0]);
+    }
+
+    ///////////////////////////////////////////////////////////////
+    // ENDE PLAYER
+    ///////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////
+    // START PLAYLIST
+    ///////////////////////////////////////////////////////////////
+
+    /**
+     * Lädt eine neue Playlist.
+     * @param string $URL SongURL, Verzeichniss oder Remote-Stream
+     * @return type
+     */
+    public function PlayUrl(string $URL)
+    {
+        return $this->PlayUrlEx($URL, "");
+    }
+
+    public function PlayUrlEx(string $URL, string $DisplayTitle)
+    {
+        if ($this->GetValidSongURL($URL) == false)
+            return false;
+
+        if (!is_string($DisplayTitle))
+        {
+            trigger_error(sprintf($this->Translate("%s must be string."), 'DisplayTitle'), E_USER_NOTICE);
+            return false;
+        }
+        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'play'), array($URL, $DisplayTitle)));
+        if ($LMSData === NULL)
+            return false;
+        //TODO
+        return $LMSData;
+//        
+//        $ret = $LMSData->Data[0];
+//        if (($ret == '/' . $Name) or ( $ret == '\\' . $Name))
+//        {
+//            trigger_error($this->Translate("Playlist not found."), E_USER_NOTICE);
+//            return false;
+//        }
+//        return $ret;
+    }
+
+    public function PlayFavorite(string $FavoriteID)
+    {
+        if (!is_string($FavoriteID))
+        {
+            trigger_error(sprintf($this->Translate("%s must be string."), "FavoriteID"), E_USER_NOTICE);
+            return false;
+        }
+        if ($FavoriteID == '')
+            $Data = array('play', 'item_id:.');
+        else
+            $Data = array('play', 'item_id:' . rawurlencode($FavoriteID));
+
+        $LMSData = $this->SendDirect(new LMSData(array('favorites', 'playlist'), $Data));
+        if ($LMSData === NULL)
+            return false;
+        return true;
+    }
+
+    /**
+     * Am Ende hinzufügen.
+     * @param string $URL
+     * @return type
+     */
+    public function AddToPlaylistByUrl(string $URL)
+    {
+        return $this->AddUrlToPlaylistEx($URL, -1);
+    }
+
+    public function AddToPlaylistByUrlEx(string $URL, string $DisplayTitle)
+    {
+        if ($this->GetValidSongURL($URL) == false)
+            return false;
+        if (!is_string($DisplayTitle))
+        {
+            trigger_error(sprintf($this->Translate("%s must be string."), 'DisplayTitle'), E_USER_NOTICE);
+            return false;
+        }
+
+        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'add'), array($URL, $DisplayTitle)));
+        if ($LMSData === NULL)
+            return FALSE;
+        //TODO
+        return $LMSData;
+        // todo für neue funktion insertat
+        //neue Tracks holen
+        // alt = 5
+        // neu = 10
+        // tomove = neu - alt = 5 hinzufügt.
+        // Postition = 3
+        // move alt(5, = erster neuer) to Postition (3)
+        // move alt+1 to position+1
+        //etc..
+    }
+
+    public function DeleteFromPlaylistByUrl(string $URL)
+    {
+        if ($this->GetValidSongURL($URL) == false)
+            return false;
+        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'deleteitem'), $URL));
+        if ($LMSData === NULL)
+            return FALSE;
+        //TODO
+        return $LMSData;
+        // todo für neue funktion insertat
+        //neue Tracks holen
+        // alt = 5
+        // neu = 10
+        // tomove = neu - alt = 5 hinzufügt.
+        // Postition = 3
+        // move alt(5, = erster neuer) to Postition (3)
+        // move alt+1 to position+1
+        //etc..
+    }
+
+    public function MoveSongInPlaylist(int $Position, int $NewPosition)
+    {
+        if (!is_int($Position))
+        {
+            trigger_error(sprintf($this->Translate("%s must integer."), "Position"), E_USER_NOTICE);
+            return false;
+        }
+        $Position--;
+        if (!is_int($NewPosition))
+        {
+            trigger_error(sprintf($this->Translate("%s must integer."), "Position"), E_USER_NOTICE);
+            return false;
+        }
+        $NewPosition--;
+        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'move'), array($Position, $NewPosition)));
+        if ($LMSData === NULL)
+            return FALSE;
+        if (($LMSData->Data[0] <> $Position) or ( $LMSData->Data[1] <> $NewPosition))
+        {
+            trigger_error($this->Translate("Error on move song in playlist."), E_USER_NOTICE);
+            return false;
+        }
+        return true;
+    }
+
+    //fertig
+    /*
+      The "playlist delete" command deletes the song at the specified index from the current playlist.
+     */
+    public function DeleteFromPlaylistByIndex(int $Position)
+    {
+        if (!is_int($Position))
+        {
+            trigger_error(sprintf($this->Translate("%s must integer."), "Position"), E_USER_NOTICE);
+            return false;
+        }
+        $Position--;
+        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'delete'), $Position));
+        if ($LMSData == NULL)
+            return false;
+        if (count($LMSData->Data) > 0)
+        {
+            trigger_error($this->Translate("Error delete song from playlist."), E_USER_NOTICE);
+            return false;
+        }
+        return ($LMSData->Data[0] == $Position + 1);
+    }
+
+    public function PreviewPlaylistStart(string $Name)
+    {
+        if (!is_string($Name))
+        {
+            trigger_error(sprintf($this->Translate("%s must string."), "Name"), E_USER_NOTICE);
+            return false;
+        }
+        if ($Name == "")
+        {
+            trigger_error(sprintf($this->Translate("%s can not be empty."), 'Name'), E_USER_NOTICE);
+            return false;
+        }
+        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'preview'), 'url:' . $Name));
+        if ($LMSData === NULL)
+            return false;
+        return ($LMSData->Data[0] == 'url:' . $Name);
+    }
+
+    public function PreviewPlaylistStop()
+    {
+        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'preview'), 'cmd:stop'));
+        if ($LMSData === NULL)
+            return false;
+        return true;
     }
 
     //fertig
     /**
-     * Setzt den Bass-Wert.
+     * Speichert die aktuelle Wiedergabeliste vom Gerät in einer unter $Name angegebenen Wiedergabelisten-Datei auf dem LMS-Server.
      *
-     * @param integer $Value
+     * @param string $Name
+     * Der Name der Wiedergabeliste. Ist diese Liste auf dem Server schon vorhanden, wird sie überschrieben.
      * @return boolean
      * true bei erfolgreicher Ausführung und Rückmeldung
      * @exception
      */
-    public function SetBass(int $Value)
+    public function SavePlaylist(string $Name)
     {
-        if (!$this->ReadPropertyBoolean('enableBass'))
+        if (!is_string($Name))
         {
-            trigger_error("Bass-Control not enabled", E_USER_NOTICE);
+            trigger_error(sprintf($this->Translate("%s must string."), "Name"), E_USER_NOTICE);
             return false;
         }
-        if (!is_int($Value))
+        if ($Name == "")
         {
-            trigger_error("Value must be integer", E_USER_NOTICE);
+            trigger_error(sprintf($this->Translate("%s can not be empty."), 'Name'), E_USER_NOTICE);
             return false;
         }
-        if (($Value < 0) or ( $Value > 100))
-        {
-            trigger_error("Value invalid.", E_USER_NOTICE);
-            return false;
-        }
-        $LMSData = $this->SendDirect(new LMSData(array('mixer', 'bass'), $Value));
+        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'save'), array($Name, 'silent:1')));
         if ($LMSData === NULL)
             return false;
-        return ((int) $LMSData->Data[0] == $Value);
+        return ($LMSData->Data[0] == $Name);
     }
 
     //fertig
     /**
-     * Liefert den aktuellen Bass-Wert.
+     * Speichert die aktuelle Wiedergabeliste vom Gerät in einer festen Wiedergabelisten-Datei auf dem LMS-Server.
      *
-     * @return integer
-     * @exception
-     */
-    public function GetBass()
-    {
-        $this->RequestState("Bass");
-        trigger_error("This function is deprecated, use RequestState an GetValue.", E_USER_DEPRECATED);
-        return GetValueInteger($this->GetIDForIdent("Bass"));
-    }
-
-    //fertig
-    /**
-     * Setzt den Treble-Wert.
-     *
-     * @param integer $Value
      * @return boolean
      * true bei erfolgreicher Ausführung und Rückmeldung
      * @exception
      */
-    public function SetTreble(int $Value)
+    public function SaveTempPlaylist()
     {
-        if (!$this->ReadPropertyBoolean('enableTreble'))
-        {
-            trigger_error("Treble-Control not enabled", E_USER_NOTICE);
-            return false;
-        }
-
-        if (!is_int($Value))
-        {
-            trigger_error("Value must be integer", E_USER_NOTICE);
-            return false;
-        }
-        if (($Value < 0) or ( $Value > 100))
-        {
-            trigger_error("Value invalid.", E_USER_NOTICE);
-            return false;
-        }
-        $LMSData = $this->SendDirect(new LMSData(array('mixer', 'treble'), $Value));
-        if ($LMSData === NULL)
-            return false;
-        return ((int) $LMSData->Data[0] == $Value);
+        return ($this->SavePlaylist('tempplaylist_' . str_replace(':', '', $this->ReadPropertyString('Address'))));
     }
 
     //fertig
     /**
-     * Liefert den aktuellen Treble-Wert.
+     * Lädt eine Wiedergabelisten-Datei aus dem LMS-Server und spring an die zuletzt abgespielten Track.
      *
-     * @return integer
+     * @param string $Name
+     * Der Name der Wiedergabeliste.
+     * @return string
+     * Kompletter Pfad der Wiedergabeliste.
      * @exception
      */
-    public function GetTreble()
+    public function ResumePlaylist(string $Name)
     {
-        $this->RequestState("Treble");
-        trigger_error("This function is deprecated, use RequestState an GetValue.", E_USER_DEPRECATED);
-        return GetValueInteger($this->GetIDForIdent("Treble"));
+        if (!is_string($Name))
+        {
+            trigger_error(sprintf($this->Translate("%s must string."), "Name"), E_USER_NOTICE);
+            return false;
+        }
+        if ($Name == "")
+        {
+            trigger_error(sprintf($this->Translate("%s can not be empty."), 'Name'), E_USER_NOTICE);
+            return false;
+        }
+        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'resume'), array($Name, 'noplay:1')));
+        if ($LMSData === NULL)
+            return false;
+        $ret = $LMSData->Data[0];
+        if (($ret == '/' . $Name) or ( $ret == '\\' . $Name))
+        {
+            trigger_error($this->Translate("Playlist not found."), E_USER_NOTICE);
+            return false;
+        }
+        return $ret;
     }
 
     //fertig
     /**
-     * Setzt den Pitch-Wert.
+     * Lädt eine zuvor gespeicherte Wiedergabelisten-Datei und setzt die Wiedergabe fort.
      *
-     * @param integer $Value
      * @return boolean
      * true bei erfolgreicher Ausführung und Rückmeldung
      * @exception
      */
-    public function SetPitch(int $Value)
+    public function LoadTempPlaylist()
     {
-        if (!$this->ReadPropertyBoolean('enablePitch'))
-        {
-            trigger_error("Pitch-Control not enabled", E_USER_NOTICE);
-            return false;
-        }
-
-        if (!is_int($Value))
-        {
-            trigger_error("Value must be integer", E_USER_NOTICE);
-            return false;
-        }
-        if (($Value < 80) or ( $Value > 120))
-        {
-            trigger_error("Value invalid.", E_USER_NOTICE);
-            return false;
-        }
-        $LMSData = $this->SendDirect(new LMSData(array('mixer', 'pitch'), $Value));
+        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'resume'), array('tempplaylist_' . str_replace(':', '', $this->ReadPropertyString('Address')), 'wipePlaylist:1', 'noplay:1')));
         if ($LMSData === NULL)
             return false;
-        return ((int) $LMSData->Data[0] == $Value);
-    }
-
-    //fertig
-    /**
-     * Liefert den aktuellen Pitch-Wert.
-     *
-     * @return integer
-     * @exception
-     */
-    public function GetPitch()
-    {
-        $this->RequestState("Pitch");
-        trigger_error("This function is deprecated, use RequestState an GetValue.", E_USER_DEPRECATED);
-        return GetValueInteger($this->GetIDForIdent("Pitch"));
-    }
-
-    //fertig
-    /**
-     * Setzten der Stummschaltung.
-     *
-     * @param bolean $Value
-     * true = Stumm an
-     * false = Stumm aus
-     * @return boolean
-     * true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
-     */
-    public function SetMute(bool $Value)
-    {
-        if (!is_bool($Value))
+        if ($LMSData->Data[0] != (string) $this->InstanceID)
         {
-            trigger_error("Value must boolean.", E_USER_NOTICE);
+            trigger_error($this->Translate("TempPlaylist not found."), E_USER_NOTICE);
             return false;
         }
-        $LMSData = $this->SendDirect(new LMSData(array('mixer', 'muting'), (int) $Value));
+        return true;
+    }
+
+    //fertig
+    /**
+     * Lädt eine Wiedergabelisten-Datei aus dem LMS-Server und startet die Wiedergabe derselben auf dem Gerät.
+     *
+     * @param string $Name
+     * Der Name der Wiedergabeliste. Eine URL zu einem Stream, einem Verzeichniss oder einer Datei
+     * @return string
+     * Kompletter Pfad der Wiedergabeliste.
+     * @exception
+     */
+    public function LoadPlaylist(string $Name)
+    {
+        if (!is_string($Name))
+        {
+            trigger_error(sprintf($this->Translate("%s must string."), "Name"), E_USER_NOTICE);
+            return false;
+        }
+        if ($Name == "")
+        {
+            trigger_error(sprintf($this->Translate("%s can not be empty."), 'Name'), E_USER_NOTICE);
+            return false;
+        }
+        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'load'), array($Name, 'noplay:1')));
         if ($LMSData === NULL)
             return false;
-        return ((int) $LMSData->Data[0] == (int) $Value);
-    }
-
-    //fertig
-    public function GetMute()
-    {
-        $this->RequestState("Mute");
-        trigger_error("This function is deprecated, use RequestState an GetValue.", E_USER_DEPRECATED);
-        return GetValueBoolean($this->GetIDForIdent("Mute"));
-    }
-
-    //fertig
-    /**
-     * Setzen des Wiederholungsmodus.
-     *
-     * @param integer $Value
-     * 0 = aus
-     * 1 = Titel
-     * 2 = Album
-     * @return boolean
-     * true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
-     */
-    public function SetRepeat(int $Value)
-    {
-        if (!is_int($Value))
+        $ret = $LMSData->Data[0];
+        if (($ret == '/' . $Name) or ( $ret == '\\' . $Name))
         {
-            trigger_error("Value must be integer", E_USER_NOTICE);
+            trigger_error($this->Translate("Playlist not found."), E_USER_NOTICE);
             return false;
         }
-        if (($Value < 0) or ( $Value > 2))
+        return $ret;
+    }
+
+    public function LoadPlaylistBySearch(string $Genre, string $Artist, string $Album)
+    {
+        if (!is_string($Genre))
         {
-            trigger_error("Value must be 0, 1 or 2.", E_USER_NOTICE);
+            trigger_error(sprintf($this->Translate("%s must be string."), 'Genre'), E_USER_NOTICE);
             return false;
         }
-        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'repeat'), $Value));
+        if ($Genre == "")
+            $Genre = '*';
+
+        if (!is_string($Artist))
+        {
+            trigger_error(sprintf($this->Translate("%s must be string."), 'Artist'), E_USER_NOTICE);
+            return false;
+        }
+        if ($Artist == "")
+            $Artist = '*';
+
+        if (!is_string($Album))
+        {
+            trigger_error(sprintf($this->Translate("%s must be string."), 'Album'), E_USER_NOTICE);
+            return false;
+        }
+        if ($Album == "")
+            $Album = '*';
+
+        if (($Genre == '*') and ( $Genre == '*') and ( $Genre == '*'))
+        {
+            trigger_error($this->Translate("One search patter is requiered"), E_USER_NOTICE);
+            return false;
+        }
+
+        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'loadalbum'), array($Genre, $Artist, $Album)));
         if ($LMSData === NULL)
             return false;
-
-        return ((int) $LMSData->Data[0] == $Value);
+        return true;
     }
 
-    //fertig
-    /**
-     * Liefert den Wiederholungsmodus.
-     *
-     * @return integer
-     * 0 = aus
-     * 1 = Titel
-     * 2 = Album
-     * @exception
-     */
-    public function GetRepeat()
+    public function AddToPlaylistBySearch(string $Genre, string $Artist, string $Album)
     {
-        $this->RequestState("Repeat");
-        trigger_error("This function is deprecated, use RequestState an GetValue.", E_USER_DEPRECATED);
-        return GetValueInteger($this->GetIDForIdent("Repeat"));
-    }
+        if (!is_string($Genre))
+        {
+            trigger_error(sprintf($this->Translate("%s must be string."), 'Genre'), E_USER_NOTICE);
+            return false;
+        }
+        if ($Genre == "")
+            $Genre = '*';
 
-    //fertig
-    /**
-     * Setzen des Zufallsmodus.
-     *
-     * @param integer $Value
-     * 0 = aus
-     * 1 = Titel
-     * 2 = Album
-     * @return boolean
-     * true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
-     */
-    public function SetShuffle(int $Value)
-    {
-        if (!is_int($Value))
+        if (!is_string($Artist))
         {
-            trigger_error("Value must be integer", E_USER_NOTICE);
+            trigger_error(sprintf($this->Translate("%s must be string."), 'Artist'), E_USER_NOTICE);
             return false;
         }
-        if (($Value < 0) or ( $Value > 2))
+        if ($Artist == "")
+            $Artist = '*';
+
+        if (!is_string($Album))
         {
-            trigger_error("Value must be 0, 1 or 2.", E_USER_NOTICE);
+            trigger_error(sprintf($this->Translate("%s must be string."), 'Album'), E_USER_NOTICE);
             return false;
         }
-        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'shuffle'), $Value));
+        if ($Album == "")
+            $Album = '*';
+
+        if (($Genre == '*') and ( $Genre == '*') and ( $Genre == '*'))
+        {
+            trigger_error($this->Translate("One search patter is requiered"), E_USER_NOTICE);
+            return false;
+        }
+
+        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'addalbum'), array($Genre, $Artist, $Album)));
         if ($LMSData === NULL)
             return false;
-        return ((int) $LMSData->Data[0] == $Value);
+        return true;
     }
 
-    //fertig
-    /**
-     * Liefert den Zufallsmodus.
-     *
-     * @return integer
-     * 0 = aus
-     * 1 = Titel
-     * 2 = Album
-     * @exception
-     */
-    public function GetShuffle()
+    public function LoadPlaylistByTrackTitel(string $Titel)
     {
-        $this->RequestState("Shuffle");
-        trigger_error("This function is deprecated, use RequestState an GetValue.", E_USER_DEPRECATED);
-        return GetValueInteger($this->GetIDForIdent("Shuffle"));
-    }
+        if (!is_string($Titel))
+        {
+            trigger_error(sprintf($this->Translate("%s must be string."), 'Titel'), E_USER_NOTICE);
+            return false;
+        }
+        if ($Titel == "")
+        {
+            trigger_error(sprintf($this->Translate("%s can not be empty."), 'Titel'), E_USER_NOTICE);
+            return false;
+        }
 
-    //fertig
-    /**
-     * Simuliert einen Tastendruck auf einen der Preset-Tasten.
-     *
-     * @param integer $Value
-     * 1 - 6 = Taste 1 bis 6
-     * @return boolean
-     * true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
-     */
-    public function SelectPreset(int $Value)
-    {
-        if (!is_int($Value))
-        {
-            trigger_error("Value must be integer", E_USER_NOTICE);
-            return false;
-        }
-        if (($Value < 1) or ( $Value > 6))
-        {
-            trigger_error("Value out of Range.", E_USER_NOTICE);
-            return false;
-        }
-        $Value = 'preset_' . $Value . '.single';
-        $LMSData = $this->SendDirect(new LMSData('button', $Value));
+        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'loadtracks'), 'track.titlesearch=' . $Titel));
         if ($LMSData === NULL)
             return false;
-        return ( $LMSData->Data[0] == $Value);
+        return true;
     }
 
-    //fertig
-    /**
-     * Schaltet das Gerät ein oder aus.
-     *
-     * @access public
-     * @param boolean $Value
-     * false  = ausschalten
-     * true = einschalten
-     * @return boolean
-     * true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
-     */
-    public function Power(bool $Value)
+    public function LoadPlaylistByAlbumTitel(string $Titel)
     {
-        if (!is_bool($Value))
+        if (!is_string($Titel))
         {
-            trigger_error("Value must boolean.", E_USER_NOTICE);
+            trigger_error(sprintf($this->Translate("%s must be string."), 'Titel'), E_USER_NOTICE);
             return false;
         }
-        $LMSData = $this->SendDirect(new LMSData('power', (int) $Value));
+        if ($Titel == "")
+        {
+            trigger_error(sprintf($this->Translate("%s can not be empty."), 'Titel'), E_USER_NOTICE);
+            return false;
+        }
+
+        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'loadtracks'), 'album.titlesearch=' . $Titel));
         if ($LMSData === NULL)
             return false;
-        return ((int) $LMSData->Data[0] == (int) $Value);
+        return true;
     }
 
-    //fertig
+    public function LoadPlaylistByArtistName(string $Name)
+    {
+        if (!is_string($Name))
+        {
+            trigger_error(sprintf($this->Translate("%s must be string."), 'Name'), E_USER_NOTICE);
+            return false;
+        }
+        if ($Name == "")
+        {
+            trigger_error(sprintf($this->Translate("%s can not be empty."), 'Name'), E_USER_NOTICE);
+            return false;
+        }
+
+        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'loadtracks'), 'contributor.namesearch=' . $Name));
+        if ($LMSData === NULL)
+            return false;
+        return true;
+    }
+
+    public function LoadPlaylistByFavoriteID(string $FavoriteID)
+    {
+        if (!is_string($FavoriteID))
+        {
+            trigger_error(sprintf($this->Translate("%s must be string."), "FavoriteID"), E_USER_NOTICE);
+            return false;
+        }
+        if ($FavoriteID == '')
+            $Data = array('load', 'item_id:.');
+        else
+            $Data = array('load', 'item_id:' . rawurlencode($FavoriteID));
+
+        $LMSData = $this->SendDirect(new LMSData(array('favorites', 'playlist'), $Data));
+        if ($LMSData === NULL)
+            return false;
+        return true;
+    }
+
+    public function AddToPlaylistByTrackTitel(string $Titel)
+    {
+        if (!is_string($Titel))
+        {
+            trigger_error(sprintf($this->Translate("%s must be string."), 'Titel'), E_USER_NOTICE);
+            return false;
+        }
+        if ($Titel == "")
+        {
+            trigger_error(sprintf($this->Translate("%s can not be empty."), 'Titel'), E_USER_NOTICE);
+            return false;
+        }
+
+        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'addtracks'), 'track.titlesearch=' . $Titel));
+        if ($LMSData === NULL)
+            return false;
+        return true;
+    }
+
+    public function AddToPlaylistByAlbumTitel(string $Titel)
+    {
+        if (!is_string($Titel))
+        {
+            trigger_error(sprintf($this->Translate("%s must be string."), 'Titel'), E_USER_NOTICE);
+            return false;
+        }
+        if ($Titel == "")
+        {
+            trigger_error(sprintf($this->Translate("%s can not be empty."), 'Titel'), E_USER_NOTICE);
+            return false;
+        }
+
+        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'addtracks'), 'album.titlesearch=' . $Titel));
+        if ($LMSData === NULL)
+            return false;
+        return true;
+    }
+
+    public function AddToPlaylistByArtistName(string $Name)
+    {
+        if (!is_string($Name))
+        {
+            trigger_error(sprintf($this->Translate("%s must be string."), 'Name'), E_USER_NOTICE);
+            return false;
+        }
+        if ($Name == "")
+        {
+            trigger_error(sprintf($this->Translate("%s can not be empty."), 'Name'), E_USER_NOTICE);
+            return false;
+        }
+
+        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'addtracks'), 'contributor.namesearch=' . $Name));
+        if ($LMSData === NULL)
+            return false;
+        return true;
+    }
+
+    public function AddToPlaylistByFavoriteID(string $FavoriteID)
+    {
+        if (!is_string($FavoriteID))
+        {
+            trigger_error(sprintf($this->Translate("%s must be string."), "FavoriteID"), E_USER_NOTICE);
+            return false;
+        }
+        if ($FavoriteID == '')
+            $Data = array('add', 'item_id:.');
+        else
+            $Data = array('add', 'item_id:' . rawurlencode($FavoriteID));
+
+        $LMSData = $this->SendDirect(new LMSData(array('favorites', 'playlist'), $Data));
+        if ($LMSData === NULL)
+            return false;
+        return true;
+    }
+
+    public function InsertInPlaylistBySearch(string $Genre, string $Artist, string $Album)
+    {
+        if (!is_string($Genre))
+        {
+            trigger_error(sprintf($this->Translate("%s must be string."), 'Genre'), E_USER_NOTICE);
+            return false;
+        }
+        if ($Genre == "")
+            $Genre = '*';
+
+        if (!is_string($Artist))
+        {
+            trigger_error(sprintf($this->Translate("%s must be string."), 'Artist'), E_USER_NOTICE);
+            return false;
+        }
+        if ($Artist == "")
+            $Artist = '*';
+
+        if (!is_string($Album))
+        {
+            trigger_error(sprintf($this->Translate("%s must be string."), 'Album'), E_USER_NOTICE);
+            return false;
+        }
+        if ($Album == "")
+            $Album = '*';
+
+        if (($Genre == '*') and ( $Genre == '*') and ( $Genre == '*'))
+        {
+            trigger_error($this->Translate("One search patter is requiered"), E_USER_NOTICE);
+            return false;
+        }
+
+        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'insertalbum'), array($Genre, $Artist, $Album)));
+        if ($LMSData === NULL)
+            return false;
+        return true;
+    }
+
+    public function DeleteFromPlaylistBySearch(string $Genre, string $Artist, string $Album)
+    {
+        if (!is_string($Genre))
+        {
+            trigger_error(sprintf($this->Translate("%s must be string."), 'Genre'), E_USER_NOTICE);
+            return false;
+        }
+        if ($Genre == "")
+            $Genre = '*';
+
+        if (!is_string($Artist))
+        {
+            trigger_error(sprintf($this->Translate("%s must be string."), 'Artist'), E_USER_NOTICE);
+            return false;
+        }
+        if ($Artist == "")
+            $Artist = '*';
+
+        if (!is_string($Album))
+        {
+            trigger_error(sprintf($this->Translate("%s must be string."), 'Album'), E_USER_NOTICE);
+            return false;
+        }
+        if ($Album == "")
+            $Album = '*';
+
+        if (($Genre == '*') and ( $Genre == '*') and ( $Genre == '*'))
+        {
+            trigger_error($this->Translate("One search patter is requiered"), E_USER_NOTICE);
+            return false;
+        }
+
+        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'deletealbum'), array($Genre, $Artist, $Album)));
+        if ($LMSData === NULL)
+            return false;
+        return true;
+    }
+
+//The "playlist clear" command removes any song that is on the playlist. The player is stopped.
+    public function ClearPlaylist()
+    {
+        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'clear'), ''));
+        if ($LMSData === NULL)
+            return false;
+        return true;
+    }
+
+    public function AddPlaylistIndexToZappedList(int $Position)
+    {
+        if (!is_int($Position))
+        {
+            trigger_error(sprintf($this->Translate("%s must integer."), "Position"), E_USER_NOTICE);
+            return false;
+        }
+        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'zap'), $Position));
+        if ($LMSData === NULL)
+            return false;
+        return true;
+    }
+
+    public function GetPlaylistURL()
+    {
+        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'url'), '?'));
+        if ($LMSData === NULL)
+            return false;
+        //TODO
+        return $LMSData;
+    }
+
+    public function IsPlaylistModified()
+    {
+        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'modified'), '?'));
+        if ($LMSData === NULL)
+            return false;
+        //TODO
+        return ($LMSData->Data[0] == "1");
+    }
+
+    //TESTEN TODO
+    /*            <br>
+      <p id="playlist playlistsinfo">
+      <strong>
+      <code>
+      &lt;playerid&gt;
+      playlist
+      playlistsinfo
+      &lt;taggedParameters&gt;
+      </code>
+      </strong>
+      </p>
+      <p>
+      The "playlist playlistsinfo" query returns information on the
+      saved playlist last loaded into the Now Playing playlist, if any.
+      </p>
+      <p>
+      Accepted tagged parameters:
+      </p>
+      <table border="0" spacing="50">
+      <tbody><tr>
+      <td width="100"><b>Tag</b></td>
+      <td><b>Description</b></td>
+      </tr>
+      </tbody></table>
+      <p>
+      Returned tagged parameters:
+      </p>
+      <table border="0" spacing="50">
+      <tbody><tr>
+      <td width="100"><b>Tag</b></td>
+      <td><b>Description</b></td>
+      </tr>
+      <tr>
+      <td>id</td>
+      <td>Playlist id.</td>
+      </tr>
+      <tr>
+      <td>name</td>
+      <td>Playlist name. Equivalent to
+      "<a href="#playlist name">playlist name ?</a>".
+      </td>
+      </tr>
+      <tr>
+      <td>modified</td>
+      <td>Modification state of the saved playlist. Equivalent to
+      "<a href="#playlist modified">playlist modified ?</a>".
+      </td>
+      </tr><tr>
+      <td>url</td>
+      <td>Playlist url. Equivalent to
+      "<a href="#playlist url">playlist url ?</a>".
+      </td>
+      </tr>
+      </tbody></table>
+      <p>
+      Example:
+      </p>
+      <blockquote>
+      <p>
+      Request: "a5:41:d2:cd:cd:05 playlist playlistsinfo &lt;LF&gt;"
+      <br>
+      Response: "a5:41:d2:cd:cd:05 playlist playlistsinfo
+      id:267 name:A98 modified:0 url:file://Volumes/... &lt;LF&gt;"
+      </p>
+      </blockquote> */
+    public function GetPlaylistInfo()
+    {
+        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'playlistsinfo'), ''));
+        if ($LMSData === NULL)
+            return false;
+        if (count($LMSData->Data) == 1)
+            return array();
+        $SongInfo = new LMSSongInfo($LMSData->Data);
+        return $SongInfo->GetSong();
+    }
+
     /**
      * Springt in der aktuellen Wiedergabeliste auf einen Titel.
      *
-     * @param integer $Value
+     * @param integer $Index
      * Track in der Wiedergabeliste auf welchen gesprungen werden soll.
      * @return boolean
      * true bei erfolgreicher Ausführung und Rückmeldung
      * @exception
      */
-    public function PlayTrack(int $Index)
+    public function GoToTrack(int $Index)
     {
         if (!is_int($Index))
         {
-            trigger_error("Index must be integer", E_USER_NOTICE);
+            trigger_error(sprintf($this->Translate("%s must be integer."), 'Index'), E_USER_NOTICE);
             return false;
         }
         if (($Index < 1) or ( $Index > GetValueInteger($this->GetIDForIdent('Tracks'))))
         {
-            trigger_error("Index out of Range.", E_USER_NOTICE);
+            trigger_error(sprintf($this->Translate("%s out of Range."), 'Index'), E_USER_NOTICE);
             return false;
         }
 
@@ -1113,174 +2471,65 @@ if (isset($_GET["Index"]))
         return ($LMSData->Data[0] == "-1");
     }
 
+    //fertig
     /**
-     * Setzt eine absolute Zeit-Position des aktuellen Titels.
+     * Setzen des Zufallsmodus.
      *
-     * @param integer $Value Zeit in Sekunden.
-     * @return boolean true bei erfolgreicher Ausführung und Rückmeldung.
-     * @exception Wenn Befehl nicht ausgeführt werden konnte.
+     * @param integer $Value
+     * 0 = aus
+     * 1 = Titel
+     * 2 = Album
+     * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception
      */
-    public function SetPosition(int $Value)
+    public function SetShuffle(int $Value)
     {
         if (!is_int($Value))
         {
-            trigger_error("Value must be integer", E_USER_NOTICE);
+            trigger_error(sprintf($this->Translate("%s must integer."), "Value"), E_USER_NOTICE);
             return false;
         }
-        if ($Value > $this->GetBuffer('DurationRAW'))
+        if (($Value < 0) or ( $Value > 2))
         {
-            trigger_error("Value greater as duration", E_USER_NOTICE);
+            trigger_error($this->Translate("Value must be 0, 1 or 2."), E_USER_NOTICE);
             return false;
         }
-        $LMSData = $this->SendDirect(new LMSData('time', $Value));
+        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'shuffle'), $Value));
         if ($LMSData === NULL)
             return false;
-        return ($Value == $LMSData->Data[0]);
+        return ((int) $LMSData->Data[0] == $Value);
     }
 
     //fertig
     /**
-     * Liest die aktuelle Zeit-Position des aktuellen Titels.
+     * Setzen des Wiederholungsmodus.
      *
-     * @return integer
-     * Zeit in Sekunden.
-     * @exception
-     */
-    public function GetPosition()
-    {
-        $this->RequestState("Position");
-        trigger_error("This function is deprecated, use RequestState an GetValue.", E_USER_DEPRECATED);
-        return GetValueInteger($this->GetIDForIdent("Position"));
-    }
-
-    //fertig
-    /**
-     * Speichert die aktuelle Wiedergabeliste vom Gerät in einer unter $Name angegebenen Wiedergabelisten-Datei auf dem LMS-Server.
-     *
-     * @param string $Name
-     * Der Name der Wiedergabeliste. Ist diese Liste auf dem Server schon vorhanden, wird sie überschrieben.
+     * @param integer $Value
+     * 0 = aus
+     * 1 = Titel
+     * 2 = Album
      * @return boolean
      * true bei erfolgreicher Ausführung und Rückmeldung
      * @exception
      */
-    public function SavePlaylist(string $Name)
+    public function SetRepeat(int $Value)
     {
-        if (!is_string($Name))
+        if (!is_int($Value))
         {
-            trigger_error("Name must be string", E_USER_NOTICE);
+            trigger_error(sprintf($this->Translate("%s must integer."), "Value"), E_USER_NOTICE);
             return false;
         }
-        if ($Name == "")
+        if (($Value < 0) or ( $Value > 2))
         {
-            trigger_error("Name cannot be empty", E_USER_NOTICE);
+            trigger_error($this->Translate("Value must be 0, 1 or 2."), E_USER_NOTICE);
             return false;
         }
-        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'save'), array(rawurlencode($Name), 'silent:1')));
+        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'repeat'), $Value));
         if ($LMSData === NULL)
             return false;
-        return (rawurldecode($LMSData->Data[0]) == $Name);
-    }
 
-    //fertig
-    /**
-     * Speichert die aktuelle Wiedergabeliste vom Gerät in einer festen Wiedergabelisten-Datei auf dem LMS-Server.
-     *
-     * @return boolean
-     * true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
-     */
-    public function SaveTempPlaylist()
-    {
-        return ($this->SavePlaylist((string) $this->InstanceID));
-    }
-
-    //fertig
-    /**
-     * Lädt eine Wiedergabelisten-Datei aus dem LMS-Server und startet die Wiedergabe derselben auf dem Gerät.
-     *
-     * @param string $Name
-     * Der Name der Wiedergabeliste. Eine URL zu einem Stream, einem Verzeichniss oder einer Datei
-     * @return string
-     * Kompletter Pfad der Wiedergabeliste.
-     * @exception
-     */
-    public function LoadPlaylist(string $Name)
-    {
-        if (!is_string($Name))
-        {
-            trigger_error("Name must be string", E_USER_NOTICE);
-            return false;
-        }
-        if ($Name == "")
-        {
-            trigger_error("Name cannot be empty", E_USER_NOTICE);
-            return false;
-        }
-        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'load'), array(rawurlencode($Name), 'noplay:1')));
-        if ($LMSData === NULL)
-            return false;
-        $ret = rawurldecode($LMSData->Data[0]);
-        if (($ret == '/' . $Name) or ( $ret == '\\' . $Name))
-        {
-            trigger_error("Playlist not found.", E_USER_NOTICE);
-            return false;
-        }
-        return rawurldecode($ret);
-    }
-
-    //fertig
-    /**
-     * Lädt eine Wiedergabelisten-Datei aus dem LMS-Server und spring an die zuletzt abgespielten Track.
-     *
-     * @param string $Name
-     * Der Name der Wiedergabeliste.
-     * @return string
-     * Kompletter Pfad der Wiedergabeliste.
-     * @exception
-     */
-    public function ResumePlaylist(string $Name)
-    {
-        if (!is_string($Name))
-        {
-            trigger_error("Name must be string", E_USER_NOTICE);
-            return false;
-        }
-        if ($Name == "")
-        {
-            trigger_error("Name cannot be empty", E_USER_NOTICE);
-            return false;
-        }
-        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'resume'), array(rawurlencode($Name), 'noplay:1')));
-        if ($LMSData === NULL)
-            return false;
-        $ret = rawurldecode($LMSData->Data[0]);
-        if (($ret == '/' . $Name) or ( $ret == '\\' . $Name))
-        {
-            trigger_error("Playlist not found.", E_USER_NOTICE);
-            return false;
-        }
-        return rawurldecode($ret);
-    }
-
-    //fertig
-    /**
-     * Lädt eine zuvor gespeicherte Wiedergabelisten-Datei und setzt die Wiedergabe fort.
-     *
-     * @return boolean
-     * true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
-     */
-    public function LoadTempPlaylist()
-    {
-        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'load'), array((string) $this->InstanceID, 'wipePlaylist:1', 'noplay:1')));
-        if ($LMSData === NULL)
-            return false;
-        if (rawurldecode($LMSData->Data[0]) != (string) $this->InstanceID)
-        {
-            trigger_error("TempPlaylist not found.", E_USER_NOTICE);
-            return false;
-        }
-        return true;
+        return ((int) $LMSData->Data[0] == $Value);
     }
 
     //fertig
@@ -1304,10 +2553,10 @@ if (isset($_GET["Index"]))
     {
         if (!is_int($AlbumID))
         {
-            trigger_error("AlbumID must be integer.", E_USER_NOTICE);
+            trigger_error(sprintf($this->Translate("%s must be integer."), 'AlbumID'), E_USER_NOTICE);
             return false;
         }
-        return $this->_PlaylistControl('cmd:load', 'album_id:' . $AlbumID, "AlbumID not found.");
+        return $this->_PlaylistControl('cmd:load', 'album_id:' . $AlbumID, sprintf($this->Translate("%s not found."), 'AlbumID'));
     }
 
     //fertig
@@ -1315,10 +2564,10 @@ if (isset($_GET["Index"]))
     {
         if (!is_int($GenreID))
         {
-            trigger_error("GenreID must be integer.", E_USER_NOTICE);
+            trigger_error(sprintf($this->Translate("%s must be integer."), 'GenreID'), E_USER_NOTICE);
             return false;
         }
-        return $this->_PlaylistControl('cmd:load', 'genre_id:' . $GenreID, "GenreID not found.");
+        return $this->_PlaylistControl('cmd:load', 'genre_id:' . $GenreID, sprintf($this->Translate("%s not found."), 'GenreID'));
     }
 
     //fertig
@@ -1326,10 +2575,10 @@ if (isset($_GET["Index"]))
     {
         if (!is_int($ArtistID))
         {
-            trigger_error("ArtistID must be integer.", E_USER_NOTICE);
+            trigger_error(sprintf($this->Translate("%s must be integer."), 'ArtistID'), E_USER_NOTICE);
             return false;
         }
-        return $this->_PlaylistControl('cmd:load', 'artist_id:' . $ArtistID, "ArtistID not found.");
+        return $this->_PlaylistControl('cmd:load', 'artist_id:' . $ArtistID, sprintf($this->Translate("%s not found."), 'ArtistID'));
     }
 
     //fertig
@@ -1337,154 +2586,242 @@ if (isset($_GET["Index"]))
     {
         if (!is_int($PlaylistID))
         {
-            trigger_error("PlaylistID must be integer.", E_USER_NOTICE);
+            trigger_error(sprintf($this->Translate("%s must be integer."), 'PlaylistID'), E_USER_NOTICE);
             return false;
         }
-        return $this->_PlaylistControl('cmd:load', 'playlist_id:' . $PlaylistID, "PlaylistID not found.");
+        return $this->_PlaylistControl('cmd:load', 'playlist_id:' . $PlaylistID, sprintf($this->Translate("%s not found."), 'PlaylistID'));
     }
 
-    //todo folder_id (int)
-    //todo track_id (string)
-    //todo alles mit Load auch mit add und add mit move
     //fertig
-//The "playlist clear" command removes any song that is on the playlist. The player is stopped.
-    public function ClearPlaylist()
+    public function LoadPlaylistBySongIDs(string $SongIDs)
     {
-        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'clear'), ''));
+        if (!is_string($SongIDs))
+        {
+            trigger_error(sprintf($this->Translate("%s must be string."), 'SongIDs'), E_USER_NOTICE);
+            return false;
+        }
+        return $this->_PlaylistControl('cmd:load', 'track_id:' . $SongIDs, sprintf($this->Translate("%s not found."), 'SongIDs'));
+    }
+
+    //fertig
+    public function LoadPlaylistByFolderID(int $FolderID)
+    {
+        if (!is_int($FolderID))
+        {
+            trigger_error(sprintf($this->Translate("%s must be integer."), 'FolderID'), E_USER_NOTICE);
+            return false;
+        }
+        return $this->_PlaylistControl('cmd:load', 'folder_id:' . $FolderID, sprintf($this->Translate("%s not found."), 'FolderID'));
+    }
+
+    //fertig
+    public function AddToPlaylistByAlbumID(int $AlbumID)
+    {
+        if (!is_int($AlbumID))
+        {
+            trigger_error(sprintf($this->Translate("%s must be integer."), 'AlbumID'), E_USER_NOTICE);
+            return false;
+        }
+        return $this->_PlaylistControl('cmd:add', 'album_id:' . $AlbumID, sprintf($this->Translate("%s not found."), 'AlbumID'));
+    }
+
+    //fertig
+    public function AddToPlaylistByGenreID(int $GenreID)
+    {
+        if (!is_int($GenreID))
+        {
+            trigger_error(sprintf($this->Translate("%s must be integer."), 'GenreID'), E_USER_NOTICE);
+            return false;
+        }
+        return $this->_PlaylistControl('cmd:add', 'genre_id:' . $GenreID, sprintf($this->Translate("%s not found."), 'GenreID'));
+    }
+
+    //fertig
+    public function AddToPlaylistByArtistID(int $ArtistID)
+    {
+        if (!is_int($ArtistID))
+        {
+            trigger_error(sprintf($this->Translate("%s must be integer."), 'ArtistID'), E_USER_NOTICE);
+            return false;
+        }
+        return $this->_PlaylistControl('cmd:add', 'artist_id:' . $ArtistID, sprintf($this->Translate("%s not found."), 'ArtistID'));
+    }
+
+    //fertig
+    public function AddToPlaylistByPlaylistID(int $PlaylistID)
+    {
+        if (!is_int($PlaylistID))
+        {
+            trigger_error(sprintf($this->Translate("%s must be integer."), 'PlaylistID'), E_USER_NOTICE);
+            return false;
+        }
+        return $this->_PlaylistControl('cmd:add', 'playlist_id:' . $PlaylistID, sprintf($this->Translate("%s not found."), 'PlaylistID'));
+    }
+
+    //fertig
+    public function AddToPlaylistBySongIDs(string $SongIDs)
+    {
+        if (!is_string($SongIDs))
+        {
+            trigger_error(sprintf($this->Translate("%s must be string."), 'SongIDs'), E_USER_NOTICE);
+            return false;
+        }
+        return $this->_PlaylistControl('cmd:add', 'track_id:' . $SongIDs, sprintf($this->Translate("%s not found."), 'SongIDs'));
+    }
+
+    //fertig
+    public function AddToPlaylistByFolderID(int $FolderID)
+    {
+        if (!is_int($FolderID))
+        {
+            trigger_error(sprintf($this->Translate("%s must be integer."), 'FolderID'), E_USER_NOTICE);
+            return false;
+        }
+        return $this->_PlaylistControl('cmd:add', 'folder_id:' . $FolderID, sprintf($this->Translate("%s not found."), 'FolderID'));
+    }
+
+    //todo alles auch mit add + move
+    //todo insert testen !?!?
+    //fertig
+    public function InsertInPlaylistByAlbumID(int $AlbumID)
+    {
+        if (!is_int($AlbumID))
+        {
+            trigger_error(sprintf($this->Translate("%s must be integer."), 'AlbumID'), E_USER_NOTICE);
+            return false;
+        }
+        return $this->_PlaylistControl('cmd:insert', 'album_id:' . $AlbumID, sprintf($this->Translate("%s not found."), 'AlbumID'));
+    }
+
+    //fertig
+    public function InsertInPlaylistByGenreID(int $GenreID)
+    {
+        if (!is_int($GenreID))
+        {
+            trigger_error(sprintf($this->Translate("%s must be integer."), 'GenreID'), E_USER_NOTICE);
+            return false;
+        }
+        return $this->_PlaylistControl('cmd:insert', 'genre_id:' . $GenreID, sprintf($this->Translate("%s not found."), 'GenreID'));
+    }
+
+    //fertig
+    public function InsertInPlaylistByArtistID(int $ArtistID)
+    {
+        if (!is_int($ArtistID))
+        {
+            trigger_error(sprintf($this->Translate("%s must be integer."), 'ArtistID'), E_USER_NOTICE);
+            return false;
+        }
+        return $this->_PlaylistControl('cmd:insert', 'artist_id:' . $ArtistID, sprintf($this->Translate("%s not found."), 'ArtistID'));
+    }
+
+    //fertig
+    public function InsertInPlaylistByPlaylistID(int $PlaylistID)
+    {
+        if (!is_int($PlaylistID))
+        {
+            trigger_error(sprintf($this->Translate("%s must be integer."), 'PlaylistID'), E_USER_NOTICE);
+            return false;
+        }
+        return $this->_PlaylistControl('cmd:insert', 'playlist_id:' . $PlaylistID, sprintf($this->Translate("%s not found."), 'PlaylistID'));
+    }
+
+    //fertig
+    public function InsertInPlaylistBySongIDs(string $SongIDs)
+    {
+        if (!is_string($SongIDs))
+        {
+            trigger_error(sprintf($this->Translate("%s must be string."), 'SongIDs'), E_USER_NOTICE);
+            return false;
+        }
+        return $this->_PlaylistControl('cmd:insert', 'track_id:' . $SongIDs, sprintf($this->Translate("%s not found."), 'SongIDs'));
+    }
+
+    //fertig
+    public function InsertInPlaylistByFolderID(int $FolderID)
+    {
+        if (!is_int($FolderID))
+        {
+            trigger_error(sprintf($this->Translate("%s must be integer."), 'FolderID'), E_USER_NOTICE);
+            return false;
+        }
+        return $this->_PlaylistControl('cmd:insert', 'folder_id:' . $FolderID, sprintf($this->Translate("%s not found."), 'FolderID'));
+    }
+
+    public function InsertInPlaylistByFavoriteID(string $FavoriteID)
+    {
+        if (!is_string($FavoriteID))
+        {
+            trigger_error(sprintf($this->Translate("%s must be string."), "FavoriteID"), E_USER_NOTICE);
+            return false;
+        }
+        if ($FavoriteID == '')
+            $Data = array('insert', 'item_id:.');
+        else
+            $Data = array('insert', 'item_id:' . rawurlencode($FavoriteID));
+
+        $LMSData = $this->SendDirect(new LMSData(array('favorites', 'playlist'), $Data));
         if ($LMSData === NULL)
             return false;
         return true;
     }
 
     //fertig
-    /*
-      The "playlist delete" command deletes the song at the specified index from the current playlist.
-     */
-    public function DeleteSongFromPlaylist(int $Position)
+    public function DeleteFromPlaylistByAlbumID(int $AlbumID)
     {
-        if (!is_int($Position))
+        if (!is_int($AlbumID))
         {
-            trigger_error("Position must be integer.", E_USER_NOTICE);
+            trigger_error(sprintf($this->Translate("%s must be integer."), 'AlbumID'), E_USER_NOTICE);
             return false;
         }
-        $Position--;
-        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'delete'), $Position));
-        if ($LMSData == NULL)
-            return false;
-        if (count($LMSData->Data) > 0)
+        return $this->_PlaylistControl('cmd:delete', 'album_id:' . $AlbumID, sprintf($this->Translate("%s not found."), 'AlbumID'));
+    }
+
+    //fertig
+    public function DeleteFromPlaylistByGenreID(int $GenreID)
+    {
+        if (!is_int($GenreID))
         {
-            trigger_error("Error delete song from playlist.", E_USER_NOTICE);
+            trigger_error(sprintf($this->Translate("%s must be integer."), 'GenreID'), E_USER_NOTICE);
             return false;
         }
-        return ($LMSData->Data[0] == $Position + 1);
+        return $this->_PlaylistControl('cmd:delete', 'genre_id:' . $GenreID, sprintf($this->Translate("%s not found."), 'GenreID'));
     }
 
-    /*
-      The "playlist add" command adds the specified song URL, playlist or directory contents to the end of the current playlist. Songs currently playing or already on the playlist are not affected.
-
-      Examples:
-
-      Request: "04:20:00:12:23:45 playlist add /music/abba/01_Voulez_Vous.mp3<LF>"
-      Response: "04:20:00:12:23:45 playlist add /music/abba/01_Voulez_Vous.mp3<LF>"
-
-      Request: "04:20:00:12:23:45 playlist add /playlists/abba.m3u<LF>"
-      Response: "04:20:00:12:23:45 playlist add /playlists/abba.m3u<LF>"
-     */
-
-    public function AddSongToPlaylist(string $SongURL)
+    //fertig
+    public function DeleteFromPlaylistByArtistID(int $ArtistID)
     {
-        return $this->AddSongToPlaylistEx($SongURL, -1);
-    }
-
-    public function AddSongToPlaylistEx(string $SongURL, int $Position)
-    {
-        if ($this->GetValidSongURL($SongURL) == false)
-            return false;
-        if (!is_int($Position))
+        if (!is_int($ArtistID))
         {
-            trigger_error("Position must be integer.", E_USER_NOTICE);
+            trigger_error(sprintf($this->Translate("%s must be integer."), 'ArtistID'), E_USER_NOTICE);
             return false;
         }
-        // alte Tracks speichern
-        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'add'), $SongURL));
-        if ($LMSData === NULL)
-            return FALSE;
-        //neue Tracks holen
-        // alt = 5
-        // neu = 10
-        // tomove = neu - alt = 5 hinzufügt.
-        // Postition = 3
-        // move alt(5, = erster neuer) to Postition (3)
-        // move alt+1 to position+1
-        //etc..
+        return $this->_PlaylistControl('cmd:delete', 'artist_id:' . $ArtistID, sprintf($this->Translate("%s not found."), 'ArtistID'));
     }
 
-    /*
-     *    <playerid> playlist move <fromindex> <toindex>
-      The "playlist move" command moves the song at the specified index to a new index in the playlist. An offset of zero is the first song in the playlist.
-      Examples
-      Request: "04:20:00:12:23:45 playlist move 0 5<LF>"
-      Response: "04:20:00:12:23:45 playlist move 0 5<LF>"
-     */
-
-    public function MoveSongInPlaylist(int $Position, int $NewPosition)
+    //fertig
+    public function DeleteFromPlaylistByPlaylistID(int $PlaylistID)
     {
-        if (!is_int($Position))
+        if (!is_int($PlaylistID))
         {
-            trigger_error("Position must be integer.", E_USER_NOTICE);
+            trigger_error(sprintf($this->Translate("%s must be integer."), 'PlaylistID'), E_USER_NOTICE);
             return false;
         }
-        $Position--;
-        if (!is_int($NewPosition))
+        return $this->_PlaylistControl('cmd:delete', 'playlist_id:' . $PlaylistID, sprintf($this->Translate("%s not found."), 'PlaylistID'));
+    }
+
+    //fertig
+    public function DeleteFromPlaylistBySongIDs(string $SongIDs)
+    {
+        if (!is_string($SongIDs))
         {
-            trigger_error("Position must be integer.", E_USER_NOTICE);
+            trigger_error(sprintf($this->Translate("%s must be string."), 'SongIDs'), E_USER_NOTICE);
             return false;
         }
-        $NewPosition--;
-        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'move'), array($Position, $NewPosition)));
-        if ($LMSData === NULL)
-            return FALSE;
-        if (($LMSData->Data[0] <> $Position) or ( $LMSData->Data[1] <> $NewPosition))
-        {
-            trigger_error("Error on move Song in playlist.", E_USER_NOTICE);
-            return false;
-        }
-        return true;
+        return $this->_PlaylistControl('cmd:delete', 'track_id:' . $SongIDs, sprintf($this->Translate("%s not found."), 'SongIDs'));
     }
 
-    public function LoadPreviewPlaylist()
-    {
-        
-    }
-
-    /*
-     * 
-      <playerid> playlist preview <taggedParameters>
-
-      When called without a cmd param of stop, replace the current playlist with the playlist specified by url, but save the current playlist to tempplaylist_<playerid>.m3u for later retrieval. When called with the cmd param of stop, stops the currently playing playlist and loads (if possible) the previous playlist. Restored playlist jumps to beginning of CURTRACK when present in m3u file, and does not autoplay restored playlist.
-
-      Examples:
-
-      Request: "04:20:00:12:23:45 playlist preview url:db:album.titlesearch=A%20FEAST%20OF%20WIRE title:A%20Feast%20Of%20Wire<LF>"
-      Response: "04:20:00:12:23:45 playlist preview url:db:album.titlesearch=A%20FEAST%20OF%20WIRE title:A%20Feast%20Of%20Wire<LF>"
-
-      Request: "04:20:00:12:23:45 playlist preview cmd:stop<LF>"
-      Response: "04:20:00:12:23:45 playlist preview cmd:stop<LF>"
-
-     */
-
-    //TESTEN TODO
-    public function GetPlaylistInfo()
-    {
-        $LMSData = $this->SendDirect(new LMSData(array('playlist', 'playlistsinfo'), ''));
-        if ($LMSData === NULL)
-            return false;
-        if (count($LMSData->Data) == 1)
-            return array();
-        $SongInfo = new LMSSongInfo($LMSData->Data);
-        return $SongInfo->GetSong();
-    }
-
+    //fertig
     //fertig
     /**
      * Liefert Informationen über einen Song aus der aktuelle Wiedergabeliste.
@@ -1512,7 +2849,7 @@ if (isset($_GET["Index"]))
             $Index--;
         else
         {
-            trigger_error("Index must be integer.", E_USER_NOTICE);
+            trigger_error(sprintf($this->Translate("%s must be integer."), 'Index'), E_USER_NOTICE);
         }
         if ($Index == -1)
             $Index = '-';
@@ -1522,7 +2859,7 @@ if (isset($_GET["Index"]))
         $SongInfo = new LMSSongInfo($LMSData->Data);
         $SongArray = $SongInfo->GetSong();
         if (count($SongArray) == 1)
-            throw new Exception("Index not valid.");
+            throw new Exception($this->Translate("Index not valid."));
         return $SongArray;
     }
 
@@ -1554,6 +2891,93 @@ if (isset($_GET["Index"]))
         return $SongInfo->GetAllSongs();
     }
 
+    ///////////////////////////////////////////////////////////////
+    // ENDE PLAYERLIST
+    ///////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////
+    // START RANDOMPLAY
+    ///////////////////////////////////////////////////////////////
+
+
+    public function StartRandomplayOfTracks()
+    {
+        $LMSData = $this->SendDirect(new LMSData(array('randomplay'), array('tracks')));
+        if ($LMSData === NULL)
+            return false;
+        return true;
+    }
+
+    public function StartRandomplayOfAlbums()
+    {
+        $LMSData = $this->SendDirect(new LMSData(array('randomplay'), array('albums')));
+        if ($LMSData === NULL)
+            return false;
+        return true;
+    }
+
+    public function StartRandomplayOfArtist()
+    {
+        $LMSData = $this->SendDirect(new LMSData(array('randomplay'), array('contributors')));
+        if ($LMSData === NULL)
+            return false;
+        return true;
+    }
+
+    public function StartRandomplayOfYear()
+    {
+        $LMSData = $this->SendDirect(new LMSData(array('randomplay'), array('year')));
+        if ($LMSData === NULL)
+            return false;
+        return true;
+    }
+
+    public function StopRandomplay()
+    {
+        $LMSData = $this->SendDirect(new LMSData(array('randomplay'), array('disable')));
+        if ($LMSData === NULL)
+            return false;
+        return true;
+    }
+
+    public function RandomplaySelectAllGenre(bool $Active)
+    {
+        if (!is_bool($Active))
+        {
+            trigger_error(sprintf($this->Translate("%s must be bool."), 'Active'), E_USER_NOTICE);
+            return false;
+        }
+        $LMSData = $this->SendDirect(new LMSData(array('randomplaygenreselectall'), array($Genre, (int) $Active)));
+        if ($LMSData === NULL)
+            return false;
+        return true;
+    }
+
+    public function RandomplaySelectGenre(string $Genre, bool $Active)
+    {
+        if (!is_string($Genre))
+        {
+            trigger_error(sprintf($this->Translate("%s must be string."), 'Genre'), E_USER_NOTICE);
+            return false;
+        }
+        if ($Genre == "")
+        {
+            trigger_error(sprintf($this->Translate("%s can not be empty."), 'Genre'), E_USER_NOTICE);
+            return false;
+        }
+        if (!is_bool($Active))
+        {
+            trigger_error(sprintf($this->Translate("%s must be bool."), 'Active'), E_USER_NOTICE);
+            return false;
+        }
+        $LMSData = $this->SendDirect(new LMSData(array('randomplaychoosegenre'), array($Genre, (int) $Active)));
+        if ($LMSData === NULL)
+            return false;
+        return true;
+    }
+
+    ///////////////////////////////////////////////////////////////
+    // ENDE RANDOMPLAY
+    ///////////////////////////////////////////////////////////////
 ################## ActionHandler
 
     public function RequestAction($Ident, $Value)
@@ -1562,7 +2986,7 @@ if (isset($_GET["Index"]))
         switch ($Ident)
         {
             case "Status":
-                switch ($Value)
+                switch ((int) $Value)
                 {
                     case 0: //Prev
                         //$this->PreviousButton();
@@ -1584,66 +3008,105 @@ if (isset($_GET["Index"]))
                 }
                 break;
             case "Volume":
-                $result = $this->SetVolume($Value);
+                $result = $this->SetVolume((int) $Value);
                 break;
             case "Bass":
-                $result = $this->SetBass($Value);
+                $result = $this->SetBass((int) $Value);
                 break;
             case "Treble":
-                $result = $this->SetTreble($Value);
+                $result = $this->SetTreble((int) $Value);
                 break;
             case "Pitch":
-                $result = $this->SetPitch($Value);
+                $result = $this->SetPitch((int) $Value);
                 break;
             case "Preset":
-                $result = $this->SelectPreset($Value);
+                $result = $this->SelectPreset((int) $Value);
                 break;
             case "Power":
-                $result = $this->Power($Value);
+                $result = $this->Power((bool) $Value);
                 break;
             case "Mute":
-                $result = $this->SetMute($Value);
+                $result = $this->SetMute((bool) $Value);
                 break;
             case "Repeat":
-                $result = $this->SetRepeat($Value);
+                $result = $this->SetRepeat((int) $Value);
                 break;
             case "Shuffle":
-                $result = $this->SetShuffle($Value);
+                $result = $this->SetShuffle((int) $Value);
                 break;
             case "Position2":
-                $Time = ($this->GetBuffer("DurationRAW") / 100) * $Value;
+                $Time = ($this->DurationRAW / 100) * (int) $Value;
                 $result = $this->SetPosition(intval($Time));
                 break;
             case "Index":
-                $result = $this->PlayTrack($Value);
+                $result = $this->GoToTrack((int) $Value);
                 break;
             case "SleepTimer":
-                $result = $this->SetSleep($Value);
+                $result = $this->SetSleep((int) $Value);
+                break;
+            case "Randomplay":
+                switch ((int) $Value)
+                {
+                    case 0:
+                        $result = $this->StopRandomPlay();
+                        break;
+                    case 1:
+                        $result = $this->StartRandomplayOfTracks();
+                        break;
+                    case 2:
+                        $result = $this->StartRandomplayOfAlbums();
+                        break;
+                    case 3:
+                        $result = $this->StartRandomplayOfArtist();
+                        break;
+                    case 4:
+                        $result = $this->StartRandomplayOfYear();
+                        break;
+                }
                 break;
             default:
-                trigger_error("Invalid ident", E_USER_NOTICE);
+                trigger_error($this->Translate("Invalid ident"), E_USER_NOTICE);
                 return;
         }
         if ($result == false)
         {
-            trigger_error("Error on Execute Action", E_USER_NOTICE);
+            trigger_error($this->Translate("Error on Execute Action"), E_USER_NOTICE);
         }
+    }
+
+    /**
+     * Verarbeitet Daten aus dem Webhook.
+     *
+     * @access protected
+     * @param string $ID Die zu ladenen Playlist oder der zu ladene Favorit.
+     * @global array $_GET
+     */
+    protected function ProcessHookdata()
+    {
+        if ((!isset($_GET["ID"])) or ( !isset($_GET["Type"])) or ( !isset($_GET["Secret"])))
+        {
+            echo $this->Translate("Bad Request");
+            return;
+        }
+        $CalcSecret = base64_encode(sha1($this->WebHookSecretTrack . "0" . $_GET["ID"], true));
+        if ($CalcSecret != rawurldecode($_GET["Secret"]))
+        {
+            echo $this->Translate("Access denied");
+            return;
+        }
+        if ($_GET["Type"] != 'Track')
+        {
+            echo $this->Translate("Bad Request");
+            return;
+        }
+
+        if ($this->GoToTrack((int) $_GET["ID"]))
+            echo "OK";
     }
 
 ################## PRIVATE
     //fertig
 
-    private function _SetNewName(string $Name)
-    {
-        if (!$this->ReadPropertyBoolean('changeName'))
-            return;
-        if (IPS_GetName($this->InstanceID) <> trim($Name))
-        {
-            IPS_SetName($this->InstanceID, trim($Name));
-        }
-    }
-
-    //fertig
     private function _isPlayerConnected()
     {
         return GetValueBoolean($this->GetIDForIdent('Connected'));
@@ -1655,21 +3118,116 @@ if (isset($_GET["Index"]))
         return GetValueBoolean($this->GetIDForIdent('Power'));
     }
 
-    //fertig
-    private function _SetConnected(bool $Status)
+    private function _StartSubscribe()
     {
-        if (!$this->SetValueBoolean('Connected', $Status))
+        $this->Send(new LMSData(array('status', '-', '1',), 'subscribe:' . $this->ReadPropertyInteger('Interval')), false);
+    }
+
+    private function _StopSubscribe()
+    {
+        if (GetValueInteger($this->GetIDForIdent('SleepTimer')) == 0)
+            @$this->Send(new LMSData(array('status', '-', '1',), 'subscribe:0'), false);
+    }
+
+    //fertig
+    private function _SetNewName(string $Name)
+    {
+        if (!$this->ReadPropertyBoolean('changeName'))
             return;
-        if ($Status === true)
-            $this->RequestState('Power');
+        if (IPS_GetName($this->InstanceID) <> trim($Name))
+        {
+            IPS_SetName($this->InstanceID, trim($Name));
+        }
+    }
+
+    //fertig
+    private function _SetNewPower(bool $Power)
+    {
+        $this->SetValueBoolean('Power', $Power);
+        if (!$Power)
+        {
+            $this->_SetModeToStop();
+            $this->SetValueString('SleepTimeout', 0);
+            $this->SetValueInteger('SleepTimer', 0);
+        }
+    }
+
+    //fertig
+    private function _SetModeToPlay()
+    {
+        $this->SetValueInteger('Status', 2);
+    }
+
+    //fertig
+    private function _SetModeToPause()
+    {
+        if (!$this->_isPlayerOn())
+            return;
+        $this->SetValueInteger('Status', 3);
+    }
+
+    //fertig
+    private function _SetModeToStop()
+    {
+        $this->SetValueInteger('Status', 1);
+    }
+
+    //fertig
+    private function _SetNewVolume(int $Value)
+    {
+        if ($Value < 0)
+        {
+            $Value = $Value - (2 * $Value);
+            $this->SetValueBoolean('Mute', true);
+        }
         else
-            $this->_SetNewPower(FALSE);
+        {
+            $this->SetValueBoolean('Mute', false);
+        }
+        $this->SetValueInteger('Volume', $Value);
+    }
+
+    //fertig
+    private function _SetNewTime(int $Time)
+    {
+        if ($this->DurationRAW == 0)
+            return;
+
+        $this->PositionRAW = $Time;
+        $this->SetValueString('Position', $this->ConvertSeconds($Time));
+        if ($this->isSeekable)
+        {
+            $Value = (100 / $this->DurationRAW) * $Time;
+            $this->SetValueInteger('Position2', intval(round($Value)));
+        }
+    }
+
+    //fertig
+    private function _SetNewDuration(int $Duration)
+    {
+        $this->DurationRAW = $Duration;
+        if ($Duration == 0)
+        {
+            $this->SetValueString('Duration', '');
+            $this->SetValueInteger('Position2', 0);
+            $this->DisableAction('Position2');
+        }
+        else
+        {
+            if ($this->SetValueString('Duration', $this->ConvertSeconds($Duration)))
+            {
+                if ($this->isSeekable)
+                    $this->EnableAction("Position2");
+            }
+        }
     }
 
     //fertig
     private function _SetNewSleepTimeout(int $Value)
     {
         $this->SetValueString('SleepTimeout', $this->ConvertSeconds($Value));
+        if ($Value == 0)
+            $this->SetValueInteger('SleepTimer', 0);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1693,114 +3251,15 @@ if (isset($_GET["Index"]))
     }
 
     //fertig
-    private function _SetNewPower(bool $Power)
-    {
-        if (!$this->SetValueBoolean('Power', $Power))
-            return;
-        if ($Power === true)
-            $this->RequestAllState();
-        else
-            $this->_SetModeToStop();
-    }
-
-    //fertig
-    private function _SetNewVolume(int $Value)
-    {
-        if ($Value < 0)
-        {
-            $Value = $Value - (2 * $Value);
-            $this->SetValueBoolean('Mute', true);
-        }
-        else
-        {
-            $this->SetValueBoolean('Mute', false);
-        }
-        $this->SetValueInteger('Volume', $Value);
-    }
-
-    //fertig
-    private function _SetModeToPlay()
-    {
-//        $this->SetValueBoolean('Power', true);
-        if ($this->SetValueInteger('Status', 2))
-            $this->Send(new LMSData(array('status', '-', '1',), 'subscribe:' . $this->ReadPropertyInteger('Interval'), false));
-    }
-
-    //fertig
-    private function _SetModeToStop()
-    {
-        if ($this->SetValueInteger('Status', 1))
-        {
-            if (GetValueInteger($this->GetIDForIdent('SleepTimer')) == 0)
-                $this->Send(new LMSData(array('status', '-', '1',), 'subscribe:0', false));
-        }
-        //$this->_SetNewSleepTimer(0);
-        //$this->_SetNewSleepTimeout(0);
-    }
-
-    //fertig
-    private function _SetModeToPause()
-    {
-        if (!$this->_isPlayerOn())
-            return;
-        if ($this->SetValueInteger('Status', 3))
-        {
-            if (GetValueInteger($this->GetIDForIdent('SleepTimer')) == 0)
-                $this->Send(new LMSData(array('status', '-', '1',), 'subscribe:0', false));
-        }
-    }
-
-    //fertig
     private function _SetSeekable(bool $Value)
     {
-        if ((bool) $Value <> (bool) $this->GetBuffer('can_seek'))
+        if ($Value <> $this->isSeekable)
         {
-            if ((bool) $Value)
+            if ($Value)
                 $this->EnableAction("Position2");
             else
                 $this->DisableAction('Position2');
-            $this->SetBuffer('can_seek', (int) $Value);
-        }
-    }
-
-    //fertig
-    private function _SetNewSleepTimer($Value)
-    {
-        if ($this->SetValueInteger('SleepTimer', $Value))
-            if (GetValueInteger($this->GetIDForIdent('Status')) <> 2)
-                $this->Send(new LMSData(array('status', '-', '1',), 'subscribe:0', false));
-    }
-
-    //fertig
-    private function _SetNewDuration(int $Duration)
-    {
-        if ($Duration == 0)
-        {
-            $this->SetValueString('Duration', '');
-            $this->SetBuffer('DurationRAW', 0);
-            $this->SetValueInteger('Position2', 0);
-            $this->DisableAction('Position2');
-        }
-        else
-        {
-            $this->SetBuffer('DurationRAW', $Duration);
-            if ($this->SetValueString('Duration', $this->ConvertSeconds($Duration)))
-            {
-                if ((bool) $this->GetBuffer('can_seek'))
-                    $this->EnableAction("Position2");
-            }
-        }
-    }
-
-    //fertig
-    private function _SetNewTime(int $Time)
-    {
-        $this->SetBuffer('PositionRAW', $Time);
-        $this->SetValueString('Position', $this->ConvertSeconds($Time));
-        if ((bool) $this->GetBuffer('can_seek'))
-        {
-            $Value = (100 / $this->GetBuffer('DurationRAW') * $Time);
-            $this->SetValueInteger('Position2', intval(round($Value)));
+            $this->isSeekable = $Value;
         }
     }
 
@@ -1809,57 +3268,12 @@ if (isset($_GET["Index"]))
     {
         if (!$this->ReadPropertyBoolean('showPlaylist'))
             return;
-        $ScriptID = $this->ReadPropertyInteger('Playlistconfig');
-        if ($ScriptID == 0)
-            return;
-        if (!IPS_ScriptExists($ScriptID))
-            return;
-        $result = IPS_RunScriptWaitEx($ScriptID, array('SENDER' => 'SqueezeBox'));
-        $Config = unserialize($result);
-        if (($Config === false) or ( !is_array($Config)))
-        {
-            trigger_error('Error on read Playlistconfig-Script', E_USER_NOTICE);
-            return;
-        }
-        // Daten aus Buffer holen und Tabelle neu bauen
-        $OldBuffers = $this->_GetBufferList();
-        $this->SendDebug('Bufferlist read', count($OldBuffers), 0);
-        $Data = $this->_GetBuffer($OldBuffers);
-
-        $HTMLData = $this->GetTableHeader($Config);
-        $pos = 0;
+        $Data = $this->Multi_Playlist;
+        if (!is_array($Data))
+            $Data = array();
         $CurrentTrack = GetValueInteger($this->GetIDForIdent('Index'));
-
-        if (count($Data) > 0)
-        {
-            foreach ($Data as $Position => $Line)
-            {
-                $Line['Position'] = $Position + 1;
-                if (array_key_exists('Duration', $Line))
-                {
-                    $Line['Duration'] = $this->ConvertSeconds($Line['Duration']);
-                }
-                else
-                {
-                    $Line['Duration'] = '---';
-                }
-
-                $Line['Play'] = $Line['Position'] == $CurrentTrack ? '<div class="iconMediumSpinner ipsIconArrowRight" style="width: 100%; background-position: center center;"></div>' : '';
-
-                $HTMLData .='<tr style="' . $Config['Style']['BR' . ($Line['Position'] == $CurrentTrack ? 'A' : ($pos % 2 ? 'U' : 'G'))] . '"onclick="xhrGet' . $this->InstanceID . '({ url: \'hook/SqueezeBoxPlaylist' . $this->InstanceID . '?Index=' . $Line['Position'] . '\' });">';
-
-                foreach ($Config['Spalten'] as $feldIndex => $value)
-                {
-                    if (!array_key_exists($feldIndex, $Line))
-                        $Line[$feldIndex] = '';
-                    $HTMLData .= '<td style="' . $Config['Style']['DF' . ($Line['Position'] == $CurrentTrack ? 'A' : ($pos % 2 ? 'U' : 'G')) . $feldIndex] . '">' . (string) $Line[$feldIndex] . '</td>';
-                }
-                $HTMLData .= '</tr>' . PHP_EOL;
-                $pos++;
-            }
-        }
-        $HTMLData .= $this->GetTableFooter();
-        $this->SetValueString('Playlist', $HTMLData);
+        $HTML = $this->GetTable($Data, 'SqueezeBoxPlaylist', 'Track', 'Position', $CurrentTrack);
+        $this->SetValueString('Playlist', $HTML);
     }
 
     //fertig
@@ -1867,237 +3281,21 @@ if (isset($_GET["Index"]))
     {
         if (!$this->ReadPropertyBoolean('showPlaylist'))
             return;
-        $ScriptID = $this->ReadPropertyInteger('Playlistconfig');
-        if ($ScriptID == 0)
-            return;
-        if (!IPS_ScriptExists($ScriptID))
-            return;
         if ($Empty)
-        {
-            $this->_ClearBuffer();
-            $PlaylistDataArray = array();
-        }
+            $this->Multi_Playlist = array();
         else
         {
             $PlaylistDataArray = $this->GetSongInfoOfCurrentPlaylist();
             if ($PlaylistDataArray === false)
             {
-                $this->_ClearBuffer();
-                trigger_error('Error on read Playlist', E_USER_NOTICE);
+                $this->Multi_Playlist = array();
+                trigger_error($this->Translate('Error on read playlist'), E_USER_NOTICE);
                 return false;
             }
-            $this->_SetBuffer($PlaylistDataArray);
+            $this->Multi_Playlist = $PlaylistDataArray;
         }
-        //Tabelle neu bauen lassen.
         $this->_RefreshPlaylistIndex();
         return;
-    }
-
-    //fertig
-    private function CreatePlaylistConfigScript()
-    {
-        $Script = '<?
-### Konfig ab Zeile 10 !!!
-
-if ($_IPS["SENDER"] <> "SqueezeBox")
-{
-	echo "Dieses Script kann nicht direkt ausgeführt werden!";
-	return;
-}
-##########   KONFIGURATION
-#### Tabellarische Ansicht
-# Folgende Parameter bestimmen das Aussehen der HTML-Tabelle in der die WLAN-Geräte aufgelistet werden.
-
-// Reihenfolge und Überschriften der Tabelle. Der vordere Wert darf nicht verändert werden.
-// Die Reihenfolge, der hintere Wert (Anzeigetext) und die Reihenfolge sind beliebig änderbar.
-$Config["Spalten"] = array(
-"Play" =>"",
-"Position"=>"Pos",
-"Title"=>"Titel",
-"Artist"=>"Interpret",
-"Bitrate"=>"Bitrate",
-"Duration"=>"Dauer"
-);
-#### Mögliche Index-Felder
-/*
-| Index            | Typ     | Beschreibung                        |
-| :--------------: | :-----: | :---------------------------------: |
-| Play             |  kein   | Play-Icon                           |
-| Position         | integer | Position in der Playlist            |
-| Id               | integer | UID der Datei in der LMS-Datenbank  |
-| Title            | string  | Titel                               |
-| Genre            | string  | Genre                               |
-| Album            | string  | Album                               |
-| Artist           | string  | Interpret                           |
-| Duration         | integer | Länge in Sekunden                   |
-| Disc             | integer | Aktuelles Medium                    |
-| Disccount        | integer | Anzahl aller Medien dieses Albums   |
-| Bitrate          | string  | Bitrate in Klartext                 |
-| Tracknum         | integer | Tracknummer im Album                |
-| Url              | string  | Pfad der Playlist                   |
-| Album_id         | integer | UID des Album in der LMS-Datenbank  |
-| Artwork_track_id | string  | UID des Cover in der LMS-Datenbank  |
-| Genre_id         | integer | UID des Genre in der LMS-Datenbank  |
-| Artist_id        | integer | UID des Artist in der LMS-Datenbank |
-| Year             | integer | Jahr des Song, soweit hinterlegt    |
-*/
-// Breite der Spalten (Reihenfolge ist egal)
-$Config["Breite"] = array(
-"Play" =>"50em",
-"Position" => "50em",
-    "Title" => "200em",
-    "Artist" => "200em",
-    "Bitrate" => "200em",
-    "Duration" => "100em"
-);
-// Style Informationen der Tabelle
-$Config["Style"] = array(
-    // <table>-Tag:
-    "T"    => "margin:0 auto; font-size:0.8em;",
-    // <thead>-Tag:
-    "H"    => "",
-    // <tr>-Tag im thead-Bereich:
-    "HR"   => "",
-    // <th>-Tag Feld Play:
-    "HFPlay"  => "color:#ffffff; width:35px; align:left;",
-    // <th>-Tag Feld Position:
-    "HFPosition"  => "color:#ffffff; width:35px; align:left;",
-    // <th>-Tag Feld Title:
-    "HFTitle"  => "color:#ffffff; width:35px; align:left;",
-    // <th>-Tag Feld Artist:
-    "HFArtist"  => "color:#ffffff; width:35px; align:left;",
-    // <th>-Tag Feld Bitrate:
-    "HFBitrate"  => "color:#ffffff; width:35px; align:left;",
-    // <th>-Tag Feld Duration:
-    "HFDuration"  => "color:#ffffff; width:35px; align:left;",
-    // <tbody>-Tag:
-    "B"    => "",
-    // <tr>-Tag:
-    "BRG"  => "background-color:#000000; color:#ffffff;",
-    "BRU"  => "background-color:#080808; color:#ffffff;",
-    "BRA"  => "background-color:#808000; color:#ffffff;",
-    // <td>-Tag Feld Play:
-    "DFGPlay" => "text-align:center;",
-    "DFUPlay" => "text-align:center;",
-    "DFAPlay" => "text-align:center;",
-    // <td>-Tag Feld Position:
-    "DFGPosition" => "text-align:center;",
-    "DFUPosition" => "text-align:center;",
-    "DFAPosition" => "text-align:center;",
-    // <td>-Tag Feld Title:
-    "DFGTitle" => "text-align:center;",
-    "DFUTitle" => "text-align:center;",
-    "DFATitle" => "text-align:center;",
-    // <td>-Tag Feld Artist:
-	 "DFGArtist" => "text-align:center;",
-    "DFUArtist" => "text-align:center;",
-    "DFAArtist" => "text-align:center;",
-    // <td>-Tag Feld Bitrate:
-    "DFGBitrate" => "text-align:center;",
-    "DFUBitrate" => "text-align:center;",
-    "DFABitrate" => "text-align:center;",
-    // <td>-Tag Feld Duration:
-    "DFGDuration" => "text-align:center;",
-    "DFUDuration" => "text-align:center;",
-    "DFADuration" => "text-align:center;"
-    // ^- Der Buchstabe "G" steht für gerade, "U" für ungerade., "A" für Aktiv
- );
-### Konfig ENDE !!!
-echo serialize($Config);
-//LSQ_DisplayPlaylist($_IPS["TARGET"],$Config);
-?>';
-        return $Script;
-    }
-
-    /**
-     * Liefert alle Items aus den Buffern.
-     * 
-     * @access private
-     * @param array $Bufferlist Enthält die Liste der Buffer
-     * @return array Array mit allen Items aus den Buffern
-     */
-    private function _GetBuffer(array $Bufferlist)
-    {
-        $Line = "";
-        foreach ($Bufferlist as $Buffer)
-        {
-            $Line .= $this->GetBuffer('Playlist' . $Buffer);
-        }
-        $Liste = unserialize($Line);
-        if ($Liste == false)
-            return array();
-        return $Liste;
-    }
-
-    /**
-     * Leert alle Buffer.
-     * 
-     * @access private
-     */
-    private function _ClearBuffer()
-    {
-        $OldBuffers = $this->_GetBufferList();
-        $this->SendDebug('Bufferlist old', count($OldBuffers), 0);
-        foreach ($OldBuffers as $OldBuffer)
-        {
-            $this->SetBuffer('Playlist' . $OldBuffer, "");
-        }
-        $this->SetBuffer("Bufferlist", "");
-    }
-
-    /**
-     * Füllt Buffer mit den Daten der Items
-     * 
-     * @access private
-     * @param array $Items Items welche in die Buffer geschrieben werden sollen.
-     * @return array Array welche die befüllten Buffer enthält.
-     */
-    private function _SetBuffer(array $Items)
-    {
-
-        $OldBuffers = $this->_GetBufferList();
-        $this->SendDebug('Bufferlist old', count($OldBuffers), 0);
-
-        $Lines = str_split(serialize($Items), 8000);
-        foreach ($Lines as $BufferIndex => $BufferLine)
-        {
-            $this->SetBuffer('Playlist' . $BufferIndex, $BufferLine);
-        }
-        $NewBuffers = array_keys($Lines);
-        $this->SendDebug('Bufferlist new', count($NewBuffers), 0);
-        $this->_SetBufferList($NewBuffers);
-        $DelBuffers = array_diff_key($OldBuffers, $NewBuffers);
-        $this->SendDebug('Bufferlist del', count($DelBuffers), 0);
-        foreach ($DelBuffers as $DelBuffer)
-        {
-            $this->SetBuffer('Playlist' . $DelBuffer, "");
-            $this->SendDebug('Bufferlist' . $DelBuffer, 'DELETE', 0);
-        }
-    }
-
-    /**
-     * Schreibt eine Liste von genutzen Buffern.
-     * 
-     * @access private
-     * @param array $List Array welches die genutzen Buffer enthält.
-     */
-    private function _SetBufferList(array $List)
-    {
-        $this->SetBuffer('Bufferlist', serialize($List));
-    }
-
-    /**
-     * Liefert ein Array über alle aktiven Buffer.
-     * 
-     * @access private
-     * @return array Array welches die Buffer enthält
-     */
-    private function _GetBufferList()
-    {
-        $Buffers = unserialize($this->GetBuffer('Bufferlist'));
-        if ($Buffers == false)
-            return array();
-        return $Buffers;
     }
 
     private function SetCover()
@@ -2113,13 +3311,13 @@ echo serialize($Config);
             IPS_SetMediaCached($CoverID, true);
             IPS_SetMediaFile($CoverID, "media" . DIRECTORY_SEPARATOR . "Cover_" . $this->InstanceID . ".png", False);
         }
-        $ParentID = $this->GetParent();
+        $ParentID = $this->ParentID;
 
-        if (!($ParentID === false))
+        if ($ParentID > 0)
         {
             $Size = $this->ReadPropertyString("CoverSize");
             $Player = $this->ReadPropertyString("Address");
-            $CoverRAW = $this->GetCover($ParentID, "", $Size, $Player);
+            $CoverRAW = $this->GetCover("", $Size, $Player);
             if (!($CoverRAW === false))
             {
                 IPS_SetMediaContent($CoverID, base64_encode($CoverRAW));
@@ -2135,31 +3333,34 @@ echo serialize($Config);
         if ($LMSData == NULL)
             return false;
         $this->SendDebug('Decode', $LMSData, 0);
+        if ($LMSData->Command[0] <> 'client')
+            $this->SetValueBoolean('Connected', true);
         switch ($LMSData->Command[0])
         {
-            case 'signalstrength':
-                $this->SetValueInteger('Signalstrength', (int) $LMSData->Data[0]);
-                break;
             case 'name':
                 $this->_SetNewName((string) $LMSData->Data[0]);
                 break;
-            case 'connected':
-                $this->_SetConnected((int) $LMSData->Data[0] === 1);
-                break;
-            case 'client':
-                if (($LMSData->Data[0] == 'disconnect') or ( $LMSData->Data[0] == 'forget'))
-                    $this->_SetConnected(false);
-                elseif (($LMSData->Data[0] == 'new') or ( $LMSData->Data[0] == 'reconnect'))
-                    $this->_SetConnected(true);
-                break;
-            case 'sleep':
-                $this->_SetNewSleepTimeout((int) $LMSData->Data[0]);
-                break;
-            case 'sync':
-                $this->_SetNewSyncMembers((string) $LMSData->Data[0]);
-                break;
             case 'power':
                 $this->_SetNewPower((int) $LMSData->Data[0] == 1);
+                break;
+            case 'mode':
+                switch ($LMSData->Data[0])
+                {
+                    case 'play':
+                        $this->_SetModeToPlay();
+                        break;
+                    case 'stop':
+                        $this->_SetModeToStop();
+                        break;
+                    case 'pause':
+                        if ((bool) $LMSData->Data[0])
+                            $this->_SetModeToPause();
+                        else
+                            $this->_SetModeToPlay();
+                        break;
+                    default:
+                        return false;
+                }
                 break;
             case 'mixer':
                 switch ($LMSData->Command[1])
@@ -2186,6 +3387,135 @@ echo serialize($Config);
                         return false;
                 }
                 break;
+            case 'playlist':
+                switch ($LMSData->Command[1])
+                {
+                    case 'stop':
+                        $this->_SetModeToStop();
+                        break;
+                    case 'pause':
+                        if ((bool) $LMSData->Data[0])
+                            $this->_SetModeToPause();
+                        else
+                            $this->_SetModeToPlay();
+                        break;
+                    case 'tracks':
+                    case 'clear':
+                        if (!isset($LMSData->Data[0]))
+                            $LMSData->Data[0] = 0;
+                        if ((int) $LMSData->Data[0] == 0)
+                        { // alles leeren
+                            $this->SetValueString('Title', '');
+                            $this->SetValueString('Playlistname', '');
+                            $this->SetValueString('Artist', '');
+                            $this->SetValueString('Album', '');
+                            $this->SetValueString('Genre', '');
+                            $this->SetValueString('Duration', '0:00');
+                            $this->DurationRAW = 0;
+                            $this->SetValueInteger('Position2', 0);
+                            $this->SetValueString('Position', '0:00');
+                            $this->SetValueInteger('Index', 0);
+                            $this->SetCover();
+                            //$this->_RefreshPlaylist(true);
+                        }
+                        SetValueInteger($this->GetIDForIdent('Tracks'), (int) $LMSData->Data[0]);
+
+                        break;
+                    case 'addtracks':
+                        $this->RequestState('Tracks');
+                        //$this->_RefreshPlaylist();
+                        break;
+                    case 'load_done':
+                    case 'resume':
+                        $this->RequestState('Tracks');
+                        //$this->_RefreshPlaylist();
+                        break;
+                    case 'shuffle':
+                        $this->SetValueInteger('Shuffle', (int) $LMSData->Data[0]);
+                        break;
+                    case 'repeat':
+                        $this->SetValueInteger('Repeat', (int) $LMSData->Data[0]);
+                        break;
+                    case 'name':
+                        $this->SetValueString('Playlistname', trim((string) $LMSData->Data[0]));
+                        break;
+                    case 'index':
+                    case 'jump':
+                        if ($LMSData->Data[0] == "")
+                            break;
+                        if (((string) $LMSData->Data[0][0] === '+') or ( (string) $LMSData->Data[0][0] === '-'))
+                            $this->SetValueInteger('Index', GetValueInteger($this->GetIDForIdent('Index')) + (int) $LMSData->Data[0]);
+                        else
+                            $this->SetValueInteger('Index', (int) $LMSData->Data[0] + 1);
+                        break;
+                    case 'newsong':
+                        $this->SetValueString('Title', trim((string) $LMSData->Data[0]));
+                        if (isset($LMSData->Data[1]))
+                        {
+                            $this->SetValueInteger('Index', (int) $LMSData->Data[1] + 1);
+                        }
+                        else
+                            $this->_RefreshPlaylist();
+
+                        $this->RequestState('Playlistname');
+                        $this->RequestState('Album');
+                        $this->RequestState('Title');
+                        $this->RequestState('Artist');
+                        $this->RequestState('Genre');
+                        $this->RequestState('Duration');
+                        $this->SetCover();
+                        break;
+                    case 'clear':
+
+                    default:
+                        return false;
+                }
+                break;
+            case 'album':
+                $this->SetValueString('Album', trim((string) $LMSData->Data[0]));
+                break;
+            case 'current_title':
+                break;
+            case 'title':
+                $this->SetValueString('Title', trim((string) $LMSData->Data[0]));
+                break;
+            case 'artist':
+                $this->SetValueString('Artist', trim((string) $LMSData->Data[0]));
+                break;
+            case 'genre':
+                $this->SetValueString('Genre', trim((string) $LMSData->Data[0]));
+                break;
+            case 'duration':
+                $this->_SetNewDuration((int) $LMSData->Data[0]);
+                break;
+            case 'time':
+                $this->PositionRAW = (int) $LMSData->Data[0];
+                $this->SetValueString('Position', $this->ConvertSeconds($LMSData->Data[0]));
+                break;
+            case 'signalstrength':
+                $this->SetValueInteger('Signalstrength', (int) $LMSData->Data[0]);
+                break;
+            case 'sleep':
+                $this->_SetNewSleepTimeout((int) $LMSData->Data[0]);
+                break;
+            case 'connected':
+                $this->SetValueBoolean('Connected', ($LMSData->Data[0] == '1'));
+                break;
+            // START TODO    
+            case 'sync':
+                $this->_SetNewSyncMembers((string) $LMSData->Data[0]);
+                break;
+            // ENDE TODO
+            case 'remote':
+                $this->_SetSeekable(!(bool) $LMSData->Data[0]);
+                break;
+// events
+            case 'client':
+                if (($LMSData->Data[0] == 'disconnect') or ( $LMSData->Data[0] == 'forget'))
+                    SetValueBoolean($this->GetIDForIdent('Connected'), false);
+                elseif (($LMSData->Data[0] == 'new') or ( $LMSData->Data[0] == 'reconnect'))
+                    SetValueBoolean($this->GetIDForIdent('Connected'), true);
+                break;
             case 'play':
                 $this->_SetModeToPlay();
                 break;
@@ -2198,164 +3528,54 @@ echo serialize($Config);
                 else
                     $this->_SetModeToPlay();
                 break;
-            case 'mode':
-                switch ($LMSData->Data[0])
-                {
-                    case 'play':
-                        $this->_SetModeToPlay();
-                        break;
-                    case 'stop':
-                        $this->_SetModeToStop();
-                        break;
-                    case 'pause':
-                        if ((bool) $LMSData->Data[0])
-                            $this->_SetModeToPause();
-                        else
-                            $this->_SetModeToPlay();
-                        break;
-                    default:
-                        return false;
-                }
-                break;
-            case 'time':
-//                $this->tempData['Position'] = $LMSData->Data[0];
-                $this->SetBuffer('PositionRAW', (int) $LMSData->Data[0]);
-                $this->SetValueString('Position', $this->ConvertSeconds($LMSData->Data[0]));
-                break;
-            case 'genre':
-                $this->SetValueString('Genre', trim(rawurldecode((string) $LMSData->Data[0])));
-                break;
-            case 'artist':
-                $this->SetValueString('Artist', trim(rawurldecode((string) $LMSData->Data[0])));
-                break;
-            case 'album':
-                $this->SetValueString('Album', trim(rawurldecode((string) $LMSData->Data[0])));
-                break;
-            case 'title':
-                $this->SetValueString('Title', trim(rawurldecode((string) $LMSData->Data[0])));
-                break;
-            case 'duration':
-                $this->_SetNewDuration((int) $LMSData->Data[0]);
-                break;
-            case 'remote':
-                $this->_SetSeekable(!(bool) $LMSData->Data[0]);
-                break;
-            /*
-              <playerid> current_title ?
-              <playerid> path ?
-             */
-            case 'playlist':
-                switch ($LMSData->Command[1])
-                {
-                    case 'stop':
-//                        $this->_SetModeToStop();
-                        break;
-                    case 'pause':
-                        if ((bool) $LMSData->Data[0])
-                            $this->_SetModeToPause();
-                        else
-                            $this->_SetModeToPlay();
-                        break;
-                    case 'tracks':
-                        if ((int) $LMSData->Data[0] == 0)
-                        { // alles leeren
-                            $this->SetValueString('Title', '');
-                            $this->SetValueString('Artist', '');
-                            $this->SetValueString('Album', '');
-                            $this->SetValueString('Genre', '');
-                            $this->SetValueString('Duration', '0:00');
-                            $this->SetBuffer('DurationRAW', 0);
-                            $this->SetValueInteger('Position2', 0);
-                            $this->SetBuffer('PositionRAW', 0);
-                            $this->SetValueString('Position', '0:00');
-                            $this->SetValueInteger('Index', 0);
-                            $this->SetCover();
-                            $this->_RefreshPlaylist(true);
-                        }
-                        $ProfileName = "Tracklist.Squeezebox." . $this->InstanceID;
-                        if ($this->SetValueInteger('Tracks', (int) $LMSData->Data[0]))
-                        {
-                            if (!IPS_VariableProfileExists($ProfileName))
-                            {
-                                IPS_CreateVariableProfile($ProfileName, 1);
-                                IPS_SetVariableProfileValues($ProfileName, 1, (int) $LMSData->Data[0], 1);
-                            }
-                            else
-                            {
-                                if (IPS_GetVariableProfile($ProfileName)['MaxValue'] <> (int) $LMSData->Data[0])
-                                    IPS_SetVariableProfileValues($ProfileName, 1, (int) $LMSData->Data[0], 1);
-                            }
-                            if ((int) $LMSData->Data[0] > 0)
-                                $this->_RefreshPlaylist();
-                        }
-                        break;
-                    case 'open':
-                    case 'load_done':
-                        $this->_RefreshPlaylist();
-                        break;
-                    case 'shuffle':
-                        if ($this->SetValueInteger('Shuffle', (int) $LMSData->Data[0]))
-                            $this->_RefreshPlaylist();
-                        break;
-                    case 'repeat':
-                        $this->SetValueInteger('Repeat', (int) $LMSData->Data[0]);
-                        break;
-                    case 'name':
-                        $this->SetValueString('Playlistname', trim(rawurldecode((string) $LMSData->Data[0])));
-                        break;
-                    case 'index':
-                    case 'jump':
-                        if ($LMSData->Data[0] == "")
-                            break;
-                        if (((string) $LMSData->Data[0][0] === '+') or ( (string) $LMSData->Data[0][0] === '-'))
-                        {
-                            if ($this->SetValueInteger('Index', GetValueInteger($this->GetIDForIdent('Index')) + (int) $LMSData->Data[0]))
-                                $this->_RefreshPlaylistIndex();
-                        }
-                        else
-                        {
-                            if ($this->SetValueInteger('Index', (int) $LMSData->Data[0] + 1))
-                                $this->_RefreshPlaylistIndex();
-                        }
-                        break;
-                    case 'newsong':
-                        $this->SetValueString('Title', trim(rawurldecode((string) $LMSData->Data[0])));
-                        if (isset($LMSData->Data[1]))
-                        {
-                            $this->SetValueInteger('Index', (int) $LMSData->Data[1] + 1);
-                            $this->_RefreshPlaylistIndex();
-                        }
-                        else
-                            $this->SetValueInteger('Index', 0);
-
-                        $this->Send(new LMSData('artist', '?', false));
-                        $this->Send(new LMSData('album', '?', false));
-                        $this->Send(new LMSData('genre', '?', false));
-                        $this->Send(new LMSData('duration', '?', false));
-                        $this->Send(new LMSData(array('playlist', 'name'), '?', false));
-                        $this->Send(new LMSData(array('playlist', 'tracks'), '?', false));
-                        $this->SetCover();
-                        break;
-                    default:
-                        return false;
-                }
-                break;
             case 'newmetadata':
                 $this->SetCover();
                 break;
+            case 'randomplay':
+                switch ($LMSData->Data[0])
+                {
+                    case 'tracks':
+                        $this->SetValueInteger('Randomplay', 1);
+                        break;
+                    case 'albums':
+                        $this->SetValueInteger('Randomplay', 2);
+                        break;
+                    case 'contributors':
+                        $this->SetValueInteger('Randomplay', 3);
+                        break;
+                    case 'year':
+                        $this->SetValueInteger('Randomplay', 4);
+                        break;
+                    default:
+                        $this->SetValueInteger('Randomplay', 0);
+                        break;
+                }
 
+                break;
             case 'status':
+                /*
+                 * sync_master
+                 * 
+                 * ID of the master player in the sync group this player belongs to.
+                 * Only if synced.
+                 * 
+                 * sync_slaves
+                 * 
+                 * Comma-separated list of player IDs, slaves to sync_master in the
+                 * sync group this player belongs to. Only if synced.
+                 */
                 foreach ($LMSData->Data as $TaggedDataLine)
                 {
                     $Data = new LMSTaggingData($TaggedDataLine);
                     switch ($Data->Name)
                     {
-                        //subscribe:0
                         case 'player_name':
                             $this->_SetNewName((string) $Data->Value);
                             break;
-                        //player_connected:1
-                        //player_ip:192.168.201.83:38630
+                        case 'player_connected':
+                            if ((bool) $Data->Value == false)
+                                SetValueBoolean($this->GetIDForIdent('Connected'), false);
+                            break;
                         case 'power':
                             $this->_SetNewPower((int) $Data->Value == 1);
                             break;
@@ -2369,7 +3589,7 @@ echo serialize($Config);
                                     $this->_SetModeToPlay();
                                     break;
                                 case 'stop':
-                                    $this->_SetModeToStop();
+                                    $this->SetValueInteger('Status', 1);
                                     break;
                                 case 'pause':
                                     $this->_SetModeToPause();
@@ -2385,8 +3605,11 @@ echo serialize($Config);
                         case 'can_seek':
                             $this->_SetSeekable((int) $Data->Value == 1);
                             break;
+                        case 'remote':
+                            $this->_SetSeekable((int) $Data->Value != 1);
+                            break;
                         case 'sleep':
-                            $this->_SetNewSleepTimer((int) $Data->Value);
+                            $this->SetValueInteger('SleepTimer', (int) $Data->Value);
                             break;
                         case 'will_sleep_in':
                             $this->_SetNewSleepTimeout((int) $Data->Value);
@@ -2394,89 +3617,61 @@ echo serialize($Config);
                         case 'mixer volume':
                             $this->_SetNewVolume((int) $Data->Value);
                             break;
+                        case 'mixer bass':
+                            if ($this->ReadPropertyBoolean('enableBass'))
+                                $this->SetValueInteger('Bass', (int) $Data->Value);
+                            break;
+                        case 'mixer treble':
+                            if ($this->ReadPropertyBoolean('enableTreble'))
+                                $this->SetValueInteger('Treble', (int) $Data->Value);
+                            break;
+                        case 'mixer pitch':
+                            if ($this->ReadPropertyBoolean('enablePitch'))
+                                $this->SetValueInteger('Pitch', (int) $Data->Value);
+                            break;
+//                        case 'muting':
+//                            $this->SetValueBoolean('Mute', (bool) $LMSData->Data[0]);
+//                            break;
                         case 'playlist repeat':
                             $this->SetValueInteger('Repeat', (int) $Data->Value);
                             break;
                         case 'playlist shuffle':
-                            if ($this->SetValueInteger('Shuffle', (int) $Data->Value))
-                                $this->_RefreshPlaylist();
+                            $this->SetValueInteger('Shuffle', (int) $Data->Value);
+                            break;
+                        case 'playlist_tracks':
+                            $this->SetValueInteger('Tracks', (int) $Data->Value);
                             break;
                         case 'playlist mode':
                             //TODO
                             break;
-                        //seq_no:16                        
                         case 'playlist_cur_index':
                         case 'playlist index':
                             $this->SetValueInteger('Index', (int) $Data->Value + 1);
                             break;
+                        case 'playlist_name':
+                            $this->SetValueString('Playlistname', trim((string) $Data->Value));
+                            break;
                         //playlist_timestamp:1474744498.14079
-                        //playlist_tracks:8
-                        //digital_volume_control:1
-                        //id:141676
+                        // merken und auf änderung ein Refreh machen ?!
+                        case'current_title':
+                            break;
                         case 'title':
-                            $this->SetValueString('Title', trim(rawurldecode((string) $Data->Value)));
+                            $this->SetValueString('Title', trim((string) $Data->Value));
                             break;
                         case 'genre':
-                            $this->SetValueString('Genre', trim(rawurldecode((string) $Data->Value)));
+                            $this->SetValueString('Genre', trim((string) $Data->Value));
                             break;
                         case 'artist':
-                            $this->SetValueString('Artist', trim(rawurldecode((string) $Data->Value)));
+                            $this->SetValueString('Artist', trim((string) $Data->Value));
                             break;
                         case 'album':
-                            $this->SetValueString('Album', trim(rawurldecode((string) $Data->Value)));
+                            $this->SetValueString('Album', trim((string) $Data->Value));
                             break;
                     }
                 }
                 break;
             default:
                 return false;
-
-////////////////////////////////////////////7
-
-            /*
-
-
-              case LSQResponse::displaynotify:
-              case LSQResponse::remoteMeta:
-              case LSQResponse::playlist_modified:
-              case LSQResponse::currentSong:
-              //ignore
-              break;
-              case LSQResponse::loadtracks:
-              $this->RefreshPlaylist();
-              break;
-              case LSQResponse::prefset:
-              break;
-              case LSQResponse::current_title:
-              case LSQResponse::album:
-              if (is_array($LMSData->Data[0]))
-              {
-              $this->SetValueString('Album', trim(rawurldecode($LMSData->Data[0][0])));
-              }
-              else
-              {
-              $this->SetValueString('Album', trim(rawurldecode($LMSData->Data[0])));
-              }
-              break;
-              case LSQResponse::playlist_name:
-              $this->SetValueString('Playlistname', trim(rawurldecode($LMSData->Data[0])));
-
-              break;
-              case LSQResponse::playlist_tracks:
-              case LSQResponse::status:
-              $remote = false;
-              foreach ($LMSData->Data[0] as $Data)
-              {
-              if ($LSQPart->Command == LSQResponse::remote)
-              $remote = ($LSQPart->Value == 1);
-              //                        if (($LSQPart->Command == LSQResponse::title) and $remote) continue;
-              //                        if (($LSQPart->Command == LSQResponse::current_title) and $remote) continue;
-              $this->decodeLSQEvent($LSQPart);
-              }
-              }
-              break;
-
-             */
         }
 
         return true;
@@ -2491,19 +3686,13 @@ echo serialize($Config);
         // Objekt erzeugen welches die Commands und die Values enthält.
         $LMSData = new LMSData();
         $LMSData->CreateFromGenericObject($Data);
-//        $this->SendDebug('Receive Event ', $LMSData, 0);
         // Ist das Command schon bekannt ?
+
         if ($LMSData->Command[0] <> false)
         {
             if ($LMSData->Command[0] == 'ignore')
                 return;
-            if ($this->_isPlayerConnected())
-                $this->DecodeLMSResponse($LMSData);
-            else
-            {
-                if ($LMSData->Command[0] == 'client')
-                    $this->DecodeLMSResponse($LMSData);
-            }
+            $this->DecodeLMSResponse($LMSData);
         } else
         {
             $this->SendDebug('UNKNOW', $LMSData, 0);
@@ -2511,17 +3700,6 @@ echo serialize($Config);
     }
 
     ################## Datenaustausch
-
-    /** Sende-Routine an den Parent
-     *
-     * @param LMSData $LMSData Description
-     * @return LMSData Description
-     */
-    protected function SendDataToParent($LMSData)
-    {
-        $JSONData = $LMSData->ToJSONString("{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}");
-        return parent::SendDataToParent($JSONData);
-    }
 
     /**
      * Konvertiert $Data zu einem JSONString und versendet diese an den Splitter.
@@ -2535,16 +3713,16 @@ echo serialize($Config);
         try
         {
             if (!$this->_isPlayerConnected() and ( $LMSData->Command[0] != 'connected'))
-                throw new Exception('Player not connected', E_USER_NOTICE);
+                throw new Exception($this->Translate('Player not connected'), E_USER_NOTICE);
             if (!$this->HasActiveParent())
-                throw new Exception('Intance has no active parent.', E_USER_NOTICE);
+                throw new Exception($this->Translate('Instance has no active parent.'), E_USER_NOTICE);
             $LMSData->Address = $this->ReadPropertyString('Address');
             $this->SendDebug('Send', $LMSData, 0);
 
-            $anwser = $this->SendDataToParent($LMSData);
+            $anwser = $this->SendDataToParent($LMSData->ToJSONString("{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}"));
             if ($anwser === false)
             {
-                $this->SendDebug('Receive', 'No valid answer', 0);
+                $this->SendDebug('Response', 'No valid answer', 0);
                 return NULL;
             }
             $result = unserialize($anwser);
@@ -2556,7 +3734,7 @@ echo serialize($Config);
         }
         catch (Exception $exc)
         {
-            trigger_error($exc->getMessage(), E_USER_NOTICE);
+            trigger_error($exc->getMessage() . PHP_EOL . print_r(debug_backtrace(), true), E_USER_NOTICE);
             return NULL;
         }
     }
@@ -2573,45 +3751,51 @@ echo serialize($Config);
 
         try
         {
-            if (!$this->_isPlayerConnected() and ( $LMSData->Command[0] != 'connected'))
-                throw new Exception('Player not connected', E_USER_NOTICE);
             if (!$this->HasActiveParent())
-                throw new Exception('Intance has no active parent.', E_USER_NOTICE);
+                throw new Exception($this->Translate('Instance has no active parent.'), E_USER_NOTICE);
 
-            $SplitterID = $this->GetParent();
-            if (@IPS_GetProperty($SplitterID, "Open") === false)
-                throw new Exception('Instance inactiv.', E_USER_NOTICE);
+            if (!$this->_isPlayerConnected() and ( $LMSData->Command[0] != 'connected'))
+                throw new Exception($this->Translate('Player not connected'), E_USER_NOTICE);
 
-            $Host = @IPS_GetProperty($SplitterID, "Host");
+            $SplitterID = IPS_GetInstance($this->InstanceID)['ConnectionID'];
+            $IoID = IPS_GetInstance($SplitterID)['ConnectionID'];
+            $Host = IPS_GetProperty($IoID, "Host");
             if ($Host === "")
                 return NULL;
 
-            $Port = IPS_GetProperty($SplitterID, 'Port');
-//            $User = IPS_GetProperty($instance['ConnectionID'], 'Username');
-//            $Pass = IPS_GetProperty($instance['ConnectionID'], 'Password');
-
             $LMSData->Address = $this->ReadPropertyString('Address');
-            $Data = $LMSData->ToRawStringForLMS();
             $this->SendDebug('Send Direct', $LMSData, 0);
-            $this->SendDebug('Send Direct', $Data, 0);
 
-            $fp = @stream_socket_client("tcp://" . $Host . ":" . $Port, $errno, $errstr, 1);
-            if (!$fp)
-                throw new Exception('No anwser from LMS', E_USER_NOTICE);
-            else
+            if (!$this->Socket)
             {
-                stream_set_timeout($fp, 5);
-                fwrite($fp, $Data);
-                $anwser = stream_get_line($fp, 1024 * 1024 * 2, chr(0x0d));
-                fclose($fp);
+                $Port = IPS_GetProperty($SplitterID, 'Port');
+                $User = IPS_GetProperty($SplitterID, 'User');
+                $Pass = IPS_GetProperty($SplitterID, 'Password');
+
+                $LoginData = (new LMSData('login', array($User, $Pass)))->ToRawStringForLMS();
+                $this->SendDebug('Send Direct', $LoginData, 0);
+                $this->Socket = @stream_socket_client("tcp://" . $Host . ":" . $Port, $errno, $errstr, 1);
+                if (!$this->Socket)
+                    throw new Exception($this->Translate('No anwser from LMS'), E_USER_NOTICE);
+                stream_set_timeout($this->Socket, 5);
+                fwrite($this->Socket, $LoginData);
+                $anwserlogin = stream_get_line($this->Socket, 1024 * 1024 * 2, chr(0x0d));
+                $this->SendDebug('Response Direct', $anwserlogin, 0);
+                if ($anwserlogin === false)
+                    throw new Exception($this->Translate('No anwser from LMS'), E_USER_NOTICE);
             }
 
+            $Data = $LMSData->ToRawStringForLMS();
+            $this->SendDebug('Send Direct', $Data, 0);
+            fwrite($this->Socket, $Data);
+            $anwser = stream_get_line($this->Socket, 1024 * 1024 * 2, chr(0x0d));
+            $this->SendDebug('Response Direct', $anwser, 0);
             if ($anwser === false)
-                throw new Exception('No anwser from LMS', E_USER_NOTICE);
-            $this->SendDebug('Receive', $anwser, 0);
+                throw new Exception($this->Translate('No anwser from LMS'), E_USER_NOTICE);
+
             $ReplyData = new LMSResponse($anwser);
             $LMSData->Data = $ReplyData->Data;
-            $this->SendDebug('Receive Direct', $LMSData, 0);
+            $this->SendDebug('Response Direct', $LMSData, 0);
             return $LMSData;
         }
         catch (Exception $ex)
@@ -2622,24 +3806,6 @@ echo serialize($Config);
         return NULL;
     }
 
-    /**
-     * Prüft den Parent auf vorhandensein und Status.
-     * 
-     * @return bool True wenn Parent vorhanden und in Status 102, sonst false.
-     */
-    protected function HasActiveParent()
-    {
-        $SplitterID = $this->GetParent();
-        if ($SplitterID !== false)
-        {
-            $ParentID = IPS_GetInstance($SplitterID)['ConnectionID'];
-            if ($ParentID > 0)
-                if (IPS_GetInstance($ParentID)['InstanceStatus'] == 102)
-                    return true;
-        }
-        return false;
-    }
-
 }
 
-?>
+/** @} */
