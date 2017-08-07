@@ -1480,14 +1480,13 @@ class SqueezeboxDevice extends IPSModule
         return ($LMSData->Data[0] == '1');
     }
 
-    /*
+    /**
      * Setzt eine absolute Zeit-Position des aktuellen Titels.
      *
      * @param integer $Value Zeit in Sekunden.
      * @return boolean true bei erfolgreicher Ausführung und Rückmeldung.
      * @exception Wenn Befehl nicht ausgeführt werden konnte.
      */
-
     public function SetPosition(int $Value)
     {
         if (!is_int($Value))

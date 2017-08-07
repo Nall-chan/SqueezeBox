@@ -14,6 +14,10 @@ Logitech Media Server.
 5. [Statusvariablen und Profile](#5-statusvariablen-und-profile)  
 6. [WebFront](#6-webfront)  
 7. [PHP-Befehlsreferenz](#7-php-befehlsreferenz)   
+    1. [Allgemein](#1-allgemein)
+    2. [Steuerung](#2-steuerung)
+    3. [Playlist](#3-playlist)
+    4. [Zufallswiedergabe](#4-zufallswiedergabe)
 8. [Anhang](#8-anhang)  
 9. [Lizenz](#9-lizenz)
 
@@ -70,7 +74,7 @@ Bei der manuellen Einrichtung ist die Instanz im Dialog 'Instanz hinzufügen' un
 
 ## 5. Statusvariablen und Profile
 
-Folgende Statusvariablen werden automatisch angelegt.
+Folgende Statusvariablen werden automatisch angelegt.  
 **Statusvariablen allgemein:**  
 
 | Name                   | Typ     | Ident          | Beschreibung                                              |
@@ -130,7 +134,396 @@ Für alle Befehle gilt:
 Tritt ein Fehler auf, wird eine Warnung erzeugt.  
 Dies gilt auch wenn ein übergebender Wert für einen Parameter nicht gültig ist, oder außerhalb seines zulässigen Bereiches liegt.  
 
-FOLGT
+### 1. Allgemein
+
+```php
+string LSQ_GetName(int $InstanzID)
+```
+Liefert den Namen des Players.  
+Im Fehlerfall wird `false` zurückgegeben.  
+
+---
+
+```php
+bool LSQ_SetName(int $InstanzID, string $Name)
+```
+Setzt den Namen des Players auf '$Name'.  
+Liefert `true` bei Erfolg, sonst `false`.  
+
+---
+
+```php
+bool LSQ_RequestState(int $InstanzID, string $Ident)
+```
+Fordert den Wert einer Statusvariable an.  
+Es ist der Ident der Statusvariable zu übergeben.  
+Es wird `true` zurückgeben wenn der Befehl vom Server bestätigt wurde,  
+oder `false` im Fehlerfall.  
+
+
+### 2. Steuerung
+
+```php
+bool LSQ_Power(int $InstanzID, bool $Value)
+```
+
+---
+
+```php
+bool LSQ_Play(int $InstanzID)
+bool LSQ_PlayEx(int $InstanzID, int $FadeIn)
+```
+
+---
+
+```php
+bool LSQ_Pause(int $InstanzID)
+```
+
+---
+
+```php
+bool LSQ_Stop(int $InstanzID)
+```
+
+---
+
+```php
+bool LSQ_SetVolume(int $InstanzID, int $Value)
+```
+
+---
+
+```php
+bool LSQ_SetMute(int $InstanzID, bool $Value)
+```
+
+---
+
+```php
+bool LSQ_SetPosition(int $InstanzID, int $Value)
+```
+
+---
+
+```php
+bool LSQ_SetBass(int $InstanzID, int $Value)
+bool LSQ_SetTreble(int $InstanzID, int $Value)
+bool LSQ_SetPitch(int $InstanzID, int $Value)
+```
+
+---
+
+```php
+bool LSQ_SetSleep(int $InstanzID, int $Seconds)
+```
+
+---
+
+```php
+bool LSQ_PreviousButton(int $InstanzID)
+bool LSQ_NextButton(int $InstanzID)
+```
+
+---
+
+```php
+bool LSQ_PressButton(int $InstanzID)
+```
+
+---
+
+```php
+bool LSQ_SelectPreset(int $InstanzID, int $Value)
+```
+
+---
+
+```php
+bool LSQ_DisplayLine(int $InstanzID, string $Text, int $Duration)
+bool LSQ_DisplayLineEx(int $InstanzID, string $Text, int $Duration, bool $Centered, int $Brightness)
+bool LSQ_Display2Lines(int $InstanzID, string $Text1, string $Text2, int $Duration)
+bool LSQ_Display2LinesEx(int $InstanzID, string $Text1, string $Text2, int $Duration, bool $Centered, int $Brightness)
+```
+
+---
+
+```php
+bool LSQ_DisplayText(int $InstanzID, string $Text1, string $Text2, int $Duration)
+```
+
+---
+
+```php
+int LSQ_GetLinesPerScreen(int $InstanzID)
+```
+
+---
+
+```php
+LSQ_GetDisplayedText(int $InstanzID)
+LSQ_GetDisplayedNow(int $InstanzID)
+```
+
+### 3. Playlist
+
+```php
+LSQ_PlayUrl(int $InstanzID, string $URL)
+LSQ_PlayUrlEx(int $InstanzID, string $URL, string $DisplayTitle)
+```
+
+---
+
+```php
+LSQ_PlayFavorite(int $InstanzID, string $FavoriteID)
+```
+
+---
+
+```php
+LSQ_SetShuffle(int $InstanzID, int $Value)
+```
+
+---
+
+```php
+LSQ_SetRepeat(int $InstanzID, int $Value)
+```
+
+---
+
+```php
+LSQ_GoToTrack(int $InstanzID, int $Index)
+```
+
+---
+
+```php
+LSQ_NextTrack(int $InstanzID)
+LSQ_PreviousTrack(int $InstanzID)
+```
+
+---
+
+```php
+LSQ_LoadPlaylist(int $InstanzID, string $Name)
+LSQ_ResumePlaylist(int $InstanzID, string $Name)
+```
+
+---
+
+```php
+LSQ_LoadPlaylistBySearch(int $InstanzID, string $Genre, string $Artist, string $Album)
+```
+
+---
+
+```php
+LSQ_LoadPlaylistByTrackTitel(int $InstanzID, string $Titel)
+LSQ_LoadPlaylistByAlbumTitel(int $InstanzID, string $Titel)
+LSQ_LoadPlaylistByArtistName(int $InstanzID, string $Name)
+```
+
+---
+
+```php
+LSQ_LoadPlaylistByFavoriteID(int $InstanzID, string $FavoriteID)
+LSQ_LoadPlaylistByAlbumID(int $InstanzID, int $AlbumID)
+LSQ_LoadPlaylistByGenreID(int $InstanzID, int $GenreID)
+LSQ_LoadPlaylistByArtistID(int $InstanzID, int $ArtistID)
+LSQ_LoadPlaylistByPlaylistID(int $InstanzID, int $PlaylistID)
+LSQ_LoadPlaylistByFolderID(int $InstanzID, int $FolderID)
+```
+
+---
+
+```php
+LSQ_LoadPlaylistBySongIDs(int $InstanzID, string $SongIDs)
+```
+
+---
+
+```php
+LSQ_SavePlaylist(int $InstanzID, string $Name)
+```
+
+---
+
+```php
+LSQ_SaveTempPlaylist(int $InstanzID)
+LSQ_LoadTempPlaylist(int $InstanzID)
+```
+
+---
+
+```php
+LSQ_AddToPlaylistByUrl(int $InstanzID, string $URL)
+LSQ_AddToPlaylistByUrlEx(int $InstanzID, string $URL, string $DisplayTitle)
+```
+
+---
+
+```php
+LSQ_AddToPlaylistBySearch(int $InstanzID, string $Genre, string $Artist, string $Album)
+```
+
+---
+
+```php
+LSQ_AddToPlaylistByTrackTitel(int $InstanzID, string $Titel)
+LSQ_AddToPlaylistByAlbumTitel(int $InstanzID, string $Titel)
+LSQ_AddToPlaylistByArtistName(int $InstanzID, string $Name)
+```
+
+---
+
+```php
+LSQ_AddToPlaylistByFavoriteID(int $InstanzID, string $FavoriteID)
+LSQ_AddToPlaylistByAlbumID(int $InstanzID, int $AlbumID)
+LSQ_AddToPlaylistByGenreID(int $InstanzID, int $GenreID)
+LSQ_AddToPlaylistByArtistID(int $InstanzID, int $ArtistID)
+LSQ_AddToPlaylistByPlaylistID(int $InstanzID, int $PlaylistID)
+LSQ_AddToPlaylistByFolderID(int $InstanzID, int $FolderID)
+```
+
+---
+
+```php
+LSQ_AddToPlaylistBySongIDs(int $InstanzID, string $SongIDs)
+```
+
+---
+
+```php
+LSQ_DeleteFromPlaylistBySearch(int $InstanzID, string $Genre, string $Artist, string $Album)
+```
+
+---
+
+```php
+LSQ_DeleteFromPlaylistByIndex(int $InstanzID, int $Position)
+```
+
+---
+
+```php
+LSQ_DeleteFromPlaylistByUrl(int $InstanzID, string $URL)
+```
+
+---
+
+```php
+LSQ_DeleteFromPlaylistByAlbumID(int $InstanzID, int $AlbumID)
+LSQ_DeleteFromPlaylistByGenreID(int $InstanzID, int $GenreID)
+LSQ_DeleteFromPlaylistByArtistID(int $InstanzID, int $ArtistID)
+LSQ_DeleteFromPlaylistByPlaylistID(int $InstanzID, int $PlaylistID)
+LSQ_DeleteFromPlaylistBySongIDs(int $InstanzID, string $SongIDs)
+```
+
+---
+
+```php
+LSQ_MoveSongInPlaylist(int $InstanzID, int $Position, int $NewPosition)
+```
+
+---
+
+```php
+LSQ_InsertInPlaylistBySearch(int $InstanzID, string $Genre, string $Artist, string $Album)
+```
+
+---
+
+```php
+LSQ_InsertInPlaylistByAlbumID(int $InstanzID, int $AlbumID)
+LSQ_InsertInPlaylistByGenreID(int $InstanzID, int $GenreID)
+LSQ_InsertInPlaylistByArtistID(int $InstanzID, int $ArtistID)
+LSQ_InsertInPlaylistByPlaylistID(int $InstanzID, int $PlaylistID)
+LSQ_InsertInPlaylistByFolderID(int $InstanzID, int $FolderID)
+LSQ_InsertInPlaylistByFavoriteID(int $InstanzID, string $FavoriteID)
+```
+
+---
+
+```php
+LSQ_InsertInPlaylistBySongIDs(int $InstanzID, string $SongIDs)
+```
+
+---
+
+```php
+LSQ_PreviewPlaylistStart(int $InstanzID, string $Name)
+LSQ_PreviewPlaylistStop(int $InstanzID)
+```
+
+---
+
+```php
+LSQ_ClearPlaylist(int $InstanzID)
+```
+
+---
+
+```php
+LSQ_GetPlaylistURL(int $InstanzID)
+```
+
+---
+
+```php
+LSQ_IsPlaylistModified(int $InstanzID)
+```
+
+---
+
+```php
+LSQ_GetPlaylistInfo(int $InstanzID)
+```
+
+---
+
+```php
+LSQ_AddPlaylistIndexToZappedList(int $InstanzID, int $Position)
+```
+
+---
+
+```php
+LSQ_GetSongInfoByTrackIndex(int $InstanzID, int $Index)
+```
+
+---
+
+```php
+LSQ_GetSongInfoOfCurrentPlaylist(int $InstanzID)
+```
+
+### 4. Zufallswiedergabe
+
+```php
+LSQ_StartRandomplayOfTracks(int $InstanzID)
+LSQ_StartRandomplayOfAlbums(int $InstanzID)
+LSQ_StartRandomplayOfArtist(int $InstanzID)
+LSQ_StartRandomplayOfYear(int $InstanzID)
+```
+
+---
+
+```php
+LSQ_StopRandomplay(int $InstanzID)
+```
+
+---
+
+```php
+LSQ_RandomplaySelectAllGenre(int $InstanzID, bool $Active)
+```
+
+---
+
+```php
+LSQ_RandomplaySelectGenre(int $InstanzID, string $Genre, bool $Active)
+```
 
 ## 8. Anhang
 
@@ -142,4 +535,4 @@ Version 1.0:
 ## 9. Lizenz
 
   IPS-Modul:  
-  [CC BY-NC-SA 4.0](https://creativec
+  [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
