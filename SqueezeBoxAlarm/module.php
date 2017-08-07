@@ -721,7 +721,7 @@ class SqueezeboxAlarm extends IPSModule
                 "style" => ""),
             array(
                 "row" => "active",
-                "name" => "active",
+                "name" => $this->Translate("active"),
                 "bgcolor" => 0x808000,
                 "color" => 0xffffff,
                 "style" => "")

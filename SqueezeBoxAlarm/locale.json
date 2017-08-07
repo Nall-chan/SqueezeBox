@@ -36,6 +36,7 @@
             "Title": "Titel",
             "odd": "ungerade",
             "even": "gerade",
+            "active": "aktiv",
             "Request state": "Zustandsabfrage",
             "Configuration valid.": "Konfiguration g\u00fcltig.",
             "Instance is inactive.": "Instanz ist inaktiv.",

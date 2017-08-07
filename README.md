@@ -83,7 +83,7 @@ Es wird empfohlen die Einrichtung mit dem Squeezebox Konfigurator zu starten (LM
 | SqueezeboxBattery | Device       | LSQB   | {718158BB-B247-4A71-9440-9C2FF1378752} |
 
 
-#### b. Datenaustausch
+### b. Datenaustausch
 
 | Funktion                | GUID                                   |
 | :---------------------: | :------------------------------------: |

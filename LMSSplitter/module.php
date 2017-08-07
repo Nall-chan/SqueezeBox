@@ -330,7 +330,7 @@ class LMSSplitter extends IPSModule
             array(
                 "index" => 3,
                 "key" => "Duration",
-                "name" => "Duration",
+                "name" => $this->Translate("Duration"),
                 "show" => true,
                 "width" => 75,
                 "color" => 0xffffff,
@@ -340,13 +340,13 @@ class LMSSplitter extends IPSModule
         $NewRowsConfig = array(
             array(
                 "row" => "odd",
-                "name" => "odd",
+                "name" => $this->Translate("odd"),
                 "bgcolor" => 0x000000,
                 "color" => 0xffffff,
                 "style" => ""),
             array(
                 "row" => "even",
-                "name" => "even",
+                "name" => $this->Translate("even"),
                 "bgcolor" => 0x080808,
                 "color" => 0xffffff,
                 "style" => "")

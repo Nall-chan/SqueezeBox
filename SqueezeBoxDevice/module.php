@@ -220,7 +220,7 @@ class SqueezeboxDevice extends IPSModule
 
         if ($this->ReadPropertyBoolean('enableTreble'))
         {
-            $vid = $this->RegisterVariableInteger("Treble", "Treble", "LSQ.Intensity", 7);
+            $vid = $this->RegisterVariableInteger("Treble", $this->Translate("Treble"), "LSQ.Intensity", 7);
             $this->EnableAction("Treble");
             // OLD PROFILE REMOVE
             if (IPS_GetVariable($vid)['VariableCustomProfile'] == "Intensity.Squeezebox")
@@ -231,7 +231,7 @@ class SqueezeboxDevice extends IPSModule
 
         if ($this->ReadPropertyBoolean('enablePitch'))
         {
-            $vid = $this->RegisterVariableInteger("Pitch", "Pitch", "LSQ.Pitch", 8);
+            $vid = $this->RegisterVariableInteger("Pitch", $this->Translate("Pitch"), "LSQ.Pitch", 8);
             $this->EnableAction("Pitch");
             // OLD PROFILE REMOVE
             if (IPS_GetVariable($vid)['VariableCustomProfile'] == "Pitch.Squeezebox")
@@ -242,20 +242,20 @@ class SqueezeboxDevice extends IPSModule
 
         if ($this->ReadPropertyBoolean('enableRandomplay'))
         {
-            $vid = $this->RegisterVariableInteger("Randomplay", "Randomplay", "LSQ.Randomplay", 13);
+            $vid = $this->RegisterVariableInteger("Randomplay", $this->Translate("Randomplay"), "LSQ.Randomplay", 13);
             $this->EnableAction("Randomplay");
         }
         else
             $this->UnregisterVariable("Randomplay");
 
-        $this->PlayerShuffle = $this->RegisterVariableInteger("Shuffle", "Shuffle", "LSQ.Shuffle", 9);
+        $this->PlayerShuffle = $this->RegisterVariableInteger("Shuffle", $this->Translate("Shuffle"), "LSQ.Shuffle", 9);
         $this->EnableAction("Shuffle");
         // OLD PROFILE REMOVE
         if (IPS_GetVariable($this->PlayerShuffle)['VariableCustomProfile'] == "Shuffle.Squeezebox")
             IPS_SetVariableCustomProfile($this->PlayerShuffle, '');
         $this->RegisterMessage($this->PlayerShuffle, VM_UPDATE);
 
-        $vid = $this->RegisterVariableInteger("Repeat", "Repeat", "LSQ.Repeat", 10);
+        $vid = $this->RegisterVariableInteger("Repeat", $this->Translate("Repeat"), "LSQ.Repeat", 10);
         $this->EnableAction("Repeat");
         // OLD PROFILE REMOVE
         if (IPS_GetVariable($vid)['VariableCustomProfile'] == "Repeat.Squeezebox")
@@ -324,6 +324,7 @@ class SqueezeboxDevice extends IPSModule
         else
             $this->UnregisterHook('/hook/SqueezeBoxPlaylist' . $this->InstanceID);
 
+        $this->SetStatus(IS_ACTIVE);
         // Wenn Parent aktiv, dann Anmeldung an der Hardware bzw. Datenabgleich starten
         $this->RegisterParent();
         if ($this->HasActiveParent())
@@ -439,7 +440,7 @@ class SqueezeboxDevice extends IPSModule
             array(
                 "index" => 2,
                 "key" => "Title",
-                "name" => "Title",
+                "name" => $this->Translate("Title"),
                 "show" => true,
                 "width" => 250,
                 "color" => 0xffffff,
@@ -448,7 +449,7 @@ class SqueezeboxDevice extends IPSModule
             array(
                 "index" => 3,
                 "key" => "Artist",
-                "name" => "Artist",
+                "name" => $this->Translate("Artist"),
                 "show" => true,
                 "width" => 250,
                 "color" => 0xffffff,
@@ -466,7 +467,7 @@ class SqueezeboxDevice extends IPSModule
             array(
                 "index" => 5,
                 "key" => "Duration",
-                "name" => "Duration",
+                "name" => $this->Translate("Duration"),
                 "show" => true,
                 "width" => 100,
                 "color" => 0xffffff,
@@ -475,7 +476,7 @@ class SqueezeboxDevice extends IPSModule
             array(
                 "index" => 6,
                 "key" => "Genre",
-                "name" => "Genre",
+                "name" => $this->Translate("Genre"),
                 "show" => false,
                 "width" => 200,
                 "color" => 0xffffff,
@@ -511,7 +512,7 @@ class SqueezeboxDevice extends IPSModule
             array(
                 "index" => 10,
                 "key" => "Tracknum",
-                "name" => "Tracknum",
+                "name" => "Track",
                 "show" => false,
                 "width" => 35,
                 "color" => 0xffffff,
@@ -520,7 +521,7 @@ class SqueezeboxDevice extends IPSModule
             array(
                 "index" => 11,
                 "key" => "Year",
-                "name" => "Year",
+                "name" => $this->Translate("Year"),
                 "show" => false,
                 "width" => 60,
                 "color" => 0xffffff,
@@ -530,19 +531,19 @@ class SqueezeboxDevice extends IPSModule
         $NewRowsConfig = array(
             array(
                 "row" => "odd",
-                "name" => "odd",
+                "name" => $this->Translate("odd"),
                 "bgcolor" => 0x000000,
                 "color" => 0xffffff,
                 "style" => ""),
             array(
                 "row" => "even",
-                "name" => "even",
+                "name" => $this->Translate("even"),
                 "bgcolor" => 0x080808,
                 "color" => 0xffffff,
                 "style" => ""),
             array(
                 "row" => "active",
-                "name" => "active",
+                "name" => $this->Translate("active"),
                 "bgcolor" => 0x808000,
                 "color" => 0xffffff,
                 "style" => "")
@@ -3121,12 +3122,14 @@ class SqueezeboxDevice extends IPSModule
     private function _StartSubscribe()
     {
         $this->Send(new LMSData(array('status', '-', '1',), 'subscribe:' . $this->ReadPropertyInteger('Interval')), false);
+        $this->SetCover();
     }
 
     private function _StopSubscribe()
     {
         if (GetValueInteger($this->GetIDForIdent('SleepTimer')) == 0)
             @$this->Send(new LMSData(array('status', '-', '1',), 'subscribe:0'), false);
+        $this->SetCover();
     }
 
     //fertig
@@ -3266,6 +3269,7 @@ class SqueezeboxDevice extends IPSModule
     //fertig
     private function _RefreshPlaylistIndex()
     {
+        $this->SetCover();
         if (!$this->ReadPropertyBoolean('showPlaylist'))
             return;
         $Data = $this->Multi_Playlist;
@@ -3280,7 +3284,10 @@ class SqueezeboxDevice extends IPSModule
     private function _RefreshPlaylist($Empty = false)
     {
         if (!$this->ReadPropertyBoolean('showPlaylist'))
+        {
+            $this->SetCover();
             return;
+        }
         if ($Empty)
             $this->Multi_Playlist = array();
         else
@@ -3415,7 +3422,7 @@ class SqueezeboxDevice extends IPSModule
                             $this->SetValueInteger('Position2', 0);
                             $this->SetValueString('Position', '0:00');
                             $this->SetValueInteger('Index', 0);
-                            $this->SetCover();
+                            //$this->SetCover();
                             //$this->_RefreshPlaylist(true);
                         }
                         SetValueInteger($this->GetIDForIdent('Tracks'), (int) $LMSData->Data[0]);
@@ -3710,6 +3717,8 @@ class SqueezeboxDevice extends IPSModule
      */
     private function Send(LMSData $LMSData)
     {
+        if ($this->ReadPropertyString('Address') == "")
+            return NULL;
         try
         {
             if (!$this->_isPlayerConnected() and ( $LMSData->Command[0] != 'connected'))
@@ -3748,6 +3757,8 @@ class SqueezeboxDevice extends IPSModule
      */
     protected function SendDirect(LMSData $LMSData)
     {
+        if ($this->ReadPropertyString('Address') == "")
+            return NULL;
 
         try
         {
