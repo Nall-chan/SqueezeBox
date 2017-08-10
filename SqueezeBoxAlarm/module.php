@@ -464,11 +464,6 @@ class SqueezeboxAlarm extends IPSModule
         $this->SetSummary($Address);
 
 
-        // Wenn Kernel nicht bereit, dann warten... wenn unser IO Aktiv wird, holen wir unsere Daten :)
-        if (IPS_GetKernelRunlevel() <> KR_READY)
-            return;
-
-        $this->RegisterParent();
 
         // Profile anlegen
         $this->RegisterProfileInteger("LSA.Intensity", "Intensity", "", " %", 0, 100, 1);
@@ -521,13 +516,8 @@ class SqueezeboxAlarm extends IPSModule
             $this->UnregisterProfil("LSA.Del." . $this->InstanceID);
         }
 
-        if ($this->ReadPropertyBoolean('showAlarmPlaylist'))
+        if (!$this->ReadPropertyBoolean('showAlarmPlaylist'))
         {
-            $this->RegisterHook('/hook/LSAPlaylist' . $this->InstanceID);
-        }
-        else
-        {
-            $this->UnregisterHook('/hook/LSAPlaylist' . $this->InstanceID);
             for ($AlarmIndex = 0; $AlarmIndex < 10; $AlarmIndex++)
             {
                 $vid = @$this->GetIDForIdent('AlarmPlaylist' . $AlarmIndex);
@@ -536,6 +526,14 @@ class SqueezeboxAlarm extends IPSModule
             }
         }
 
+        // Wenn Kernel nicht bereit, dann warten... wenn unser IO Aktiv wird, holen wir unsere Daten :)
+        if (IPS_GetKernelRunlevel() <> KR_READY)
+            return;
+        if ($this->ReadPropertyBoolean('showAlarmPlaylist'))
+            $this->RegisterHook('/hook/LSAPlaylist' . $this->InstanceID);
+        else
+            $this->UnregisterHook('/hook/LSAPlaylist' . $this->InstanceID);
+        $this->RegisterParent();
         // Wenn Parent aktiv, dann Anmeldung an der Hardware bzw. Datenabgleich starten
         if ($this->HasActiveParent())
             $this->IOChangeState(IS_ACTIVE);
@@ -551,6 +549,9 @@ class SqueezeboxAlarm extends IPSModule
         $this->IOMessageSink($TimeStamp, $SenderID, $Message, $Data);
         switch ($Message)
         {
+            case IPS_KERNELSTARTED:
+                $this->KernelReady();
+                break;
             case EM_CHANGEACTIVE:
                 $this->SendDebug('EM_CHANGEACTIVE', $Data, 0);
                 $Index = (int) substr(IPS_GetObject($SenderID)['ObjectIdent'], -1);
@@ -586,6 +587,16 @@ class SqueezeboxAlarm extends IPSModule
                 $this->Send(new LMSData(array('alarm', 'update'), array('id:' . $Alarm->Id, 'time:' . $Alarm->Time)));
                 break;
         }
+    }
+
+    /**
+     * Wird ausgeführt wenn der Kernel hochgefahren wurde.
+     */
+    protected function KernelReady()
+    {
+        $this->RegisterParent();
+        if ($this->HasActiveParent())
+            $this->IOChangeState(IS_ACTIVE);
     }
 
     /**

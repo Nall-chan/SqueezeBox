@@ -214,6 +214,7 @@ class LMSSplitter extends IPSModule
      */
     protected function KernelReady()
     {
+        $this->RegisterParent();
         if ($this->HasActiveParent())
             $this->IOChangeState(IS_ACTIVE);
     }
@@ -255,7 +256,8 @@ class LMSSplitter extends IPSModule
             $this->RequestState('Players');
             $this->RefreshPlayerList();
             $ret = $this->Send(new LMSData("rescan", "?"));
-            $this->DecodeLMSResponse($ret);
+            if ($ret !== NULL)
+                $this->DecodeLMSResponse($ret);
             $this->SetTimerInterval('KeepAlive', 3600 * 1000);
         }
         else

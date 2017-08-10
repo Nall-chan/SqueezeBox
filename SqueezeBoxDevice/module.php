@@ -123,6 +123,7 @@ class SqueezeboxDevice extends IPSModule
     public function ApplyChanges()
     {
         $this->SetReceiveDataFilter('.*"Address":"".*');
+        $this->RegisterMessage(0, IPS_KERNELSTARTED);
         $this->RegisterMessage($this->InstanceID, DM_CONNECT);
         $this->RegisterMessage($this->InstanceID, DM_DISCONNECT);
         $this->Multi_Playlist = array();
@@ -338,9 +339,14 @@ class SqueezeboxDevice extends IPSModule
      */
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
     {
+
         $this->IOMessageSink($TimeStamp, $SenderID, $Message, $Data);
+
         switch ($Message)
         {
+            case IPS_KERNELSTARTED:
+                $this->KernelReady();
+                break;
             case VM_UPDATE:
                 $this->SendDebug('VMUPDATE:' . $SenderID, $Data, 0);
                 if ($SenderID == $this->PlayerConnected)
@@ -377,6 +383,16 @@ class SqueezeboxDevice extends IPSModule
                 }
                 break;
         }
+    }
+
+    /**
+     * Wird ausgeführt wenn der Kernel hochgefahren wurde.
+     */
+    protected function KernelReady()
+    {
+        $this->RegisterParent();
+        if ($this->HasActiveParent())
+            $this->IOChangeState(IS_ACTIVE);
     }
 
     /**
@@ -712,8 +728,8 @@ class SqueezeboxDevice extends IPSModule
             return false;
         $LMSData->SliceData();
         $this->DecodeLMSResponse($LMSData);
-        $this->SetCover();
-        $this->_RefreshPlaylist();
+        //$this->SetCover();
+        //$this->_RefreshPlaylist();
         return true;
     }
 
@@ -3296,6 +3312,7 @@ class SqueezeboxDevice extends IPSModule
             {
                 $this->Multi_Playlist = array();
                 trigger_error($this->Translate('Error on read playlist'), E_USER_NOTICE);
+                $this->SetCover();
                 return false;
             }
             $this->Multi_Playlist = $PlaylistDataArray;
@@ -3314,8 +3331,9 @@ class SqueezeboxDevice extends IPSModule
             IPS_SetIdent($CoverID, 'CoverIMG');
             IPS_SetName($CoverID, 'Cover');
             IPS_SetPosition($CoverID, 27);
+            IPS_SetMediaFile($CoverID, IPS_GetKernelDir() . "media" . DIRECTORY_SEPARATOR . "Cover_" . $this->InstanceID . ".png", false);
+            $this->SendDebug('Create Media', IPS_GetKernelDir() . "media" . DIRECTORY_SEPARATOR . "Cover_" . $this->InstanceID . ".png", 0);
             IPS_SetMediaCached($CoverID, true);
-            IPS_SetMediaFile($CoverID, "media" . DIRECTORY_SEPARATOR . "Cover_" . $this->InstanceID . ".png", False);
         }
         $ParentID = $this->ParentID;
 
@@ -3324,10 +3342,8 @@ class SqueezeboxDevice extends IPSModule
             $Size = $this->ReadPropertyString("CoverSize");
             $Player = $this->ReadPropertyString("Address");
             $CoverRAW = $this->GetCover("", $Size, $Player);
-            if (!($CoverRAW === false))
-            {
+            if ($CoverRAW !== false)
                 IPS_SetMediaContent($CoverID, base64_encode($CoverRAW));
-            }
         }
         return;
     }

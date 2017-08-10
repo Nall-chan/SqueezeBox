@@ -1117,7 +1117,7 @@ trait LMSCover
         $Login = array(
             "AuthUser" => IPS_GetProperty($SplitterID, 'User'),
             "AuthPass" => IPS_GetProperty($SplitterID, 'Password'),
-            "Timeout" => 1000
+            "Timeout" => 5000
         );
 
         if ($Host === "")
@@ -1129,7 +1129,6 @@ trait LMSCover
             $Player = "?player=" . rawurlencode($Player);
             $CoverID = "current";
         }
-        $this->SendDebug('Load Cover', "http://" . $Host . "/music/" . $CoverID . "/" . $Size . ".png", 0);
         return @Sys_GetURLContentEx("http://" . $Host . "/music/" . $CoverID . "/" . $Size . ".png" . $Player, $Login);
     }
 
