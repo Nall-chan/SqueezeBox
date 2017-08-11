@@ -64,8 +64,8 @@ class LMSConfigurator extends IPSModule
     {
         $count = $this->Send(new LMSData(array('player', 'count'), '?'));
         $players = array();
-        if ($count === false)
-            return $players;
+        if (($count === false) or ($count === NULL))
+          return $players;
         for ($i = 0; $i < $count->Data[0]; $i++)
         {
             $player = $this->Send(new LMSData(array('player', 'id'), array($i, '?')));
