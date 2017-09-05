@@ -665,7 +665,7 @@ class LMSTaggingArray extends stdClass
                 if (is_int($Part->Value))
                     $DataArray[$id][$Index] = (int) $Part->Value;
                 else
-                    $DataArray[$id][$Index] = (int)rawurldecode($Part->Value);
+                    $DataArray[$id][$Index] = (string)rawurldecode($Part->Value);
             }
             else
                 $DataArray[$id][$Index] = rawurldecode($Part->Value);
