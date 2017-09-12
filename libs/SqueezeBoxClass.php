@@ -558,7 +558,7 @@ class LMSTaggingArray extends stdClass
         'Category' => 3,
         'Connected' => 0,
         'Coverid' => 1, // i
-        //'Count' => 1,
+        'Count' => 1,
         'Contributor_id' => 1,
         'Contributor' => 3,
         'Cmd' => 3,
@@ -940,17 +940,17 @@ trait LMSHTMLTable
         // Kopf der Tabelle erzeugen
         $table .= '<table style="' . $Config_Table['<table>'] . '">' . PHP_EOL;
         // JS Rückkanal erzeugen
-        $table .= '<script type="text/javascript">
+        $table .= '<script type="text/javascript" id="script'.$this->InstanceID.'">
 function xhrGet' . $this->InstanceID . '(o)
 {
     var HTTP = new XMLHttpRequest();
     HTTP.open(\'GET\',o.url,true);
     HTTP.send();
-    HTTP.addEventListener(\'load\', function(event)
+    HTTP.addEventListener(\'load\', function()
     {
         if (HTTP.status >= 200 && HTTP.status < 300)
         {
-            if (HTTP.responseText != \'OK\')
+            if (HTTP.responseText !== \'OK\')
                 sendError' . $this->InstanceID . '(HTTP.responseText);
         } else {
             sendError' . $this->InstanceID . '(HTTP.statusText);
@@ -963,7 +963,7 @@ function sendError' . $this->InstanceID . '(data)
 var notify = document.getElementsByClassName("ipsNotifications")[0];
 var newDiv = document.createElement("div");
 newDiv.innerHTML =\'<div style="height:auto; visibility: hidden; overflow: hidden; transition: height 500ms ease-in 0s" class="ipsNotification"><div class="spacer"></div><div class="message icon error" onclick="document.getElementsByClassName(\\\'ipsNotifications\\\')[0].removeChild(this.parentNode);"><div class="ipsIconClose"></div><div class="content"><div class="title">Fehler</div><div class="text">\' + data + \'</div></div></div></div>\';
-if (notify.childElementCount == 0)
+if (notify.childElementCount === 0)
 	var thisDiv = notify.appendChild(newDiv.firstChild);
 else
 	var thisDiv = notify.insertBefore(newDiv.firstChild,notify.childNodes[0]);
@@ -975,7 +975,7 @@ function sleep (time) {
 }
 sleep(10).then(() => {
 	thisDiv.style.height = newheight;
-})
+});
 }
 
 </script>';
@@ -1055,7 +1055,7 @@ sleep(10).then(() => {
                 if ($Config_Rows_Color[$LineIndex] >= 0)
                     $TrStyle[] = 'color:#' . substr("000000" . dechex($Config_Rows_Color[$LineIndex]), -6);
                 $TdStyle[] = $Config_Rows_Style[$LineIndex];
-                $HTMLData .= '<tr style="' . implode(';', $TrStyle) . ';" onclick="window.xhrGet' . $this->InstanceID . '({ url: \'hook/' . $HookPrefix . $this->InstanceID . '?Type=' . $HookType . '&ID=' . ($HookId == 'Url' ? rawurlencode($Line[$HookId]) : $Line[$HookId]) . '&Secret=' . $LineSecret . '\' })">';
+                $HTMLData .= '<tr style="' . implode(';', $TrStyle) . ';" onclick="eval(document.getElementById(\'script'.$this->InstanceID.'\').innerHTML.toString()); window.xhrGet' . $this->InstanceID . '({ url: \'hook/' . $HookPrefix . $this->InstanceID . '?Type=' . $HookType . '&ID=' . ($HookId == 'Url' ? rawurlencode($Line[$HookId]) : $Line[$HookId]) . '&Secret=' . $LineSecret . '\' });">';
 
                 $td = array();
                 foreach ($Config_Columns as $Column)
