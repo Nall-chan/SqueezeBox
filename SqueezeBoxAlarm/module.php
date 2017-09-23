@@ -642,7 +642,7 @@ class SqueezeboxAlarm extends IPSModule
             return;
         }
 
-        if ($this->SetPlaylist($AlarmIndex, rawurldecode($_GET["ID"])))
+        if ($this->SetPlaylist((int)$AlarmIndex, rawurldecode($_GET["ID"])))
             echo "OK";
     }
 
