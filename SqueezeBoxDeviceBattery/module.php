@@ -197,23 +197,6 @@ class SqueezeboxBattery extends IPSModule
         //Never delete this line!
         parent::ApplyChanges();
 
-        // Addresse prüfen
-        $Address = $this->ReadPropertyString('Address');
-        if ($Address == '')
-        {
-            $this->SetStatus(IS_ACTIVE);
-        }
-        else
-        {
-            if (strpos($Address, '.')) // IP ?
-            {
-                if ($this->ReadPropertyInteger("Interval") < 30)
-                    $this->SetStatus(203);
-                else
-                    $this->SetStatus(IS_ACTIVE);
-            }
-        }
-
         // Profile anlegen
         $this->RegisterProfileIntegerEx("LSQB.Power", "Information", "", "", Array(
             Array(0, $this->Translate("offline"), "", -1),
@@ -262,22 +245,31 @@ class SqueezeboxBattery extends IPSModule
         if (IPS_VariableProfileExists('mAh.Squeezebox'))
             IPS_DeleteVariableProfile('mAh.Squeezebox');
 
-        if ($this->Init(false))
+        // Addresse prüfen
+        $Address = $this->ReadPropertyString('Address');
+        if (trim($Address) == '')
         {
-            if ($this->ReadPropertyInteger("Interval") >= 30)
-            {
-                $this->SetTimerInterval("RequestState", $this->ReadPropertyInteger("Interval") * 1000);
-            }
-            else
-            {
-                $this->SetTimerInterval("RequestState", 0);
-            }
-            $this->RequestState();
+            $this->SetStatus(IS_INACTIVE);
+            $this->SetTimerInterval("RequestState", 0);
+            return;
+        }
+
+
+        if ($this->ReadPropertyInteger("Interval") >= 30)
+        {
+            $this->SetStatus(IS_ACTIVE);
+            $this->SetTimerInterval("RequestState", $this->ReadPropertyInteger("Interval") * 1000);
         }
         else
         {
+            if ($this->ReadPropertyInteger("Interval") == 0)
+                $this->SetStatus(IS_ACTIVE);
+            else
+                $this->SetStatus(203);
+
             $this->SetTimerInterval("RequestState", 0);
         }
+        $this->RequestState();
     }
 
 ################## PUBLIC
@@ -290,9 +282,9 @@ class SqueezeboxBattery extends IPSModule
      */
     public function RequestState()
     {
-        if ($this->Init() === false)
+        $Address = trim($this->ReadPropertyString("Address"));
+        if ($Address == '')
             return false;
-
         set_include_path(__DIR__ . '/libs');
         require_once (__DIR__ . '/libs/Net/SSH2.php');
 
@@ -300,7 +292,7 @@ class SqueezeboxBattery extends IPSModule
         $login = @$ssh->login('root', $this->ReadPropertyString("Password"));
         if ($login == false)
         {
-            trigger_error($this->Translate('Login failed.'), E_USER_NOTICE);
+            echo $this->Translate('Login failed.');
             $this->SendDebug('Login', 'ERROR', 0);
             return false;
         }
@@ -360,29 +352,6 @@ class SqueezeboxBattery extends IPSModule
     }
 
 ################## PRIVATE
-
-    /**
-     * Prüft ob eine IP-Adresse in der Instanz konfiguriert wurde.
-     * 
-     * @param bool $throwException Wenn false, wird keine Exception geworfen.
-     * @return boolean Wenn Adresse gesetzt ist.
-     */
-    private function Init($throwException = true)
-    {
-        $Address = $this->ReadPropertyString("Address");
-        if ($Address == '')
-        {
-            $this->SetStatus(IS_INACTIVE);
-            if ($throwException)
-            {
-                trigger_error($this->Translate('Address not set.'), E_USER_NOTICE);
-                return false;
-            }
-            else
-                return false;
-        }
-        return true;
-    }
 
     /**
      * Setzte eine IPS-Variable vom Typ float auf den Wert von $value.

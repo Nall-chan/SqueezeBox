@@ -195,10 +195,14 @@ class LSA_Alarm
      */
     public function TimeToArray()
     {
-        $time = getdate($this->Time);
-        $result['Second'] = $time["seconds"];
-        $result['Minute'] = $time["minutes"];
-        $result['Hour'] = $time["hours"] - gettimeofday()["dsttime"];
+//        $time = getdate($this->Time);
+//        $result['Second'] = $time["seconds"];
+//        $result['Minute'] = $time["minutes"];
+//        $result['Hour'] = $time["hours"] - gettimeofday()["dsttime"];
+        //$time = getdate($this->Time);
+        $result['Second'] = (int) gmdate('s', $this->Time);
+        $result['Minute'] = (int) gmdate('i', $this->Time);
+        $result['Hour'] = (int) gmdate('G', $this->Time);
         return $result;
     }
 
@@ -642,7 +646,7 @@ class SqueezeboxAlarm extends IPSModule
             return;
         }
 
-        if ($this->SetPlaylist((int)$AlarmIndex, rawurldecode($_GET["ID"])))
+        if ($this->SetPlaylist((int) $AlarmIndex, rawurldecode($_GET["ID"])))
             echo "OK";
     }
 

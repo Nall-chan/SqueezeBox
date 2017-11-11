@@ -1,7 +1,13 @@
-# SqueezeBox Player (SqueezeBoxDevice)
+[![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
+[![Version](https://img.shields.io/badge/Modul%20Version-2.00-blue.svg)]()
+[![Version](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
+[![Version](https://img.shields.io/badge/Symcon%20Version-4.3%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857-IP-Symcon-4-3-%28Stable%29-Changelog)
+
+# SqueezeBox Player (SqueezeBoxDevice)  
+
 Ermöglich die Steuerung sowie die Darstellung der Zustände
 von SqueezeBox Geräten in IPS, in Verbindung mit dem
-Logitech Media Server.
+Logitech Media Server.  
 
 ## Dokumentation
 
@@ -41,11 +47,13 @@ Logitech Media Server.
  - Logitech Media Server (getestet ab 7.9.x)
  - kompatibler Player
 
-## 3. Installation
+## 3. Software-Installation  
 
  Dieses Modul ist Bestandteil der IPSSqueezeBox-Library.  
-   *Über das 'Modul Control' folgende URL hinzufügen:  
-    `git://github.com/Nall-chan/IPSSqueezeBox.git` 
+   Bei privater Nutzung: Über das 'Module-Control' in IPS folgende URL hinzufügen.  
+    `git://github.com/Nall-chan/IPSSqueezeBox.git`  
+
+   **Bei kommerzieller Nutzung (z.B. als Errichter oder Integrator) wenden Sie sich bitte an den Autor.**  
 
 ## 4. Einrichten der Instanzen in IP-Symcon
 
@@ -147,7 +155,7 @@ Im Fehlerfall wird `false` zurückgegeben.
 ```php
 bool LSQ_SetName(int $InstanzID, string $Name)
 ```
-Setzt den Namen des Players auf '$Name'.  
+Setzt den Namen des Players auf `$Name`.  
 Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
@@ -166,6 +174,8 @@ oder `false` im Fehlerfall.
 ```php
 bool LSQ_Power(int $InstanzID, bool $Value)
 ```
+Schaltet das Gerät ein `true` oder aus `false`.  
+Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
 
@@ -173,36 +183,49 @@ bool LSQ_Power(int $InstanzID, bool $Value)
 bool LSQ_Play(int $InstanzID)
 bool LSQ_PlayEx(int $InstanzID, int $FadeIn)
 ```
+Startet die Wiedergabe.  
+Mit LSQ_PlayEx kann ein `$FadeIn` in Sekunden übergeben werden.  
+Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
 
 ```php
 bool LSQ_Pause(int $InstanzID)
 ```
+Pausiert die Wiedergabe.  
+Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
 
 ```php
 bool LSQ_Stop(int $InstanzID)
 ```
+Stoppt die Wiedergabe.  
+Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
 
 ```php
 bool LSQ_SetVolume(int $InstanzID, int $Value)
 ```
+Setzt die Lautstärke auf `$Value`.  
+Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
 
 ```php
 bool LSQ_SetMute(int $InstanzID, bool $Value)
 ```
+Stummschaltung aktiv `true`oder deaktiv `false`.  
+Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
 
 ```php
 bool LSQ_SetPosition(int $InstanzID, int $Value)
 ```
+Springt im aktuellen Track auf die Zeit in Sekunden von `$Value`.  
+Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
 
@@ -211,12 +234,17 @@ bool LSQ_SetBass(int $InstanzID, int $Value)
 bool LSQ_SetTreble(int $InstanzID, int $Value)
 bool LSQ_SetPitch(int $InstanzID, int $Value)
 ```
+Setzt den Bass, die Höhen oder Tonhöhen auf `$Value`. (Pitch nur bei SliMP3 & SqueezeBox1 / SB1 )  
+Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
 
 ```php
 bool LSQ_SetSleep(int $InstanzID, int $Seconds)
 ```
+Aktiviert den (Ein)Schlafmodus mit der unter `$Seconds`angegeben Sekunden.  
+0 deaktiviert den zuvor gesetzten Schlafmodus.  
+Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
 
@@ -224,18 +252,24 @@ bool LSQ_SetSleep(int $InstanzID, int $Seconds)
 bool LSQ_PreviousButton(int $InstanzID)
 bool LSQ_NextButton(int $InstanzID)
 ```
+Simuliert einen Tastendruck auf den Vorwärts bzw. Rückwerts-Button des Gerätes.  
+Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
 
 ```php
 bool LSQ_PressButton(int $InstanzID)
 ```
+Simuliert einen Tastendruck der TODO  
+Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
 
 ```php
 bool LSQ_SelectPreset(int $InstanzID, int $Value)
 ```
+Simuliert einen Tastendruck der Preset-Tasten 1-6 `$Value`.  
+Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
 
@@ -245,18 +279,23 @@ bool LSQ_DisplayLineEx(int $InstanzID, string $Text, int $Duration, bool $Center
 bool LSQ_Display2Lines(int $InstanzID, string $Text1, string $Text2, int $Duration)
 bool LSQ_Display2LinesEx(int $InstanzID, string $Text1, string $Text2, int $Duration, bool $Centered, int $Brightness)
 ```
+TODO  
+Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
 
 ```php
 bool LSQ_DisplayText(int $InstanzID, string $Text1, string $Text2, int $Duration)
 ```
+TODO  
+Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
 
 ```php
 int LSQ_GetLinesPerScreen(int $InstanzID)
 ```
+TODO  
 
 ---
 
@@ -264,6 +303,7 @@ int LSQ_GetLinesPerScreen(int $InstanzID)
 LSQ_GetDisplayedText(int $InstanzID)
 LSQ_GetDisplayedNow(int $InstanzID)
 ```
+TODO  
 
 ### 3. Playlist
 
@@ -275,41 +315,62 @@ LSQ_PlayUrlEx(int $InstanzID, string $URL, string $DisplayTitle)
 ---
 
 ```php
-LSQ_PlayFavorite(int $InstanzID, string $FavoriteID)
+bool LSQ_PlayFavorite(int $InstanzID, string $FavoriteID)
 ```
+Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
 
 ```php
-LSQ_SetShuffle(int $InstanzID, int $Value)
+bool LSQ_SetShuffle(int $InstanzID, int $Value)
 ```
+Setzt dem Modus für die zufällige Wiedergabe. `$Value` kann die Werte 0 für aus,  
+1 für den alle Titel in der Playlist, oder 2 für das die verschiednen Alben in der Playlist enthalten.  
+Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
 
 ```php
-LSQ_SetRepeat(int $InstanzID, int $Value)
+bool LSQ_SetRepeat(int $InstanzID, int $Value)
 ```
+Setzt dem Modus für Wiederholungen. `$Value` kann die Werte 0 für aus,  
+1 für den aktuellen Titel, oder 2 für die aktuelle Playlist enthalten.  
+Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
 
 ```php
-LSQ_GoToTrack(int $InstanzID, int $Index)
+bool LSQ_GoToTrack(int $InstanzID, int $Index)
 ```
+Springt in der Playlist auf den mit `$Index` übergebe Position.  
+Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
 
 ```php
-LSQ_NextTrack(int $InstanzID)
-LSQ_PreviousTrack(int $InstanzID)
+bool LSQ_NextTrack(int $InstanzID)
+bool LSQ_PreviousTrack(int $InstanzID)
 ```
+Springt in der Playlist auf den vorherigen bzw. nächsten Track.  
+Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
 
 ```php
-LSQ_LoadPlaylist(int $InstanzID, string $Name)
-LSQ_ResumePlaylist(int $InstanzID, string $Name)
+string LSQ_LoadPlaylist(int $InstanzID, string $Name)
 ```
+Lädt die unter `$Name`übergebene Playlist.  
+Die Wiedergabe wird nicht automatisch gestartet.  
+Liefert den Pfad der Playlist.  
 
+---
+
+```php
+string LSQ_ResumePlaylist(int $InstanzID, string $Name)
+```
+Lädt die unter `$Name`übergebene Playlist, und springt auf den zuletzt wiedergegeben Track.  
+Die Wiedergabe wird nicht automatisch gestartet.  
+Liefert den Pfad der Playlist.  
 ---
 
 ```php
@@ -327,13 +388,15 @@ LSQ_LoadPlaylistByArtistName(int $InstanzID, string $Name)
 ---
 
 ```php
-LSQ_LoadPlaylistByFavoriteID(int $InstanzID, string $FavoriteID)
-LSQ_LoadPlaylistByAlbumID(int $InstanzID, int $AlbumID)
-LSQ_LoadPlaylistByGenreID(int $InstanzID, int $GenreID)
-LSQ_LoadPlaylistByArtistID(int $InstanzID, int $ArtistID)
-LSQ_LoadPlaylistByPlaylistID(int $InstanzID, int $PlaylistID)
-LSQ_LoadPlaylistByFolderID(int $InstanzID, int $FolderID)
+bool LSQ_LoadPlaylistByFavoriteID(int $InstanzID, string $FavoriteID)
+bool LSQ_LoadPlaylistByAlbumID(int $InstanzID, int $AlbumID)
+bool LSQ_LoadPlaylistByGenreID(int $InstanzID, int $GenreID)
+bool LSQ_LoadPlaylistByArtistID(int $InstanzID, int $ArtistID)
+bool LSQ_LoadPlaylistByPlaylistID(int $InstanzID, int $PlaylistID)
+bool LSQ_LoadPlaylistByFolderID(int $InstanzID, int $FolderID)
 ```
+Lädt eine Playlist bestehend aus der inm zweiten Parameter übergebeneb ID.  
+Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
 
@@ -344,15 +407,28 @@ LSQ_LoadPlaylistBySongIDs(int $InstanzID, string $SongIDs)
 ---
 
 ```php
-LSQ_SavePlaylist(int $InstanzID, string $Name)
+bool LSQ_SavePlaylist(int $InstanzID, string $Name)
 ```
+Speichert eine Playlist unter den mit `$Name` übergebenen Namen.   
+Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
 
 ```php
-LSQ_SaveTempPlaylist(int $InstanzID)
-LSQ_LoadTempPlaylist(int $InstanzID)
+bool LSQ_SaveTempPlaylist(int $InstanzID)
 ```
+Speichert eine temporäre Playlist, welche beim Laden per LSQ_LoadTempPlaylist automatisch vom Server gelöscht wird.  
+Eine zuvor nicht geladene temporäre Playlist wird dabei überschrieben.  
+Liefert `true` bei Erfolg, sonst `false`.  
+
+---
+
+```php
+bool LSQ_LoadTempPlaylist(int $InstanzID)
+```
+Lädt eine zuvor mit LSQ_SaveTempPlaylist gespeicherte Playlist, und springt auf den zuletzt wiedergegeben Track.  
+Die Wiedergabe wird nicht automatisch gestartet.  
+Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
 
@@ -477,26 +553,90 @@ LSQ_IsPlaylistModified(int $InstanzID)
 ---
 
 ```php
-LSQ_GetPlaylistInfo(int $InstanzID)
-```
-
----
-
-```php
 LSQ_AddPlaylistIndexToZappedList(int $InstanzID, int $Position)
 ```
 
 ---
 
 ```php
-LSQ_GetSongInfoByTrackIndex(int $InstanzID, int $Index)
+array LSQ_GetPlaylistInfo(int $InstanzID)
 ```
+Liefert Informationen über die Playlist.  
+**Hinweis:**
+Funktioniert nur, wenn wirklich eine Playlist aus den vorhandnene Server-Playlisten geladen wurde.  
+Und auch nur, wenn Sie manuell am Player oder per `LSQ_LoadPlaylistByPlaylistID` geladen wurde.
+Playlisten welche mit ihrem Namen über `LSQ_LoadPlaylist` geladen wurden, liefern leider keine Informationen.  
+
+**Array:**  
+
+| Index     | Typ     | Beschreibung                          |
+| :-------: | :-----: | :-----------------------------------: |
+| Id        | integer | UID der Playlist in der LMS-Datenbank |
+| Name      | string  | Name der Playlist                     |
+| Modified  | boolean | `true` wenn Playlist verändert wurde  |
+| Url       | string  | Pfad der Playlist                     |
+
 
 ---
 
 ```php
-LSQ_GetSongInfoOfCurrentPlaylist(int $InstanzID)
+array LSQ_GetSongInfoByTrackIndex(int $InstanzID, int $Index)
 ```
+Liefert Informationen über den Song mit dem `$Index` der aktuellen Playlist.  
+Wird als `$Index` 0 übergeben, so wird der aktuelle Song genutzt.  
+
+**Array:**  
+
+| Index            | Typ     | Beschreibung                        |
+| :--------------: | :-----: | :---------------------------------: |
+| Id               | integer | UID der Datei in der LMS-Datenbank  |
+| Title            | string  | Titel                               |
+| Genre            | string  | Genre                               |
+| Album            | string  | Album                               |
+| Artist           | string  | Interpret                           |
+| Duration         | integer | Länge in Sekunden                   |
+| Disc             | integer | Aktuelles Medium                    |
+| Disccount        | integer | Anzahl aller Medien dieses Albums   |
+| Bitrate          | string  | Bitrate in Klartext                 |
+| Tracknum         | integer | Tracknummer im Album                |
+| Url              | string  | Pfad der Playlist                   |
+| Album_id         | integer | UID des Album in der LMS-Datenbank  |
+| Artwork_track_id | string  | UID des Cover in der LMS-Datenbank  |
+| Genre_id         | integer | UID des Genre in der LMS-Datenbank  |
+| Artist_id        | integer | UID des Artist in der LMS-Datenbank |
+| Year             | integer | Jahr des Song, soweit hinterlegt    |
+| Remote_title     | string  | Titel des Stream                    |
+
+---
+
+```php
+array LSQ_GetSongInfoOfCurrentPlaylist(int $InstanzID)
+```
+Liefert Informationen über alle Songs in der Playlist.  
+Mehrdimensionales Array, wobei der erste Index der Trackposition entspricht.  
+
+**Array:**  
+
+| Index            | Typ     | Beschreibung                        |
+| :--------------: | :-----: | :---------------------------------: |
+| Id               | integer | UID der Datei in der LMS-Datenbank  |
+| Title            | string  | Titel                               |
+| Genre            | string  | Genre                               |
+| Album            | string  | Album                               |
+| Artist           | string  | Interpret                           |
+| Duration         | integer | Länge in Sekunden                   |
+| Disc             | integer | Aktuelles Medium                    |
+| Disccount        | integer | Anzahl aller Medien dieses Albums   |
+| Bitrate          | string  | Bitrate in Klartext                 |
+| Tracknum         | integer | Tracknummer im Album                |
+| Url              | string  | Pfad der Playlist                   |
+| Album_id         | integer | UID des Album in der LMS-Datenbank  |
+| Artwork_track_id | string  | UID des Cover in der LMS-Datenbank  |
+| Genre_id         | integer | UID des Genre in der LMS-Datenbank  |
+| Artist_id        | integer | UID des Artist in der LMS-Datenbank |
+| Year             | integer | Jahr des Song, soweit hinterlegt    |
+| Remote_title     | string  | Titel des Stream                    |
+
 
 ### 4. Zufallswiedergabe
 
@@ -529,8 +669,11 @@ LSQ_RandomplaySelectGenre(int $InstanzID, string $Genre, bool $Active)
 
 **Changlog:**  
 
+Version 2.0:  
+ - Komplett überarbeitete Version für IPS 4.3 und höher  
+
 Version 1.0:  
- - Erstes offizielles Release
+ - Erstes offizielles Release  
 
 ## 9. Lizenz
 

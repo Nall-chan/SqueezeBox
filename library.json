@@ -2,7 +2,7 @@
     "id": "{DC3BA2AD-B442-4F51-B743-6BF8F90B96B8}",
     "author": "Michael Tr\u00f6ger",
     "name": "Squeezbox Library",
-    "url": "git.nall-chan.net",
+    "url": "https://github.com/Nall-chan/IPSSqueezebox",
     "compatibility": {
         "version": "4.3",
         "date": 1498241677

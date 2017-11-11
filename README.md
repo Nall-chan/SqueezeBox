@@ -1,3 +1,8 @@
+[![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
+[![Version](https://img.shields.io/badge/Modul%20Version-2.00-blue.svg)]()
+[![Version](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
+[![Version](https://img.shields.io/badge/Symcon%20Version-4.3%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857-IP-Symcon-4-3-%28Stable%29-Changelog)
+
 # IPSSqueezeBox
 Ermöglich die Steuerung sowie die Darstellung der Zustände
 von SqueezeBox Geräten in IPS, in Verbindung mit dem
@@ -12,11 +17,14 @@ Logitech Media Server.
 3. [Software-Installation](#3-software-installation) 
 4. [Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
 5. [Anhang](#5-anhang)  
+    1. [GUID der Module](#1-guid-der-module)
+    2. [Datenaustausch](#2-Datenaustausch)
+    3. [Changlog](#3-changlog)
 6. [Lizenz](#6-lizenz)
 
 ## 1. Funktionsumfang
 
-### Logitech Media Server:  
+### [Logitech Media Server:](LMSSplitter/)  
 
  - Auslesen un darstellen von Server-Informationen.  
  - Auslesen von Datenbank Informationen.  
@@ -24,7 +32,7 @@ Logitech Media Server.
  - Laden von Server-Playlisten über das WebFront in einen (mehrere) Player.  
  - Steuern des Scanner der Datenbank inkl. Darstellung des laufenden Modi vom Scanner.  
 
-### SqueezeBox Player:  
+### [SqueezeBox Player:](SqueezeBoxDevice/)  
 
  - Steuern und Abfragen der diversen verschiedenen Zustände und Eigenschaften.  
  - Abfragen, Laden, bearbeiten und speichern von der internen Playliste des Gerätes.  
@@ -38,16 +46,16 @@ Logitech Media Server.
     *  Darstellung der Daten zum aktuellen Track: Titel, Album, Interpret, Stilrichtung, Cover etc..
     *  Darstellen der Server-Playlisten sowie laden derselben auf Player.
 
-### Squeezebox Alarm (Wecker):  
+### [Squeezebox Alarm (Wecker):](SqueezeBoxAlarm/)    
 
  - Auslesen und darstellen der Wecker einer Squeezebox.
  - Steuern der Wecker über das WebFront und PHP-Befehlen.
 
-### Squeezebox Battery:  
+### [Squeezebox Battery:](SqueezeBoxDeviceBattery/)  
 
  - Auslesen und darstellen von Werten der Stromversorgung und des Akkumulators.  
 
-### Squeezebox Konfigurator:  
+### [Squeezebox Konfigurator:](LMSConfigurator/)  
 
  - Auslesen und darstellen aller im LMS und IPS bekannten Geräte und Instanzen.  
  - Einfaches Anlegen von neuen Instanzen in IPS.  
@@ -60,8 +68,11 @@ Logitech Media Server.
 
 ## 3. Software-Installation
 
-   Über das 'Modul Control' folgende URL hinzufügen:  
+**IPS 4.3:**  
+   Bei privater Nutzung: Über das 'Module-Control' in IPS folgende URL hinzufügen.  
     `git://github.com/Nall-chan/IPSSqueezeBox.git`  
+
+   **Bei kommerzieller Nutzung (z.B. als Errichter oder Integrator) wenden Sie sich bitte an den Autor.**  
 
 ## 4. Einrichten der Instanzen in IP-Symcon
 
@@ -71,7 +82,7 @@ Es wird empfohlen die Einrichtung mit dem Squeezebox Konfigurator zu starten (LM
 
 ## 5. Anhang
 
-###  a. GUID der Module:
+###  1. GUID der Module
 
  
 | Modul             | Typ          |Prefix  | GUID                                   |
@@ -83,7 +94,7 @@ Es wird empfohlen die Einrichtung mit dem Squeezebox Konfigurator zu starten (LM
 | SqueezeboxBattery | Device       | LSQB   | {718158BB-B247-4A71-9440-9C2FF1378752} |
 
 
-### b. Datenaustausch
+### 2. Datenaustausch
 
 | Funktion                | GUID                                   |
 | :---------------------: | :------------------------------------: |
@@ -99,6 +110,13 @@ Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:
 | Command     | array   | CLI Kommandos als Array       |
 | Data        | array   | Daten des Kommandos als Array |
 
+### 3. Changlog
+
+Version 2.0:  
+ - Komplett überarbeitete Version für IPS 4.3 und höher  
+
+Version 1.0:  
+ - Erstes offizielles Release  
 
 ## 6. Lizenz
 

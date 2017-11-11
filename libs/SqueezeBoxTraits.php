@@ -475,13 +475,9 @@ trait Semaphore
         for ($i = 0; $i < 100; $i++)
         {
             if (IPS_SemaphoreEnter(__CLASS__ . '.' . (string) $this->InstanceID . (string) $ident, 1))
-            {
                 return true;
-            }
             else
-            {
                 IPS_Sleep(mt_rand(1, 5));
-            }
         }
         return false;
     }

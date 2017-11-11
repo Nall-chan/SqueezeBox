@@ -109,10 +109,13 @@ class SqueezeboxDevice extends IPSModule
             return;
         $CoverID = @IPS_GetObjectIDByIdent('CoverIMG', $this->InstanceID);
         if ($CoverID > 0)
+        {
             @IPS_DeleteMedia($CoverID, true);
+            IPS_LogMessage('SqueezeBoxCover', 'DELETE COVER: ' . $this->InstanceID);
+        }
         $this->UnregisterHook('/hook/SqueezeBoxPlaylist' . $this->InstanceID);
+        IPS_LogMessage('SqueezeBoxWebHook', 'DELETE HOOK: ' . $this->InstanceID);
         $this->DeleteProfile();
-        parent::Destroy();
     }
 
     /**
@@ -3094,7 +3097,6 @@ class SqueezeboxDevice extends IPSModule
      * Verarbeitet Daten aus dem Webhook.
      *
      * @access protected
-     * @param string $ID Die zu ladenen Playlist oder der zu ladene Favorit.
      * @global array $_GET
      */
     protected function ProcessHookdata()
