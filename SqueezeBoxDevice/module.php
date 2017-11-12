@@ -107,14 +107,14 @@ class SqueezeboxDevice extends IPSModule
         parent::Destroy();
         if (IPS_GetKernelRunlevel() <> KR_READY)
             return;
-        $CoverID = @IPS_GetObjectIDByIdent('CoverIMG', $this->InstanceID);
-        if ($CoverID > 0)
-        {
-            @IPS_DeleteMedia($CoverID, true);
-            IPS_LogMessage('SqueezeBoxCover', 'DELETE COVER: ' . $this->InstanceID);
-        }
+//        $CoverID = @IPS_GetObjectIDByIdent('CoverIMG', $this->InstanceID);
+//        if ($CoverID > 0)
+//        {
+//            @IPS_DeleteMedia($CoverID, true);
+//            IPS_LogMessage('SqueezeBoxCover', 'DELETE COVER: ' . $this->InstanceID);
+//        }
         $this->UnregisterHook('/hook/SqueezeBoxPlaylist' . $this->InstanceID);
-        IPS_LogMessage('SqueezeBoxWebHook', 'DELETE HOOK: ' . $this->InstanceID);
+//        IPS_LogMessage('SqueezeBoxWebHook', 'DELETE HOOK: ' . $this->InstanceID);
         $this->DeleteProfile();
     }
 
