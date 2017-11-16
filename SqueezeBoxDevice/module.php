@@ -1272,7 +1272,38 @@ class SqueezeboxDevice extends IPSModule
             return false;
         }
         $LMSData = $this->SendDirect(new LMSData(array('mixer', 'volume'), $Value));
-//        $this->_NewVolume((int)$LMSData->Data[0]);
+        if ($LMSData === NULL)
+            return false;
+        return ((int) $LMSData->Data[0] == $Value);
+    }
+
+    //fertig
+    /**
+     * Setzten der Lautstärke.
+     *
+     * @param string $Value
+     * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception
+     */
+    public function SetVolumeEx(string $Value)
+    {
+        if (!is_string($Value))
+        {
+            trigger_error(sprintf($this->Translate("%s must string."), "Value"), E_USER_NOTICE);
+            return false;
+        }
+        if (($Value[0] != '-') and ( $Value[0] != '+'))
+        {
+            trigger_error($this->Translate("Value invalid."), E_USER_NOTICE);
+            return false;
+        }
+        if (((int) $Value < -100) or ( (int) $Value > 100))
+        {
+            trigger_error($this->Translate("Value invalid."), E_USER_NOTICE);
+            return false;
+        }
+        $LMSData = $this->SendDirect(new LMSData(array('mixer', 'volume'), $Value));
         if ($LMSData === NULL)
             return false;
         return ((int) $LMSData->Data[0] == $Value);
@@ -1300,6 +1331,42 @@ class SqueezeboxDevice extends IPSModule
             return false;
         }
         if (($Value < 0) or ( $Value > 100))
+        {
+            trigger_error($this->Translate("Value invalid."), E_USER_NOTICE);
+            return false;
+        }
+        $LMSData = $this->SendDirect(new LMSData(array('mixer', 'bass'), $Value));
+        if ($LMSData === NULL)
+            return false;
+        return ((int) $LMSData->Data[0] == $Value);
+    }
+
+    /**
+     * Setzt den Bass-Wert.
+     *
+     * @param string $Value
+     * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception
+     */
+    public function SetBassEx(string $Value)
+    {
+        if (!$this->ReadPropertyBoolean('enableBass'))
+        {
+            trigger_error($this->Translate("bass control not enabled"), E_USER_NOTICE);
+            return false;
+        }
+        if (!is_string($Value))
+        {
+            trigger_error(sprintf($this->Translate("%s must string."), "Value"), E_USER_NOTICE);
+            return false;
+        }
+        if (($Value[0] != '-') and ( $Value[0] != '+'))
+        {
+            trigger_error($this->Translate("Value invalid."), E_USER_NOTICE);
+            return false;
+        }
+        if (((int) $Value < -100) or ( (int) $Value > 100))
         {
             trigger_error($this->Translate("Value invalid."), E_USER_NOTICE);
             return false;
@@ -1345,6 +1412,43 @@ class SqueezeboxDevice extends IPSModule
 
     //fertig
     /**
+     * Setzt den Treble-Wert.
+     *
+     * @param string $Value
+     * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception
+     */
+    public function SetTrebleEx(string $Value)
+    {
+        if (!$this->ReadPropertyBoolean('enableTreble'))
+        {
+            trigger_error($this->Translate("treble control not enabled"), E_USER_NOTICE);
+            return false;
+        }
+        if (!is_string($Value))
+        {
+            trigger_error(sprintf($this->Translate("%s must string."), "Value"), E_USER_NOTICE);
+            return false;
+        }
+        if (($Value[0] != '-') and ( $Value[0] != '+'))
+        {
+            trigger_error($this->Translate("Value invalid."), E_USER_NOTICE);
+            return false;
+        }
+        if (((int) $Value < -100) or ( (int) $Value > 100))
+        {
+            trigger_error($this->Translate("Value invalid."), E_USER_NOTICE);
+            return false;
+        }
+        $LMSData = $this->SendDirect(new LMSData(array('mixer', 'treble'), $Value));
+        if ($LMSData === NULL)
+            return false;
+        return ((int) $LMSData->Data[0] == $Value);
+    }
+
+    //fertig
+    /**
      * Setzt den Pitch-Wert.
      *
      * @param integer $Value
@@ -1366,6 +1470,43 @@ class SqueezeboxDevice extends IPSModule
             return false;
         }
         if (($Value < 80) or ( $Value > 120))
+        {
+            trigger_error($this->Translate("Value invalid."), E_USER_NOTICE);
+            return false;
+        }
+        $LMSData = $this->SendDirect(new LMSData(array('mixer', 'pitch'), $Value));
+        if ($LMSData === NULL)
+            return false;
+        return ((int) $LMSData->Data[0] == $Value);
+    }
+
+//fertig
+    /**
+     * Setzt den Pitch-Wert.
+     *
+     * @param string $Value
+     * @return boolean
+     * true bei erfolgreicher Ausführung und Rückmeldung
+     * @exception
+     */
+    public function SetPitchEx(string $Value)
+    {
+        if (!$this->ReadPropertyBoolean('enablePitch'))
+        {
+            trigger_error($this->Translate("pitch control not enabled"), E_USER_NOTICE);
+            return false;
+        }
+        if (!is_string($Value))
+        {
+            trigger_error(sprintf($this->Translate("%s must string."), "Value"), E_USER_NOTICE);
+            return false;
+        }
+        if (($Value[0] != '-') and ( $Value[0] != '+'))
+        {
+            trigger_error($this->Translate("Value invalid."), E_USER_NOTICE);
+            return false;
+        }
+        if (((int) $Value < -40) or ( (int) $Value > 40))
         {
             trigger_error($this->Translate("Value invalid."), E_USER_NOTICE);
             return false;
@@ -3193,8 +3334,19 @@ class SqueezeboxDevice extends IPSModule
     }
 
     //fertig
-    private function _SetNewVolume(int $Value)
+    private function _SetNewVolume($Value)
     {
+        if (is_string($Value) and ( ($Value[0] == '+') or $Value[0] == '-'))
+        {
+            $id = @$this->GetIDForIdent('Volume');
+            if ($id == false)
+                return;
+            $Value = GetValueInteger($id) + (int) $Value;
+            if ($Value < 0)
+                $Value = 0;
+            if ($Value > 100)
+                $Value = 100;
+        }
         if ($Value < 0)
         {
             $Value = $Value - (2 * $Value);
@@ -3205,6 +3357,57 @@ class SqueezeboxDevice extends IPSModule
             $this->SetValueBoolean('Mute', false);
         }
         $this->SetValueInteger('Volume', $Value);
+    }
+
+    //fertig
+    private function _SetNewBass($Value)
+    {
+        if (is_string($Value) and ( ($Value[0] == '+') or $Value[0] == '-'))
+        {
+            $id = @$this->GetIDForIdent('Bass');
+            if ($id == false)
+                return;
+            $Value = GetValueInteger($id) + (int) $Value;
+            if ($Value < 0)
+                $Value = 0;
+            if ($Value > 100)
+                $Value = 100;
+        }
+        $this->SetValueInteger('Bass', $Value);
+    }
+
+    //fertig
+    private function _SetNewTreble($Value)
+    {
+        if (is_string($Value) and ( ($Value[0] == '+') or $Value[0] == '-'))
+        {
+            $id = @$this->GetIDForIdent('Treble');
+            if ($id == false)
+                return;
+            $Value = GetValueInteger($id) + (int) $Value;
+            if ($Value < 0)
+                $Value = 0;
+            if ($Value > 100)
+                $Value = 100;
+        }
+        $this->SetValueInteger('Treble', $Value);
+    }
+
+    //fertig
+    private function _SetNewPitch($Value)
+    {
+        if (is_string($Value) and ( ($Value[0] == '+') or $Value[0] == '-'))
+        {
+            $id = @$this->GetIDForIdent('Pitch');
+            if ($id == false)
+                return;
+            $Value = GetValueInteger($id) + (int) $Value;
+            if ($Value < 80)
+                $Value = 80;
+            if ($Value > 120)
+                $Value = 120;
+        }
+        $this->SetValueInteger('Pitch', $Value);
     }
 
     //fertig
@@ -3390,22 +3593,22 @@ class SqueezeboxDevice extends IPSModule
                 switch ($LMSData->Command[1])
                 {
                     case 'volume':
-                        $this->_SetNewVolume((int) $LMSData->Data[0]);
+                        $this->_SetNewVolume($LMSData->Data[0]);
                         break;
                     case 'muting':
                         $this->SetValueBoolean('Mute', (bool) $LMSData->Data[0]);
                         break;
                     case 'bass':
                         if ($this->ReadPropertyBoolean('enableBass'))
-                            $this->SetValueInteger('Bass', (int) ($LMSData->Data[0]));
+                            $this->_SetNewBass($LMSData->Data[0]);
                         break;
                     case 'treble':
                         if ($this->ReadPropertyBoolean('enableTreble'))
-                            $this->SetValueInteger('Treble', (int) ($LMSData->Data[0]));
+                            $this->_SetNewTreble($LMSData->Data[0]);
                         break;
                     case 'pitch':
                         if ($this->ReadPropertyBoolean('enablePitch'))
-                            $this->SetValueInteger('Pitch', (int) ($LMSData->Data[0]));
+                            $this->_SetNewPitch($LMSData->Data[0]);
                         break;
                     default:
                         return false;
@@ -3639,19 +3842,19 @@ class SqueezeboxDevice extends IPSModule
                             $this->_SetNewSleepTimeout((int) $Data->Value);
                             break;
                         case 'mixer volume':
-                            $this->_SetNewVolume((int) $Data->Value);
+                            $this->_SetNewVolume($Data->Value);
                             break;
                         case 'mixer bass':
                             if ($this->ReadPropertyBoolean('enableBass'))
-                                $this->SetValueInteger('Bass', (int) $Data->Value);
+                                $this->_SetNewBass($Data->Value);
                             break;
                         case 'mixer treble':
                             if ($this->ReadPropertyBoolean('enableTreble'))
-                                $this->SetValueInteger('Treble', (int) $Data->Value);
+                                $this->_SetNewTreble($Data->Value);
                             break;
                         case 'mixer pitch':
                             if ($this->ReadPropertyBoolean('enablePitch'))
-                                $this->SetValueInteger('Pitch', (int) $Data->Value);
+                                $this->_SetNewPitch($Data->Value);
                             break;
 //                        case 'muting':
 //                            $this->SetValueBoolean('Mute', (bool) $LMSData->Data[0]);
