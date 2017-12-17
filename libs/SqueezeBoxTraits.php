@@ -594,9 +594,9 @@ trait VariableHelper
     protected function ConvertSeconds(int $Time)
     {
         if ($Time > 3600)
-            return @date("H:i:s", $Time);
+            return sprintf('%02d:%02d:%02d', ($Time / 3600), ($Time / 60 % 60), $Time % 60);
         else
-            return @date("i:s", $Time);
+            return sprintf('%02d:%02d', ($Time / 60 % 60), $Time % 60);
     }
 
     /**
