@@ -127,8 +127,8 @@ class SqueezeboxDevice extends IPSModule
     {
         $this->SetReceiveDataFilter('.*"Address":"".*');
         $this->RegisterMessage(0, IPS_KERNELSTARTED);
-        $this->RegisterMessage($this->InstanceID, DM_CONNECT);
-        $this->RegisterMessage($this->InstanceID, DM_DISCONNECT);
+        $this->RegisterMessage($this->InstanceID, FM_CONNECT);
+        $this->RegisterMessage($this->InstanceID, FM_DISCONNECT);
         $this->Multi_Playlist = array();
         $this->ParentID = 0;
         $this->PlayerConnected = 0;
