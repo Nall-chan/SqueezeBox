@@ -1,4 +1,4 @@
-<?
+<?php
 
 /*
  * @addtogroup squeezebox
@@ -24,47 +24,47 @@ trait LSQProfile
      */
     private function CreateProfile()
     {
-        $this->RegisterProfileIntegerEx("LSQ.Status", "Information", "", "", Array(
-            Array(0, "Prev", "", -1),
-            Array(1, "Stop", "", -1),
-            Array(2, "Play", "", -1),
-            Array(3, "Pause", "", -1),
-            Array(4, "Next", "", -1)
+        $this->RegisterProfileIntegerEx("LSQ.Status", "Information", "", "", array(
+            array(0, "Prev", "", -1),
+            array(1, "Stop", "", -1),
+            array(2, "Play", "", -1),
+            array(3, "Pause", "", -1),
+            array(4, "Next", "", -1)
         ));
         $this->RegisterProfileInteger("LSQ.Intensity", "Intensity", "", " %", 0, 100, 1);
         $this->RegisterProfileInteger("LSQ.Pitch", "Intensity", "", " %", 80, 120, 1);
-        $this->RegisterProfileIntegerEx("LSQ.Shuffle", "Shuffle", "", "", Array(
-            Array(0, "off", "", -1),
-            Array(1, $this->Translate("Title"), "", -1),
-            Array(2, "Album", "", -1)
+        $this->RegisterProfileIntegerEx("LSQ.Shuffle", "Shuffle", "", "", array(
+            array(0, "off", "", -1),
+            array(1, $this->Translate("Title"), "", -1),
+            array(2, "Album", "", -1)
         ));
-        $this->RegisterProfileIntegerEx("LSQ.Repeat", "Repeat", "", "", Array(
-            Array(0, "off", "", -1),
-            Array(1, $this->Translate("Title"), "", -1),
-            Array(2, "Playlist", "", -1)
+        $this->RegisterProfileIntegerEx("LSQ.Repeat", "Repeat", "", "", array(
+            array(0, "off", "", -1),
+            array(1, $this->Translate("Title"), "", -1),
+            array(2, "Playlist", "", -1)
         ));
-        $this->RegisterProfileIntegerEx("LSQ.Preset", "Speaker", "", "", Array(
-            Array(1, "1", "", -1),
-            Array(2, "2", "", -1),
-            Array(3, "3", "", -1),
-            Array(4, "4", "", -1),
-            Array(5, "5", "", -1),
-            Array(6, "6", "", -1)
+        $this->RegisterProfileIntegerEx("LSQ.Preset", "Speaker", "", "", array(
+            array(1, "1", "", -1),
+            array(2, "2", "", -1),
+            array(3, "3", "", -1),
+            array(4, "4", "", -1),
+            array(5, "5", "", -1),
+            array(6, "6", "", -1)
         ));
-        $this->RegisterProfileIntegerEx("LSQ.SleepTimer", "Gear", "", "", Array(
-            Array(0, "0", "", -1),
-            Array(900, "900", "", -1),
-            Array(1800, "1800", "", -1),
-            Array(2700, "2700", "", -1),
-            Array(3600, "3600", "", -1),
-            Array(5400, "5400", "", -1)
+        $this->RegisterProfileIntegerEx("LSQ.SleepTimer", "Gear", "", "", array(
+            array(0, "0", "", -1),
+            array(900, "900", "", -1),
+            array(1800, "1800", "", -1),
+            array(2700, "2700", "", -1),
+            array(3600, "3600", "", -1),
+            array(5400, "5400", "", -1)
         ));
-        $this->RegisterProfileIntegerEx("LSQ.Randomplay", "Shuffle", "", "", Array(
-            Array(0, $this->Translate("off"), "", -1),
-            Array(1, "Track", "", -1),
-            Array(2, "Album", "", -1),
-            Array(3, $this->Translate("Artist"), "", -1),
-            Array(4, $this->Translate("Year"), "", -1),
+        $this->RegisterProfileIntegerEx("LSQ.Randomplay", "Shuffle", "", "", array(
+            array(0, $this->Translate("off"), "", -1),
+            array(1, "Track", "", -1),
+            array(2, "Album", "", -1),
+            array(3, $this->Translate("Artist"), "", -1),
+            array(4, $this->Translate("Year"), "", -1),
         ));
     }
 
@@ -88,24 +88,31 @@ trait LSQProfile
      */
     private function DeleteOldProfile()
     {
-        if (IPS_VariableProfileExists('Status.Squeezebox'))
+        if (IPS_VariableProfileExists('Status.Squeezebox')) {
             IPS_DeleteVariableProfile('Status.Squeezebox');
-        if (IPS_VariableProfileExists('Preset.Squeezebox'))
+        }
+        if (IPS_VariableProfileExists('Preset.Squeezebox')) {
             IPS_DeleteVariableProfile('Preset.Squeezebox');
-        if (IPS_VariableProfileExists('Intensity.Squeezebox'))
+        }
+        if (IPS_VariableProfileExists('Intensity.Squeezebox')) {
             IPS_DeleteVariableProfile('Intensity.Squeezebox');
-        if (IPS_VariableProfileExists('Pitch.Squeezebox'))
+        }
+        if (IPS_VariableProfileExists('Pitch.Squeezebox')) {
             IPS_DeleteVariableProfile('Pitch.Squeezebox');
-        if (IPS_VariableProfileExists('Shuffle.Squeezebox'))
+        }
+        if (IPS_VariableProfileExists('Shuffle.Squeezebox')) {
             IPS_DeleteVariableProfile('Shuffle.Squeezebox');
-        if (IPS_VariableProfileExists('Repeat.Squeezebox'))
+        }
+        if (IPS_VariableProfileExists('Repeat.Squeezebox')) {
             IPS_DeleteVariableProfile('Repeat.Squeezebox');
-        if (IPS_VariableProfileExists("Tracklist.Squeezebox." . $this->InstanceID))
+        }
+        if (IPS_VariableProfileExists("Tracklist.Squeezebox." . $this->InstanceID)) {
             IPS_DeleteVariableProfile("Tracklist.Squeezebox." . $this->InstanceID);
-        if (IPS_VariableProfileExists('SleepTimer.Squeezebox'))
+        }
+        if (IPS_VariableProfileExists('SleepTimer.Squeezebox')) {
             IPS_DeleteVariableProfile('SleepTimer.Squeezebox');
+        }
     }
-
 }
 
 /**
@@ -119,12 +126,12 @@ trait LMSProfile
      */
     private function CreateProfile()
     {
-        $this->RegisterProfileIntegerEx("LMS.Scanner", "Gear", "", "", Array(
-            Array(0, $this->Translate("standby"), "", -1),
-            Array(1, $this->Translate("abort"), "", -1),
-            Array(2, $this->Translate("scan"), "", -1),
-            Array(3, $this->Translate("only playlists"), "", -1),
-            Array(4, $this->Translate("completely"), "", -1)
+        $this->RegisterProfileIntegerEx("LMS.Scanner", "Gear", "", "", array(
+            array(0, $this->Translate("standby"), "", -1),
+            array(1, $this->Translate("abort"), "", -1),
+            array(2, $this->Translate("scan"), "", -1),
+            array(3, $this->Translate("only playlists"), "", -1),
+            array(4, $this->Translate("completely"), "", -1)
         ));
         $this->RegisterProfileInteger("LMS.PlayerSelect." . $this->InstanceID, "Speaker", "", "", 0, 0, 0);
     }
@@ -143,17 +150,18 @@ trait LMSProfile
      */
     private function DeleteOldProfile()
     {
-        if (IPS_VariableProfileExists('Scanner.SqueezeboxServer'))
+        if (IPS_VariableProfileExists('Scanner.SqueezeboxServer')) {
             IPS_DeleteVariableProfile('Scanner.SqueezeboxServer');
-        if (IPS_VariableProfileExists("PlayerSelect" . $this->InstanceID . ".SqueezeboxServer"))
+        }
+        if (IPS_VariableProfileExists("PlayerSelect" . $this->InstanceID . ".SqueezeboxServer")) {
             IPS_DeleteVariableProfile("PlayerSelect" . $this->InstanceID . ".SqueezeboxServer");
+        }
     }
-
 }
 
 /**
  * Definiert eine Datensatz zum Versenden an des LMS.
- * 
+ *
  * @package       Squeezebox
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2016 Michael Tröger
@@ -163,7 +171,6 @@ trait LMSProfile
  */
 class LMSData extends stdClass
 {
-
     use UTF8Coder;
 
     /**
@@ -205,14 +212,16 @@ class LMSData extends stdClass
     public function __construct($Command = '', $Data = '', $needResponse = true)
     {
         $this->Address = '';
-        if (is_array($Command))
+        if (is_array($Command)) {
             $this->Command = $Command;
-        else
+        } else {
             $this->Command = array($Command);
-        if (is_array($Data))
+        }
+        if (is_array($Data)) {
             $this->Data = array_map('rawurlencode', $Data);
-        else
+        } else {
             $this->Data = rawurlencode($Data);
+        }
         $this->needResponse = $needResponse;
     }
 
@@ -223,7 +232,7 @@ class LMSData extends stdClass
      */
     public function ToJSONStringForLMS($GUID)
     {
-        return json_encode(Array("DataID" => $GUID, "Buffer" => utf8_encode($this->ToRawStringForLMS())));
+        return json_encode(array("DataID" => $GUID, "Buffer" => utf8_encode($this->ToRawStringForLMS())));
     }
 
     /**
@@ -235,16 +244,14 @@ class LMSData extends stdClass
         $Command = implode(' ', $this->Command);
         $this->SendValues = 0;
 
-        if (is_array($this->Data))
-        {
+        if (is_array($this->Data)) {
             $Data = implode(' ', $this->Data);
             $this->SendValues = count($this->Data);
-        }
-        else
-        {
+        } else {
             $Data = $this->Data;
-            if (($this->Data !== NULL) and ( $this->Data != '%3F'))
+            if (($this->Data !== null) and ($this->Data != '%3F')) {
                 $this->SendValues = 1;
+            }
         }
         return trim($this->Address . ' ' . trim($Command) . ' ' . trim($Data)) . chr(0x0d);
     }
@@ -267,8 +274,9 @@ class LMSData extends stdClass
         $this->Address = $this->DecodeUTF8($Data->Address);
         $this->Command = $this->DecodeUTF8($Data->Command);
         $this->Data = $this->DecodeUTF8($Data->Data);
-        if (property_exists($Data, 'needResponse'))
+        if (property_exists($Data, 'needResponse')) {
             $this->needResponse = $Data->needResponse;
+        }
     }
 
     /**
@@ -286,19 +294,18 @@ class LMSData extends stdClass
      */
     public function ToJSONString($GUID)
     {
-        return json_encode(Array("DataID" => $GUID,
+        return json_encode(array("DataID" => $GUID,
             "Address" => $this->EncodeUTF8($this->Address),
             "Command" => $this->EncodeUTF8($this->Command),
             "Data" => $this->EncodeUTF8($this->Data),
             "needResponse" => $this->needResponse
         ));
     }
-
 }
 
 /**
  * Klasse mit den Empfangenen Daten vom LMS
- * 
+ *
  * @package       Squeezebox
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2016 Michael Tröger
@@ -311,62 +318,54 @@ class LMSResponse extends LMSData
 
     /**
      * Antwort ist vom LMS-Server
-     * 
+     *
      * @static
      */
     const isServer = 0;
 
     /**
      * Antwort ist von einer MAC-Adresse.
-     * 
+     *
      * @static
      */
     const isMAC = 1;
 
     /**
      * Antwort ist von einer IP-Adresse.
-     * 
+     *
      * @static
      */
     const isIP = 2;
 
     /**
      * Enthält den Type des Versenders einer Antwort
-     * 
+     *
      * @var int Kann ::isServer, ::isMAC oder ::isIP sein.
      */
     public $Device;
 
     /**
      * Zerlegt eine Antwort des LMS und erzeugt daraus ein LMSResponse-Objekt.
-     * 
+     *
      * @param string $RawString
      */
     public function __construct(string $RawString)
     {
         $array = explode(' ', $RawString); // Antwortstring in Array umwandeln
-        if (strpos($array[0], '%3A') == 2) //isMAC
-        {
+        if (strpos($array[0], '%3A') == 2) { //isMAC
             $this->Device = LMSResponse::isMAC;
             $this->Address = rawurldecode(array_shift($array));
-        }
-        elseif (strpos($array[0], '.')) //isIP
-        {
+        } elseif (strpos($array[0], '.')) { //isIP
             $this->Device = LMSResponse::isIP;
             $this->Address = array_shift($array);
-        }
-        else // isServer
-        {
+        } else { // isServer
             $this->Device = LMSResponse::isServer;
             $this->Address = "";
         }
         $this->Command = array(array_shift($array));
-        if ($this->Device == LMSResponse::isServer)
-        {
-            if (count($array) <> 0)
-            {
-                switch ($this->Command[0])
-                {
+        if ($this->Device == LMSResponse::isServer) {
+            if (count($array) <> 0) {
+                switch ($this->Command[0]) {
                     case 'player':
                     case 'alarm':
                     case 'favorites':
@@ -378,18 +377,15 @@ class LMSResponse extends LMSData
                         $this->Command[2] = array_shift($array);
                         break;
                     case 'playlists':
-                        if (in_array($array[0], array('rename', 'delete', 'new', 'tracks', 'edit')))
+                        if (in_array($array[0], array('rename', 'delete', 'new', 'tracks', 'edit'))) {
                             $this->Command[1] = array_shift($array);
+                        }
                         break;
                 }
             }
-        }
-        else
-        {
-            if (count($array) <> 0)
-            {
-                switch ($this->Command[0])
-                {
+        } else {
+            if (count($array) <> 0) {
+                switch ($this->Command[0]) {
                     case 'mixer':
                     case 'playlist':
                     case 'playerpref':
@@ -407,8 +403,9 @@ class LMSResponse extends LMSData
                         break;
                     case 'shoutcast':
                         $this->Command[1] = array_shift($array);
-                        if (in_array($array[0], array('play', 'load', 'insert', 'add')))
+                        if (in_array($array[0], array('play', 'load', 'insert', 'add'))) {
                             $this->Command[2] = array_shift($array);
+                        }
 
                         break;
                     case 'prefset':
@@ -454,33 +451,33 @@ class LMSResponse extends LMSData
                 }
             }
         }
-        if (count($array) == 0)
+        if (count($array) == 0) {
             $array[0] = "";
+        }
 
         $this->Data = array_map('rawurldecode', $array);
     }
 
     /**
      * Erzeugt aus dem Objekt einen JSON-String.
-     * 
+     *
      * @param string $GUID GUID welche in den JSON-String eingebunden wird.
      * @return string Der JSON-String für den Datenaustausch
      */
     public function ToJSONStringForDevice(string $GUID)
     {
-        return json_encode(Array(
+        return json_encode(array(
             "DataID" => $GUID,
             "Address" => $this->EncodeUTF8($this->Address),
             "Command" => $this->EncodeUTF8($this->Command),
             "Data" => $this->EncodeUTF8($this->Data)
         ));
     }
-
 }
 
 /**
  * Zerlegt einen getaggten Datensatz in Name und Wert.
- * 
+ *
  * @package       Squeezebox
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2016 Michael Tröger
@@ -505,29 +502,30 @@ class LMSTaggingData extends stdClass
 
     /**
      * Erzeugt ein LMSTaggingData-Objekt aus $TaggedDataLine.
-     * 
+     *
      * @access public
      * @param string $TaggedDataLine Die Rohdaten.
      */
     public function __construct($TaggedDataLine)
     {
-        $Part = explode(':', $TaggedDataLine); //                
+        $Part = explode(':', $TaggedDataLine); //
         $this->Name = array_shift($Part);
-        if (count($Part) > 1)
+        if (count($Part) > 1) {
             $this->Value = implode(':', $Part);
-        else
+        } else {
             $this->Value = array_shift($Part);
-        if (is_int($this->Value))
+        }
+        if (is_int($this->Value)) {
             $this->Value = (int) $this->Value;
-        else
+        } else {
             $this->Value = (string) $this->Value;
+        }
     }
-
 }
 
 /**
  * Zerlegt einen Array aus getaggten Datensätzen.
- * 
+ *
  * @package       Squeezebox
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2016 Michael Tröger
@@ -547,7 +545,7 @@ class LMSTaggingArray extends stdClass
      *
      * @var array Enthält alle zu dekodierenen Index mit ihren Typenumwandlungen.
      */
-    static $DataFields = array(
+    public static $DataFields = array(
         'Album' => 3, // l
         'Album_id' => 1,
         'Artwork_track_id' => 3, // J
@@ -593,7 +591,7 @@ class LMSTaggingArray extends stdClass
         'Playlist_id' => 1,
         'Repeat' => 0,
 //        'Remote' => 0,
-//        'Remote_title' => 3, //N 
+//        'Remote_title' => 3, //N
 //        'Rating' => 1, // R
         'Shufflemode' => 1,
         'Shuffle' => 1,
@@ -615,7 +613,7 @@ class LMSTaggingArray extends stdClass
 
     /**
      * Erzeugt aus einem Array mit getaggten Daten ein mehrdimensionales Array.
-     * 
+     *
      * @access public
      * @param array $TaggedData Das Array mit allen getaggten Zeilen.
      * @param string $UsedIdIndex Der zu verwendene Index welcher als Trenner zwischen den Objekten fungiert.
@@ -625,59 +623,55 @@ class LMSTaggingArray extends stdClass
     {
         $id = -1;
         $DataArray = array();
-        if (count($TaggedData) > 0)
-        {
+        if (count($TaggedData) > 0) {
             $UseIDs = ((new LMSTaggingData($TaggedData[0]))->Name == 'id') ? true : false;
-            if ($UsedIdIndex === '')
+            if ($UsedIdIndex === '') {
                 $UseIDs = false;
+            }
         }
-        foreach ($TaggedData as $Line)
-        {
+        foreach ($TaggedData as $Line) {
             $Part = new LMSTaggingData($Line);
-            if ($UseIDs)
-            {
-                if ($Part->Name == 'id')
-                {
-                    if (is_int($Part->Value))
+            if ($UseIDs) {
+                if ($Part->Name == 'id') {
+                    if (is_int($Part->Value)) {
                         $id = (int) $Part->Value;
-                    else
+                    } else {
                         $id = rawurldecode($Part->Value);
+                    }
+                    continue;
+                }
+            } else {
+                if ($Part->Name == $UsedIdIndex) {
+                    $id++;
+                }
+            }
+            if ($Filter != '') {
+                if (strpos($Part->Name, $Filter) === false) {
                     continue;
                 }
             }
-            else
-            {
-                if ($Part->Name == $UsedIdIndex)
-                    $id++;
-            }
-            if ($Filter != '')
-                if (strpos($Part->Name, $Filter) === false)
-                    continue;
             $Index = ucfirst($Part->Name);
-            if (!array_key_exists($Index, static::$DataFields))
+            if (!array_key_exists($Index, static::$DataFields)) {
                 continue;
+            }
 
 
-            if (static::$DataFields[$Index] == 0)
+            if (static::$DataFields[$Index] == 0) {
                 $DataArray[$id][$Index] = (bool) ($Part->Value);
-            elseif (static::$DataFields[$Index] == 1)
-            {
-                if (is_int($Part->Value))
+            } elseif (static::$DataFields[$Index] == 1) {
+                if (is_int($Part->Value)) {
                     $DataArray[$id][$Index] = (int) $Part->Value;
-                else
+                } else {
                     $DataArray[$id][$Index] = (string)rawurldecode($Part->Value);
-            }
-            else
+                }
+            } else {
                 $DataArray[$id][$Index] = rawurldecode($Part->Value);
-        }
-        if (isset($DataArray[-1]))
-        {
-            if (count($DataArray) == 1)
-            {
-                $DataArray = $DataArray[-1];
             }
-            else
-            {
+        }
+        if (isset($DataArray[-1])) {
+            if (count($DataArray) == 1) {
+                $DataArray = $DataArray[-1];
+            } else {
                 unset($DataArray[-1]);
             }
         }
@@ -686,7 +680,7 @@ class LMSTaggingArray extends stdClass
 
     /**
      * Liefert das Array mit allen Nutzdaten
-     * 
+     *
      * @access public
      * @return array Das Array mit allen Nutzdaten.
      */
@@ -697,7 +691,7 @@ class LMSTaggingArray extends stdClass
 
     /**
      * Bricht das Array auf einen bestimmte Index runter.
-     * 
+     *
      * @access public
      * @param string $Index Der zu verwendende Index.
      */
@@ -708,7 +702,7 @@ class LMSTaggingArray extends stdClass
 
     /**
      * Callback-Funktion für Compact
-     * 
+     *
      * @access protected
      * @param mixed $Item Das aktuelle Item.
      * @param mixed Der übergeben Index von Item.
@@ -721,7 +715,7 @@ class LMSTaggingArray extends stdClass
 
     /**
      * Liefert die Anzahl der Daten im DataArray.
-     * 
+     *
      * @access public
      * @return int Anzahl der Einträge in DataArray.
      */
@@ -729,12 +723,11 @@ class LMSTaggingArray extends stdClass
     {
         return count($this->DataArray);
     }
-
 }
 
 /**
  * Zerlegt einen Array aus getaggten Datensätzen zu SongInfos
- * 
+ *
  * @package       Squeezebox
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2016 Michael Tröger
@@ -761,7 +754,7 @@ class LMSSongInfo extends stdClass
      * Enthält die Zuordnung zu den Datentypen.
      * @var array
      */
-    static $SongFields = array(
+    public static $SongFields = array(
         'Id' => 1,
         'Title' => 3,
         'Genre' => 3, // g
@@ -778,7 +771,7 @@ class LMSSongInfo extends stdClass
         'Album_id' => 1, // e
         'Artwork_track_id' => 3, // J
         'Samplesize' => 3, // I
-        'Remote_title' => 3, //N 
+        'Remote_title' => 3, //N
         'Genre_id' => 1, //p
         'Artist_id' => 1, //s
         'Year' => 1, // Y
@@ -797,38 +790,38 @@ class LMSSongInfo extends stdClass
         $Songs = array();
         $Duration = 0;
         $Playlist = ((new LMSTaggingData($TaggedData[0]))->Name == 'playlist index') ? true : false;
-        foreach ($TaggedData as $Line)
-        {
+        foreach ($TaggedData as $Line) {
             $Part = new LMSTaggingData($Line);
-            if ($Playlist)
-            {
-                if ($Part->Name == 'playlist index')
-                {
+            if ($Playlist) {
+                if ($Part->Name == 'playlist index') {
                     $id = (int) $Part->Value;
                     continue;
                 }
-            }
-            else
-            {
-                if ($Part->Name == 'id')
+            } else {
+                if ($Part->Name == 'id') {
                     $id++;
+                }
             }
             $Index = ucfirst($Part->Name);
-            if (!array_key_exists($Index, static::$SongFields))
+            if (!array_key_exists($Index, static::$SongFields)) {
                 continue;
+            }
 
 
-            if ($Part->Name == 'duration')
+            if ($Part->Name == 'duration') {
                 $Duration = +intval($Part->Value);
-            if (static::$SongFields[$Index] == 0)
+            }
+            if (static::$SongFields[$Index] == 0) {
                 $Songs[$id][$Index] = (bool) ($Part->Value);
-            elseif (static::$SongFields[$Index] == 1)
+            } elseif (static::$SongFields[$Index] == 1) {
                 $Songs[$id][$Index] = intval($Part->Value);
-            else
+            } else {
                 $Songs[$id][$Index] = rawurldecode($Part->Value);
+            }
         }
-        if ((count($Songs) <> 1 ) and isset($Songs[-1]))
+        if ((count($Songs) <> 1) and isset($Songs[-1])) {
             unset($Songs[-1]);
+        }
         $this->SongArray = $Songs;
         $this->Duration = $Duration;
     }
@@ -868,7 +861,6 @@ class LMSSongInfo extends stdClass
     {
         return count($this->SongArray);
     }
-
 }
 
 /**
@@ -884,21 +876,18 @@ trait LMSSongURL
      */
     protected function GetValidSongURL(&$SongURL)
     {
-        if (!is_string($SongURL))
-        {
+        if (!is_string($SongURL)) {
             trigger_error(sprintf($this->Translate("%s must be string."), "URL"), E_USER_NOTICE);
             return false;
         }
         $valid = strpos($SongURL, '://');
-        if ($valid === false)
-        {
+        if ($valid === false) {
             trigger_error(sprintf($this->Translate("%s not valid."), "URL"), E_USER_NOTICE);
             return false;
         }
         $SongURL = str_replace('\\', '/', $SongURL);
         return true;
     }
-
 }
 
 /**
@@ -914,8 +903,9 @@ trait LMSHTMLTable
     protected function ConvertPlaylistConfig()
     {
         $ID = $this->ReadPropertyInteger('Playlistconfig');
-        if ($ID == 0)
+        if ($ID == 0) {
             return false;
+        }
 
         IPS_SetName($ID, IPS_GetName($ID) . ' (Old used by:' . $this->InstanceID . ')');
         $Style = $this->GenerateHTMLStyleProperty();
@@ -929,7 +919,7 @@ trait LMSHTMLTable
 
     /**
      * Liefert den Header der HTML-Tabelle.
-     * 
+     *
      * @access private
      * @param array $Config Die Kofiguration der Tabelle
      * @return string HTML-String
@@ -981,10 +971,10 @@ sleep(10).then(() => {
 </script>';
         $table .= '<colgroup>' . PHP_EOL;
         $colgroup = array();
-        foreach ($Config_Columns as $Column)
-        {
-            if ($Column['show'] !== true)
+        foreach ($Config_Columns as $Column) {
+            if ($Column['show'] !== true) {
                 continue;
+            }
             $colgroup[$Column['index']] = '<col width="' . $Column['width'] . 'em" />' . PHP_EOL;
         }
         ksort($colgroup);
@@ -992,13 +982,14 @@ sleep(10).then(() => {
         $table .= '<thead style="' . $Config_Table['<thead>'] . '">' . PHP_EOL;
         $table .= '<tr>';
         $th = array();
-        foreach ($Config_Columns as $Column)
-        {
-            if ($Column['show'] !== true)
+        foreach ($Config_Columns as $Column) {
+            if ($Column['show'] !== true) {
                 continue;
+            }
             $ThStyle = array();
-            if ($Column['color'] >= 0)
+            if ($Column['color'] >= 0) {
                 $ThStyle[] = 'color:#' . substr("000000" . dechex($Column['color']), -6);
+            }
             $ThStyle[] = 'text-align:' . $Column['align'];
             $ThStyle[] = $Column['style'];
             $th[$Column['index']] = '<th style="' . implode(';', $ThStyle) . ';">' . $Column['name'] . '</th>';
@@ -1034,36 +1025,38 @@ sleep(10).then(() => {
 
         $HTMLData = $this->GetTableHeader($Config_Table, $Config_Columns);
         $pos = 0;
-        if (count($Data) > 0)
-        {
-            foreach ($Data as $Line)
-            {
+        if (count($Data) > 0) {
+            foreach ($Data as $Line) {
                 $Line['Position'] = $pos + 1;
 
-                if (array_key_exists('Duration', $Line))
+                if (array_key_exists('Duration', $Line)) {
                     $Line['Duration'] = $this->ConvertSeconds($Line['Duration']);
-                else
+                } else {
                     $Line['Duration'] = '---';
+                }
 
                 $Line['Play'] = ($Line['Position'] == $CurrentLine ? '<div class="iconMediumSpinner ipsIconArrowRight" style="width: 100%; background-position: center center;"></div>' : '');
 
                 $LineSecret = rawurlencode(base64_encode(sha1($NewSecret . "0" . $Line[$HookId], true)));
                 $LineIndex = ($Line['Position'] == $CurrentLine ? 'active' : ($pos % 2 ? 'odd' : 'even'));
                 $TrStyle = array();
-                if ($Config_Rows_BgColor[$LineIndex] >= 0)
+                if ($Config_Rows_BgColor[$LineIndex] >= 0) {
                     $TrStyle[] = 'background-color:#' . substr("000000" . dechex($Config_Rows_BgColor[$LineIndex]), -6);
-                if ($Config_Rows_Color[$LineIndex] >= 0)
+                }
+                if ($Config_Rows_Color[$LineIndex] >= 0) {
                     $TrStyle[] = 'color:#' . substr("000000" . dechex($Config_Rows_Color[$LineIndex]), -6);
+                }
                 $TdStyle[] = $Config_Rows_Style[$LineIndex];
                 $HTMLData .= '<tr style="' . implode(';', $TrStyle) . ';" onclick="eval(document.getElementById(\'script'.$this->InstanceID.'\').innerHTML.toString()); window.xhrGet' . $this->InstanceID . '({ url: \'hook/' . $HookPrefix . $this->InstanceID . '?Type=' . $HookType . '&ID=' . ($HookId == 'Url' ? rawurlencode($Line[$HookId]) : $Line[$HookId]) . '&Secret=' . $LineSecret . '\' });">';
 
                 $td = array();
-                foreach ($Config_Columns as $Column)
-                {
-                    if ($Column['show'] !== true)
+                foreach ($Config_Columns as $Column) {
+                    if ($Column['show'] !== true) {
                         continue;
-                    if (!array_key_exists($Column['key'], $Line))
+                    }
+                    if (!array_key_exists($Column['key'], $Line)) {
                         $Line[$Column['key']] = '';
+                    }
                     $TdStyle = array();
                     $TdStyle[] = 'text-align:' . $Column['align'];
                     $TdStyle[] = $Column['style'];
@@ -1082,7 +1075,7 @@ sleep(10).then(() => {
 
     /**
      * Liefert den Footer der HTML-Tabelle.
-     * 
+     *
      * @access private
      * @return string HTML-String
      */
@@ -1092,7 +1085,6 @@ sleep(10).then(() => {
         $table .= '</table>' . PHP_EOL;
         return $table;
     }
-
 }
 
 /**
@@ -1120,18 +1112,17 @@ trait LMSCover
             "Timeout" => 5000
         );
 
-        if ($Host === "")
+        if ($Host === "") {
             return false;
+        }
 
         $Host .= ":" . $Webport;
-        if ($Player <> "")
-        {
+        if ($Player <> "") {
             $Player = "?player=" . rawurlencode($Player);
             $CoverID = "current";
         }
         return @Sys_GetURLContentEx("http://" . $Host . "/music/" . $CoverID . "/" . $Size . ".png" . $Player, $Login);
     }
-
 }
 
 /**
@@ -1142,26 +1133,21 @@ trait UTF8Coder
 
     /**
      * Führt eine UTF8-Dekodierung für einen String oder ein Objekt durch (rekursiv)
-     * 
+     *
      * @access protected
      * @param string|object $item Zu dekodierene Daten.
      * @return string|object Dekodierte Daten.
      */
     protected function DecodeUTF8($item)
     {
-        if (is_string($item))
+        if (is_string($item)) {
             $item = utf8_decode($item);
-        else if (is_object($item))
-        {
-            foreach ($item as $property => $value)
-            {
+        } elseif (is_object($item)) {
+            foreach ($item as $property => $value) {
                 $item->{$property} = $this->DecodeUTF8($value);
             }
-        }
-        else if (is_array($item))
-        {
-            foreach ($item as $property => $value)
-            {
+        } elseif (is_array($item)) {
+            foreach ($item as $property => $value) {
                 $item[$property] = $this->DecodeUTF8($value);
             }
         }
@@ -1171,32 +1157,26 @@ trait UTF8Coder
 
     /**
      * Führt eine UTF8-Enkodierung für einen String oder ein Objekt durch (rekursiv)
-     * 
+     *
      * @access protected
      * @param string|object $item Zu Enkodierene Daten.
      * @return string|object Enkodierte Daten.
      */
     protected function EncodeUTF8($item)
     {
-        if (is_string($item))
+        if (is_string($item)) {
             $item = utf8_encode($item);
-        else if (is_object($item))
-        {
-            foreach ($item as $property => $value)
-            {
+        } elseif (is_object($item)) {
+            foreach ($item as $property => $value) {
                 $item->{$property} = $this->EncodeUTF8($value);
             }
-        }
-        else if (is_array($item))
-        {
-            foreach ($item as $property => $value)
-            {
+        } elseif (is_array($item)) {
+            foreach ($item as $property => $value) {
                 $item[$property] = $this->EncodeUTF8($value);
             }
         }
         return $item;
     }
-
 }
 
 /** @} */

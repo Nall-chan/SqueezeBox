@@ -114,7 +114,7 @@ class Crypt_RC2 extends Crypt_Base
      * @var int
      * @access private
      */
-    var $block_size = 8;
+    public $block_size = 8;
 
     /**
      * The Key
@@ -124,7 +124,7 @@ class Crypt_RC2 extends Crypt_Base
      * @var string
      * @access private
      */
-    var $key;
+    public $key;
 
     /**
      * The Original (unpadded) Key
@@ -136,7 +136,7 @@ class Crypt_RC2 extends Crypt_Base
      * @var string
      * @access private
      */
-    var $orig_key;
+    public $orig_key;
 
     /**
      * Don't truncate / null pad key
@@ -145,7 +145,7 @@ class Crypt_RC2 extends Crypt_Base
      * @var bool
      * @access private
      */
-    var $skip_key_adjustment = true;
+    public $skip_key_adjustment = true;
 
     /**
      * Key Length (in bytes)
@@ -154,7 +154,7 @@ class Crypt_RC2 extends Crypt_Base
      * @var int
      * @access private
      */
-    var $key_length = 16; // = 128 bits
+    public $key_length = 16; // = 128 bits
 
     /**
      * The namespace used by the cipher for its constants.
@@ -163,7 +163,7 @@ class Crypt_RC2 extends Crypt_Base
      * @var string
      * @access private
      */
-    var $const_namespace = 'RC2';
+    public $const_namespace = 'RC2';
 
     /**
      * The mcrypt specific name of the cipher
@@ -172,7 +172,7 @@ class Crypt_RC2 extends Crypt_Base
      * @var string
      * @access private
      */
-    var $cipher_name_mcrypt = 'rc2';
+    public $cipher_name_mcrypt = 'rc2';
 
     /**
      * Optimizing value while CFB-encrypting
@@ -181,7 +181,7 @@ class Crypt_RC2 extends Crypt_Base
      * @var int
      * @access private
      */
-    var $cfb_init_len = 500;
+    public $cfb_init_len = 500;
 
     /**
      * The key length in bits.
@@ -193,7 +193,7 @@ class Crypt_RC2 extends Crypt_Base
      * @internal Should be in range [1..1024].
      * @internal Changing this value after setting the key has no effect.
      */
-    var $default_key_length = 1024;
+    public $default_key_length = 1024;
 
     /**
      * The key length in bits.
@@ -204,7 +204,7 @@ class Crypt_RC2 extends Crypt_Base
      * @access private
      * @internal Should be in range [1..1024].
      */
-    var $current_key_length;
+    public $current_key_length;
 
     /**
      * The Key Schedule
@@ -213,7 +213,7 @@ class Crypt_RC2 extends Crypt_Base
      * @var array
      * @access private
      */
-    var $keys;
+    public $keys;
 
     /**
      * Key expansion randomization table.
@@ -223,7 +223,7 @@ class Crypt_RC2 extends Crypt_Base
      * @var array
      * @access private
      */
-    var $pitable = array(
+    public $pitable = array(
         0xD9, 0x78, 0xF9, 0xC4, 0x19, 0xDD, 0xB5, 0xED,
         0x28, 0xE9, 0xFD, 0x79, 0x4A, 0xA0, 0xD8, 0x9D,
         0xC6, 0x7E, 0x37, 0x83, 0x2B, 0x76, 0x53, 0x8E,
@@ -297,7 +297,7 @@ class Crypt_RC2 extends Crypt_Base
      * @var array
      * @access private
      */
-    var $invpitable = array(
+    public $invpitable = array(
         0xD1, 0xDA, 0xB9, 0x6F, 0x9C, 0xC8, 0x78, 0x66,
         0x80, 0x2C, 0xF8, 0x37, 0xEA, 0xE0, 0x62, 0xA4,
         0xCB, 0x71, 0x50, 0x27, 0x4B, 0x95, 0xD9, 0x20,
@@ -342,7 +342,7 @@ class Crypt_RC2 extends Crypt_Base
      * @access public
      * @return bool
      */
-    function isValidEngine($engine)
+    public function isValidEngine($engine)
     {
         switch ($engine) {
             case CRYPT_ENGINE_OPENSSL:
@@ -366,7 +366,7 @@ class Crypt_RC2 extends Crypt_Base
      * @access public
      * @param int $length in bits
      */
-    function setKeyLength($length)
+    public function setKeyLength($length)
     {
         if ($length < 8) {
             $this->default_key_length = 8;
@@ -386,7 +386,7 @@ class Crypt_RC2 extends Crypt_Base
      * @access public
      * @return int
      */
-    function getKeyLength()
+    public function getKeyLength()
     {
         return $this->current_key_length;
     }
@@ -407,7 +407,7 @@ class Crypt_RC2 extends Crypt_Base
      * @param string $key
      * @param int $t1 optional Effective key length in bits.
      */
-    function setKey($key, $t1 = 0)
+    public function setKey($key, $t1 = 0)
     {
         $this->orig_key = $key;
 
@@ -460,7 +460,7 @@ class Crypt_RC2 extends Crypt_Base
      * @param string $plaintext
      * @return string $ciphertext
      */
-    function encrypt($plaintext)
+    public function encrypt($plaintext)
     {
         if ($this->engine == CRYPT_ENGINE_OPENSSL) {
             $temp = $this->key;
@@ -483,7 +483,7 @@ class Crypt_RC2 extends Crypt_Base
      * @param string $ciphertext
      * @return string $plaintext
      */
-    function decrypt($ciphertext)
+    public function decrypt($ciphertext)
     {
         if ($this->engine == CRYPT_ENGINE_OPENSSL) {
             $temp = $this->key;
@@ -505,7 +505,7 @@ class Crypt_RC2 extends Crypt_Base
      * @param string $in
      * @return string
      */
-    function _encryptBlock($in)
+    public function _encryptBlock($in)
     {
         list($r0, $r1, $r2, $r3) = array_values(unpack('v*', $in));
         $keys = $this->keys;
@@ -550,7 +550,7 @@ class Crypt_RC2 extends Crypt_Base
      * @param string $in
      * @return string
      */
-    function _decryptBlock($in)
+    public function _decryptBlock($in)
     {
         list($r0, $r1, $r2, $r3) = array_values(unpack('v*', $in));
         $keys = $this->keys;
@@ -592,7 +592,7 @@ class Crypt_RC2 extends Crypt_Base
      * @see Crypt_Base::_setupMcrypt()
      * @access private
      */
-    function _setupMcrypt()
+    public function _setupMcrypt()
     {
         if (!isset($this->key)) {
             $this->setKey('');
@@ -607,7 +607,7 @@ class Crypt_RC2 extends Crypt_Base
      * @see Crypt_Base::_setupKey()
      * @access private
      */
-    function _setupKey()
+    public function _setupKey()
     {
         if (!isset($this->key)) {
             $this->setKey('');
@@ -628,7 +628,7 @@ class Crypt_RC2 extends Crypt_Base
      * @see Crypt_Base::_setupInlineCrypt()
      * @access private
      */
-    function _setupInlineCrypt()
+    public function _setupInlineCrypt()
     {
         $lambda_functions = &Crypt_RC2::_getLambdaFunctions();
 

@@ -60,7 +60,7 @@ define('NET_SCP_LOCAL_FILE', 1);
 /**
  * Reads data from a string.
  */
-define('NET_SCP_STRING',  2);
+define('NET_SCP_STRING', 2);
 /**#@-*/
 
 /**#@+
@@ -75,7 +75,7 @@ define('NET_SCP_SSH1', 1);
 /**
  * SSH2 is being used.
  */
-define('NET_SCP_SSH2',  2);
+define('NET_SCP_SSH2', 2);
 /**#@-*/
 
 /**
@@ -93,7 +93,7 @@ class Net_SCP
      * @var object
      * @access private
      */
-    var $ssh;
+    public $ssh;
 
     /**
      * Packet Size
@@ -101,7 +101,7 @@ class Net_SCP
      * @var int
      * @access private
      */
-    var $packet_size;
+    public $packet_size;
 
     /**
      * Mode
@@ -109,7 +109,7 @@ class Net_SCP
      * @var int
      * @access private
      */
-    var $mode;
+    public $mode;
 
     /**
      * Default Constructor.
@@ -120,7 +120,7 @@ class Net_SCP
      * @return Net_SCP
      * @access public
      */
-    function __construct($ssh)
+    public function __construct($ssh)
     {
         if (!is_object($ssh)) {
             return;
@@ -148,7 +148,7 @@ class Net_SCP
      * @param Net_SSH1|Net_SSH2 $ssh
      * @access public
      */
-    function Net_SCP($ssh)
+    public function Net_SCP($ssh)
     {
         $this->__construct($ssh);
     }
@@ -174,7 +174,7 @@ class Net_SCP
      * @return bool
      * @access public
      */
-    function put($remote_file, $data, $mode = NET_SCP_STRING, $callback = null)
+    public function put($remote_file, $data, $mode = NET_SCP_STRING, $callback = null)
     {
         if (!isset($this->ssh)) {
             return false;
@@ -248,7 +248,7 @@ class Net_SCP
      * @return mixed
      * @access public
      */
-    function get($remote_file, $local_file = false)
+    public function get($remote_file, $local_file = false)
     {
         if (!isset($this->ssh)) {
             return false;
@@ -304,7 +304,7 @@ class Net_SCP
      * @param string $data
      * @access private
      */
-    function _send($data)
+    public function _send($data)
     {
         switch ($this->mode) {
             case NET_SCP_SSH2:
@@ -322,7 +322,7 @@ class Net_SCP
      * @return string
      * @access private
      */
-    function _receive()
+    public function _receive()
     {
         switch ($this->mode) {
             case NET_SCP_SSH2:
@@ -360,7 +360,7 @@ class Net_SCP
      *
      * @access private
      */
-    function _close()
+    public function _close()
     {
         switch ($this->mode) {
             case NET_SCP_SSH2:

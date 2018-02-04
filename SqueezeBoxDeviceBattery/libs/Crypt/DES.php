@@ -137,7 +137,7 @@ class Crypt_DES extends Crypt_Base
      * @var int
      * @access private
      */
-    var $block_size = 8;
+    public $block_size = 8;
 
     /**
      * Key Length (in bytes)
@@ -146,7 +146,7 @@ class Crypt_DES extends Crypt_Base
      * @var int
      * @access private
      */
-    var $key_length = 8;
+    public $key_length = 8;
 
     /**
      * The namespace used by the cipher for its constants.
@@ -155,7 +155,7 @@ class Crypt_DES extends Crypt_Base
      * @var string
      * @access private
      */
-    var $const_namespace = 'DES';
+    public $const_namespace = 'DES';
 
     /**
      * The mcrypt specific name of the cipher
@@ -164,7 +164,7 @@ class Crypt_DES extends Crypt_Base
      * @var string
      * @access private
      */
-    var $cipher_name_mcrypt = 'des';
+    public $cipher_name_mcrypt = 'des';
 
     /**
      * The OpenSSL names of the cipher / modes
@@ -173,7 +173,7 @@ class Crypt_DES extends Crypt_Base
      * @var array
      * @access private
      */
-    var $openssl_mode_names = array(
+    public $openssl_mode_names = array(
         CRYPT_MODE_ECB => 'des-ecb',
         CRYPT_MODE_CBC => 'des-cbc',
         CRYPT_MODE_CFB => 'des-cfb',
@@ -188,7 +188,7 @@ class Crypt_DES extends Crypt_Base
      * @var int
      * @access private
      */
-    var $cfb_init_len = 500;
+    public $cfb_init_len = 500;
 
     /**
      * Switch for DES/3DES encryption
@@ -200,7 +200,7 @@ class Crypt_DES extends Crypt_Base
      * @var int
      * @access private
      */
-    var $des_rounds = 1;
+    public $des_rounds = 1;
 
     /**
      * max possible size of $key
@@ -209,7 +209,7 @@ class Crypt_DES extends Crypt_Base
      * @var string
      * @access private
      */
-    var $key_length_max = 8;
+    public $key_length_max = 8;
 
     /**
      * The Key Schedule
@@ -218,7 +218,7 @@ class Crypt_DES extends Crypt_Base
      * @var array
      * @access private
      */
-    var $keys;
+    public $keys;
 
     /**
      * Shuffle table.
@@ -232,7 +232,7 @@ class Crypt_DES extends Crypt_Base
      * @var array
      * @access private
      */
-    var $shuffle = array(
+    public $shuffle = array(
         "\x00\x00\x00\x00\x00\x00\x00\x00", "\x00\x00\x00\x00\x00\x00\x00\xFF",
         "\x00\x00\x00\x00\x00\x00\xFF\x00", "\x00\x00\x00\x00\x00\x00\xFF\xFF",
         "\x00\x00\x00\x00\x00\xFF\x00\x00", "\x00\x00\x00\x00\x00\xFF\x00\xFF",
@@ -371,7 +371,7 @@ class Crypt_DES extends Crypt_Base
      * @var array
      * @access private
      */
-    var $ipmap = array(
+    public $ipmap = array(
         0x00, 0x10, 0x01, 0x11, 0x20, 0x30, 0x21, 0x31,
         0x02, 0x12, 0x03, 0x13, 0x22, 0x32, 0x23, 0x33,
         0x40, 0x50, 0x41, 0x51, 0x60, 0x70, 0x61, 0x71,
@@ -413,7 +413,7 @@ class Crypt_DES extends Crypt_Base
      * @var array
      * @access private
      */
-    var $invipmap = array(
+    public $invipmap = array(
         0x00, 0x80, 0x40, 0xC0, 0x20, 0xA0, 0x60, 0xE0,
         0x10, 0x90, 0x50, 0xD0, 0x30, 0xB0, 0x70, 0xF0,
         0x08, 0x88, 0x48, 0xC8, 0x28, 0xA8, 0x68, 0xE8,
@@ -457,7 +457,7 @@ class Crypt_DES extends Crypt_Base
      * @var array
      * @access private
      */
-    var $sbox1 = array(
+    public $sbox1 = array(
         0x00808200, 0x00000000, 0x00008000, 0x00808202,
         0x00808002, 0x00008202, 0x00000002, 0x00008000,
         0x00000200, 0x00808200, 0x00808202, 0x00000200,
@@ -482,7 +482,7 @@ class Crypt_DES extends Crypt_Base
      * @var array
      * @access private
      */
-    var $sbox2 = array(
+    public $sbox2 = array(
         0x40084010, 0x40004000, 0x00004000, 0x00084010,
         0x00080000, 0x00000010, 0x40080010, 0x40004010,
         0x40000010, 0x40084010, 0x40084000, 0x40000000,
@@ -507,7 +507,7 @@ class Crypt_DES extends Crypt_Base
      * @var array
      * @access private
      */
-    var $sbox3 = array(
+    public $sbox3 = array(
         0x00000104, 0x04010100, 0x00000000, 0x04010004,
         0x04000100, 0x00000000, 0x00010104, 0x04000100,
         0x00010004, 0x04000004, 0x04000004, 0x00010000,
@@ -532,7 +532,7 @@ class Crypt_DES extends Crypt_Base
      * @var array
      * @access private
      */
-    var $sbox4 = array(
+    public $sbox4 = array(
         0x80401000, 0x80001040, 0x80001040, 0x00000040,
         0x00401040, 0x80400040, 0x80400000, 0x80001000,
         0x00000000, 0x00401000, 0x00401000, 0x80401040,
@@ -557,7 +557,7 @@ class Crypt_DES extends Crypt_Base
      * @var array
      * @access private
      */
-    var $sbox5 = array(
+    public $sbox5 = array(
         0x00000080, 0x01040080, 0x01040000, 0x21000080,
         0x00040000, 0x00000080, 0x20000000, 0x01040000,
         0x20040080, 0x00040000, 0x01000080, 0x20040080,
@@ -582,7 +582,7 @@ class Crypt_DES extends Crypt_Base
      * @var array
      * @access private
      */
-    var $sbox6 = array(
+    public $sbox6 = array(
         0x10000008, 0x10200000, 0x00002000, 0x10202008,
         0x10200000, 0x00000008, 0x10202008, 0x00200000,
         0x10002000, 0x00202008, 0x00200000, 0x10000008,
@@ -607,7 +607,7 @@ class Crypt_DES extends Crypt_Base
      * @var array
      * @access private
      */
-    var $sbox7 = array(
+    public $sbox7 = array(
         0x00100000, 0x02100001, 0x02000401, 0x00000000,
         0x00000400, 0x02000401, 0x00100401, 0x02100400,
         0x02100401, 0x00100000, 0x00000000, 0x02000001,
@@ -632,7 +632,7 @@ class Crypt_DES extends Crypt_Base
      * @var array
      * @access private
      */
-    var $sbox8 = array(
+    public $sbox8 = array(
         0x08000820, 0x00000800, 0x00020000, 0x08020820,
         0x08000000, 0x08000820, 0x00000020, 0x08000000,
         0x00020020, 0x08020000, 0x08020820, 0x00020800,
@@ -661,7 +661,7 @@ class Crypt_DES extends Crypt_Base
      * @access public
      * @return bool
      */
-    function isValidEngine($engine)
+    public function isValidEngine($engine)
     {
         if ($this->key_length_max == 8) {
             if ($engine == CRYPT_ENGINE_OPENSSL) {
@@ -688,7 +688,7 @@ class Crypt_DES extends Crypt_Base
      * @access public
      * @param string $key
      */
-    function setKey($key)
+    public function setKey($key)
     {
         // We check/cut here only up to max length of the key.
         // Key padding to the proper length will be done in _setupKey()
@@ -710,7 +710,7 @@ class Crypt_DES extends Crypt_Base
      * @param string $in
      * @return string
      */
-    function _encryptBlock($in)
+    public function _encryptBlock($in)
     {
         return $this->_processBlock($in, CRYPT_DES_ENCRYPT);
     }
@@ -725,7 +725,7 @@ class Crypt_DES extends Crypt_Base
      * @param string $in
      * @return string
      */
-    function _decryptBlock($in)
+    public function _decryptBlock($in)
     {
         return $this->_processBlock($in, CRYPT_DES_DECRYPT);
     }
@@ -744,7 +744,7 @@ class Crypt_DES extends Crypt_Base
      * @param int $mode
      * @return string
      */
-    function _processBlock($block, $mode)
+    public function _processBlock($block, $mode)
     {
         static $sbox1, $sbox2, $sbox3, $sbox4, $sbox5, $sbox6, $sbox7, $sbox8, $shuffleip, $shuffleinvip;
         if (!$sbox1) {
@@ -825,7 +825,7 @@ class Crypt_DES extends Crypt_Base
      * @see Crypt_Base::_setupKey()
      * @access private
      */
-    function _setupKey()
+    public function _setupKey()
     {
         if (isset($this->kl['key']) && $this->key === $this->kl['key'] && $this->des_rounds === $this->kl['des_rounds']) {
             // already expanded
@@ -1299,7 +1299,7 @@ class Crypt_DES extends Crypt_Base
                    ($this->shuffle[$pc1map[($l >> 16) & 0xFF]] & "\x02\x02\x02\x02\x02\x02\x02\x00") |
                    ($this->shuffle[$pc1map[($l >> 24) & 0xFF]] & "\x01\x01\x01\x01\x01\x01\x01\x00");
             $key = unpack('Nc/Nd', $key);
-            $c = ( $key['c'] >> 4) & 0x0FFFFFFF;
+            $c = ($key['c'] >> 4) & 0x0FFFFFFF;
             $d = (($key['d'] >> 4) & 0x0FFFFFF0) | ($key['c'] & 0x0F);
 
             $keys[$des_round] = array(
@@ -1319,10 +1319,10 @@ class Crypt_DES extends Crypt_Base
                       $pc2mapd3[($d >>  8) & 0xFF] | $pc2mapd4[ $d        & 0xFF];
 
                 // Reorder: odd bytes/even bytes. Push the result in key schedule.
-                $val1 = ( $cp        & 0xFF000000) | (($cp <<  8) & 0x00FF0000) |
+                $val1 = ($cp        & 0xFF000000) | (($cp <<  8) & 0x00FF0000) |
                         (($dp >> 16) & 0x0000FF00) | (($dp >>  8) & 0x000000FF);
                 $val2 = (($cp <<  8) & 0xFF000000) | (($cp << 16) & 0x00FF0000) |
-                        (($dp >>  8) & 0x0000FF00) | ( $dp        & 0x000000FF);
+                        (($dp >>  8) & 0x0000FF00) | ($dp        & 0x000000FF);
                 $keys[$des_round][CRYPT_DES_ENCRYPT][       ] = $val1;
                 $keys[$des_round][CRYPT_DES_DECRYPT][$ki - 1] = $val1;
                 $keys[$des_round][CRYPT_DES_ENCRYPT][       ] = $val2;
@@ -1360,7 +1360,7 @@ class Crypt_DES extends Crypt_Base
      * @see Crypt_Base::_setupInlineCrypt()
      * @access private
      */
-    function _setupInlineCrypt()
+    public function _setupInlineCrypt()
     {
         $lambda_functions =& Crypt_DES::_getLambdaFunctions();
 
@@ -1373,7 +1373,7 @@ class Crypt_DES extends Crypt_Base
         // (Currently, for Crypt_DES,       one generated $lambda_function cost on php5.5@32bit ~135kb unfreeable mem and ~230kb on php5.5@64bit)
         // (Currently, for Crypt_TripleDES, one generated $lambda_function cost on php5.5@32bit ~240kb unfreeable mem and ~340kb on php5.5@64bit)
         // After that, we'll still create very fast optimized code but not the hi-ultimative code, for each $mode one
-        $gen_hi_opt_code = (bool)( count($lambda_functions) < 10 );
+        $gen_hi_opt_code = (bool)(count($lambda_functions) < 10);
 
         // Generation of a unique hash for our generated code
         $code_hash = "Crypt_DES, $des_rounds, {$this->mode}";

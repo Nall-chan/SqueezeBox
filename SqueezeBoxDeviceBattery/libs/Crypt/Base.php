@@ -131,7 +131,7 @@ class Crypt_Base
      * @var int
      * @access private
      */
-    var $mode;
+    public $mode;
 
     /**
      * The Block Length of the block cipher
@@ -139,7 +139,7 @@ class Crypt_Base
      * @var int
      * @access private
      */
-    var $block_size = 16;
+    public $block_size = 16;
 
     /**
      * The Key
@@ -148,7 +148,7 @@ class Crypt_Base
      * @var string
      * @access private
      */
-    var $key = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+    public $key = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
 
     /**
      * The Initialization Vector
@@ -157,7 +157,7 @@ class Crypt_Base
      * @var string
      * @access private
      */
-    var $iv;
+    public $iv;
 
     /**
      * A "sliding" Initialization Vector
@@ -167,7 +167,7 @@ class Crypt_Base
      * @var string
      * @access private
      */
-    var $encryptIV;
+    public $encryptIV;
 
     /**
      * A "sliding" Initialization Vector
@@ -177,7 +177,7 @@ class Crypt_Base
      * @var string
      * @access private
      */
-    var $decryptIV;
+    public $decryptIV;
 
     /**
      * Continuous Buffer status
@@ -186,7 +186,7 @@ class Crypt_Base
      * @var bool
      * @access private
      */
-    var $continuousBuffer = false;
+    public $continuousBuffer = false;
 
     /**
      * Encryption buffer for CTR, OFB and CFB modes
@@ -196,7 +196,7 @@ class Crypt_Base
      * @var array
      * @access private
      */
-    var $enbuffer;
+    public $enbuffer;
 
     /**
      * Decryption buffer for CTR, OFB and CFB modes
@@ -206,7 +206,7 @@ class Crypt_Base
      * @var array
      * @access private
      */
-    var $debuffer;
+    public $debuffer;
 
     /**
      * mcrypt resource for encryption
@@ -218,7 +218,7 @@ class Crypt_Base
      * @var resource
      * @access private
      */
-    var $enmcrypt;
+    public $enmcrypt;
 
     /**
      * mcrypt resource for decryption
@@ -230,7 +230,7 @@ class Crypt_Base
      * @var resource
      * @access private
      */
-    var $demcrypt;
+    public $demcrypt;
 
     /**
      * Does the enmcrypt resource need to be (re)initialized?
@@ -240,7 +240,7 @@ class Crypt_Base
      * @var bool
      * @access private
      */
-    var $enchanged = true;
+    public $enchanged = true;
 
     /**
      * Does the demcrypt resource need to be (re)initialized?
@@ -250,7 +250,7 @@ class Crypt_Base
      * @var bool
      * @access private
      */
-    var $dechanged = true;
+    public $dechanged = true;
 
     /**
      * mcrypt resource for CFB mode
@@ -269,7 +269,7 @@ class Crypt_Base
      * @var resource
      * @access private
      */
-    var $ecb;
+    public $ecb;
 
     /**
      * Optimizing value while CFB-encrypting
@@ -291,7 +291,7 @@ class Crypt_Base
      * @var int
      * @access private
      */
-    var $cfb_init_len = 600;
+    public $cfb_init_len = 600;
 
     /**
      * Does internal cipher state need to be (re)initialized?
@@ -302,7 +302,7 @@ class Crypt_Base
      * @var bool
      * @access private
      */
-    var $changed = true;
+    public $changed = true;
 
     /**
      * Padding status
@@ -311,7 +311,7 @@ class Crypt_Base
      * @var bool
      * @access private
      */
-    var $padding = true;
+    public $padding = true;
 
     /**
      * Is the mode one that is paddable?
@@ -320,7 +320,7 @@ class Crypt_Base
      * @var bool
      * @access private
      */
-    var $paddable = false;
+    public $paddable = false;
 
     /**
      * Holds which crypt engine internaly should be use,
@@ -337,7 +337,7 @@ class Crypt_Base
      * @var int
      * @access private
      */
-    var $engine;
+    public $engine;
 
     /**
      * Holds the preferred crypt engine
@@ -347,7 +347,7 @@ class Crypt_Base
      * @var int
      * @access private
      */
-    var $preferredEngine;
+    public $preferredEngine;
 
     /**
      * The mcrypt specific name of the cipher
@@ -360,7 +360,7 @@ class Crypt_Base
      * @var string
      * @access private
      */
-    var $cipher_name_mcrypt;
+    public $cipher_name_mcrypt;
 
     /**
      * The openssl specific name of the cipher
@@ -371,7 +371,7 @@ class Crypt_Base
      * @var string
      * @access private
      */
-    var $cipher_name_openssl;
+    public $cipher_name_openssl;
 
     /**
      * The openssl specific name of the cipher in ECB mode
@@ -383,7 +383,7 @@ class Crypt_Base
      * @var string
      * @access private
      */
-    var $cipher_name_openssl_ecb;
+    public $cipher_name_openssl_ecb;
 
     /**
      * The default salt used by setPassword()
@@ -392,7 +392,7 @@ class Crypt_Base
      * @var string
      * @access private
      */
-    var $password_default_salt = 'phpseclib/salt';
+    public $password_default_salt = 'phpseclib/salt';
 
     /**
      * The namespace used by the cipher for its constants.
@@ -415,7 +415,7 @@ class Crypt_Base
      * @var string
      * @access private
      */
-    var $const_namespace;
+    public $const_namespace;
 
     /**
      * The name of the performance-optimized callback function
@@ -430,7 +430,7 @@ class Crypt_Base
      * @var Callback
      * @access private
      */
-    var $inline_crypt;
+    public $inline_crypt;
 
     /**
      * Holds whether performance-optimized $inline_crypt() can/should be used.
@@ -441,7 +441,7 @@ class Crypt_Base
      * @var mixed
      * @access private
      */
-    var $use_inline_crypt;
+    public $use_inline_crypt;
 
     /**
      * If OpenSSL can be used in ECB but not in CTR we can emulate CTR
@@ -450,7 +450,7 @@ class Crypt_Base
      * @var bool
      * @access private
      */
-    var $openssl_emulate_ctr = false;
+    public $openssl_emulate_ctr = false;
 
     /**
      * Determines what options are passed to openssl_encrypt/decrypt
@@ -459,7 +459,7 @@ class Crypt_Base
      * @var mixed
      * @access private
      */
-    var $openssl_options;
+    public $openssl_options;
 
     /**
      * Has the key length explicitly been set or should it be derived from the key, itself?
@@ -468,7 +468,7 @@ class Crypt_Base
      * @var bool
      * @access private
      */
-    var $explicit_key_length = false;
+    public $explicit_key_length = false;
 
     /**
      * Don't truncate / null pad key
@@ -477,7 +477,7 @@ class Crypt_Base
      * @var bool
      * @access private
      */
-    var $skip_key_adjustment = false;
+    public $skip_key_adjustment = false;
 
     /**
      * Default Constructor.
@@ -503,7 +503,7 @@ class Crypt_Base
      * @param int $mode
      * @access public
      */
-    function __construct($mode = CRYPT_MODE_CBC)
+    public function __construct($mode = CRYPT_MODE_CBC)
     {
         // $mode dependent settings
         switch ($mode) {
@@ -538,7 +538,7 @@ class Crypt_Base
      * @param int $mode
      * @access public
      */
-    function Crypt_Base($mode = CRYPT_MODE_CBC)
+    public function Crypt_Base($mode = CRYPT_MODE_CBC)
     {
         $this->__construct($mode);
     }
@@ -553,7 +553,7 @@ class Crypt_Base
      * @param string $iv
      * @internal Can be overwritten by a sub class, but does not have to be
      */
-    function setIV($iv)
+    public function setIV($iv)
     {
         if ($this->mode == CRYPT_MODE_ECB) {
             return;
@@ -571,7 +571,7 @@ class Crypt_Base
      * @access public
      * @param int $length
      */
-    function setKeyLength($length)
+    public function setKeyLength($length)
     {
         $this->explicit_key_length = true;
         $this->changed = true;
@@ -584,7 +584,7 @@ class Crypt_Base
      * @access public
      * @return int
      */
-    function getKeyLength()
+    public function getKeyLength()
     {
         return $this->key_length << 3;
     }
@@ -595,7 +595,7 @@ class Crypt_Base
      * @access public
      * @return int
      */
-    function getBlockLength()
+    public function getBlockLength()
     {
         return $this->block_size << 3;
     }
@@ -614,7 +614,7 @@ class Crypt_Base
      * @param string $key
      * @internal Could, but not must, extend by the child Crypt_* class
      */
-    function setKey($key)
+    public function setKey($key)
     {
         if (!$this->explicit_key_length) {
             $this->setKeyLength(strlen($key) << 3);
@@ -642,7 +642,7 @@ class Crypt_Base
      * @access public
      * @internal Could, but not must, extend by the child Crypt_* class
      */
-    function setPassword($password, $method = 'pbkdf2')
+    public function setPassword($password, $method = 'pbkdf2')
     {
         $key = '';
 
@@ -739,7 +739,7 @@ class Crypt_Base
      * @return string $ciphertext
      * @internal Could, but not must, extend by the child Crypt_* class
      */
-    function encrypt($plaintext)
+    public function encrypt($plaintext)
     {
         if ($this->paddable) {
             $plaintext = $this->_pad($plaintext);
@@ -1040,7 +1040,7 @@ class Crypt_Base
      * @return string $plaintext
      * @internal Could, but not must, extend by the child Crypt_* class
      */
-    function decrypt($ciphertext)
+    public function decrypt($ciphertext)
     {
         if ($this->paddable) {
             // we pad with chr(0) since that's what mcrypt_generic does.  to quote from {@link http://www.php.net/function.mcrypt-generic}:
@@ -1336,7 +1336,7 @@ class Crypt_Base
      * @return string
      * @access private
      */
-    function _openssl_ctr_process($plaintext, &$encryptIV, &$buffer)
+    public function _openssl_ctr_process($plaintext, &$encryptIV, &$buffer)
     {
         $ciphertext = '';
 
@@ -1430,7 +1430,7 @@ class Crypt_Base
      * @return string
      * @access private
      */
-    function _openssl_ofb_process($plaintext, &$encryptIV, &$buffer)
+    public function _openssl_ofb_process($plaintext, &$encryptIV, &$buffer)
     {
         if (strlen($buffer['xor'])) {
             $ciphertext = $plaintext ^ $buffer['xor'];
@@ -1476,7 +1476,7 @@ class Crypt_Base
      * @return int
      * @access private
      */
-    function _openssl_translate_mode()
+    public function _openssl_translate_mode()
     {
         switch ($this->mode) {
             case CRYPT_MODE_ECB:
@@ -1507,7 +1507,7 @@ class Crypt_Base
      * @see self::disablePadding()
      * @access public
      */
-    function enablePadding()
+    public function enablePadding()
     {
         $this->padding = true;
     }
@@ -1518,7 +1518,7 @@ class Crypt_Base
      * @see self::enablePadding()
      * @access public
      */
-    function disablePadding()
+    public function disablePadding()
     {
         $this->padding = false;
     }
@@ -1561,7 +1561,7 @@ class Crypt_Base
      * @access public
      * @internal Could, but not must, extend by the child Crypt_* class
      */
-    function enableContinuousBuffer()
+    public function enableContinuousBuffer()
     {
         if ($this->mode == CRYPT_MODE_ECB) {
             return;
@@ -1581,7 +1581,7 @@ class Crypt_Base
      * @access public
      * @internal Could, but not must, extend by the child Crypt_* class
      */
-    function disableContinuousBuffer()
+    public function disableContinuousBuffer()
     {
         if ($this->mode == CRYPT_MODE_ECB) {
             return;
@@ -1604,7 +1604,7 @@ class Crypt_Base
      * @access public
      * @return bool
      */
-    function isValidEngine($engine)
+    public function isValidEngine($engine)
     {
         switch ($engine) {
             case CRYPT_ENGINE_OPENSSL:
@@ -1670,7 +1670,7 @@ class Crypt_Base
      * @param int $engine
      * @access public
      */
-    function setPreferredEngine($engine)
+    public function setPreferredEngine($engine)
     {
         switch ($engine) {
             //case CRYPT_ENGINE_OPENSSL:
@@ -1691,7 +1691,7 @@ class Crypt_Base
      * @see self::_setEngine()
      * @access public
      */
-    function getEngine()
+    public function getEngine()
     {
         return $this->engine;
     }
@@ -1702,7 +1702,7 @@ class Crypt_Base
      * @see self::Crypt_Base()
      * @access private
      */
-    function _setEngine()
+    public function _setEngine()
     {
         $this->engine = null;
 
@@ -1746,7 +1746,7 @@ class Crypt_Base
      * @return string
      * @internal Must be extended by the child Crypt_* class
      */
-    function _encryptBlock($in)
+    public function _encryptBlock($in)
     {
         user_error((version_compare(PHP_VERSION, '5.0.0', '>=')  ? __METHOD__ : __FUNCTION__)  . '() must extend by class ' . get_class($this), E_USER_ERROR);
     }
@@ -1759,7 +1759,7 @@ class Crypt_Base
      * @return string
      * @internal Must be extended by the child Crypt_* class
      */
-    function _decryptBlock($in)
+    public function _decryptBlock($in)
     {
         user_error((version_compare(PHP_VERSION, '5.0.0', '>=')  ? __METHOD__ : __FUNCTION__)  . '() must extend by class ' . get_class($this), E_USER_ERROR);
     }
@@ -1773,7 +1773,7 @@ class Crypt_Base
      * @access private
      * @internal Must be extended by the child Crypt_* class
      */
-    function _setupKey()
+    public function _setupKey()
     {
         user_error((version_compare(PHP_VERSION, '5.0.0', '>=')  ? __METHOD__ : __FUNCTION__)  . '() must extend by class ' . get_class($this), E_USER_ERROR);
     }
@@ -1802,7 +1802,7 @@ class Crypt_Base
      * @internal _setup() is always called before en/decryption.
      * @internal Could, but not must, extend by the child Crypt_* class
      */
-    function _setup()
+    public function _setup()
     {
         $this->_clearBuffers();
         $this->_setupKey();
@@ -1835,7 +1835,7 @@ class Crypt_Base
      * @access private
      * @internal Could, but not must, extend by the child Crypt_* class
      */
-    function _setupMcrypt()
+    public function _setupMcrypt()
     {
         $this->_clearBuffers();
         $this->enchanged = $this->dechanged = true;
@@ -1881,7 +1881,7 @@ class Crypt_Base
      * @access private
      * @return string
      */
-    function _pad($text)
+    public function _pad($text)
     {
         $length = strlen($text);
 
@@ -1910,7 +1910,7 @@ class Crypt_Base
      * @access private
      * @return string
      */
-    function _unpad($text)
+    public function _unpad($text)
     {
         if (!$this->padding) {
             return $text;
@@ -1935,7 +1935,7 @@ class Crypt_Base
      * @access public
      * @internal Could, but not must, extend by the child Crypt_* class
      */
-    function _clearBuffers()
+    public function _clearBuffers()
     {
         $this->enbuffer = $this->debuffer = array('ciphertext' => '', 'xor' => '', 'pos' => 0, 'enmcrypt_init' => true);
 
@@ -1958,7 +1958,7 @@ class Crypt_Base
      * @access private
      * @return string
      */
-    function _string_shift(&$string, $index = 1)
+    public function _string_shift(&$string, $index = 1)
     {
         $substr = substr($string, 0, $index);
         $string = substr($string, $index);
@@ -1975,7 +1975,7 @@ class Crypt_Base
      * @access private
      * @return string
      */
-    function _string_pop(&$string, $index = 1)
+    public function _string_pop(&$string, $index = 1)
     {
         $substr = substr($string, -$index);
         $string = substr($string, 0, -$index);
@@ -1990,7 +1990,7 @@ class Crypt_Base
      * @param string $var
      * @access private
      */
-    function _increment_str(&$var)
+    public function _increment_str(&$var)
     {
         for ($i = 4; $i <= strlen($var); $i+= 4) {
             $temp = substr($var, -$i, 4);
@@ -2079,7 +2079,7 @@ class Crypt_Base
      * @access private
      * @internal If a Crypt_* class providing inline crypting it must extend _setupInlineCrypt()
      */
-    function _setupInlineCrypt()
+    public function _setupInlineCrypt()
     {
         // If, for any reason, an extending Crypt_Base() Crypt_* class
         // not using inline crypting then it must be ensured that: $this->use_inline_crypt = false
@@ -2201,7 +2201,7 @@ class Crypt_Base
      * @access private
      * @return string (the name of the created callback function)
      */
-    function _createInlineCryptFunction($cipher_code)
+    public function _createInlineCryptFunction($cipher_code)
     {
         $block_size = $this->block_size;
 
@@ -2568,7 +2568,7 @@ class Crypt_Base
      * @access private
      * @return array &$functions
      */
-    function &_getLambdaFunctions()
+    public function &_getLambdaFunctions()
     {
         static $functions = array();
         return $functions;
@@ -2582,7 +2582,7 @@ class Crypt_Base
      * @param $bytes
      * @return string
      */
-    function _hashInlineCryptFunction($bytes)
+    public function _hashInlineCryptFunction($bytes)
     {
         if (!defined('CRYPT_BASE_WHIRLPOOL_AVAILABLE')) {
             define('CRYPT_BASE_WHIRLPOOL_AVAILABLE', (bool)(extension_loaded('hash') && in_array('whirlpool', hash_algos())));
