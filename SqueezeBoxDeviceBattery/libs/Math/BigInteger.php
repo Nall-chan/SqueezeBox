@@ -3374,9 +3374,9 @@ class Math_BigInteger
         if (!$t) {
             // see HAC 4.49 "Note (controlling the error probability)"
             // @codingStandardsIgnoreStart
-                 if ($length >= 163) {
-                     $t =  2;
-                 } // floor(1300 / 8)
+            if ($length >= 163) {
+                $t =  2;
+            } // floor(1300 / 8)
             elseif ($length >= 106) {
                 $t =  3;
             } // floor( 850 / 8)
