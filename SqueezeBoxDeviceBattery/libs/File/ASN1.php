@@ -45,10 +45,10 @@
  * @access private
  * @link http://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf#page=12
  */
-define('FILE_ASN1_CLASS_UNIVERSAL',        0);
-define('FILE_ASN1_CLASS_APPLICATION',      1);
+define('FILE_ASN1_CLASS_UNIVERSAL', 0);
+define('FILE_ASN1_CLASS_APPLICATION', 1);
 define('FILE_ASN1_CLASS_CONTEXT_SPECIFIC', 2);
-define('FILE_ASN1_CLASS_PRIVATE',          3);
+define('FILE_ASN1_CLASS_PRIVATE', 3);
 /**#@-*/
 
 /**#@+
@@ -57,21 +57,21 @@ define('FILE_ASN1_CLASS_PRIVATE',          3);
  * @access private
  * @link http://www.obj-sys.com/asn1tutorial/node124.html
  */
-define('FILE_ASN1_TYPE_BOOLEAN',           1);
-define('FILE_ASN1_TYPE_INTEGER',           2);
-define('FILE_ASN1_TYPE_BIT_STRING',        3);
-define('FILE_ASN1_TYPE_OCTET_STRING',      4);
-define('FILE_ASN1_TYPE_NULL',              5);
+define('FILE_ASN1_TYPE_BOOLEAN', 1);
+define('FILE_ASN1_TYPE_INTEGER', 2);
+define('FILE_ASN1_TYPE_BIT_STRING', 3);
+define('FILE_ASN1_TYPE_OCTET_STRING', 4);
+define('FILE_ASN1_TYPE_NULL', 5);
 define('FILE_ASN1_TYPE_OBJECT_IDENTIFIER', 6);
 //define('FILE_ASN1_TYPE_OBJECT_DESCRIPTOR', 7);
 //define('FILE_ASN1_TYPE_INSTANCE_OF',       8); // EXTERNAL
-define('FILE_ASN1_TYPE_REAL',              9);
-define('FILE_ASN1_TYPE_ENUMERATED',       10);
+define('FILE_ASN1_TYPE_REAL', 9);
+define('FILE_ASN1_TYPE_ENUMERATED', 10);
 //define('FILE_ASN1_TYPE_EMBEDDED',         11);
-define('FILE_ASN1_TYPE_UTF8_STRING',      12);
+define('FILE_ASN1_TYPE_UTF8_STRING', 12);
 //define('FILE_ASN1_TYPE_RELATIVE_OID',     13);
-define('FILE_ASN1_TYPE_SEQUENCE',         16); // SEQUENCE OF
-define('FILE_ASN1_TYPE_SET',              17); // SET OF
+define('FILE_ASN1_TYPE_SEQUENCE', 16); // SEQUENCE OF
+define('FILE_ASN1_TYPE_SET', 17); // SET OF
 /**#@-*/
 /**#@+
  * More Tag Classes
@@ -79,19 +79,19 @@ define('FILE_ASN1_TYPE_SET',              17); // SET OF
  * @access private
  * @link http://www.obj-sys.com/asn1tutorial/node10.html
  */
-define('FILE_ASN1_TYPE_NUMERIC_STRING',   18);
+define('FILE_ASN1_TYPE_NUMERIC_STRING', 18);
 define('FILE_ASN1_TYPE_PRINTABLE_STRING', 19);
-define('FILE_ASN1_TYPE_TELETEX_STRING',   20); // T61String
-define('FILE_ASN1_TYPE_VIDEOTEX_STRING',  21);
-define('FILE_ASN1_TYPE_IA5_STRING',       22);
-define('FILE_ASN1_TYPE_UTC_TIME',         23);
+define('FILE_ASN1_TYPE_TELETEX_STRING', 20); // T61String
+define('FILE_ASN1_TYPE_VIDEOTEX_STRING', 21);
+define('FILE_ASN1_TYPE_IA5_STRING', 22);
+define('FILE_ASN1_TYPE_UTC_TIME', 23);
 define('FILE_ASN1_TYPE_GENERALIZED_TIME', 24);
-define('FILE_ASN1_TYPE_GRAPHIC_STRING',   25);
-define('FILE_ASN1_TYPE_VISIBLE_STRING',   26); // ISO646String
-define('FILE_ASN1_TYPE_GENERAL_STRING',   27);
+define('FILE_ASN1_TYPE_GRAPHIC_STRING', 25);
+define('FILE_ASN1_TYPE_VISIBLE_STRING', 26); // ISO646String
+define('FILE_ASN1_TYPE_GENERAL_STRING', 27);
 define('FILE_ASN1_TYPE_UNIVERSAL_STRING', 28);
 //define('FILE_ASN1_TYPE_CHARACTER_STRING', 29);
-define('FILE_ASN1_TYPE_BMP_STRING',       30);
+define('FILE_ASN1_TYPE_BMP_STRING', 30);
 /**#@-*/
 
 /**#@+
@@ -101,8 +101,8 @@ define('FILE_ASN1_TYPE_BMP_STRING',       30);
  *
  * @access private
  */
-define('FILE_ASN1_TYPE_CHOICE',          -1);
-define('FILE_ASN1_TYPE_ANY',             -2);
+define('FILE_ASN1_TYPE_CHOICE', -1);
+define('FILE_ASN1_TYPE_ANY', -2);
 /**#@-*/
 
 /**
@@ -122,7 +122,7 @@ class File_ASN1_Element
      * @var string
      * @access private
      */
-    var $element;
+    public $element;
 
     /**
      * Constructor
@@ -131,7 +131,7 @@ class File_ASN1_Element
      * @return File_ASN1_Element
      * @access public
      */
-    function __construct($encoded)
+    public function __construct($encoded)
     {
         $this->element = $encoded;
     }
@@ -143,7 +143,7 @@ class File_ASN1_Element
      * @param int $mode
      * @access public
      */
-    function File_ASN1_Element($encoded)
+    public function File_ASN1_Element($encoded)
     {
         $this->__construct($encoded);
     }
@@ -165,7 +165,7 @@ class File_ASN1
      * @access private
      * @link http://en.wikipedia.org/wiki/Object_identifier
      */
-    var $oids = array();
+    public $oids = array();
 
     /**
      * Default date format
@@ -174,7 +174,7 @@ class File_ASN1
      * @access private
      * @link http://php.net/class.datetime
      */
-    var $format = 'D, d M Y H:i:s O';
+    public $format = 'D, d M Y H:i:s O';
 
     /**
      * Default date format
@@ -185,7 +185,7 @@ class File_ASN1
      * @see self::asn1map()
      * @link http://php.net/class.datetime
      */
-    var $encoded;
+    public $encoded;
 
     /**
      * Filters
@@ -196,7 +196,7 @@ class File_ASN1
      * @access private
      * @see self::_encode_der()
      */
-    var $filters;
+    public $filters;
 
     /**
      * Type mapping table for the ANY type.
@@ -208,7 +208,7 @@ class File_ASN1
      * @var array
      * @access public
      */
-    var $ANYmap = array(
+    public $ANYmap = array(
         FILE_ASN1_TYPE_BOOLEAN              => true,
         FILE_ASN1_TYPE_INTEGER              => true,
         FILE_ASN1_TYPE_BIT_STRING           => 'bitString',
@@ -242,7 +242,7 @@ class File_ASN1
      * @var array
      * @access public
      */
-    var $stringTypeSize = array(
+    public $stringTypeSize = array(
         FILE_ASN1_TYPE_UTF8_STRING      => 0,
         FILE_ASN1_TYPE_BMP_STRING       => 2,
         FILE_ASN1_TYPE_UNIVERSAL_STRING => 4,
@@ -257,7 +257,7 @@ class File_ASN1
      *
      * @access public
      */
-    function __construct()
+    public function __construct()
     {
         static $static_init = null;
         if (!$static_init) {
@@ -274,7 +274,7 @@ class File_ASN1
      * @see self::__construct()
      * @access public
      */
-    function File_ASN1()
+    public function File_ASN1()
     {
         $this->__construct($mode);
     }
@@ -288,7 +288,7 @@ class File_ASN1
      * @return array
      * @access public
      */
-    function decodeBER($encoded)
+    public function decodeBER($encoded)
     {
         if (is_object($encoded) && strtolower(get_class($encoded)) == 'file_asn1_element') {
             $encoded = $encoded->element;
@@ -312,7 +312,7 @@ class File_ASN1
      * @return array
      * @access private
      */
-    function _decode_ber($encoded, $start = 0, $encoded_pos = 0)
+    public function _decode_ber($encoded, $start = 0, $encoded_pos = 0)
     {
         $current = array('start' => $start);
 
@@ -577,7 +577,7 @@ class File_ASN1
      * @return array
      * @access public
      */
-    function asn1map($decoded, $mapping, $special = array())
+    public function asn1map($decoded, $mapping, $special = array())
     {
         if (isset($mapping['explicit']) && is_array($decoded['content'])) {
             $decoded = $decoded['content'][0];
@@ -869,7 +869,7 @@ class File_ASN1
      * @return string
      * @access public
      */
-    function encodeDER($source, $mapping, $special = array())
+    public function encodeDER($source, $mapping, $special = array())
     {
         $this->location = array();
         return $this->_encode_der($source, $mapping, null, $special);
@@ -884,7 +884,7 @@ class File_ASN1
      * @return string
      * @access private
      */
-    function _encode_der($source, $mapping, $idx = null, $special = array())
+    public function _encode_der($source, $mapping, $idx = null, $special = array())
     {
         if (is_object($source) && strtolower(get_class($source)) == 'file_asn1_element') {
             return $source->element;
@@ -1191,7 +1191,7 @@ class File_ASN1
      * @param int $length
      * @return string
      */
-    function _encodeLength($length)
+    public function _encodeLength($length)
     {
         if ($length <= 0x7F) {
             return chr($length);
@@ -1211,7 +1211,7 @@ class File_ASN1
      * @param int $tag
      * @return string
      */
-    function _decodeTime($content, $tag)
+    public function _decodeTime($content, $tag)
     {
         /* UTCTime:
            http://tools.ietf.org/html/rfc5280#section-4.1.2.5.1
@@ -1258,7 +1258,7 @@ class File_ASN1
      * @access public
      * @param string $format
      */
-    function setTimeFormat($format)
+    public function setTimeFormat($format)
     {
         $this->format = $format;
     }
@@ -1271,7 +1271,7 @@ class File_ASN1
      * @access public
      * @param array $oids
      */
-    function loadOIDs($oids)
+    public function loadOIDs($oids)
     {
         $this->oids = $oids;
     }
@@ -1284,7 +1284,7 @@ class File_ASN1
      * @access public
      * @param array $filters
      */
-    function loadFilters($filters)
+    public function loadFilters($filters)
     {
         $this->filters = $filters;
     }
@@ -1299,7 +1299,7 @@ class File_ASN1
      * @return string
      * @access private
      */
-    function _string_shift(&$string, $index = 1)
+    public function _string_shift(&$string, $index = 1)
     {
         $substr = substr($string, 0, $index);
         $string = substr($string, $index);
@@ -1318,7 +1318,7 @@ class File_ASN1
      * @return string
      * @access public
      */
-    function convert($in, $from = FILE_ASN1_TYPE_UTF8_STRING, $to = FILE_ASN1_TYPE_UTF8_STRING)
+    public function convert($in, $from = FILE_ASN1_TYPE_UTF8_STRING, $to = FILE_ASN1_TYPE_UTF8_STRING)
     {
         if (!isset($this->stringTypeSize[$from]) || !isset($this->stringTypeSize[$to])) {
             return false;

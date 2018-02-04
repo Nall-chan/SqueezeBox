@@ -51,7 +51,7 @@ class File_ANSI
      * @var int
      * @access private
      */
-    var $max_x;
+    public $max_x;
 
     /**
      * Max Height
@@ -59,7 +59,7 @@ class File_ANSI
      * @var int
      * @access private
      */
-    var $max_y;
+    public $max_y;
 
     /**
      * Max History
@@ -67,7 +67,7 @@ class File_ANSI
      * @var int
      * @access private
      */
-    var $max_history;
+    public $max_history;
 
     /**
      * History
@@ -75,7 +75,7 @@ class File_ANSI
      * @var array
      * @access private
      */
-    var $history;
+    public $history;
 
     /**
      * History Attributes
@@ -83,7 +83,7 @@ class File_ANSI
      * @var array
      * @access private
      */
-    var $history_attrs;
+    public $history_attrs;
 
     /**
      * Current Column
@@ -91,7 +91,7 @@ class File_ANSI
      * @var int
      * @access private
      */
-    var $x;
+    public $x;
 
     /**
      * Current Row
@@ -99,7 +99,7 @@ class File_ANSI
      * @var int
      * @access private
      */
-    var $y;
+    public $y;
 
     /**
      * Old Column
@@ -107,7 +107,7 @@ class File_ANSI
      * @var int
      * @access private
      */
-    var $old_x;
+    public $old_x;
 
     /**
      * Old Row
@@ -115,7 +115,7 @@ class File_ANSI
      * @var int
      * @access private
      */
-    var $old_y;
+    public $old_y;
 
     /**
      * An empty attribute cell
@@ -123,7 +123,7 @@ class File_ANSI
      * @var object
      * @access private
      */
-    var $base_attr_cell;
+    public $base_attr_cell;
 
     /**
      * The current attribute cell
@@ -131,7 +131,7 @@ class File_ANSI
      * @var object
      * @access private
      */
-    var $attr_cell;
+    public $attr_cell;
 
     /**
      * An empty attribute row
@@ -139,7 +139,7 @@ class File_ANSI
      * @var array
      * @access private
      */
-    var $attr_row;
+    public $attr_row;
 
     /**
      * The current screen text
@@ -147,7 +147,7 @@ class File_ANSI
      * @var array
      * @access private
      */
-    var $screen;
+    public $screen;
 
     /**
      * The current screen attributes
@@ -155,7 +155,7 @@ class File_ANSI
      * @var array
      * @access private
      */
-    var $attrs;
+    public $attrs;
 
     /**
      * Current ANSI code
@@ -163,7 +163,7 @@ class File_ANSI
      * @var string
      * @access private
      */
-    var $ansi;
+    public $ansi;
 
     /**
      * Tokenization
@@ -171,7 +171,7 @@ class File_ANSI
      * @var array
      * @access private
      */
-    var $tokenization;
+    public $tokenization;
 
     /**
      * Default Constructor.
@@ -179,7 +179,7 @@ class File_ANSI
      * @return File_ANSI
      * @access public
      */
-    function __construct()
+    public function __construct()
     {
         $attr_cell = new stdClass();
         $attr_cell->bold = false;
@@ -201,7 +201,7 @@ class File_ANSI
      * @see self::__construct()
      * @access public
      */
-    function File_ANSI()
+    public function File_ANSI()
     {
         $this->__construct($mode);
     }
@@ -215,7 +215,7 @@ class File_ANSI
      * @param int $y
      * @access public
      */
-    function setDimensions($x, $y)
+    public function setDimensions($x, $y)
     {
         $this->max_x = $x - 1;
         $this->max_y = $y - 1;
@@ -234,7 +234,7 @@ class File_ANSI
      * @param int $y
      * @access public
      */
-    function setHistory($history)
+    public function setHistory($history)
     {
         $this->max_history = $history;
     }
@@ -245,7 +245,7 @@ class File_ANSI
      * @param string $source
      * @access public
      */
-    function loadString($source)
+    public function loadString($source)
     {
         $this->setDimensions($this->max_x + 1, $this->max_y + 1);
         $this->appendString($source);
@@ -257,7 +257,7 @@ class File_ANSI
      * @param string $source
      * @access public
      */
-    function appendString($source)
+    public function appendString($source)
     {
         $this->tokenization = array('');
         for ($i = 0; $i < strlen($source); $i++) {
@@ -458,7 +458,7 @@ class File_ANSI
      *
      * @access private
      */
-    function _newLine()
+    public function _newLine()
     {
         //if ($this->y < $this->max_y) {
         //    $this->y++;
@@ -487,7 +487,7 @@ class File_ANSI
      * @access private
      * @return string
      */
-    function _processCoordinate($last_attr, $cur_attr, $char)
+    public function _processCoordinate($last_attr, $cur_attr, $char)
     {
         $output = '';
 
@@ -544,7 +544,7 @@ class File_ANSI
      * @access private
      * @return string
      */
-    function _getScreen()
+    public function _getScreen()
     {
         $output = '';
         $last_attr = $this->base_attr_cell;
@@ -568,7 +568,7 @@ class File_ANSI
      * @access public
      * @return string
      */
-    function getScreen()
+    public function getScreen()
     {
         return '<pre width="' . ($this->max_x + 1) . '" style="color: white; background: black">' . $this->_getScreen() . '</pre>';
     }
@@ -579,7 +579,7 @@ class File_ANSI
      * @access public
      * @return string
      */
-    function getHistory()
+    public function getHistory()
     {
         $scrollback = '';
         $last_attr = $this->base_attr_cell;

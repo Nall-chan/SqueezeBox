@@ -127,7 +127,7 @@ class Crypt_AES extends Crypt_Rijndael
      * @var string
      * @access private
      */
-    var $const_namespace = 'AES';
+    public $const_namespace = 'AES';
 
     /**
      * Dummy function
@@ -138,7 +138,7 @@ class Crypt_AES extends Crypt_Rijndael
      * @access public
      * @param int $length
      */
-    function setBlockLength($length)
+    public function setBlockLength($length)
     {
         return;
     }
@@ -153,7 +153,7 @@ class Crypt_AES extends Crypt_Rijndael
      * @access public
      * @param int $length
      */
-    function setKeyLength($length)
+    public function setKeyLength($length)
     {
         switch ($length) {
             case 160:
@@ -175,7 +175,7 @@ class Crypt_AES extends Crypt_Rijndael
      * @access public
      * @param string $key
      */
-    function setKey($key)
+    public function setKey($key)
     {
         parent::setKey($key);
 
