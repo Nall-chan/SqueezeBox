@@ -35,6 +35,7 @@ require_once(__DIR__ . "/../libs/SqueezeBoxTraits.php");  // diverse Klassen
  */
 class LMSSplitter extends IPSModule
 {
+
     use LMSHTMLTable,
         LMSSongURL,
         LMSProfile,
@@ -43,11 +44,9 @@ class LMSSplitter extends IPSModule
         BufferHelper,
         InstanceStatus,
         Semaphore,
-        Webhook
-    {
+        Webhook {
         InstanceStatus::MessageSink as IOMessageSink; // MessageSink gibt es sowohl hier in der Klasse, als auch im Trait InstanceStatus. Hier wird für die Methode im Trait ein Alias benannt.
     }
-
     private $Socket = false;
 
     /*    public function __construct($InstanceID)
@@ -56,7 +55,6 @@ class LMSSplitter extends IPSModule
       $this->Socket = false;
       }
      */
-
     public function __destruct()
     {
         if ($this->Socket) {
@@ -100,8 +98,11 @@ class LMSSplitter extends IPSModule
      */
     public function Destroy()
     {
-        $this->UnregisterHook('/hook/LMSPlaylist' . $this->InstanceID);
-        $this->DeleteProfile();
+        if (!IPS_InstanceExists($this->InstanceID)) {
+            $this->UnregisterHook('/hook/LMSPlaylist' . $this->InstanceID);
+            $this->DeleteProfile();
+        }
+        parent::Destroy();
     }
 
     /**
@@ -204,7 +205,7 @@ class LMSSplitter extends IPSModule
                 $this->KernelReady();
                 break;
             case VM_UPDATE:
-                if (($SenderID == $this->ScannerID) and ($Data[0] == 0)) {
+                if (($SenderID == $this->ScannerID) and ( $Data[0] == 0)) {
                     $this->RefreshAllPlaylists();
                 }
                 break;
@@ -287,48 +288,48 @@ class LMSSplitter extends IPSModule
         }
         $NewTableConfig = array(
             array(
-                "tag" => "<table>",
+                "tag"   => "<table>",
                 "style" => "margin:0 auto; font-size:0.8em;"),
             array(
-                "tag" => "<thead>",
+                "tag"   => "<thead>",
                 "style" => ""),
             array(
-                "tag" => "<tbody>",
+                "tag"   => "<tbody>",
                 "style" => "")
         );
         $NewColumnsConfig = array(
             array(
                 "index" => 0,
-                "key" => "Id",
-                "name" => "PlaylistID",
-                "show" => false,
+                "key"   => "Id",
+                "name"  => "PlaylistID",
+                "show"  => false,
                 "width" => 100,
                 "color" => 0xffffff,
                 "align" => "center",
                 "style" => ""),
             array(
                 "index" => 1,
-                "key" => "Playlist",
-                "name" => "Playlist-Name",
-                "show" => true,
+                "key"   => "Playlist",
+                "name"  => "Playlist-Name",
+                "show"  => true,
                 "width" => 400,
                 "color" => 0xffffff,
                 "align" => "center",
                 "style" => ""),
             array(
                 "index" => 2,
-                "key" => "Tracks",
-                "name" => "Tracks",
-                "show" => true,
+                "key"   => "Tracks",
+                "name"  => "Tracks",
+                "show"  => true,
                 "width" => 50,
                 "color" => 0xffffff,
                 "align" => "center",
                 "style" => ""),
             array(
                 "index" => 3,
-                "key" => "Duration",
-                "name" => $this->Translate("Duration"),
-                "show" => true,
+                "key"   => "Duration",
+                "name"  => $this->Translate("Duration"),
+                "show"  => true,
                 "width" => 75,
                 "color" => 0xffffff,
                 "align" => "center",
@@ -336,17 +337,17 @@ class LMSSplitter extends IPSModule
         );
         $NewRowsConfig = array(
             array(
-                "row" => "odd",
-                "name" => $this->Translate("odd"),
+                "row"     => "odd",
+                "name"    => $this->Translate("odd"),
                 "bgcolor" => 0x000000,
-                "color" => 0xffffff,
-                "style" => ""),
+                "color"   => 0xffffff,
+                "style"   => ""),
             array(
-                "row" => "even",
-                "name" => $this->Translate("even"),
+                "row"     => "even",
+                "name"    => $this->Translate("even"),
                 "bgcolor" => 0x080808,
-                "color" => 0xffffff,
-                "style" => "")
+                "color"   => 0xffffff,
+                "style"   => "")
         );
         if ($OldConfig === false) {
             return array('Table' => $NewTableConfig, 'Columns' => $NewColumnsConfig, 'Rows' => $NewRowsConfig);
@@ -453,7 +454,6 @@ class LMSSplitter extends IPSModule
     }
 
     ################## Privat
-
     /**
      * Ändert das Variablenprofil PlayerSelect anhand der bekannten Player.
      *
@@ -495,6 +495,8 @@ class LMSSplitter extends IPSModule
         $Playlists = (new LMSTaggingArray($LMSData->Data))->DataArray();
         foreach ($Playlists as $Key => $Playlist) {
             $Playlists[$Key]['Id'] = $Key;
+            $Playlists[$Key]['Tracks'] = "";
+            $Playlists[$Key]['Duration'] = "";
             $LMSSongData = $this->SendDirect(new LMSData(array('playlists', 'tracks'), array(0, 100000, 'playlist_id:' . $Key, 'tags:d'), true));
             if ($LMSSongData === null) {
                 trigger_error(sprintf($this->Translate("Error read Playlist %d ."), $Key), E_USER_NOTICE);
@@ -504,9 +506,12 @@ class LMSSplitter extends IPSModule
                 continue;
             }
             $LMSSongData->SliceData();
-            $SongInfo = new LMSSongInfo($LMSSongData->Data);
-            $Playlists[$Key]['Tracks'] = $SongInfo->CountAllSongs();
-            $Playlists[$Key]['Duration'] = $SongInfo->GetTotalDuration();
+            $this->SendDebug('EXTRA', $LMSSongData, 0);
+            if (sizeof($LMSSongData->Data) > 0) { // Count sollte eigentlich immer kommen und somit 
+                $SongInfo = new LMSSongInfo($LMSSongData->Data);
+                $Playlists[$Key]['Tracks'] = $SongInfo->CountAllSongs();
+                $Playlists[$Key]['Duration'] = $SongInfo->GetTotalDuration();
+            } 
         }
 
         uasort($Playlists, array($this, 'SortPlaylistData'));
@@ -539,7 +544,6 @@ class LMSSplitter extends IPSModule
     }
 
     ################## Action
-
     /**
      * Actionhandler der Statusvariablen. Interne SDK-Funktion.
      * @access public
@@ -581,7 +585,7 @@ class LMSSplitter extends IPSModule
                 } elseif ($Value == 4) {
                     $ret = $this->WipeCache();
                 }
-                if (($Value <> 0) and (($ret === null) or ($ret === false))) {
+                if (($Value <> 0) and ( ($ret === null) or ( $ret === false))) {
                     echo $this->Translate('Error on send scanner-command');
                     return false;
                 }
@@ -601,7 +605,7 @@ class LMSSplitter extends IPSModule
      */
     protected function ProcessHookdata()
     {
-        if ((!isset($_GET["ID"])) or (!isset($_GET["Type"])) or (!isset($_GET["Secret"]))) {
+        if ((!isset($_GET["ID"])) or ( !isset($_GET["Type"])) or ( !isset($_GET["Secret"]))) {
             echo $this->Translate("Bad Request");
             return;
         }
@@ -649,7 +653,6 @@ class LMSSplitter extends IPSModule
     }
 
     ################## PUBLIC
-
     /**
      * IPS-Instanz-Funktion 'LMS_KeepAlive'.
      * Sendet einen listen Abfrage an den LMS um die Kommunikation zu erhalten.
@@ -769,7 +772,6 @@ class LMSSplitter extends IPSModule
     ///////////////////////////////////////////////////////////////
     // START DEPRECATED
     ///////////////////////////////////////////////////////////////
-
     /**
      * IPS-Instanz-Funktion 'LMS_RawSend'.
      * Sendet einen Anfrage an den LMS.
@@ -871,7 +873,6 @@ class LMSSplitter extends IPSModule
     ///////////////////////////////////////////////////////////////
     // START PLAYERINFO
     ///////////////////////////////////////////////////////////////
-
     /**
      * IPS-Instanz-Funktion 'LMS_GetPlayerInfo'.
      * @access public
@@ -913,7 +914,6 @@ class LMSSplitter extends IPSModule
     ///////////////////////////////////////////////////////////////
     // START DATABASE
     ///////////////////////////////////////////////////////////////
-
     /**
      * IPS-Instanz-Funktion 'LMS_Rescan'.
      * Startet einen rescan der Datenbank.
@@ -990,10 +990,10 @@ class LMSSplitter extends IPSModule
             return false;
         }
         $ret = array(
-            'Genres' => (int) $genres->Data[0],
-            'Artists' => (int) $artists->Data[0],
-            'Albums' => (int) $albums->Data[0],
-            'Songs' => (int) $songs->Data[0],
+            'Genres'   => (int) $genres->Data[0],
+            'Artists'  => (int) $artists->Data[0],
+            'Albums'   => (int) $albums->Data[0],
+            'Songs'    => (int) $songs->Data[0],
             'Duration' => (int) $duration->Data[0]
         );
         return $ret;
@@ -1701,7 +1701,6 @@ class LMSSplitter extends IPSModule
     ///////////////////////////////////////////////////////////////
     // START ALARM PLAYLISTS COMMANDS
     ///////////////////////////////////////////////////////////////
-
     /**
      * IPS-Instanz-Funktion 'LMS_GetAlarmPlaylists'.
      * Liefert alle Playlisten welche für den Wecker genutzt werden können.
@@ -1724,7 +1723,6 @@ class LMSSplitter extends IPSModule
     ///////////////////////////////////////////////////////////////
     // START FAVORITEN
     ///////////////////////////////////////////////////////////////
-
     /**
      * IPS-Instanz-Funktion 'LMS_GetFavorites'.
      * Liefert ein Array mit allen in $FavoriteID enthaltenen Favoriten.
@@ -2063,7 +2061,7 @@ class LMSSplitter extends IPSModule
                     $this->SetValueInteger("RescanState", 2); // einfacher
                     return true;
                 } else {
-                    if (($LMSData->Data[0] == 'done') or ($LMSData->Data[0] == '0')) {
+                    if (($LMSData->Data[0] == 'done') or ( $LMSData->Data[0] == '0')) {
                         $this->SetValueInteger("RescanState", 0);   // fertig
                         return true;
                     } elseif ($LMSData->Data[0] == 'playlists') {
@@ -2162,7 +2160,6 @@ class LMSSplitter extends IPSModule
     }
 
     ################## DATAPOINTS DEVICE
-
     /**
      * Interne Funktion des SDK. Nimmt Daten von Childs entgegen und sendet Diese weiter.
      *
@@ -2197,7 +2194,6 @@ class LMSSplitter extends IPSModule
     }
 
     ################## DATAPOINTS PARENT
-
     /**
      * Empfängt Daten vom Parent.
      *
@@ -2421,7 +2417,6 @@ class LMSSplitter extends IPSModule
     }
 
     ################## SENDQUEUE
-
     /**
      * Fügt eine Anfrage in die SendQueue ein.
      *
@@ -2525,6 +2520,7 @@ class LMSSplitter extends IPSModule
             return @date("i:s", $Time);
         }
     }
+
 }
 
 /** @} */

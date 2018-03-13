@@ -21,7 +21,6 @@ require_once(__DIR__ . "/../libs/SqueezeBoxTraits.php");  // diverse Klassen
  */
 class LSA_Alarm
 {
-
     /**
      * Id des Alarm
      * @var string
@@ -216,6 +215,7 @@ class LSA_Alarm
     {
         $this->Time = ((($Time[0] * 60) + $Time[1]) * 60) + $Time[2];
     }
+
 }
 
 /**
@@ -224,7 +224,6 @@ class LSA_Alarm
  */
 class LSA_AlarmList
 {
-
     /**
      * Array mit allen Items.
      * @var array
@@ -333,6 +332,7 @@ class LSA_AlarmList
         }
         return false;
     }
+
 }
 
 /**
@@ -351,17 +351,16 @@ class LSA_AlarmList
  */
 class SqueezeboxAlarm extends IPSModule
 {
+
     use VariableProfile,
         LMSHTMLTable,
         DebugHelper,
         BufferHelper,
         InstanceStatus,
         VariableHelper,
-        Webhook
-    {
+        Webhook {
         InstanceStatus::MessageSink as IOMessageSink;
     }
-
     /**
      * TCP-Socket
      * @var resource
@@ -412,8 +411,10 @@ class SqueezeboxAlarm extends IPSModule
      */
     public function Destroy()
     {
-        $this->UnregisterHook('/hook/LSAPlaylist' . $this->InstanceID);
-        $this->DeleteProfile();
+        if (!IPS_InstanceExists($this->InstanceID)) {
+            $this->UnregisterHook('/hook/LSAPlaylist' . $this->InstanceID);
+            $this->DeleteProfile();
+        }
         parent::Destroy();
     }
 
@@ -619,7 +620,7 @@ class SqueezeboxAlarm extends IPSModule
      */
     protected function ProcessHookdata()
     {
-        if ((!isset($_GET["ID"])) or (!isset($_GET["Type"])) or (!isset($_GET["Secret"]))) {
+        if ((!isset($_GET["ID"])) or ( !isset($_GET["Type"])) or ( !isset($_GET["Secret"]))) {
             echo $this->Translate("Bad Request");
             return;
         }
@@ -643,7 +644,6 @@ class SqueezeboxAlarm extends IPSModule
     }
 
     ################## PRIVATE
-
     /**
      * Löscht die nicht mehr benötigten Profile.
      * @access private
@@ -665,48 +665,48 @@ class SqueezeboxAlarm extends IPSModule
     {
         $NewTableConfig = array(
             array(
-                "tag" => "<table>",
+                "tag"   => "<table>",
                 "style" => "margin:0 auto; font-size:0.8em;"),
             array(
-                "tag" => "<thead>",
+                "tag"   => "<thead>",
                 "style" => ""),
             array(
-                "tag" => "<tbody>",
+                "tag"   => "<tbody>",
                 "style" => "")
         );
         $NewColumnsConfig = array(
             array(
                 "index" => 0,
-                "key" => "Index",
-                "name" => "Index",
-                "show" => false,
+                "key"   => "Index",
+                "name"  => "Index",
+                "show"  => false,
                 "width" => 100,
                 "color" => 0xffffff,
                 "align" => "center",
                 "style" => ""),
             array(
                 "index" => 1,
-                "key" => "Category",
-                "name" => $this->Translate("Category"),
-                "show" => true,
+                "key"   => "Category",
+                "name"  => $this->Translate("Category"),
+                "show"  => true,
                 "width" => 300,
                 "color" => 0xffffff,
                 "align" => "center",
                 "style" => ""),
             array(
                 "index" => 2,
-                "key" => "Title",
-                "name" => $this->Translate("Title"),
-                "show" => true,
+                "key"   => "Title",
+                "name"  => $this->Translate("Title"),
+                "show"  => true,
                 "width" => 300,
                 "color" => 0xffffff,
                 "align" => "center",
                 "style" => ""),
             array(
                 "index" => 3,
-                "key" => "Url",
-                "name" => "Url",
-                "show" => false,
+                "key"   => "Url",
+                "name"  => "Url",
+                "show"  => false,
                 "width" => 300,
                 "color" => 0xffffff,
                 "align" => "center",
@@ -714,23 +714,23 @@ class SqueezeboxAlarm extends IPSModule
         );
         $NewRowsConfig = array(
             array(
-                "row" => "odd",
-                "name" => $this->Translate("odd"),
+                "row"     => "odd",
+                "name"    => $this->Translate("odd"),
                 "bgcolor" => 0x000000,
-                "color" => 0xffffff,
-                "style" => ""),
+                "color"   => 0xffffff,
+                "style"   => ""),
             array(
-                "row" => "even",
-                "name" => $this->Translate("even"),
+                "row"     => "even",
+                "name"    => $this->Translate("even"),
                 "bgcolor" => 0x080808,
-                "color" => 0xffffff,
-                "style" => ""),
+                "color"   => 0xffffff,
+                "style"   => ""),
             array(
-                "row" => "active",
-                "name" => $this->Translate("active"),
+                "row"     => "active",
+                "name"    => $this->Translate("active"),
                 "bgcolor" => 0x808000,
-                "color" => 0xffffff,
-                "style" => "")
+                "color"   => 0xffffff,
+                "style"   => "")
         );
         return array('Table' => $NewTableConfig, 'Columns' => $NewColumnsConfig, 'Rows' => $NewRowsConfig);
     }
@@ -996,7 +996,6 @@ class SqueezeboxAlarm extends IPSModule
     }
 
     ################## PUBLIC
-
     /**
      * IPS-Instanz-Funktion 'LSA_RequestAllState'.
      * Aktuellen Status des Devices ermitteln und, wenn verbunden, abfragen.
@@ -1107,7 +1106,7 @@ class SqueezeboxAlarm extends IPSModule
             return false;
         }
         $LMSResponse->SliceData();
-        if ((count($LMSResponse->Data) == 0) or ($LMSResponse->Data[0] == '?')) {
+        if ((count($LMSResponse->Data) == 0) or ( $LMSResponse->Data[0] == '?')) {
             trigger_error($this->Translate("Player not connected"), E_USER_NOTICE);
             return false;
         }
@@ -1340,7 +1339,7 @@ class SqueezeboxAlarm extends IPSModule
             trigger_error(sprintf($this->Translate("%s out of range."), 'AlarmIndex'), E_USER_NOTICE);
             return false;
         }
-        if (($Url == '0') or ($Url == '')) {
+        if (($Url == '0') or ( $Url == '')) {
             $Url = 'CURRENT_PLAYLIST';
         }
 
@@ -1367,7 +1366,7 @@ class SqueezeboxAlarm extends IPSModule
             trigger_error(sprintf($this->Translate("%s must be integer."), 'Value'), E_USER_NOTICE);
             return false;
         }
-        if (($Value < 0) or ($Value > 2)) {
+        if (($Value < 0) or ( $Value > 2)) {
             trigger_error(sprintf($this->Translate("%s must be 0, 1 or 2."), 'Value'), E_USER_NOTICE);
             return false;
         }
@@ -1460,7 +1459,6 @@ class SqueezeboxAlarm extends IPSModule
     }
 
     ################## ActionHandler
-
     /**
      * Interne Funktion des SDK.
      *
@@ -1559,7 +1557,6 @@ class SqueezeboxAlarm extends IPSModule
     }
 
     ################## Decode Data
-
     private function DecodeLMSResponse(LMSData $LMSData)
     {
         if ($LMSData == null) {
@@ -1773,7 +1770,7 @@ class SqueezeboxAlarm extends IPSModule
                 $this->RefreshEvents($this->Alarms);
                 break;
             case 'client':
-                if (($LMSData->Data[0] == 'new') or ($LMSData->Data[0] == 'reconnect')) {
+                if (($LMSData->Data[0] == 'new') or ( $LMSData->Data[0] == 'reconnect')) {
                     $this->RequestAllState();
                 }
                 break;
@@ -1784,7 +1781,6 @@ class SqueezeboxAlarm extends IPSModule
     }
 
     ################## DataPoints Ankommend von Parent-LMS-Splitter
-
     /**
      * Interne Funktion des SDK.
      *
@@ -1805,7 +1801,6 @@ class SqueezeboxAlarm extends IPSModule
     }
 
     ################## Datenaustausch
-
     /**
      * Konvertiert $Data zu einem JSONString und versendet diese an den Splitter.
      *
@@ -1903,6 +1898,7 @@ class SqueezeboxAlarm extends IPSModule
         }
         return null;
     }
+
 }
 
 /** @} */

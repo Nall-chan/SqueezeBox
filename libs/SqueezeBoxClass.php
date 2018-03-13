@@ -18,7 +18,6 @@
  */
 trait LSQProfile
 {
-
     /**
      * Erzeugt alle benötigten Profile.
      */
@@ -113,6 +112,7 @@ trait LSQProfile
             IPS_DeleteVariableProfile('SleepTimer.Squeezebox');
         }
     }
+
 }
 
 /**
@@ -120,7 +120,6 @@ trait LSQProfile
  */
 trait LMSProfile
 {
-
     /**
      * Erzeugt alle benötigten Profile.
      */
@@ -157,6 +156,7 @@ trait LMSProfile
             IPS_DeleteVariableProfile("PlayerSelect" . $this->InstanceID . ".SqueezeboxServer");
         }
     }
+
 }
 
 /**
@@ -171,8 +171,8 @@ trait LMSProfile
  */
 class LMSData extends stdClass
 {
-    use UTF8Coder;
 
+    use UTF8Coder;
     /**
      * Adresse des Gerätes.
      * @var string
@@ -249,7 +249,7 @@ class LMSData extends stdClass
             $this->SendValues = count($this->Data);
         } else {
             $Data = $this->Data;
-            if (($this->Data !== null) and ($this->Data != '%3F')) {
+            if (($this->Data !== null) and ( $this->Data != '%3F')) {
                 $this->SendValues = 1;
             }
         }
@@ -294,13 +294,14 @@ class LMSData extends stdClass
      */
     public function ToJSONString($GUID)
     {
-        return json_encode(array("DataID" => $GUID,
-            "Address" => $this->EncodeUTF8($this->Address),
-            "Command" => $this->EncodeUTF8($this->Command),
-            "Data" => $this->EncodeUTF8($this->Data),
+        return json_encode(array("DataID"       => $GUID,
+            "Address"      => $this->EncodeUTF8($this->Address),
+            "Command"      => $this->EncodeUTF8($this->Command),
+            "Data"         => $this->EncodeUTF8($this->Data),
             "needResponse" => $this->needResponse
         ));
     }
+
 }
 
 /**
@@ -315,7 +316,6 @@ class LMSData extends stdClass
  */
 class LMSResponse extends LMSData
 {
-
     /**
      * Antwort ist vom LMS-Server
      *
@@ -467,12 +467,13 @@ class LMSResponse extends LMSData
     public function ToJSONStringForDevice(string $GUID)
     {
         return json_encode(array(
-            "DataID" => $GUID,
+            "DataID"  => $GUID,
             "Address" => $this->EncodeUTF8($this->Address),
             "Command" => $this->EncodeUTF8($this->Command),
-            "Data" => $this->EncodeUTF8($this->Data)
+            "Data"    => $this->EncodeUTF8($this->Data)
         ));
     }
+
 }
 
 /**
@@ -487,7 +488,6 @@ class LMSResponse extends LMSData
  */
 class LMSTaggingData extends stdClass
 {
-
     /**
      * @access public
      * @var string Der Name des Datensatzes.
@@ -521,6 +521,7 @@ class LMSTaggingData extends stdClass
             $this->Value = (string) $this->Value;
         }
     }
+
 }
 
 /**
@@ -535,7 +536,6 @@ class LMSTaggingData extends stdClass
  */
 class LMSTaggingArray extends stdClass
 {
-
     /**
      * @var array Enthält die Nutzdaten
      */
@@ -546,69 +546,69 @@ class LMSTaggingArray extends stdClass
      * @var array Enthält alle zu dekodierenen Index mit ihren Typenumwandlungen.
      */
     public static $DataFields = array(
-        'Album' => 3, // l
-        'Album_id' => 1,
-        'Artwork_track_id' => 3, // J
+        'Album'                   => 3, // l
+        'Album_id'                => 1,
+        'Artwork_track_id'        => 3, // J
 //        'Albums_count' => 1,
-        'Artist' => 3, // a
-        'Artist_id' => 1, //s
-        'Bitrate' => 3, // r
-        'Category' => 3,
-        'Connected' => 0,
-        'Coverid' => 1, // i
-        'Count' => 1,
-        'Contributor_id' => 1,
-        'Contributor' => 3,
-        'Cmd' => 3,
-        'Dow' => 3,
-        'DowDel' => 1,
-        'DowAdd' => 1,
-        'Duration' => 1, // d
-        'Disc' => 1, // i
-        'Disccount' => 1, // q
-        'Displaytype' => 3,
-        'Enabled' => 0,
-        'Exists' => 0,
-        'Filename' => 3,
-        'Genre' => 3, // g
-        'Genre_id' => 1, //p
-        'Hasitems' => 0,
-        'Id' => 1,
-        'Index' => 3,
-        'Ip' => 3,
-        'Icon' => 3,
-        'Isaudio' => 0,
-        'Model' => 3,
-        'Modelname' => 3,
+        'Artist'                  => 3, // a
+        'Artist_id'               => 1, //s
+        'Bitrate'                 => 3, // r
+        'Category'                => 3,
+        'Connected'               => 0,
+        'Coverid'                 => 1, // i
+        'Count'                   => 1,
+        'Contributor_id'          => 1,
+        'Contributor'             => 3,
+        'Cmd'                     => 3,
+        'Dow'                     => 3,
+        'DowDel'                  => 1,
+        'DowAdd'                  => 1,
+        'Duration'                => 1, // d
+        'Disc'                    => 1, // i
+        'Disccount'               => 1, // q
+        'Displaytype'             => 3,
+        'Enabled'                 => 0,
+        'Exists'                  => 0,
+        'Filename'                => 3,
+        'Genre'                   => 3, // g
+        'Genre_id'                => 1, //p
+        'Hasitems'                => 0,
+        'Id'                      => 1,
+        'Index'                   => 3,
+        'Ip'                      => 3,
+        'Icon'                    => 3,
+        'Isaudio'                 => 0,
+        'Model'                   => 3,
+        'Modelname'               => 3,
 //        'Modified' => 0,
-        'Name' => 3,
-        'Newname' => 3,
+        'Name'                    => 3,
+        'Newname'                 => 3,
         'Overwritten_playlist_id' => 1,
-        'Playlisturl' => 3,
-        'Playerindex' => 1,
-        'Playerid' => 3,
-        'Playlist' => 3,
-        'Playlist_id' => 1,
-        'Repeat' => 0,
+        'Playlisturl'             => 3,
+        'Playerindex'             => 1,
+        'Playerid'                => 3,
+        'Playlist'                => 3,
+        'Playlist_id'             => 1,
+        'Repeat'                  => 0,
 //        'Remote' => 0,
 //        'Remote_title' => 3, //N
 //        'Rating' => 1, // R
-        'Shufflemode' => 1,
-        'Shuffle' => 1,
+        'Shufflemode'             => 1,
+        'Shuffle'                 => 1,
 //        'Samplesize' => 3, // I
 //        'Singleton'=>0,
-        'Type' => 3,
-        'Time' => 1,
-        'Title' => 3,
-        'Track_id' => 1,
-        'Track' => 3,
+        'Type'                    => 3,
+        'Time'                    => 1,
+        'Title'                   => 3,
+        'Track_id'                => 1,
+        'Track'                   => 3,
 //        'Tracks_count' => 1,
-        'Tracknum' => 1, // t
-        'Url' => 3, // u
-        'Uuid' => 3,
-        'Volume' => 1,
-        'Weight' => 1,
-        'Year' => 1 // Y
+        'Tracknum'                => 1, // t
+        'Url'                     => 3, // u
+        'Uuid'                    => 3,
+        'Volume'                  => 1,
+        'Weight'                  => 1,
+        'Year'                    => 1 // Y
     );
 
     /**
@@ -662,7 +662,7 @@ class LMSTaggingArray extends stdClass
                 if (is_int($Part->Value)) {
                     $DataArray[$id][$Index] = (int) $Part->Value;
                 } else {
-                    $DataArray[$id][$Index] = (string)rawurldecode($Part->Value);
+                    $DataArray[$id][$Index] = (string) rawurldecode($Part->Value);
                 }
             } else {
                 $DataArray[$id][$Index] = rawurldecode($Part->Value);
@@ -723,6 +723,7 @@ class LMSTaggingArray extends stdClass
     {
         return count($this->DataArray);
     }
+
 }
 
 /**
@@ -737,47 +738,46 @@ class LMSTaggingArray extends stdClass
  */
 class LMSSongInfo extends stdClass
 {
-
     /**
      * Ein Array das alle Songs enthält
      * @var array
      */
-    private $SongArray;
+    private $SongArray = array();
 
     /**
      * Die gesamte Spielzeit in Sekunden.
      * @var int
      */
-    private $Duration;
+    private $Duration = 0;
 
     /**
      * Enthält die Zuordnung zu den Datentypen.
      * @var array
      */
     public static $SongFields = array(
-        'Id' => 1,
-        'Title' => 3,
-        'Genre' => 3, // g
-        'Album' => 3, // l
-        'Artist' => 3, // a
-        'Duration' => 1, // d
-        'Disc' => 1, // i
-        'Disccount' => 1, // q
-        'Bitrate' => 3, // r
-        'Tracknum' => 1, // t
-        'Url' => 3, // u
-        'Remote' => 0,
-        'Rating' => 1, // R
-        'Album_id' => 1, // e
+        'Id'               => 1,
+        'Title'            => 3,
+        'Genre'            => 3, // g
+        'Album'            => 3, // l
+        'Artist'           => 3, // a
+        'Duration'         => 1, // d
+        'Disc'             => 1, // i
+        'Disccount'        => 1, // q
+        'Bitrate'          => 3, // r
+        'Tracknum'         => 1, // t
+        'Url'              => 3, // u
+        'Remote'           => 0,
+        'Rating'           => 1, // R
+        'Album_id'         => 1, // e
         'Artwork_track_id' => 3, // J
-        'Samplesize' => 3, // I
-        'Remote_title' => 3, //N
-        'Genre_id' => 1, //p
-        'Artist_id' => 1, //s
-        'Year' => 1, // Y
-        'Name' => 3,
-        'Modified' => 0,
-        'Playlist' => 3
+        'Samplesize'       => 3, // I
+        'Remote_title'     => 3, //N
+        'Genre_id'         => 1, //p
+        'Artist_id'        => 1, //s
+        'Year'             => 1, // Y
+        'Name'             => 3,
+        'Modified'         => 0,
+        'Playlist'         => 3
     );
 
     /**
@@ -861,6 +861,7 @@ class LMSSongInfo extends stdClass
     {
         return count($this->SongArray);
     }
+
 }
 
 /**
@@ -868,7 +869,6 @@ class LMSSongInfo extends stdClass
  */
 trait LMSSongURL
 {
-
     /**
      * Prüft und korrigiert eine URL
      * @param type $SongURL
@@ -888,6 +888,7 @@ trait LMSSongURL
         $SongURL = str_replace('\\', '/', $SongURL);
         return true;
     }
+
 }
 
 /**
@@ -895,7 +896,6 @@ trait LMSSongURL
  */
 trait LMSHTMLTable
 {
-
     /**
      * Konvertiert die alte Playlist-Config.
      * @return boolean True wenn alte Config konvertiert wurde, sonst false.
@@ -930,7 +930,7 @@ trait LMSHTMLTable
         // Kopf der Tabelle erzeugen
         $table .= '<table style="' . $Config_Table['<table>'] . '">' . PHP_EOL;
         // JS Rückkanal erzeugen
-        $table .= '<script type="text/javascript" id="script'.$this->InstanceID.'">
+        $table .= '<script type="text/javascript" id="script' . $this->InstanceID . '">
 function xhrGet' . $this->InstanceID . '(o)
 {
     var HTTP = new XMLHttpRequest();
@@ -1047,7 +1047,7 @@ sleep(10).then(() => {
                     $TrStyle[] = 'color:#' . substr("000000" . dechex($Config_Rows_Color[$LineIndex]), -6);
                 }
                 $TdStyle[] = $Config_Rows_Style[$LineIndex];
-                $HTMLData .= '<tr style="' . implode(';', $TrStyle) . ';" onclick="eval(document.getElementById(\'script'.$this->InstanceID.'\').innerHTML.toString()); window.xhrGet' . $this->InstanceID . '({ url: \'hook/' . $HookPrefix . $this->InstanceID . '?Type=' . $HookType . '&ID=' . ($HookId == 'Url' ? rawurlencode($Line[$HookId]) : $Line[$HookId]) . '&Secret=' . $LineSecret . '\' });">';
+                $HTMLData .= '<tr style="' . implode(';', $TrStyle) . ';" onclick="eval(document.getElementById(\'script' . $this->InstanceID . '\').innerHTML.toString()); window.xhrGet' . $this->InstanceID . '({ url: \'hook/' . $HookPrefix . $this->InstanceID . '?Type=' . $HookType . '&ID=' . ($HookId == 'Url' ? rawurlencode($Line[$HookId]) : $Line[$HookId]) . '&Secret=' . $LineSecret . '\' });">';
 
                 $td = array();
                 foreach ($Config_Columns as $Column) {
@@ -1085,6 +1085,7 @@ sleep(10).then(() => {
         $table .= '</table>' . PHP_EOL;
         return $table;
     }
+
 }
 
 /**
@@ -1092,7 +1093,6 @@ sleep(10).then(() => {
  */
 trait LMSCover
 {
-
     /**
      * Liefert die Rohdaten eines Covers, welches vom LMS geladen wurde.
      * @param string $CoverID Die ID des Covers.
@@ -1109,7 +1109,7 @@ trait LMSCover
         $Login = array(
             "AuthUser" => IPS_GetProperty($SplitterID, 'User'),
             "AuthPass" => IPS_GetProperty($SplitterID, 'Password'),
-            "Timeout" => 5000
+            "Timeout"  => 5000
         );
 
         if ($Host === "") {
@@ -1123,6 +1123,7 @@ trait LMSCover
         }
         return @Sys_GetURLContentEx("http://" . $Host . "/music/" . $CoverID . "/" . $Size . ".png" . $Player, $Login);
     }
+
 }
 
 /**
@@ -1130,7 +1131,6 @@ trait LMSCover
  */
 trait UTF8Coder
 {
-
     /**
      * Führt eine UTF8-Dekodierung für einen String oder ein Objekt durch (rekursiv)
      *
@@ -1177,6 +1177,7 @@ trait UTF8Coder
         }
         return $item;
     }
+
 }
 
 /** @} */
