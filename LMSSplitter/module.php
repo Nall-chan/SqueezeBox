@@ -35,6 +35,7 @@ require_once(__DIR__ . "/../libs/SqueezeBoxTraits.php");  // diverse Klassen
  */
 class LMSSplitter extends IPSModule
 {
+
     use LMSHTMLTable,
         LMSSongURL,
         LMSProfile,
@@ -204,7 +205,7 @@ class LMSSplitter extends IPSModule
                 $this->KernelReady();
                 break;
             case VM_UPDATE:
-                if (($SenderID == $this->ScannerID) and ($Data[0] == 0)) {
+                if (($SenderID == $this->ScannerID) and ( $Data[0] == 0)) {
                     $this->RefreshAllPlaylists();
                 }
                 break;
@@ -240,7 +241,7 @@ class LMSSplitter extends IPSModule
             if ($this->CheckLogin() !== true) {
                 $this->SetStatus(IS_EBASE + 4);
                 $this->SetTimerInterval('KeepAlive', 0);
-                echo $this->Translate('Could not connect to LMS.');
+                //echo $this->Translate('Could not connect to LMS.');
                 return;
             }
             $this->SetStatus(IS_ACTIVE);
@@ -582,7 +583,7 @@ class LMSSplitter extends IPSModule
                 } elseif ($Value == 4) {
                     $ret = $this->WipeCache();
                 }
-                if (($Value <> 0) and (($ret === null) or ($ret === false))) {
+                if (($Value <> 0) and ( ($ret === null) or ( $ret === false))) {
                     echo $this->Translate('Error on send scanner-command');
                     return false;
                 }
@@ -602,7 +603,7 @@ class LMSSplitter extends IPSModule
      */
     protected function ProcessHookdata()
     {
-        if ((!isset($_GET["ID"])) or (!isset($_GET["Type"])) or (!isset($_GET["Secret"]))) {
+        if ((!isset($_GET["ID"])) or ( !isset($_GET["Type"])) or ( !isset($_GET["Secret"]))) {
             echo $this->Translate("Bad Request");
             return;
         }
@@ -2058,7 +2059,7 @@ class LMSSplitter extends IPSModule
                     $this->SetValueInteger("RescanState", 2); // einfacher
                     return true;
                 } else {
-                    if (($LMSData->Data[0] == 'done') or ($LMSData->Data[0] == '0')) {
+                    if (($LMSData->Data[0] == 'done') or ( $LMSData->Data[0] == '0')) {
                         $this->SetValueInteger("RescanState", 0);   // fertig
                         return true;
                     } elseif ($LMSData->Data[0] == 'playlists') {
@@ -2363,7 +2364,8 @@ class LMSSplitter extends IPSModule
         try {
             $fp = @stream_socket_client("tcp://" . $this->Host . ":" . $Port, $errno, $errstr, 1);
             if (!$fp) {
-                throw new Exception($this->Translate('No anwser from LMS'), E_USER_NOTICE);
+                $this->SendDebug('no socket', $errstr, 0);
+                throw new Exception($this->Translate('No anwser from LMS') . $errstr, E_USER_NOTICE);
             } else {
                 stream_set_timeout($fp, 5);
                 $this->SendDebug('Check login', $LoginData, 0);
@@ -2383,6 +2385,7 @@ class LMSSplitter extends IPSModule
                 throw new Exception($this->Translate('No anwser from LMS'), E_USER_NOTICE);
             }
         } catch (Exception $ex) {
+            echo $ex->getMessage();
             return false;
         }
         return true;
@@ -2522,6 +2525,7 @@ class LMSSplitter extends IPSModule
             return sprintf('%02d:%02d', ($Time / 60 % 60), $Time % 60);
         }
     }
+
 }
 
 /** @} */
