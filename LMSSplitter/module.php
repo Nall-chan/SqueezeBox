@@ -2362,10 +2362,10 @@ class LMSSplitter extends IPSModule
         $LoginData = (new LMSData('login', array($User, $Pass)))->ToRawStringForLMS();
         $CheckData = (new LMSData('can', 'login'))->ToRawStringForLMS();
         try {
-            $fp = @stream_socket_client("tcp://" . $this->Host . ":" . $Port, $errno, $errstr, 1);
+            $fp = @stream_socket_client("tcp://" . $this->Host . ":" . $Port, $errno, $errstr, 2);
             if (!$fp) {
                 $this->SendDebug('no socket', $errstr, 0);
-                throw new Exception($this->Translate('No anwser from LMS') . $errstr, E_USER_NOTICE);
+                throw new Exception($this->Translate('No anwser from LMS') .' '. $errstr, E_USER_NOTICE);
             } else {
                 stream_set_timeout($fp, 5);
                 $this->SendDebug('Check login', $LoginData, 0);
