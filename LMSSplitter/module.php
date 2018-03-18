@@ -230,8 +230,8 @@ class LMSSplitter extends IPSModule
     protected function IOChangeState($State)
     {
         if ($this->ParentID > 0) {
-            $this->Host = IPS_GetProperty($this->ParentID, 'Host');
-            $this->SetSummary($this->Host);
+            $this->Host = gethostbyname(IPS_GetProperty($this->ParentID, 'Host'));
+            $this->SetSummary(IPS_GetProperty($this->ParentID, 'Host'));
         } else {
             $this->Host = "";
             $this->SetSummary('none');
