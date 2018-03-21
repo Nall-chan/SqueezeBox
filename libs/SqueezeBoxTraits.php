@@ -273,7 +273,6 @@ trait VariableProfile
         }
         IPS_DeleteVariableProfile($Name);
     }
-
 }
 
 /**
@@ -321,7 +320,6 @@ trait DebugHelper
             parent::SendDebug($Message, (string) $Data, $Format);
         }
     }
-
 }
 
 /**
@@ -403,7 +401,6 @@ trait InstanceStatus
         }
         return false;
     }
-
 }
 
 /**
@@ -459,7 +456,6 @@ trait BufferHelper
         }
         $this->SetBuffer($name, $Data);
     }
-
 }
 
 /**
@@ -492,7 +488,6 @@ trait Semaphore
     {
         IPS_SemaphoreLeave(__CLASS__ . '.' . (string) $this->InstanceID . (string) $ident);
     }
-
 }
 
 /**
@@ -573,7 +568,6 @@ trait Webhook
         } //bail out
         IPS_DeleteScript($sid, true);
     }
-
 }
 
 /**
@@ -657,7 +651,6 @@ trait VariableHelper
         }
         return false;
     }
-
 }
 
 /** @} */
