@@ -1104,7 +1104,7 @@ trait LMSCover
     {
         $SplitterID = IPS_GetInstance($this->InstanceID)['ConnectionID'];
         $IoID = IPS_GetInstance($SplitterID)['ConnectionID'];
-        $Host = IPS_GetProperty($IoID, "Host");
+        $Host = gethostbyname(IPS_GetProperty($IoID, "Host"));
         $Webport = IPS_GetProperty($SplitterID, 'Webport');
         $Login = array(
             "AuthUser" => IPS_GetProperty($SplitterID, 'User'),
