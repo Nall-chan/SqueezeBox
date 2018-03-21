@@ -189,7 +189,6 @@ if (!defined("vtBoolean")) { //Nur wenn Konstanten noch nicht bekannt sind.
  */
 trait VariableProfile
 {
-
     /**
      * Erstell und konfiguriert ein VariablenProfil für den Typ integer mit Assoziationen
      *
@@ -274,6 +273,7 @@ trait VariableProfile
         }
         IPS_DeleteVariableProfile($Name);
     }
+
 }
 
 /**
@@ -282,7 +282,6 @@ trait VariableProfile
  */
 trait DebugHelper
 {
-
     /**
      * Ergänzt SendDebug um Möglichkeit Objekte und Array auszugeben.
      *
@@ -322,6 +321,7 @@ trait DebugHelper
             parent::SendDebug($Message, (string) $Data, $Format);
         }
     }
+
 }
 
 /**
@@ -330,7 +330,6 @@ trait DebugHelper
  */
 trait InstanceStatus
 {
-
     /**
      * Interne Funktion des SDK.
      *
@@ -340,6 +339,7 @@ trait InstanceStatus
     {
         switch ($Message) {
             case FM_CONNECT:
+            case IM_CHANGESETTINGS:
                 $this->RegisterParent();
                 if ($this->HasActiveParent()) {
                     $this->IOChangeState(IS_ACTIVE);
@@ -372,9 +372,11 @@ trait InstanceStatus
         $ParentId = @IPS_GetInstance($this->InstanceID)['ConnectionID'];
         if ($ParentId <> $OldParentId) {
             if ($OldParentId > 0) {
+                $this->UnregisterMessage($OldParentId, IM_CHANGESETTINGS);
                 $this->UnregisterMessage($OldParentId, IM_CHANGESTATUS);
             }
             if ($ParentId > 0) {
+                $this->RegisterMessage($ParentId, IM_CHANGESETTINGS);
                 $this->RegisterMessage($ParentId, IM_CHANGESTATUS);
             } else {
                 $ParentId = 0;
@@ -401,6 +403,7 @@ trait InstanceStatus
         }
         return false;
     }
+
 }
 
 /**
@@ -408,7 +411,6 @@ trait InstanceStatus
  */
 trait BufferHelper
 {
-
     /**
      * Wert einer Eigenschaft aus den InstanceBuffer lesen.
      *
@@ -457,6 +459,7 @@ trait BufferHelper
         }
         $this->SetBuffer($name, $Data);
     }
+
 }
 
 /**
@@ -464,7 +467,6 @@ trait BufferHelper
  */
 trait Semaphore
 {
-
     /**
      * Versucht eine Semaphore zu setzen und wiederholt dies bei Misserfolg bis zu 100 mal.
      * @param string $ident Ein String der den Lock bezeichnet.
@@ -490,6 +492,7 @@ trait Semaphore
     {
         IPS_SemaphoreLeave(__CLASS__ . '.' . (string) $this->InstanceID . (string) $ident);
     }
+
 }
 
 /**
@@ -497,7 +500,6 @@ trait Semaphore
  */
 trait Webhook
 {
-
     /**
      * Erstellt einen WebHook, wenn nicht schon vorhanden.
      *
@@ -571,6 +573,7 @@ trait Webhook
         } //bail out
         IPS_DeleteScript($sid, true);
     }
+
 }
 
 /**
@@ -578,7 +581,6 @@ trait Webhook
  */
 trait VariableHelper
 {
-
     /**
      *  Konvertiert Sekunden in einen lesbare Zeit.
      * @param int $Time Zeit in Sekunden
@@ -655,6 +657,7 @@ trait VariableHelper
         }
         return false;
     }
+
 }
 
 /** @} */
