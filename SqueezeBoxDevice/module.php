@@ -3480,6 +3480,7 @@ class SqueezeboxDevice extends IPSModule
 
     private function SetCover()
     {
+        $this->SendDebug('Refresh Cover', '', 0);
         $CoverID = @IPS_GetObjectIDByIdent('CoverIMG', $this->InstanceID);
         if ($CoverID === false) {
             $CoverID = IPS_CreateMedia(1);
@@ -3487,9 +3488,10 @@ class SqueezeboxDevice extends IPSModule
             IPS_SetIdent($CoverID, 'CoverIMG');
             IPS_SetName($CoverID, 'Cover');
             IPS_SetPosition($CoverID, 27);
-            IPS_SetMediaFile($CoverID, IPS_GetKernelDir() . "media" . DIRECTORY_SEPARATOR . "Cover_" . $this->InstanceID . ".png", false);
-            $this->SendDebug('Create Media', IPS_GetKernelDir() . "media" . DIRECTORY_SEPARATOR . "Cover_" . $this->InstanceID . ".png", 0);
             IPS_SetMediaCached($CoverID, true);
+            $filename = "media" . DIRECTORY_SEPARATOR . "Cover_" . $this->InstanceID . ".png";
+            IPS_SetMediaFile($CoverID, $filename, false);
+            $this->SendDebug('Create Media', $filename, 0);
         }
         $ParentID = $this->ParentID;
 
