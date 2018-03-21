@@ -112,6 +112,7 @@ trait LSQProfile
             IPS_DeleteVariableProfile('SleepTimer.Squeezebox');
         }
     }
+
 }
 
 /**
@@ -155,6 +156,7 @@ trait LMSProfile
             IPS_DeleteVariableProfile("PlayerSelect" . $this->InstanceID . ".SqueezeboxServer");
         }
     }
+
 }
 
 /**
@@ -169,6 +171,7 @@ trait LMSProfile
  */
 class LMSData extends stdClass
 {
+
     use UTF8Coder;
     /**
      * Adresse des Gerätes.
@@ -246,7 +249,7 @@ class LMSData extends stdClass
             $this->SendValues = count($this->Data);
         } else {
             $Data = $this->Data;
-            if (($this->Data !== null) and ($this->Data != '%3F')) {
+            if (($this->Data !== null) and ( $this->Data != '%3F')) {
                 $this->SendValues = 1;
             }
         }
@@ -298,6 +301,7 @@ class LMSData extends stdClass
             "needResponse" => $this->needResponse
         ));
     }
+
 }
 
 /**
@@ -469,6 +473,7 @@ class LMSResponse extends LMSData
             "Data"    => $this->EncodeUTF8($this->Data)
         ));
     }
+
 }
 
 /**
@@ -516,6 +521,7 @@ class LMSTaggingData extends stdClass
             $this->Value = (string) $this->Value;
         }
     }
+
 }
 
 /**
@@ -717,6 +723,7 @@ class LMSTaggingArray extends stdClass
     {
         return count($this->DataArray);
     }
+
 }
 
 /**
@@ -854,6 +861,7 @@ class LMSSongInfo extends stdClass
     {
         return count($this->SongArray);
     }
+
 }
 
 /**
@@ -880,6 +888,7 @@ trait LMSSongURL
         $SongURL = str_replace('\\', '/', $SongURL);
         return true;
     }
+
 }
 
 /**
@@ -1076,6 +1085,7 @@ sleep(10).then(() => {
         $table .= '</table>' . PHP_EOL;
         return $table;
     }
+
 }
 
 /**
@@ -1094,7 +1104,7 @@ trait LMSCover
     {
         $SplitterID = IPS_GetInstance($this->InstanceID)['ConnectionID'];
         $IoID = IPS_GetInstance($SplitterID)['ConnectionID'];
-        $Host = gethostbyname(IPS_GetProperty($IoID, "Host"));
+        $Hostname = IPS_GetProperty($IoID, "Host");
         $Webport = IPS_GetProperty($SplitterID, 'Webport');
         $Login = array(
             "AuthUser" => IPS_GetProperty($SplitterID, 'User'),
@@ -1102,10 +1112,10 @@ trait LMSCover
             "Timeout"  => 5000
         );
 
-        if ($Host === "") {
+        if ($Hostname === "") {
             return false;
         }
-
+        $Host = gethostbyname($Hostname);
         $Host .= ":" . $Webport;
         if ($Player <> "") {
             $Player = "?player=" . rawurlencode($Player);
@@ -1115,6 +1125,7 @@ trait LMSCover
         $this->SendDebug('GetCover', $URL, 0);
         return @Sys_GetURLContentEx($URL, $Login);
     }
+
 }
 
 /**
@@ -1168,6 +1179,7 @@ trait UTF8Coder
         }
         return $item;
     }
+
 }
 
 /** @} */
