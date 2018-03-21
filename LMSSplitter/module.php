@@ -35,7 +35,6 @@ require_once(__DIR__ . "/../libs/SqueezeBoxTraits.php");  // diverse Klassen
  */
 class LMSSplitter extends IPSModule
 {
-
     use LMSHTMLTable,
         LMSSongURL,
         LMSProfile,
@@ -205,7 +204,7 @@ class LMSSplitter extends IPSModule
                 $this->KernelReady();
                 break;
             case VM_UPDATE:
-                if (($SenderID == $this->ScannerID) and ( $Data[0] == 0)) {
+                if (($SenderID == $this->ScannerID) and ($Data[0] == 0)) {
                     $this->RefreshAllPlaylists();
                 }
                 break;
@@ -583,7 +582,7 @@ class LMSSplitter extends IPSModule
                 } elseif ($Value == 4) {
                     $ret = $this->WipeCache();
                 }
-                if (($Value <> 0) and ( ($ret === null) or ( $ret === false))) {
+                if (($Value <> 0) and (($ret === null) or ($ret === false))) {
                     echo $this->Translate('Error on send scanner-command');
                     return false;
                 }
@@ -603,7 +602,7 @@ class LMSSplitter extends IPSModule
      */
     protected function ProcessHookdata()
     {
-        if ((!isset($_GET["ID"])) or ( !isset($_GET["Type"])) or ( !isset($_GET["Secret"]))) {
+        if ((!isset($_GET["ID"])) or (!isset($_GET["Type"])) or (!isset($_GET["Secret"]))) {
             echo $this->Translate("Bad Request");
             return;
         }
@@ -2059,7 +2058,7 @@ class LMSSplitter extends IPSModule
                     $this->SetValueInteger("RescanState", 2); // einfacher
                     return true;
                 } else {
-                    if (($LMSData->Data[0] == 'done') or ( $LMSData->Data[0] == '0')) {
+                    if (($LMSData->Data[0] == 'done') or ($LMSData->Data[0] == '0')) {
                         $this->SetValueInteger("RescanState", 0);   // fertig
                         return true;
                     } elseif ($LMSData->Data[0] == 'playlists') {
@@ -2525,7 +2524,6 @@ class LMSSplitter extends IPSModule
             return sprintf('%02d:%02d', ($Time / 60 % 60), $Time % 60);
         }
     }
-
 }
 
 /** @} */
