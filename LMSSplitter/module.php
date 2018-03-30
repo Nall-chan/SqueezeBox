@@ -475,7 +475,7 @@ class LMSSplitter extends IPSModule
             if ($LMSPlayerData == null) {
                 continue;
             }
-            $PlayerName = $LMSPlayerData->Data[1]; //rawurldecode($LMSPlayerData->Data[0]);
+            $PlayerName = $LMSPlayerData->Data[1];
             $Assosiation[] = array($i, $PlayerName, "", -1);
         }
         @$this->RegisterProfileIntegerEx("LMS.PlayerSelect" . $this->InstanceID, "Speaker", "", "", $Assosiation);
