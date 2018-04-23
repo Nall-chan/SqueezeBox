@@ -347,6 +347,11 @@ class SqueezeboxDevice extends IPSModule
      * Interne Funktion des SDK.
      *
      * @access public
+     * 
+     * @param type $TimeStamp
+     * @param type $SenderID
+     * @param type $Message
+     * @param type $Data
      */
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
     {
