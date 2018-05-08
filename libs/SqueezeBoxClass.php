@@ -439,7 +439,6 @@ class LMSResponse extends LMSData
                         break;
                     case 'displaynotify':
                     case 'menustatus':
-                    case 'prefset':
                     default:
                         $this->Command[1] = $this->Command[0];
                         $this->Command[0] = 'ignore';

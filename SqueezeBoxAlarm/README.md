@@ -1,5 +1,5 @@
 [![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20Version-2.00-blue.svg)]()
+[![Version](https://img.shields.io/badge/Modul%20Version-2.01-blue.svg)]()
 [![Version](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
 [![Version](https://img.shields.io/badge/Symcon%20Version-4.3%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857-IP-Symcon-4-3-%28Stable%29-Changelog)
 
@@ -261,6 +261,9 @@ oder `false` im Fehlerfall.
 
 **Changlog:**  
 
+Version 2.01:  
+ - Fix: Alle Alarme ein/ausschalten über den Server wurde nicht verarbeitet  
+
 Version 2.0:  
  - Komplett überarbeitete Version für IPS 4.3 und höher  
 
@@ -271,4 +274,3 @@ Version 1.0:
 
   IPS-Modul:  
   [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
-C-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)  

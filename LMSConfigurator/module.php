@@ -245,7 +245,8 @@ class LMSConfigurator extends IPSModule
         $data['actions'][7]['onClick'] = <<<'EOT'
 if (($devicesMAC['mac'] == '') or ($devicesMAC['instanceID'] > 0))
     return;
-$InstanceID = IPS_CreateInstance('{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}');
+$InstanceID = @IPS_CreateInstance('{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}');
+if ($InstanceID > 0){
 if (IPS_GetInstance($InstanceID)['ConnectionID'] != IPS_GetInstance($id)['ConnectionID'])
 {
     if (IPS_GetInstance($InstanceID)['ConnectionID'] > 0)
@@ -256,11 +257,15 @@ if (IPS_GetInstance($InstanceID)['ConnectionID'] != IPS_GetInstance($id)['Connec
 @IPS_ApplyChanges($InstanceID);
 IPS_SetName($InstanceID,$devicesMAC['name']);
 echo 'OK';
+} else {
+echo 'Error on create instance.';
+}
 EOT;
         $data['actions'][13]['onClick'] = <<<'EOT'
 if (($devicesAlarm['mac'] == '') or ($devicesAlarm['instanceID'] > 0))
     return;
-$InstanceID = IPS_CreateInstance('{E7423083-3502-42C8-B244-2852D0BE41D4}');
+$InstanceID = @IPS_CreateInstance('{E7423083-3502-42C8-B244-2852D0BE41D4}');
+if ($InstanceID >0){
 if (IPS_GetInstance($InstanceID)['ConnectionID'] != IPS_GetInstance($id)['ConnectionID'])
 {
     if (IPS_GetInstance($InstanceID)['ConnectionID'] > 0)
@@ -271,15 +276,22 @@ if (IPS_GetInstance($InstanceID)['ConnectionID'] != IPS_GetInstance($id)['Connec
 @IPS_ApplyChanges($InstanceID);
 IPS_SetName($InstanceID,'Alarm '.$devicesAlarm['name']);
 echo 'OK';
+} else {
+echo 'Error on create instance.';
+}
 EOT;
         $data['actions'][19]['onClick'] = <<<'EOT'
 if (($devicesIP['ip'] == '') or ($devicesIP['instanceID'] > 0))
     return;
-$InstanceID = IPS_CreateInstance('{718158BB-B247-4A71-9440-9C2FF1378752}');
+$InstanceID = @IPS_CreateInstance('{718158BB-B247-4A71-9440-9C2FF1378752}');
+if ($InstanceID >0){
 @IPS_SetProperty($InstanceID, 'Address', $devicesIP['ip']);
 @IPS_ApplyChanges($InstanceID);
 IPS_SetName($InstanceID,'Battery '.$devicesIP['name']);
 echo 'OK';
+} else {
+echo 'Error on create instance.';
+}
 EOT;
         $data['actions'][0]['onClick'] = "echo '" . $this->Translate('Sorry please close and reopen configurator.') . "';";
         return json_encode($data);
