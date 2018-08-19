@@ -2028,7 +2028,7 @@ class LMSSplitter extends IPSModule
                                 $this->SetValueString("RescanProgress", "");
                                 return true;
                             case "progress":
-                                $Info = explode("||", $Data->value);
+                                $Info = explode("||", $Data->Value);
                                 $StepInfo = $Info[2];
                                 if (strpos($StepInfo, "|")) {
                                     $StepInfo = explode("|", $StepInfo)[1];
