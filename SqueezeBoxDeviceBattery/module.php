@@ -292,7 +292,7 @@ class SqueezeboxBattery extends IPSModule
             $this->SetTimerInterval("RequestState", $this->ReadPropertyInteger("Interval") * 1000);
         } else {
             if ($this->ReadPropertyInteger("Interval") == 0) {
-                $this->SetStatus(IS_ACTIVE);
+                $this->SetStatus(IS_INACTIVE);
             } else {
                 $this->SetStatus(203);
             }
