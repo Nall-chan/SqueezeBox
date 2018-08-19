@@ -11,7 +11,7 @@ require_once(__DIR__ . "/../libs/SqueezeBoxTraits.php");  // diverse Klassen
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2017 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       2.0
+ * @version       2.02
  *
  */
 
@@ -24,7 +24,7 @@ require_once(__DIR__ . "/../libs/SqueezeBoxTraits.php");  // diverse Klassen
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2017 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       2.0
+ * @version       2.02
  * @example <b>Ohne</b>
  * @property array $ReplyLMSData Enthält die versendeten Befehle und buffert die Antworten.
  * @property string $Buffer Empfangsbuffer
@@ -503,7 +503,7 @@ class LMSSplitter extends IPSModule
                 continue;
             }
             $LMSSongData->SliceData();
-            $this->SendDebug('EXTRA', $LMSSongData, 0);
+            //$this->SendDebug('EXTRA', $LMSSongData, 0);
             if (sizeof($LMSSongData->Data) > 0) { // Count sollte eigentlich immer kommen und somit
                 $SongInfo = new LMSSongInfo($LMSSongData->Data);
                 $Playlists[$Key]['Tracks'] = $SongInfo->CountAllSongs();

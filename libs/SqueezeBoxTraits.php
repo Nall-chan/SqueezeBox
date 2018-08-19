@@ -9,7 +9,7 @@
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2018 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       2.01
+ * @version       2.02
  *
  */
 
@@ -264,10 +264,11 @@ trait VariableProfile
             if (IPS_GetParent($VarID) == $this->InstanceID) {
                 continue;
             }
-            if (IPS_GetVariable($VarID)['VariableCustomProfile'] == $Name) {
+            $VarData = IPS_GetVariable($VarID);
+            if ($VarData['VariableCustomProfile'] == $Name) {
                 return;
             }
-            if (IPS_GetVariable($VarID)['VariableProfile'] == $Name) {
+            if ($VarData['VariableProfile'] == $Name) {
                 return;
             }
         }
@@ -519,7 +520,7 @@ trait Webhook
             if (!$found) {
                 $hooks[] = array("Hook" => $WebHook, "TargetID" => $this->InstanceID);
             }
-            $this->SendDebug('hook', $hooks, 0);
+            //$this->SendDebug('hook', $hooks, 0);
             IPS_SetProperty($ids[0], "Hooks", json_encode($hooks));
             IPS_ApplyChanges($ids[0]);
         }
