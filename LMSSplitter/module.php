@@ -9,9 +9,9 @@ require_once(__DIR__ . "/../libs/SqueezeBoxTraits.php");  // diverse Klassen
  * @package       Squeezebox
  * @file          module.php
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2017 Michael Tröger
+ * @copyright     2018 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       2.02
+ * @version       2.03
  *
  */
 
@@ -22,9 +22,9 @@ require_once(__DIR__ . "/../libs/SqueezeBoxTraits.php");  // diverse Klassen
  * @todo          Favoriten als Tabelle oder Baum ?! für das WF
  * @package       Squeezebox
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2017 Michael Tröger
+ * @copyright     2018 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       2.02
+ * @version       2.03
  * @example <b>Ohne</b>
  * @property array $ReplyLMSData Enthält die versendeten Befehle und buffert die Antworten.
  * @property string $Buffer Empfangsbuffer
@@ -364,7 +364,7 @@ class LMSSplitter extends IPSModule
                     $OldKey = 'B';
                     break;
                 default:
-                    continue;
+                    continue 2;
             }
             if (!array_key_exists($OldKey, $OldConfig['Style'])) {
                 continue;
@@ -426,7 +426,7 @@ class LMSSplitter extends IPSModule
                     $OldKey = "BRG";
                     break;
                 default:
-                    continue;
+                    continue 2;
             }
             if (!array_key_exists($OldKey, $OldConfig['Style'])) {
                 continue;

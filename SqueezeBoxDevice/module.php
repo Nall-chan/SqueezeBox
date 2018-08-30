@@ -10,9 +10,9 @@ require_once(__DIR__ . "/../libs/SqueezeBoxTraits.php");  // diverse Klassen
  * @package       Squeezebox
  * @file          module.php
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2017 Michael Tröger
+ * @copyright     2018 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       2.0
+ * @version       2.03
  *
  */
 
@@ -22,9 +22,9 @@ require_once(__DIR__ . "/../libs/SqueezeBoxTraits.php");  // diverse Klassen
  *
  * @package       Squeezebox
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2017 Michael Tröger
+ * @copyright     2018 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       2.0
+ * @version       2.03
  * @example <b>Ohne</b>
  * @property int $ParentID
  * @property array $Multi_Playlist Alle Datensätze der Playlisten
@@ -590,7 +590,7 @@ class SqueezeboxDevice extends IPSModule
                     $OldKey = 'B';
                     break;
                 default:
-                    continue;
+                    continue 2;
             }
             if (!array_key_exists($OldKey, $OldConfig['Style'])) {
                 continue;
@@ -655,7 +655,7 @@ class SqueezeboxDevice extends IPSModule
                     $OldKey = "BRA";
                     break;
                 default:
-                    continue;
+                    continue 2;
             }
             if (!array_key_exists($OldKey, $OldConfig['Style'])) {
                 continue;
