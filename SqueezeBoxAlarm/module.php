@@ -575,10 +575,9 @@ class SqueezeboxAlarm extends IPSModule
                 $this->Alarms = $Alarms;
 
                 /* @var $Alarm LSA_Alarm */
-                $this->Send(new LMSData(array('alarm', 'update'), array('id:' . $Alarm->Id, 'enabled:' . (int) $Data[0]), false));
+                $this->Send(new LMSData(array('alarm', 'update'), array('id:' . $Alarm->Id, 'enabled:' . (int) $Data[0])));
                 break;
             case EM_CHANGECYCLIC:
-                IPS_LogMessage('EM_CHANGECYCLIC', print_r($Data, true));
                 $this->SendDebug('EM_CHANGECYCLIC', $Data, 0);
                 $Index = (int) substr(IPS_GetObject($SenderID)['ObjectIdent'], -1);
                 $Alarms = $this->Alarms;
@@ -590,10 +589,9 @@ class SqueezeboxAlarm extends IPSModule
                 $Alarms->Update($Alarm);
                 $this->Alarms = $Alarms;
                 /* @var $Alarm LSA_Alarm */
-                $this->Send(new LMSData(array('alarm', 'update'), array('id:' . $Alarm->Id, 'dow:' . $Alarm->Dow), false));
+                $this->Send(new LMSData(array('alarm', 'update'), array('id:' . $Alarm->Id, 'dow:' . $Alarm->Dow)));
                 break;
             case EM_CHANGECYCLICTIMEFROM:
-                IPS_LogMessage('EM_CHANGECYCLIC', print_r($Data, true));
                 $this->SendDebug('EM_CHANGECYCLICTIMEFROM', $Data, 0);
                 $Index = (int) substr(IPS_GetObject($SenderID)['ObjectIdent'], -1);
                 $Alarms = $this->Alarms;
@@ -605,7 +603,7 @@ class SqueezeboxAlarm extends IPSModule
                 $Alarms->Update($Alarm);
                 $this->Alarms = $Alarms;
                 /* @var $Alarm LSA_Alarm */
-                $this->Send(new LMSData(array('alarm', 'update'), array('id:' . $Alarm->Id, 'time:' . $Alarm->Time), false));
+                $this->Send(new LMSData(array('alarm', 'update'), array('id:' . $Alarm->Id, 'time:' . $Alarm->Time)));
                 break;
         }
     }
