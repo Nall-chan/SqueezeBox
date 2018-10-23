@@ -9,7 +9,7 @@
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2016 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       1.0
+ * @version       3.0
  *
  */
 
@@ -72,46 +72,16 @@ trait LSQProfile
      */
     private function DeleteProfile()
     {
-        $this->UnregisterProfil("LSQ.Tracklist." . $this->InstanceID);
-        $this->UnregisterProfil("LSQ.Status");
-        $this->UnregisterProfil("LSQ.Intensity");
-        $this->UnregisterProfil("LSQ.Pitch");
-        $this->UnregisterProfil("LSQ.Shuffle");
-        $this->UnregisterProfil("LSQ.Repeat");
-        $this->UnregisterProfil("LSQ.Preset");
-        $this->UnregisterProfil("LSQ.SleepTimer");
+        $this->UnregisterProfile("LSQ.Tracklist." . $this->InstanceID);
+        $this->UnregisterProfile("LSQ.Status");
+        $this->UnregisterProfile("LSQ.Intensity");
+        $this->UnregisterProfile("LSQ.Pitch");
+        $this->UnregisterProfile("LSQ.Shuffle");
+        $this->UnregisterProfile("LSQ.Repeat");
+        $this->UnregisterProfile("LSQ.Preset");
+        $this->UnregisterProfile("LSQ.SleepTimer");
     }
 
-    /**
-     * Löscht alle nicht mehr Profile des Testmoduls.
-     */
-    private function DeleteOldProfile()
-    {
-        if (IPS_VariableProfileExists('Status.Squeezebox')) {
-            IPS_DeleteVariableProfile('Status.Squeezebox');
-        }
-        if (IPS_VariableProfileExists('Preset.Squeezebox')) {
-            IPS_DeleteVariableProfile('Preset.Squeezebox');
-        }
-        if (IPS_VariableProfileExists('Intensity.Squeezebox')) {
-            IPS_DeleteVariableProfile('Intensity.Squeezebox');
-        }
-        if (IPS_VariableProfileExists('Pitch.Squeezebox')) {
-            IPS_DeleteVariableProfile('Pitch.Squeezebox');
-        }
-        if (IPS_VariableProfileExists('Shuffle.Squeezebox')) {
-            IPS_DeleteVariableProfile('Shuffle.Squeezebox');
-        }
-        if (IPS_VariableProfileExists('Repeat.Squeezebox')) {
-            IPS_DeleteVariableProfile('Repeat.Squeezebox');
-        }
-        if (IPS_VariableProfileExists("Tracklist.Squeezebox." . $this->InstanceID)) {
-            IPS_DeleteVariableProfile("Tracklist.Squeezebox." . $this->InstanceID);
-        }
-        if (IPS_VariableProfileExists('SleepTimer.Squeezebox')) {
-            IPS_DeleteVariableProfile('SleepTimer.Squeezebox');
-        }
-    }
 }
 
 /**
@@ -139,22 +109,10 @@ trait LMSProfile
      */
     private function DeleteProfile()
     {
-        $this->UnregisterProfil("LMS.PlayerSelect" . $this->InstanceID);
-        $this->UnregisterProfil("LMS.Scanner");
+        $this->UnregisterProfile("LMS.PlayerSelect" . $this->InstanceID);
+        $this->UnregisterProfile("LMS.Scanner");
     }
 
-    /**
-     * Löscht alle nicht mehr Profile des Testmoduls.
-     */
-    private function DeleteOldProfile()
-    {
-        if (IPS_VariableProfileExists('Scanner.SqueezeboxServer')) {
-            IPS_DeleteVariableProfile('Scanner.SqueezeboxServer');
-        }
-        if (IPS_VariableProfileExists("PlayerSelect" . $this->InstanceID . ".SqueezeboxServer")) {
-            IPS_DeleteVariableProfile("PlayerSelect" . $this->InstanceID . ".SqueezeboxServer");
-        }
-    }
 }
 
 /**
@@ -169,6 +127,7 @@ trait LMSProfile
  */
 class LMSData extends stdClass
 {
+
     use UTF8Coder;
     /**
      * Adresse des Gerätes.
@@ -246,7 +205,7 @@ class LMSData extends stdClass
             $this->SendValues = count($this->Data);
         } else {
             $Data = $this->Data;
-            if (($this->Data !== null) and ($this->Data != '%3F')) {
+            if (($this->Data !== null) and ( $this->Data != '%3F')) {
                 $this->SendValues = 1;
             }
         }
@@ -298,6 +257,7 @@ class LMSData extends stdClass
             "needResponse" => $this->needResponse
         ));
     }
+
 }
 
 /**
@@ -468,6 +428,7 @@ class LMSResponse extends LMSData
             "Data"    => $this->EncodeUTF8($this->Data)
         ));
     }
+
 }
 
 /**
@@ -509,12 +470,13 @@ class LMSTaggingData extends stdClass
         } else {
             $this->Value = array_shift($Part);
         }
-        if (is_int($this->Value)) {
+        if (is_numeric($this->Value)) {
             $this->Value = (int) $this->Value;
         } else {
             $this->Value = (string) $this->Value;
         }
     }
+
 }
 
 /**
@@ -626,7 +588,7 @@ class LMSTaggingArray extends stdClass
             $Part = new LMSTaggingData($Line);
             if ($UseIDs) {
                 if ($Part->Name == 'id') {
-                    if (is_int($Part->Value)) {
+                    if (is_numeric($Part->Value)) {
                         $id = (int) $Part->Value;
                     } else {
                         $id = rawurldecode($Part->Value);
@@ -652,7 +614,7 @@ class LMSTaggingArray extends stdClass
             if (static::$DataFields[$Index] == 0) {
                 $DataArray[$id][$Index] = (bool) ($Part->Value);
             } elseif (static::$DataFields[$Index] == 1) {
-                if (is_int($Part->Value)) {
+                if (is_numeric($Part->Value)) {
                     $DataArray[$id][$Index] = (int) $Part->Value;
                 } else {
                     $DataArray[$id][$Index] = (string) rawurldecode($Part->Value);
@@ -716,6 +678,7 @@ class LMSTaggingArray extends stdClass
     {
         return count($this->DataArray);
     }
+
 }
 
 /**
@@ -853,6 +816,7 @@ class LMSSongInfo extends stdClass
     {
         return count($this->SongArray);
     }
+
 }
 
 /**
@@ -879,6 +843,7 @@ trait LMSSongURL
         $SongURL = str_replace('\\', '/', $SongURL);
         return true;
     }
+
 }
 
 /**
@@ -886,27 +851,6 @@ trait LMSSongURL
  */
 trait LMSHTMLTable
 {
-    /**
-     * Konvertiert die alte Playlist-Config.
-     * @return boolean True wenn alte Config konvertiert wurde, sonst false.
-     */
-    protected function ConvertPlaylistConfig()
-    {
-        $ID = $this->ReadPropertyInteger('Playlistconfig');
-        if ($ID == 0) {
-            return false;
-        }
-
-        IPS_SetName($ID, IPS_GetName($ID) . ' (Old used by:' . $this->InstanceID . ')');
-        $Style = $this->GenerateHTMLStyleProperty();
-        IPS_SetProperty($this->InstanceID, 'Table', json_encode($Style['Table']));
-        IPS_SetProperty($this->InstanceID, 'Columns', json_encode($Style['Columns']));
-        IPS_SetProperty($this->InstanceID, 'Rows', json_encode($Style['Rows']));
-        IPS_SetProperty($this->InstanceID, 'Playlistconfig', 0);
-        IPS_ApplyChanges($this->InstanceID);
-        return true;
-    }
-
     /**
      * Liefert den Header der HTML-Tabelle.
      *
@@ -1075,6 +1019,7 @@ sleep(10).then(() => {
         $table .= '</table>' . PHP_EOL;
         return $table;
     }
+
 }
 
 /**
@@ -1114,6 +1059,7 @@ trait LMSCover
         $this->SendDebug('GetCover', $URL, 0);
         return @Sys_GetURLContentEx($URL, $Login);
     }
+
 }
 
 /**
@@ -1167,6 +1113,7 @@ trait UTF8Coder
         }
         return $item;
     }
+
 }
 
 /** @} */

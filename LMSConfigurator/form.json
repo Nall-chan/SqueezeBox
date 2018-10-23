@@ -1,152 +1,100 @@
 {
-    "actions": [{
-            "type": "Button",
-            "label": "Reload",
-            "onClick": ""
+    "actions": [
+        {
+            "type": "ExpansionPanel",
+            "caption": "Players",
+            "items": [{
+                    "type": "Configurator",
+                    "name": "Players",
+                    "caption": "Players",
+                    "add": false,
+                    "delete": true,
+                    "rowCount": 2,
+                    "sort": {
+                        "column": "address",
+                        "direction": "ascending"
+                    },
+                    "columns": [{
+                            "caption": "Address",
+                            "name": "address",
+                            "width": "160px"
+                        }, {
+                            "caption": "Model",
+                            "name": "model",
+                            "width": "160px"
+                        }, {
+                            "caption": "Name",
+                            "name": "name",
+                            "width": "300px"
+                        }, {
+                            "caption": "Location",
+                            "name": "location",
+                            "width": "auto"
+                        }
+                    ],
+                    "values": []
+                }]
         },
         {
-            "type": "Label",
-            "label": "No devices found!"
-        }, {
-            "type": "Label",
-            "label": "-----------------------------------------------"
-        }, {
-            "type": "Label",
-            "label": "List of Players with MAC/IP"
-        }, 
-        {
-            "type": "Label",
-            "label": "No new devices found!"
-        }, {
-            "type": "Label",
-            "label": "No disconnected devices found!"
+            "type": "ExpansionPanel",
+            "caption": "Alarms",
+            "items": [
+                {
+                    "type": "Configurator",
+                    "name": "Alarms",
+                    "caption": "Alarms",
+                    "add": false,
+                    "delete": true,
+                    "sort": {
+                        "column": "address",
+                        "direction": "ascending"
+                    },
+                    "columns": [{
+                            "caption": "Address",
+                            "name": "address",
+                            "width": "160px"
+                        }, {
+                            "caption": "Name",
+                            "name": "name",
+                            "width": "300px"
+                        }, {
+                            "caption": "Location",
+                            "name": "location",
+                            "width": "auto"
+                        }
+                    ],
+                    "values": []
+                }]
         },
         {
-            "type": "List",
-            "name": "devicesMAC",
-            "rowCount": 5,
-            "add": false,
-            "delete": false,
-            "sort": {
-                "column": "Name",
-                "direction": "ascending"
-            },
-            "columns": [{
-                    "label": "MAC/IP",
-                    "name": "mac",
-                    "width": "120px"
-                }, {
-                    "label": "Name",
-                    "name": "name",
-                    "width": "120px"
-                }, {
-                    "label": "Location",
-                    "name": "location",
-                    "width": "auto"
-                }, {
-                    "label": "InstanceID",
-                    "name": "instanceID",
-                    "width": "65px"
-                }
-            ],
-            "values": []
-        }, {
-            "type": "Button",
-            "label": "Create Player-Instance",
-            "onClick": ""
-        }, {
-            "type": "Label",
-            "label": "-----------------------------------------------"
-        }, {
-            "type": "Label",
-            "label": "List of Players with MAC/IP"
-        }, 
-        {
-            "type": "Label",
-            "label": "No new devices found!"
-        }, {
-            "type": "Label",
-            "label": "No disconnected devices found!"
-        },
-        {
-            "type": "List",
-            "name": "devicesAlarm",
-            "rowCount": 5,
-            "add": false,
-            "delete": false,
-            "sort": {
-                "column": "Name",
-                "direction": "ascending"
-            },
-            "columns": [{
-                    "label": "MAC/IP",
-                    "name": "mac",
-                    "width": "120px"
-                }, {
-                    "label": "Name",
-                    "name": "name",
-                    "width": "120px"
-                }, {
-                    "label": "Location",
-                    "name": "location",
-                    "width": "auto"
-                }, {
-                    "label": "InstanceID",
-                    "name": "instanceID",
-                    "width": "65px"
-                }
-            ],
-            "values": []
-        }, {
-            "type": "Button",
-            "label": "Create Alarm-Instance",
-            "onClick": ""
-        }, {
-            "type": "Label",
-            "label": "-----------------------------------------------"
-        }, {
-            "type": "Label",
-            "label": "List of Battery-Instances with IP"
-        }, 
-        {
-            "type": "Label",
-            "label": "No new devices found!"
-        }, {
-            "type": "Label",
-            "label": "No disconnected devices found!"
-        },
-        {
-            "type": "List",
-            "name": "devicesIP",
-            "rowCount": 5,
-            "add": false,
-            "delete": false,
-            "sort": {
-                "column": "Name",
-                "direction": "ascending"
-            },
-            "columns": [{
-                    "label": "IP",
-                    "name": "ip",
-                    "width": "120px"
-                }, {
-                    "label": "Name",
-                    "name": "name",
-                    "width": "120px"
-                }, {
-                    "label": "Location",
-                    "name": "location",
-                    "width": "auto"
-                }, {
-                    "label": "InstanceID",
-                    "name": "instanceID",
-                    "width": "65px"
-                }
-            ],
-            "values": []
-        }, {
-            "type": "Button",
-            "label": "Create Player Battery-Instance",
-            "onClick": ""
+            "type": "ExpansionPanel",
+            "caption": "Battery",
+            "items": [
+                {
+                    "type": "Configurator",
+                    "name": "Battery",
+                    "caption": "Battery",
+                    "add": false,
+                    "delete": true,
+                    "sort": {
+                        "column": "address",
+                        "direction": "ascending"
+                    },
+                    "columns": [{
+                            "caption": "Address",
+                            "name": "address",
+                            "width": "160px"
+                        }, {
+                            "caption": "Name",
+                            "name": "name",
+                            "width": "300px"
+                        }, {
+                            "caption": "Location",
+                            "name": "location",
+                            "width": "auto"
+                        }
+                    ],
+                    "values": []
+                }]
         }]
 }

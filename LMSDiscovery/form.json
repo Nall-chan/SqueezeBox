@@ -1,0 +1,36 @@
+{
+    "actions": [
+        {                
+            "type": "Label",
+            "caption": "Non-standard CLI-Port or active user authentication must be set up manually in the 'LMSSplitter'."
+        },
+        {
+            "type": "Configurator",
+            "name": "Discovery",
+            "add": false,
+            "delete": true,
+            "sort": {
+                "column": "IPAddress",
+                "direction": "ascending"
+            },
+            "columns": [{
+                    "caption": "IP Address",
+                    "name": "IPAddress",
+                    "width": "160px"
+                }, {
+                    "caption": "Servername",
+                    "name": "servername",
+                    "width": "250px"
+                }, {
+                    "caption": "Name",
+                    "name": "name",
+                    "width": "auto"
+                }, {
+                    "caption": "Version",
+                    "name": "version",
+                    "width": "100px"
+                }
+            ],
+            "values": []
+        }]
+}

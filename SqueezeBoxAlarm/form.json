@@ -2,7 +2,7 @@
     "elements":
             [{
                     "type": "Label",
-                    "label": "MAC-Address for SqueezeBox"
+                    "caption": "MAC-Address for SqueezeBox"
                 },
                 {
                     "name": "Address",
@@ -33,11 +33,11 @@
                     "delete": false,
                     "columns": [{
                             "name": "tag", 
-                            "label": "HTML-Tag",
+                            "caption": "HTML-Tag",
                             "width": "75px",
                             "save": true
                         }, {
-                            "label": "CSS",
+                            "caption": "CSS",
                             "name": "style", 
                             "width": "auto",
                             "edit": {
@@ -59,11 +59,11 @@
                     },
                     "columns": [{
                             "name": "key", 
-                            "label": "Data",
+                            "caption": "Data",
                             "width": "75px",
                             "save": true
                         }, {
-                            "label": "Visible",
+                            "caption": "Visible",
                             "name": "show",
                             "width": "50px",
                             "edit": {
@@ -71,7 +71,7 @@
                                 "type": "CheckBox"
                             }
                         }, {
-                            "label": "No.",
+                            "caption": "No.",
                             "name": "index", 
                             "width": "50px",
                             "edit": {
@@ -79,7 +79,7 @@
                                 "type": "NumberSpinner"
                             }
                         }, {
-                            "label": "Display-Name",
+                            "caption": "Display-Name",
                             "name": "name", 
                             "width": "75px",
                             "edit": {
@@ -87,7 +87,7 @@
                                 "type": "ValidationTextBox"
                             }
                         }, {
-                            "label": "Width",
+                            "caption": "Width",
                             "name": "width", 
                             "width": "50px",
                             "edit": {
@@ -95,7 +95,7 @@
                                 "type": "NumberSpinner"
                             }
                         }, {
-                            "label": "Alignment",
+                            "caption": "Alignment",
                             "name": "align", 
                             "width": "75px",
                             "edit": {
@@ -103,21 +103,21 @@
                                 "caption": "Text alignment",
                                 "options": [
                                     {
-                                        "label": "Left",
+                                        "caption": "Left",
                                         "value": "left"
                                     },
                                     {
-                                        "label": "Center",
+                                        "caption": "Center",
                                         "value": "center"
                                     },
                                     {
-                                        "label": "Right",
+                                        "caption": "Right",
                                         "value": "right"
                                     }
                                 ]
                             }
                         }, {
-                            "label": "Color",
+                            "caption": "Color",
                             "name": "color", 
                             "width": "75px",
                             "edit": {
@@ -125,7 +125,7 @@
                                 "type": "SelectColor"
                             }
                         }, {
-                            "label": "CSS",
+                            "caption": "CSS",
                             "name": "style", 
                             "width": "100px",
                             "edit": {
@@ -143,16 +143,16 @@
                     "delete": false,
                     "columns": [{
                             "name": "row", 
-                            "label": "",
+                            "caption": "",
                             "width": "75px",
                             "save": true,
                             "visible": false
                         }, {
                             "name": "name", 
-                            "label": "Row",
+                            "caption": "Row",
                             "width": "50px"
                         }, {
-                            "label": "Backgroundcolor",
+                            "caption": "Backgroundcolor",
                             "name": "bgcolor", 
                             "width": "100px",
                             "edit": {
@@ -160,7 +160,7 @@
                                 "type": "SelectColor"
                             }
                         }, {
-                            "label": "Color",
+                            "caption": "Color",
                             "name": "color", 
                             "width": "75px",
                             "edit": {
@@ -168,7 +168,7 @@
                                 "type": "SelectColor"
                             }
                         }, {
-                            "label": "CSS",
+                            "caption": "CSS",
                             "name": "style", 
                             "width": "auto",
                             "edit": {
@@ -184,7 +184,7 @@
             [
                 {
                     "type": "Button",
-                    "label": "Request state",
+                    "caption": "Request state",
                     "onClick": "LSA_RequestAllState($id);"
                 }
             ],

@@ -1,7 +1,7 @@
 <?php
 
-require_once(__DIR__ . "/../libs/SqueezeBoxClass.php");  // diverse Klassen
-require_once(__DIR__ . "/../libs/SqueezeBoxTraits.php");  // diverse Klassen
+declare(strict_types = 1);
+
 /*
  * @addtogroup squeezebox
  * @{
@@ -11,9 +11,19 @@ require_once(__DIR__ . "/../libs/SqueezeBoxTraits.php");  // diverse Klassen
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2018 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       2.03
+ * @version       3.0
  *
  */
+
+require_once __DIR__ . '/../libs/BufferHelper.php';  // diverse Klassen
+require_once __DIR__ . '/../libs/ConstHelper.php';  // diverse Klassen
+require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
+require_once __DIR__ . '/../libs/ParentIOHelper.php';  // diverse Klassen
+require_once __DIR__ . '/../libs/WebhookHelper.php';
+require_once __DIR__ . '/../libs/VariableProfileHelper.php';
+require_once __DIR__ . '/../libs/SemaphoreHelper.php';
+require_once __DIR__ . '/../libs/VariableHelper.php';
+require_once __DIR__ . '/../libs/SqueezeBoxClass.php';  // diverse Klassen
 
 /**
  * LMSSplitter Klasse für die Kommunikation mit dem Logitech Media-Server (LMS).
@@ -24,7 +34,7 @@ require_once(__DIR__ . "/../libs/SqueezeBoxTraits.php");  // diverse Klassen
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2018 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       2.03
+ * @version       3.0
  * @example <b>Ohne</b>
  * @property array $ReplyLMSData Enthält die versendeten Befehle und buffert die Antworten.
  * @property string $Buffer Empfangsbuffer
@@ -35,25 +45,21 @@ require_once(__DIR__ . "/../libs/SqueezeBoxTraits.php");  // diverse Klassen
  */
 class LMSSplitter extends IPSModule
 {
+
     use LMSHTMLTable,
         LMSSongURL,
         LMSProfile,
-        VariableProfile,
+        VariableProfileHelper,
+        VariableHelper,
         DebugHelper,
         BufferHelper,
         InstanceStatus,
         Semaphore,
-        Webhook {
+        WebhookHelper {
         InstanceStatus::MessageSink as IOMessageSink; // MessageSink gibt es sowohl hier in der Klasse, als auch im Trait InstanceStatus. Hier wird für die Methode im Trait ein Alias benannt.
     }
     private $Socket = false;
 
-    /*    public function __construct($InstanceID)
-      {
-      parent::__construct($InstanceID);
-      $this->Socket = false;
-      }
-     */
     public function __destruct()
     {
         if ($this->Socket) {
@@ -79,7 +85,6 @@ class LMSSplitter extends IPSModule
         $this->RegisterPropertyString("Table", json_encode($Style['Table']));
         $this->RegisterPropertyString("Columns", json_encode($Style['Columns']));
         $this->RegisterPropertyString("Rows", json_encode($Style['Rows']));
-        $this->RegisterPropertyInteger("Playlistconfig", 0);
         $this->RegisterTimer('KeepAlive', 0, 'LMS_KeepAlive($_IPS["TARGET"]);');
 
         $this->ReplyLMSData = array();
@@ -122,11 +127,6 @@ class LMSSplitter extends IPSModule
         $this->ScannerID = 0;
         parent::ApplyChanges();
 
-        // Update Config
-        if ($this->ConvertPlaylistConfig()) {
-            return;
-        }
-
         // Buffer leeren
         $this->ReplyLMSData = array();
         $this->Buffer = "";
@@ -146,27 +146,14 @@ class LMSSplitter extends IPSModule
         // ServerPlaylisten
         if ($this->ReadPropertyBoolean('showPlaylist')) {
             $this->RegisterProfileIntegerEx("LMS.PlayerSelect" . $this->InstanceID, "Speaker", "", "", array());
-            $PlayerSelect = $this->RegisterVariableInteger("PlayerSelect", $this->Translate("select player"), "LMS.PlayerSelect" . $this->InstanceID, 5);
-            if (IPS_GetVariable($PlayerSelect)['VariableCustomProfile'] == "PlayerSelect" . $this->InstanceID . ".SqueezeboxServer") {
-                IPS_SetVariableCustomProfile($PlayerSelect, '');
-            }
+            $this->RegisterVariableInteger("PlayerSelect", $this->Translate("select player"), "LMS.PlayerSelect" . $this->InstanceID, 5);
             $this->EnableAction("PlayerSelect");
             $this->RegisterVariableString("Playlists", $this->Translate("Playlists"), "~HTMLBox", 6);
         } else {
             $this->UnregisterVariable("PlayerSelect");
             $this->UnregisterVariable("Playlists");
-
-            $this->UnregisterProfil("LMS.PlayerSelect" . $this->InstanceID);
+            $this->UnregisterProfile("LMS.PlayerSelect" . $this->InstanceID);
         }
-
-        //remove old Workarounds
-        $this->UnregisterScript("WebHookPlaylist");
-        $this->UnregisterVariable("BufferIN");
-        $this->UnregisterVariable("BufferOUT");
-        $this->UnregisterVariable("WaitForResponse");
-
-        // Delete Old Profil
-        $this->DeleteOldProfile();
 
         // Wenn Kernel nicht bereit, dann warten... KR_READY kommt ja gleich
         if (IPS_GetKernelRunlevel() <> KR_READY) {
@@ -204,7 +191,7 @@ class LMSSplitter extends IPSModule
                 $this->KernelReady();
                 break;
             case VM_UPDATE:
-                if (($SenderID == $this->ScannerID) and ($Data[0] == 0)) {
+                if (($SenderID == $this->ScannerID) and ( $Data[0] == 0)) {
                     $this->RefreshAllPlaylists();
                 }
                 break;
@@ -277,14 +264,6 @@ class LMSSplitter extends IPSModule
 
     private function GenerateHTMLStyleProperty()
     {
-        $ID = @$this->ReadPropertyInteger('Playlistconfig');
-        $OldConfig = false;
-        if ($ID > 0) {
-            $OldScript = IPS_GetScriptContent($ID);
-            $Script = strstr($OldScript, '### Konfig ENDE', true);
-            $Script .= 'echo serialize($Config);';
-            $OldConfig = @unserialize(IPS_RunScriptTextWaitEx($Script, array('SENDER' => "SqueezeBox")));
-        }
         $NewTableConfig = array(
             array(
                 "tag"   => "<table>",
@@ -348,107 +327,6 @@ class LMSSplitter extends IPSModule
                 "color"   => 0xffffff,
                 "style"   => "")
         );
-        if ($OldConfig === false) {
-            return array('Table' => $NewTableConfig, 'Columns' => $NewColumnsConfig, 'Rows' => $NewRowsConfig);
-        }
-
-        foreach ($NewTableConfig as $x => $Tag) {
-            switch ($Tag['tag']) {
-                case "<table>":
-                    $OldKey = 'T';
-                    break;
-                case "<thead>":
-                    $OldKey = 'H';
-                    break;
-                case "<tbody>":
-                    $OldKey = 'B';
-                    break;
-                default:
-                    continue 2;
-            }
-            if (!array_key_exists($OldKey, $OldConfig['Style'])) {
-                continue;
-            }
-            $NewTableConfig[$x]['style'] = $OldConfig['Style'][$OldKey];
-        }
-
-        $OldSpalten = array_keys($OldConfig['Spalten']);
-        $UnusedIndex = count($OldSpalten);
-
-        foreach ($NewColumnsConfig as $x => $Column) {
-            if (array_key_exists($Column['key'], $OldConfig['Spalten'])) {
-                $NewColumnsConfig[$x]['index'] = array_search($Column['key'], $OldSpalten);
-                $NewColumnsConfig[$x]['show'] = true;
-                $NewColumnsConfig[$x]['name'] = $OldConfig['Spalten'][$Column['key']];
-            } else {
-                $NewColumnsConfig[$x]['index'] = $UnusedIndex++;
-                $NewColumnsConfig[$x]['show'] = false;
-            }
-        }
-        foreach ($NewColumnsConfig as $x => $Column) {
-            if (array_key_exists($Column['key'], $OldConfig['Breite'])) {
-                $NewColumnsConfig[$x]['width'] = (int) $OldConfig['Breite'][$Column['key']];
-            }
-        }
-
-        foreach ($NewColumnsConfig as $x => $Column) {
-            if (array_key_exists('HF' . $Column['key'], $OldConfig['Style'])) {
-                $Styles = explode(';', $OldConfig['Style']['HF' . $Column['key']]);
-                foreach ($Styles as $Style) {
-                    $Pair = explode(':', $Style);
-                    switch (trim($Pair[0])) {
-                        case 'color':
-                            $NewColumnsConfig[$x]['color'] = hexdec($Pair[1]);
-                            break;
-                        case 'width':
-                            $NewColumnsConfig[$x]['width'] = (int) $Pair[1];
-                            break;
-                        case 'align':
-                        case 'text-align':
-                            $NewColumnsConfig[$x]['align'] = trim($Pair[1]);
-                            break;
-                        case '':
-                            break;
-                        default:
-                            $NewColumnsConfig[$x]['style'] .= trim($Style) . ';';
-                            break;
-                    }
-                }
-            }
-        }
-
-        foreach ($NewRowsConfig as $x => $Row) {
-            switch ($Row['row']) {
-                case "odd":
-                    $OldKey = "BRU";
-                    break;
-                case "even":
-                    $OldKey = "BRG";
-                    break;
-                default:
-                    continue 2;
-            }
-            if (!array_key_exists($OldKey, $OldConfig['Style'])) {
-                continue;
-            }
-            $Styles = explode(';', $OldConfig['Style'][$OldKey]);
-            foreach ($Styles as $Style) {
-                $Pair = explode(':', $Style);
-                switch (trim($Pair[0])) {
-                    case 'color':
-                        $NewRowsConfig[$x]['color'] = hexdec($Pair[1]);
-                        break;
-                    case 'background-color':
-                        $NewRowsConfig[$x]['bgcolor'] = hexdec($Pair[1]);
-                        break;
-                    case '':
-                        break;
-                    default:
-                        $NewRowsConfig[$x]['style'] .= trim($Style) . ';';
-                        break;
-                }
-            }
-        }
         return array('Table' => $NewTableConfig, 'Columns' => $NewColumnsConfig, 'Rows' => $NewRowsConfig);
     }
 
@@ -582,7 +460,7 @@ class LMSSplitter extends IPSModule
                 } elseif ($Value == 4) {
                     $ret = $this->WipeCache();
                 }
-                if (($Value <> 0) and (($ret === null) or ($ret === false))) {
+                if (($Value <> 0) and ( ($ret === null) or ( $ret === false))) {
                     echo $this->Translate('Error on send scanner-command');
                     return false;
                 }
@@ -602,7 +480,7 @@ class LMSSplitter extends IPSModule
      */
     protected function ProcessHookdata()
     {
-        if ((!isset($_GET["ID"])) or (!isset($_GET["Type"])) or (!isset($_GET["Secret"]))) {
+        if ((!isset($_GET["ID"])) or ( !isset($_GET["Type"])) or ( !isset($_GET["Secret"]))) {
             echo $this->Translate("Bad Request");
             return;
         }
@@ -766,63 +644,6 @@ class LMSSplitter extends IPSModule
         return $LMSData->Data[0];
     }
 
-    ///////////////////////////////////////////////////////////////
-    // START DEPRECATED
-    ///////////////////////////////////////////////////////////////
-    /**
-     * IPS-Instanz-Funktion 'LMS_RawSend'.
-     * Sendet einen Anfrage an den LMS.
-     *
-     * @access public
-     * @deprecated since version number
-     * @param string|array $Command Das/Die zu sendende/n Kommando/s.
-     * @param string|array $Value Der/Die zu sendende/n Wert/e.
-     * @param bool $needResponse True wenn Antwort erwartet.
-     * @result array|bool Antwort des LMS als Array, false im Fehlerfall.
-     */
-    public function SendRaw($Command, $Value, $needResponse)
-    {
-        trigger_error($this->Translate('Function ist deprecated. Use LMS_SendSpecial.'), E_USER_DEPRECATED);
-        $LMSData = new LMSData($Command, $Value, $needResponse);
-        $ret = $this->SendDirect($LMSData);
-        return $ret->Data;
-    }
-
-    /**
-     * IPS-Instanz-Funktion 'LMS_GetNumberOfPlayers'.
-     * @deprecated since version number
-     * @access public
-     * @result int Anzahl der bekannten Player.
-     */
-    public function GetNumberOfPlayers()
-    {
-        trigger_error($this->Translate('Function ist deprecated. Use LMS_RequestState and GetValue.'), E_USER_DEPRECATED);
-        $ret = $this->RequestState("Players");
-        if ($ret) {
-            return GetValueInteger($this->GetIDForIdent('Players'));
-        }
-        return false;
-    }
-
-    /**
-     * IPS-Instanz-Funktion 'LMS_GetVersion'.
-     * @deprecated since version number
-     * @access public
-     * @result string
-     */
-    public function GetVersion()
-    {
-        trigger_error($this->Translate('Function ist deprecated. Use LMS_RequestState and GetValue.'), E_USER_DEPRECATED);
-        $ret = $this->RequestState("Version");
-        if ($ret) {
-            return GetValueString($this->GetIDForIdent('Version'));
-        }
-        return false;
-    }
-
-    ///////////////////////////////////////////////////////////////
-    // ENDE DEPRECATED
-    ///////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////
     // START TODO
     ///////////////////////////////////////////////////////////////
@@ -2058,7 +1879,7 @@ class LMSSplitter extends IPSModule
                     $this->SetValueInteger("RescanState", 2); // einfacher
                     return true;
                 } else {
-                    if (($LMSData->Data[0] == 'done') or ($LMSData->Data[0] == '0')) {
+                    if (($LMSData->Data[0] == 'done') or ( $LMSData->Data[0] == '0')) {
                         $this->SetValueInteger("RescanState", 0);   // fertig
                         return true;
                     } elseif ($LMSData->Data[0] == 'playlists') {
@@ -2364,7 +2185,7 @@ class LMSSplitter extends IPSModule
             $fp = @stream_socket_client("tcp://" . $this->Host . ":" . $Port, $errno, $errstr, 2);
             if (!$fp) {
                 $this->SendDebug('no socket', $errstr, 0);
-                throw new Exception($this->Translate('No anwser from LMS') .' '. $errstr, E_USER_NOTICE);
+                throw new Exception($this->Translate('No anwser from LMS') . ' ' . $errstr, E_USER_NOTICE);
             } else {
                 stream_set_timeout($fp, 5);
                 $this->SendDebug('Check login', $LoginData, 0);
@@ -2524,6 +2345,7 @@ class LMSSplitter extends IPSModule
             return sprintf('%02d:%02d', ($Time / 60 % 60), $Time % 60);
         }
     }
+
 }
 
 /** @} */

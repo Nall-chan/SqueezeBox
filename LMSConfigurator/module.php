@@ -1,7 +1,7 @@
 <?php
 
-require_once(__DIR__ . "/../libs/SqueezeBoxClass.php");  // diverse Klassen
-require_once(__DIR__ . "/../libs/SqueezeBoxTraits.php");  // diverse Klassen
+declare(strict_types = 1);
+
 /*
  * @addtogroup squeezebox
  * @{
@@ -9,11 +9,15 @@ require_once(__DIR__ . "/../libs/SqueezeBoxTraits.php");  // diverse Klassen
  * @package       Squeezebox
  * @file          module.php
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2017 Michael Tröger
+ * @copyright     2018 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       2.0
+ * @version       3.0
  *
  */
+require_once __DIR__ . '/../libs/BufferHelper.php';  // diverse Klassen
+require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
+require_once __DIR__ . '/../libs/ParentIOHelper.php';  // diverse Klassen
+require_once __DIR__ . '/../libs/SqueezeBoxClass.php';  // diverse Klassen
 
 /**
  * LMSConfigurator Klasse für ein SqueezeBox Konfigurator.
@@ -21,15 +25,19 @@ require_once(__DIR__ . "/../libs/SqueezeBoxTraits.php");  // diverse Klassen
  *
  * @package       Squeezebox
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2017 Michael Tröger
+ * @copyright     2018 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       2.0
+ * @version       3.0
  * @example <b>Ohne</b>
  */
 class LMSConfigurator extends IPSModule
 {
-    use DebugHelper;
 
+    use DebugHelper,
+        BufferHelper,
+        InstanceStatus {
+        InstanceStatus::MessageSink as IOMessageSink;
+    }
     /**
      * Interne Funktion des SDK.
      *
@@ -40,6 +48,7 @@ class LMSConfigurator extends IPSModule
         parent::Create();
         $this->ConnectParent("{96A9AB3A-2538-42C5-A130-FC34205A706A}");
         $this->SetReceiveDataFilter('.*"nothingtoreceive":.*');
+        $this->ParentID = 0;
     }
 
     /**
@@ -49,7 +58,55 @@ class LMSConfigurator extends IPSModule
      */
     public function ApplyChanges()
     {
+        $this->ParentID = 0;
+        $this->SetReceiveDataFilter('.*"nothingtoreceive":.*');
+        $this->RegisterMessage(0, IPS_KERNELSTARTED);
+        $this->RegisterMessage($this->InstanceID, FM_CONNECT);
+        $this->RegisterMessage($this->InstanceID, FM_DISCONNECT);
+
         parent::ApplyChanges();
+        if (IPS_GetKernelRunlevel() <> KR_READY) {
+            return;
+        }
+
+        $this->RegisterParent();
+        if ($this->HasActiveParent()) {
+            $this->IOChangeState(IS_ACTIVE);
+        }
+    }
+
+    /**
+     * Interne Funktion des SDK.
+     *
+     * @access public
+     *
+     * @param type $TimeStamp
+     * @param type $SenderID
+     * @param type $Message
+     * @param type $Data
+     */
+    public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
+    {
+        $this->IOMessageSink($TimeStamp, $SenderID, $Message, $Data);
+
+        switch ($Message) {
+            case IPS_KERNELSTARTED:
+                $this->KernelReady();
+                break;
+        }
+    }
+
+    /**
+     * Wird ausgeführt wenn sich der Status vom Parent ändert.
+     * @access protected
+     */
+    protected function IOChangeState($State)
+    {
+        if ($State == IS_ACTIVE) {
+            // Gerätebuffer laden
+        } else {
+            // Gerätebuffer leeren
+        }
     }
 
     /**
@@ -62,33 +119,112 @@ class LMSConfigurator extends IPSModule
     private function GetDeviceInfo()
     {
         $count = $this->Send(new LMSData(array('player', 'count'), '?'));
-        $players = array();
-        if (($count === false) or ($count === null)) {
-            return $players;
+        if (($count === false) or ( $count === null)) {
+            return [];
         }
+        $players = [];
         for ($i = 0; $i < $count->Data[0]; $i++) {
-            $player = $this->Send(new LMSData(array('player', 'id'), array($i, '?')));
-            if ($player === false) {
+            $playerid = $this->Send(new LMSData(array('player', 'id'), array($i, '?')));
+            if ($playerid === false) {
                 continue;
             }
-            $players[$i]['mac'] = rawurldecode($player->Data[1]);
-            $player = $this->Send(new LMSData(array('player', 'ip'), array($i, '?')));
-            if ($player === false) {
+            $id = strtolower(rawurldecode($playerid->Data[1]));
+
+            $playerip = $this->Send(new LMSData(array('player', 'ip'), array($i, '?')));
+            if ($playerip === false) {
                 continue;
             }
-            $players[$i]['ip'] = rawurldecode(explode(':', $player->Data[1])[0]);
-            $player = $this->Send(new LMSData(array('player', 'name'), array($i, '?')));
-            if ($player === false) {
+            $players[$id]['ip'] = rawurldecode(explode(':', $playerip->Data[1])[0]);
+            $playername = $this->Send(new LMSData(array('player', 'name'), array($i, '?')));
+            if ($playername === false) {
                 continue;
             }
-            $players[$i]['name'] = rawurldecode($player->Data[1]);
-            $player = $this->Send(new LMSData(array('player', 'model'), array($i, '?')));
-            if ($player === false) {
+            $players[$id]['name'] = rawurldecode($playername->Data[1]);
+            $playermodel = $this->Send(new LMSData(array('player', 'model'), array($i, '?')));
+            if ($playermodel === false) {
                 continue;
             }
-            $players[$i]['model'] = rawurldecode($player->Data[1]);
+            $players[$id]['model'] = rawurldecode($playermodel->Data[1]);
         }
         return $players;
+    }
+
+    private function GetInstanceList(string $GUID, string $ConfigParam)
+    {
+        $InstanceIDList = array_flip(array_values(array_filter(IPS_GetInstanceListByModuleID($GUID), [$this, 'FilterInstances'])));
+        if ($ConfigParam != '') {
+            array_walk($InstanceIDList, [$this, 'GetConfigParam'], $ConfigParam);
+        }
+        return $InstanceIDList;
+    }
+
+    private function FilterInstances(int $InstanceID)
+    {
+        return IPS_GetInstance($InstanceID)['ConnectionID'] == $this->ParentID;
+    }
+
+    private function FilterBattery($Values)
+    {
+        return ($Values['model'] == 'baby');
+    }
+
+    private function GetConfigParam(&$item1, $InstanceID, $ConfigParam)
+    {
+        $item1 = IPS_GetProperty($InstanceID, $ConfigParam);
+    }
+
+    private function GetConfiguratorArray(string $GUID, string $ConfigParamName)
+    {
+        $ModuleName = IPS_GetModule($GUID)['Aliases'][0];
+        $InstancesDevices = $this->GetInstanceList($GUID, $ConfigParamName);
+        $this->SendDebug($ModuleName, $InstancesDevices, 0);
+        $Devices = [];
+        $Device = [];
+        if ($ConfigParamName != '') {
+            $InstanceID = array_search($index, $InstancesDevices);
+            $Device['line'] = $index;
+        } else {
+            $InstanceID = array_search(0, $InstancesDevices);
+        }
+        if ($InstanceID === false) {
+            $Device['instanceID'] = 0;
+            $Device['name'] = $ModuleName;
+        } else {
+            unset($InstancesDevices[$InstanceID]);
+            $Device['instanceID'] = $InstanceID;
+            $Device['name'] = IPS_GetLocation($InstanceID);
+        }
+        $Create = [
+            'moduleID'      => $GUID,
+            'configuration' => new stdClass()
+        ];
+        if ($ConfigParamName != '') {
+            $Create['configuration'] = [
+                $ConfigParamName => $index
+            ];
+        }
+        $Device['create'] = array_merge([$Create], $ParentCreate);
+        $Devices[] = $Device;
+
+        if ($ConfigParamName !== '') {
+            foreach ($InstancesDevices as $InstanceID => $Line) {
+                $Devices[] = [
+                    'instanceID' => $InstanceID,
+                    'type'       => $ModuleName,
+                    'line'       => $Line,
+                    'name'       => IPS_GetLocation($InstanceID)
+                ];
+            }
+        } else {
+            foreach ($InstancesDevices as $InstanceID => $Line) {
+                $Devices[] = [
+                    'instanceID' => $InstanceID,
+                    'type'       => $ModuleName,
+                    'name'       => IPS_GetLocation($InstanceID)
+                ];
+            }
+        }
+        return $Devices;
     }
 
     /**
@@ -98,203 +234,163 @@ class LMSConfigurator extends IPSModule
      */
     public function GetConfigurationForm()
     {
-        $FoundDevicesMAC = $FoundDevicesIP = $FoundDevicesAlarm = $this->GetDeviceInfo();
-        $Total = count($FoundDevicesMAC);
-        $MyParent = IPS_GetInstance($this->InstanceID)['ConnectionID'];
-        $ListMAC = $ListIP = $ListAlarm = array();
-        $DisconnectedMAC = $DisconnectedIP = $DisconnectedAlarm = 0;
-        $NewDevicesMAC = $NewDevicesIP = $NewDevicesAlarm = 0;
-        $this->SendDebug('Found', $FoundDevicesMAC, 0);
-        $InstanceIDListMAC = IPS_GetInstanceListByModuleID("{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}");
-        $InstanceIDListAlarm = IPS_GetInstanceListByModuleID("{E7423083-3502-42C8-B244-2852D0BE41D4}");
-        $InstanceIDListIP = IPS_GetInstanceListByModuleID("{718158BB-B247-4A71-9440-9C2FF1378752}");
-        foreach ($InstanceIDListMAC as $InstanceID) {
-            // Fremde Geräte überspringen
-            if (IPS_GetInstance($InstanceID)['ConnectionID'] != $MyParent) {
-                continue;
-            }
-            $mac = (string) IPS_GetProperty($InstanceID, 'Address');
-            $Device = array(
-                'instanceID' => $InstanceID,
-                'mac' => $mac,
-                'location' => IPS_GetLocation($InstanceID));
-            $this->SendDebug('Search', $mac, 0);
-            $index = array_search($mac, array_column($FoundDevicesMAC, 'mac'));
-            if ($index !== false) { // found
-                $Device['name'] = $FoundDevicesMAC[$index]['name'];
-                $Device['rowColor'] = "#00ff00";
-                $FoundDevicesMAC[$index]['instanceID'] = $InstanceID;
+        $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+
+        if (!$this->HasActiveParent()) {
+            return json_encode($Form);
+        }
+        $Splitter = IPS_GetInstance($this->InstanceID)['ConnectionID'];
+        $IO = IPS_GetInstance($Splitter)['ConnectionID'];
+        $ParentCreate = [
+            [
+                'moduleID'      => '{96A9AB3A-2538-42C5-A130-FC34205A706A}',
+                'configuration' => [
+                    'User'     => IPS_GetProperty($Splitter, 'User'),
+                    'Password' => IPS_GetProperty($Splitter, 'Password'),
+                    'Port'     => IPS_GetProperty($Splitter, 'Port'),
+                    'Webport'  => IPS_GetProperty($Splitter, 'Webport')
+                ]
+            ],
+            [
+                'moduleID'      => '{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}',
+                'configuration' => [
+                    'Host' => IPS_GetProperty($IO, 'Host'),
+                    'Port' => (int) IPS_GetProperty($IO, 'Port')
+                ]
+            ]
+        ];
+
+        $FoundPlayers = $FoundBattery = $FoundAlarms = $this->GetDeviceInfo();
+        $FoundBattery = array_filter($FoundBattery, [$this, 'FilterBattery']);
+        $this->SendDebug('Found Players', $FoundPlayers, 0);
+        $this->SendDebug('Found Battery', $FoundBattery, 0);
+        $InstanceIDListPlayers = $this->GetInstanceList("{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}", 'Address');
+        $this->SendDebug('IPS Players', $InstanceIDListPlayers, 0);
+        $InstanceIDListAlarms = $this->GetInstanceList("{E7423083-3502-42C8-B244-2852D0BE41D4}", 'Address');
+        $this->SendDebug('IPS Alarms', $InstanceIDListAlarms, 0);
+        $InstanceIDListBattery = $this->GetInstanceList("{718158BB-B247-4A71-9440-9C2FF1378752}", 'Address');
+        $this->SendDebug('IPS Battery', $InstanceIDListBattery, 0);
+
+//        return json_encode(new stdClass());
+        $PlayerValues = [];
+        foreach ($FoundPlayers as $Address => $Device) {
+
+            $InstanceID = array_search($Address, $InstanceIDListPlayers);
+            if ($InstanceID !== false) {
+                $AddValue = [
+                    'instanceID' => $InstanceID,
+                    'name'       => IPS_GetName($InstanceID),
+                    'model'      => ucfirst($Device['model']),
+                    'address'    => $Address,
+                    'location'   => IPS_GetLocation($InstanceID)
+                ];
+                unset($InstanceIDListPlayers[$InstanceID]);
             } else {
-//                $FoundDevicesMAC[$index]['instanceID'] = 0;
-                $Device['name'] = 'unknown';
-                $Device["rowColor"] = "#ff0000";
-                $DisconnectedMAC++;
+                $AddValue = [
+                    'instanceID' => 0,
+                    'name'       => $Device['name'],
+                    'model'      => ucfirst($Device['model']),
+                    'address'    => $Address,
+                    'location'   => ''
+                ];
             }
-            $ListMAC[] = $Device;
+            $Create = [
+                'moduleID'      => '{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}',
+                'configuration' => ['Address' => $Address]
+            ];
+
+            $AddValue['create'] = array_merge([$Create], $ParentCreate);
+            $PlayerValues[] = $AddValue;
         }
-        foreach ($FoundDevicesMAC as $Device) {
-            if (array_key_exists('instanceID', $Device)) {
-                continue;
-            }
-            $Device = array(
-                'instanceID' => 0,
-                'mac' => $Device['mac'],
-                'name' => $Device['name'],
-                'location' => '');
-            $ListMAC[] = $Device;
-            $NewDevicesMAC++;
-        }
-        foreach ($InstanceIDListAlarm as $InstanceID) {
-            // Fremde Geräte überspringen
-            if (IPS_GetInstance($InstanceID)['ConnectionID'] != $MyParent) {
-                continue;
-            }
-            $mac = (string) IPS_GetProperty($InstanceID, 'Address');
-            $Device = array(
+        foreach ($InstanceIDListPlayers as $InstanceID => $Address) {
+            $PlayerValues[] = [
                 'instanceID' => $InstanceID,
-                'mac' => $mac,
-                'location' => IPS_GetLocation($InstanceID));
-            $this->SendDebug('Search', $mac, 0);
-            $index = array_search($mac, array_column($FoundDevicesAlarm, 'mac'));
-            if ($index !== false) { // found
-                $Device['name'] = $FoundDevicesAlarm[$index]['name'];
-                $Device['rowColor'] = "#00ff00";
-                $FoundDevicesAlarm[$index]['instanceID'] = $InstanceID;
+                'name'       => IPS_GetName($InstanceID),
+                'model'      => 'unknow',
+                'address'    => $Address,
+                'location'   => IPS_GetLocation($InstanceID)
+            ];
+        }
+        foreach ($FoundAlarms as $Address => $Device) {
+
+            $InstanceID = array_search($Address, $InstanceIDListAlarms);
+            if ($InstanceID !== false) {
+                $AddValue = [
+                    'instanceID' => $InstanceID,
+                    'name'       => IPS_GetName($InstanceID),
+                    'address'    => $Address,
+                    'location'   => IPS_GetLocation($InstanceID)
+                ];
+                unset($InstanceIDListAlarms[$InstanceID]);
             } else {
-//                $FoundDevicesMAC[$index]['instanceID'] = 0;
-                $Device['name'] = 'unknown';
-                $Device["rowColor"] = "#ff0000";
-                $DisconnectedAlarm++;
+                $AddValue = [
+                    'instanceID' => 0,
+                    'name'       => $this->Translate('Alarm') . ' ' . $Device['name'],
+                    'address'    => $Address,
+                    'location'   => ''
+                ];
             }
-            $ListAlarm[] = $Device;
+            $Create = [
+                'moduleID'      => '{E7423083-3502-42C8-B244-2852D0BE41D4}',
+                'configuration' => ['Address' => $Address]
+            ];
+
+            $AddValue['create'] = array_merge([$Create], $ParentCreate);
+            $AlarmValues[] = $AddValue;
         }
-        foreach ($FoundDevicesAlarm as $Device) {
-            if (array_key_exists('instanceID', $Device)) {
-                continue;
-            }
-            $Device = array(
-                'instanceID' => 0,
-                'mac' => $Device['mac'],
-                'name' => $Device['name'],
-                'location' => '');
-            $ListAlarm[] = $Device;
-            $NewDevicesMAC++;
-        }
-        foreach ($InstanceIDListIP as $InstanceID) {
-            $ip = (string) IPS_GetProperty($InstanceID, 'Address');
-            $Device = array(
+        foreach ($InstanceIDListPlayers as $InstanceID => $Address) {
+            $AlarmValues[] = [
                 'instanceID' => $InstanceID,
-                'ip' => $ip,
-                'location' => IPS_GetLocation($InstanceID));
-            $this->SendDebug('Search', $ip, 0);
-            $index = array_search($ip, array_column($FoundDevicesIP, 'ip'));
-            if ($index !== false) { // found
-                $Device['name'] = $FoundDevicesIP[$index]['name'];
-                $Device['rowColor'] = "#00ff00";
-                $FoundDevicesIP[$index]['instanceID'] = $InstanceID;
+                'name'       => IPS_GetName($InstanceID),
+                'address'    => $Address,
+                'location'   => IPS_GetLocation($InstanceID)
+            ];
+        }
+        foreach ($FoundBattery as $Address => $Device) {
+
+            $InstanceID = array_search($Address, $InstanceIDListBattery);
+            if ($InstanceID !== false) {
+                $AddValue = [
+                    'instanceID' => $InstanceID,
+                    'name'       => IPS_GetName($InstanceID),
+                    'address'    => $Address,
+                    'location'   => IPS_GetLocation($InstanceID)
+                ];
+                unset($InstanceIDListBattery[$InstanceID]);
             } else {
-//                $FoundDevicesIP[$index]['instanceID'] = 0;
-                $Device['name'] = 'unknown';
-                $Device["rowColor"] = "#ff0000";
-                $DisconnectedIP++;
+                $AddValue = [
+                    'instanceID' => 0,
+                    'name'       => $this->Translate('Battery') . ' ' . $Device['name'],
+                    'address'    => $Address,
+                    'location'   => ''
+                ];
             }
-            $ListIP[] = $Device;
+            $Create = [
+                'moduleID'      => '{718158BB-B247-4A71-9440-9C2FF1378752}',
+                'configuration' => ['Address' => $Address]
+            ];
+
+            $AddValue['create'] = array_merge([$Create], $ParentCreate);
+            $BatteryValues[] = $AddValue;
         }
-        foreach ($FoundDevicesIP as $Device) {
-            if (array_key_exists('instanceID', $Device)) {
-                continue;
-            }
-            $Device = array(
-                'instanceID' => 0,
-                'ip' => $Device['ip'],
-                'name' => $Device['name'],
-                'location' => '');
-            $ListIP[] = $Device;
-            $NewDevicesIP++;
+        foreach ($InstanceIDListPlayers as $InstanceID => $Address) {
+            $BatteryValues[] = [
+                'instanceID' => $InstanceID,
+                'name'       => IPS_GetName($InstanceID),
+                'address'    => $Address,
+                'location'   => IPS_GetLocation($InstanceID)
+            ];
         }
 
-        $data = json_decode(file_get_contents(__DIR__ . "/form.json"), true);
-        if ($Total > 0) {
-            $data['actions'][1]['label'] = sprintf($this->Translate("Devices found: %d"), $Total);
-        }
-        if ($NewDevicesMAC > 0) {
-            $data['actions'][4]['label'] = sprintf($this->Translate("New devices: %d"), $NewDevicesMAC);
-        }
-        if ($DisconnectedMAC > 0) {
-            $data['actions'][5]['label'] = sprintf($this->Translate("Disconnected devices: %d"), $DisconnectedMAC);
-        }
-        $data['actions'][6]['values'] = array_merge($data['actions'][6]['values'], $ListMAC);
-
-        if ($NewDevicesAlarm > 0) {
-            $data['actions'][10]['label'] = sprintf($this->Translate("New devices: %d"), $NewDevicesMAC);
-        }
-        if ($DisconnectedAlarm > 0) {
-            $data['actions'][11]['label'] = sprintf($this->Translate("Disconnected devices: %d"), $DisconnectedMAC);
-        }
-        $data['actions'][12]['values'] = array_merge($data['actions'][12]['values'], $ListAlarm);
-
-
-        if ($NewDevicesIP > 0) {
-            $data['actions'][16]['label'] = sprintf($this->Translate("New devices: %d"), $NewDevicesIP);
-        }
-        if ($DisconnectedIP > 0) {
-            $data['actions'][17]['label'] = sprintf($this->Translate("Disconnected devices: %d"), $DisconnectedIP);
-        }
-        $data['actions'][18]['values'] = array_merge($data['actions'][18]['values'], $ListIP);
-
-        $data['actions'][7]['onClick'] = <<<'EOT'
-if (($devicesMAC['mac'] == '') or ($devicesMAC['instanceID'] > 0))
-    return;
-$InstanceID = @IPS_CreateInstance('{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}');
-if ($InstanceID > 0){
-if (IPS_GetInstance($InstanceID)['ConnectionID'] != IPS_GetInstance($id)['ConnectionID'])
-{
-    if (IPS_GetInstance($InstanceID)['ConnectionID'] > 0)
-    IPS_DisconnectInstance($InstanceID);
-    IPS_ConnectInstance($InstanceID, IPS_GetInstance($id)['ConnectionID']);
-}
-@IPS_SetProperty($InstanceID, 'Address', $devicesMAC['mac']);
-@IPS_ApplyChanges($InstanceID);
-IPS_SetName($InstanceID,$devicesMAC['name']);
-echo 'OK';
-} else {
-echo 'Error on create instance.';
-}
-EOT;
-        $data['actions'][13]['onClick'] = <<<'EOT'
-if (($devicesAlarm['mac'] == '') or ($devicesAlarm['instanceID'] > 0))
-    return;
-$InstanceID = @IPS_CreateInstance('{E7423083-3502-42C8-B244-2852D0BE41D4}');
-if ($InstanceID >0){
-if (IPS_GetInstance($InstanceID)['ConnectionID'] != IPS_GetInstance($id)['ConnectionID'])
-{
-    if (IPS_GetInstance($InstanceID)['ConnectionID'] > 0)
-    IPS_DisconnectInstance($InstanceID);
-    IPS_ConnectInstance($InstanceID, IPS_GetInstance($id)['ConnectionID']);
-}
-@IPS_SetProperty($InstanceID, 'Address', $devicesAlarm['mac']);
-@IPS_ApplyChanges($InstanceID);
-IPS_SetName($InstanceID,'Alarm '.$devicesAlarm['name']);
-echo 'OK';
-} else {
-echo 'Error on create instance.';
-}
-EOT;
-        $data['actions'][19]['onClick'] = <<<'EOT'
-if (($devicesIP['ip'] == '') or ($devicesIP['instanceID'] > 0))
-    return;
-$InstanceID = @IPS_CreateInstance('{718158BB-B247-4A71-9440-9C2FF1378752}');
-if ($InstanceID >0){
-@IPS_SetProperty($InstanceID, 'Address', $devicesIP['ip']);
-@IPS_ApplyChanges($InstanceID);
-IPS_SetName($InstanceID,'Battery '.$devicesIP['name']);
-echo 'OK';
-} else {
-echo 'Error on create instance.';
-}
-EOT;
-        $data['actions'][0]['onClick'] = "echo '" . $this->Translate('Sorry please close and reopen configurator.') . "';";
-        return json_encode($data);
+        $Form['actions'][0]['items'][0]['values'] = $PlayerValues;
+        $Form['actions'][0]['items'][0]['rowCount'] = count($PlayerValues) + 1;
+        $Form['actions'][1]['items'][0]['values'] = $AlarmValues;
+        $Form['actions'][1]['items'][0]['rowCount'] = count($AlarmValues) + 1;
+        $Form['actions'][2]['items'][0]['values'] = $BatteryValues;
+        $Form['actions'][2]['items'][0]['rowCount'] = count($BatteryValues) + 1;
+        $this->SendDebug('FORM', json_encode($Form), 0);
+        $this->SendDebug('FORM', json_last_error_msg(), 0);
+        return json_encode($Form);
     }
 
     /**
@@ -323,4 +419,5 @@ EOT;
             return null;
         }
     }
+
 }

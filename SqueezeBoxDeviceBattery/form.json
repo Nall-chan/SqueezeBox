@@ -3,7 +3,7 @@
             [
                 {
                     "type": "Label",
-                    "label": "IP-Address of Squeezbox Radio"
+                    "caption": "IP-Address of Squeezbox Radio"
                 },
                 {
                     "name": "Address",
@@ -12,7 +12,7 @@
                 },
                 {
                     "type": "Label",
-                    "label": "Default SSH password: 1234"
+                    "caption": "Default SSH password: 1234"
                 },
                 {
                     "name": "Password",
@@ -29,7 +29,7 @@
             [
                 {
                     "type": "Button",
-                    "label": "Request state",
+                    "caption": "Request state",
                     "onClick": "LSQB_RequestState($id);"
                 }
             ],

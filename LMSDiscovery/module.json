@@ -1,0 +1,11 @@
+{
+    "id": "{28AC8A6C-4E03-43BE-9C3E-B8FEF78D374C}",
+    "name": "LMS Discovery",
+    "type": 5,
+    "vendor": "Logitech",
+    "aliases": ["Logitech Media Server Discovery"],
+    "parentRequirements": [],
+    "childRequirements": [],
+    "implemented": [],
+    "prefix": "LMS"
+}

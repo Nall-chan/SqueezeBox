@@ -1,0 +1,12 @@
+{
+    "translations": {
+        "de": {
+            "IP Address": "IP Adresse",
+            "Servername": "Servername",
+            "Version": "Version",
+            "Name": "Name",
+            "Non-standard CLI-Port or active user authentication must be set up manually in the 'LMSSplitter'.": "Nicht standard CLI-Port oder aktive Benutzer Authentifizierung muss manuell im LMS-Splitter eingerichtet werden.",
+            "Background discovery of Kodi devices": "Hintergrundsuche nach Kodi Ger\u00e4ten"
+        }
+    }
+}
