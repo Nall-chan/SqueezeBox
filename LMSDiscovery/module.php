@@ -30,7 +30,6 @@ require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
  */
 class LMSDiscovery extends ipsmodule
 {
-
     use DebugHelper,
         BufferHelper;
     /**
@@ -202,7 +201,6 @@ class LMSDiscovery extends ipsmodule
         $this->Devices = $this->DiscoverDevices();
         // Alt neu vergleich fehlt, sowie die Events an IPS senden wenn neues Gerät im Netz gefunden wurde.
     }
-
 }
 
 if (count(IPS_GetInstanceListByModuleID("{28AC8A6C-4E03-43BE-9C3E-B8FEF78D374C}")) == 0) {
