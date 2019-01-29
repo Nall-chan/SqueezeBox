@@ -95,7 +95,6 @@ trait VariableHelper
         }
         return false;
     }
-
 }
 
 /** @} */

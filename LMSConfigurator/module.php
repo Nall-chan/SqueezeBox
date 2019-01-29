@@ -32,7 +32,6 @@ require_once __DIR__ . '/../libs/SqueezeBoxClass.php';  // diverse Klassen
  */
 class LMSConfigurator extends IPSModule
 {
-
     use DebugHelper,
         BufferHelper,
         InstanceStatus {
@@ -130,7 +129,7 @@ class LMSConfigurator extends IPSModule
     private function GetDeviceInfo()
     {
         $count = $this->Send(new LMSData(array('player', 'count'), '?'));
-        if (($count === false) or ( $count === null)) {
+        if (($count === false) or ($count === null)) {
             return [];
         }
         $players = [];
@@ -295,7 +294,6 @@ class LMSConfigurator extends IPSModule
         $this->SendDebug('IPS Battery', $InstanceIDListBattery, 0);
         $PlayerValues = [];
         foreach ($FoundPlayers as $Address => $Device) {
-
             $InstanceID = array_search($Address, $InstanceIDListPlayers);
             if ($InstanceID !== false) {
                 $AddValue = [
@@ -333,7 +331,6 @@ class LMSConfigurator extends IPSModule
             ];
         }
         foreach ($FoundAlarms as $Address => $Device) {
-
             $InstanceID = array_search($Address, $InstanceIDListAlarms);
             if ($InstanceID !== false) {
                 $AddValue = [
@@ -368,7 +365,6 @@ class LMSConfigurator extends IPSModule
             ];
         }
         foreach ($FoundBattery as $Address => $Device) {
-
             $InstanceID = array_search($Address, $InstanceIDListBattery);
             if ($InstanceID !== false) {
                 $AddValue = [
@@ -440,5 +436,4 @@ class LMSConfigurator extends IPSModule
             return null;
         }
     }
-
 }

@@ -221,7 +221,6 @@ class LSA_Alarm
     {
         $this->Time = ((($Time[0] * 60) + $Time[1]) * 60) + $Time[2];
     }
-
 }
 
 /**
@@ -338,7 +337,6 @@ class LSA_AlarmList
         }
         return false;
     }
-
 }
 
 /**
@@ -357,7 +355,6 @@ class LSA_AlarmList
  */
 class SqueezeboxAlarm extends IPSModule
 {
-
     use VariableProfileHelper,
         LMSHTMLTable,
         DebugHelper,
@@ -640,7 +637,7 @@ class SqueezeboxAlarm extends IPSModule
      */
     protected function ProcessHookdata()
     {
-        if ((!isset($_GET["ID"])) or ( !isset($_GET["Type"])) or ( !isset($_GET["Secret"]))) {
+        if ((!isset($_GET["ID"])) or (!isset($_GET["Type"])) or (!isset($_GET["Secret"]))) {
             echo $this->Translate("Bad Request");
             return;
         }
@@ -1126,7 +1123,7 @@ class SqueezeboxAlarm extends IPSModule
             return false;
         }
         $LMSResponse->SliceData();
-        if ((count($LMSResponse->Data) == 0) or ( $LMSResponse->Data[0] == '?')) {
+        if ((count($LMSResponse->Data) == 0) or ($LMSResponse->Data[0] == '?')) {
             trigger_error($this->Translate("Player not connected"), E_USER_NOTICE);
             return false;
         }
@@ -1359,7 +1356,7 @@ class SqueezeboxAlarm extends IPSModule
             trigger_error(sprintf($this->Translate("%s out of range."), 'AlarmIndex'), E_USER_NOTICE);
             return false;
         }
-        if (($Url == '0') or ( $Url == '')) {
+        if (($Url == '0') or ($Url == '')) {
             $Url = 'CURRENT_PLAYLIST';
         }
 
@@ -1386,7 +1383,7 @@ class SqueezeboxAlarm extends IPSModule
             trigger_error(sprintf($this->Translate("%s must be integer."), 'Value'), E_USER_NOTICE);
             return false;
         }
-        if (($Value < 0) or ( $Value > 2)) {
+        if (($Value < 0) or ($Value > 2)) {
             trigger_error(sprintf($this->Translate("%s must be 0, 1 or 2."), 'Value'), E_USER_NOTICE);
             return false;
         }
@@ -1798,7 +1795,7 @@ class SqueezeboxAlarm extends IPSModule
                 $this->RefreshEvents($this->Alarms);
                 break;
             case 'client':
-                if (($LMSData->Data[0] == 'new') or ( $LMSData->Data[0] == 'reconnect')) {
+                if (($LMSData->Data[0] == 'new') or ($LMSData->Data[0] == 'reconnect')) {
                     $this->RequestAllState();
                 }
                 break;
@@ -1934,7 +1931,6 @@ class SqueezeboxAlarm extends IPSModule
         }
         return null;
     }
-
 }
 
 /** @} */
