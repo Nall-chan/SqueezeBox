@@ -1,7 +1,7 @@
 [![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20Version-2.03-blue.svg)]()
+[![Version](https://img.shields.io/badge/Modul%20Version-3.00-blue.svg)]()
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
-[![Version](https://img.shields.io/badge/Symcon%20Version-4.3%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857-IP-Symcon-4-3-%28Stable%29-Changelog)
+[![Version](https://img.shields.io/badge/Symcon%20Version-5.0%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857-IP-Symcon-5-0-%28Stable%29-Changelog)
 [![StyleCI](https://styleci.io/repos/38763445/shield?style=flat)](https://styleci.io/repos/38763445)  
 
 # IPSSqueezeBox
@@ -25,6 +25,16 @@ Logitech Media Server.
 6. [Lizenz](#6-lizenz)
 
 ## 1. Funktionsumfang
+
+### [Discovery:](LMSDiscovery/)  
+
+ - Einfaches Auffinden von Logitech Media Servern im lokalen Netzwerk.  
+ - Einfaches Einrichten von Konfiguratoren für gefundene Server.  
+
+### [Squeezebox Konfigurator:](LMSConfigurator/)  
+
+ - Auslesen und darstellen aller im LMS und IPS bekannten Geräte und Instanzen.  
+ - Einfaches Anlegen von neuen Instanzen in IPS.  
 
 ### [Logitech Media Server:](LMSSplitter/)  
 
@@ -57,20 +67,15 @@ Logitech Media Server.
 
  - Auslesen und darstellen von Werten der Stromversorgung und des Akkumulators.  
 
-### [Squeezebox Konfigurator:](LMSConfigurator/)  
-
- - Auslesen und darstellen aller im LMS und IPS bekannten Geräte und Instanzen.  
- - Einfaches Anlegen von neuen Instanzen in IPS.  
-
 ## 2. Voraussetzungen
 
- - IPS 4.3 oder höher
+ - IPS 5.0 oder höher
  - Logitech Media Server (getestet ab 7.9.x)
  - kompatible Player
 
 ## 3. Software-Installation
 
-**IPS 4.3:**  
+**IPS 5.0:**  
    Bei privater Nutzung: Über das 'Module-Control' in IPS folgende URL hinzufügen.  
     `git://github.com/Nall-chan/IPSSqueezeBox.git`  
 
@@ -113,6 +118,10 @@ Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:
 | Data        | array   | Daten des Kommandos als Array |
 
 ### 3. Changlog
+
+Version 3.00:  
+- Release für IPS 5.0
+- Discovery-Instanz enthalten, welche einen LMS im Netzwerk automatisch findet.
 
 Version 2.03:  
 - Fixes für PHP 7.3

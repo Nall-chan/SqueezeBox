@@ -190,11 +190,6 @@
                             }
                         }
                     ]
-                },
-                {
-                    "name": "Playlistconfig",
-                    "type": "SelectScript",
-                    "caption": "Script:"
                 }
             ],
     "actions":
@@ -216,7 +211,7 @@
                 {
                     "code": 104,
                     "icon": "inactive",
-                    "caption": "Interface closed."
+                    "caption": "Parent interface is closed."
                 },
                 {
                     "code": 204,

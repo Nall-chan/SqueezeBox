@@ -1,7 +1,8 @@
 [![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20Version-2.02-blue.svg)]()
-[![Version](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
-[![Version](https://img.shields.io/badge/Symcon%20Version-4.3%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857-IP-Symcon-4-3-%28Stable%29-Changelog)
+[![Version](https://img.shields.io/badge/Modul%20Version-3.00-blue.svg)]()
+[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
+[![Version](https://img.shields.io/badge/Symcon%20Version-5.0%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857-IP-Symcon-5-0-%28Stable%29-Changelog)
+[![StyleCI](https://styleci.io/repos/38763445/shield?style=flat)](https://styleci.io/repos/38763445)  
 
 # Squeezebox Alarm (Wecker)
 Ermöglich die Steuerung sowie die Darstellung der Zustände  
@@ -20,8 +21,7 @@ von den in einer SqueezeBox eingerichteten Weckern in IPS.
 7. [PHP-Befehlsreferenz](#7-php-befehlsreferenz)  
     1. [Allgemeine Befehle](#1-allgemeine-befehle)  
     2. [Wecker Befehle](#2-wecker-befehle)  
-8. [Anhang](#8-anhang)  
-9. [Lizenz](#9-lizenz)  
+8. [Lizenz](#8-lizenz)  
 
 ## 1. Funktionsumfang
 
@@ -30,7 +30,7 @@ von den in einer SqueezeBox eingerichteten Weckern in IPS.
 
 ## 2. Voraussetzungen
 
- - IPS 4.3 oder höher
+ - IPS 5.0 oder höher
  - Logitech Media Server (getestet ab 7.9.x)
  - kompatibler Player
  - Eingerichtete Splitter Instanz vom Typ 'Logitech Media Server' (LMS-Splitter)
@@ -256,24 +256,7 @@ Setzt die Lautstärke des Weckers.
 Es wird `true` zurückgeben wenn der Befehl vom Server bestätigt wurde,  
 oder `false` im Fehlerfall.  
 
-
-## 8. Anhang
-
-**Changlog:**  
-
-Version 2.02:  
- - Fix: Fehlermeldungen beim erzeugen der Instanz, wenn keine Alarme im Player vorhanden waren  
-
-Version 2.01:  
- - Fix: Alle Alarme ein/ausschalten über den Server wurde nicht verarbeitet  
-
-Version 2.0:  
- - Komplett überarbeitete Version für IPS 4.3 und höher  
-
-Version 1.0:  
- - Erstes offizielles Release  
-
-## 9. Lizenz
+## 8. Lizenz
 
   IPS-Modul:  
   [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)  

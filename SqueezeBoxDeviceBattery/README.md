@@ -1,7 +1,8 @@
 [![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20Version-2.00-blue.svg)]()
-[![Version](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
-[![Version](https://img.shields.io/badge/Symcon%20Version-4.3%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857-IP-Symcon-4-3-%28Stable%29-Changelog)
+[![Version](https://img.shields.io/badge/Modul%20Version-3.00-blue.svg)]()
+[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
+[![Version](https://img.shields.io/badge/Symcon%20Version-5.0%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857-IP-Symcon-5-0-%28Stable%29-Changelog)
+[![StyleCI](https://styleci.io/repos/38763445/shield?style=flat)](https://styleci.io/repos/38763445)  
 
 # Squeezebox Battery
 Daten zur Stromversorgung und des Akkus in IPS einbinden.  
@@ -17,8 +18,7 @@ Daten zur Stromversorgung und des Akkus in IPS einbinden.
 5. [Statusvariablen und Profile](#5-statusvariablen-und-profile)
 6. [WebFront](#6-webfront)
 7. [PHP-Befehlsreferenz](#7-php-befehlsreferenz) 
-8. [Anhang](#8-anhang)  
-9. [Lizenzen](#9-lizenzen)
+8. [Lizenzen](#8-lizenzen)
 
 ## 1. Funktionsumfang
 
@@ -26,7 +26,7 @@ Daten zur Stromversorgung und des Akkus in IPS einbinden.
 
 ## 2. Voraussetzungen
 
- - IPS 4.3 oder höher  
+ - IPS 5.0 oder höher
  - kompatibler Player mit aktivierten SSH-Zugang  
 
 ## 3. Software-Installation
@@ -92,17 +92,7 @@ Es wird `true` zurückgeben wenn die Abfrage erfolgreich war,
 oder `false` im Fehlerfall.  
 
 
-## 8. Anhang
-
-**Changlog:**  
-
-Version 2.0:  
- - Komplett überarbeitete Version für IPS 4.3 und höher  
-
-Version 1.0:  
- - Erstes offizielles Release
-
-## 9. Lizenzen
+## 8. Lizenzen
 
   IPS-Modul:  
   [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)  

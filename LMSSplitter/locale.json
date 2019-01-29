@@ -39,7 +39,7 @@
             "Duration": "Dauer",
             "DB Rescan": "DB Scan",
             "LMS avaiable.": "LMS erreichbar.",
-            "Interface closed.": "Interface geschlossen.",
+            "Parent interface is closed.":"Die übergeordnete Instanz ist nicht aktiv.",
             "Not connected to LMS.": "Keine Verbindung zum LMS.",
             "Could not connect to LMS.": "Es konnte keine Verbindung zum LMS hergestellt werden.",
             "Error on send scanner-command": "Fehler beim senden des Scan-Befehls",

@@ -97,6 +97,17 @@ class LMSConfigurator extends IPSModule
     }
 
     /**
+     * Wird ausgeführt wenn der Kernel hochgefahren wurde.
+     */
+    protected function KernelReady()
+    {
+        $this->RegisterParent();
+        if ($this->HasActiveParent()) {
+            $this->IOChangeState(IS_ACTIVE);
+        }
+    }
+
+    /**
      * Wird ausgeführt wenn sich der Status vom Parent ändert.
      * @access protected
      */
@@ -237,6 +248,18 @@ class LMSConfigurator extends IPSModule
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
 
         if (!$this->HasActiveParent()) {
+            $Form['actions'][] = [
+                "type"  => "PopupAlert",
+                "popup" => [
+                    "items" => [[
+                    "type"    => "Label",
+                    "caption" => "Instance has no active parent."
+                        ]]
+                ]
+            ];
+            $this->SendDebug('FORM', json_encode($Form), 0);
+            $this->SendDebug('FORM', json_last_error_msg(), 0);
+
             return json_encode($Form);
         }
         $Splitter = IPS_GetInstance($this->InstanceID)['ConnectionID'];
@@ -270,8 +293,6 @@ class LMSConfigurator extends IPSModule
         $this->SendDebug('IPS Alarms', $InstanceIDListAlarms, 0);
         $InstanceIDListBattery = $this->GetInstanceList("{718158BB-B247-4A71-9440-9C2FF1378752}", 'Address');
         $this->SendDebug('IPS Battery', $InstanceIDListBattery, 0);
-
-//        return json_encode(new stdClass());
         $PlayerValues = [];
         foreach ($FoundPlayers as $Address => $Device) {
 
@@ -282,7 +303,7 @@ class LMSConfigurator extends IPSModule
                     'name'       => IPS_GetName($InstanceID),
                     'model'      => ucfirst($Device['model']),
                     'address'    => $Address,
-                    'location'   => IPS_GetLocation($InstanceID)
+                    'location'   => stristr(IPS_GetLocation($InstanceID), IPS_GetName($InstanceID), true)
                 ];
                 unset($InstanceIDListPlayers[$InstanceID]);
             } else {
@@ -308,7 +329,7 @@ class LMSConfigurator extends IPSModule
                 'name'       => IPS_GetName($InstanceID),
                 'model'      => 'unknow',
                 'address'    => $Address,
-                'location'   => IPS_GetLocation($InstanceID)
+                'location'   => stristr(IPS_GetLocation($InstanceID), IPS_GetName($InstanceID), true)
             ];
         }
         foreach ($FoundAlarms as $Address => $Device) {

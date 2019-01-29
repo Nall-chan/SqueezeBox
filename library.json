@@ -4,10 +4,9 @@
     "name": "Squeezbox Library",
     "url": "https://github.com/Nall-chan/IPSSqueezebox",
     "compatibility": {
-        "version": "4.3",
-        "date": 1498241677
+        "version": "5.0"
     },
-    "version": "2.03",
-    "build": 0,
-    "date": 1535655453
+    "version": "3.00",
+    "build": 100,
+    "date": 1548778245 
 }

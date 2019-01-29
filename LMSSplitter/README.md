@@ -1,7 +1,8 @@
 [![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20Version-2.03-blue.svg)]()
-[![Version](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
-[![Version](https://img.shields.io/badge/Symcon%20Version-4.3%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857-IP-Symcon-4-3-%28Stable%29-Changelog)
+[![Version](https://img.shields.io/badge/Modul%20Version-3.00-blue.svg)]()
+[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
+[![Version](https://img.shields.io/badge/Symcon%20Version-5.0%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857-IP-Symcon-5-0-%28Stable%29-Changelog)
+[![StyleCI](https://styleci.io/repos/38763445/shield?style=flat)](https://styleci.io/repos/38763445)  
 
 # Logitech Media Server Splitter (LMSSplitter)
 Ermöglich die Kommunikation von IPS mit dem CLI des Logitech Media Servers.  
@@ -25,8 +26,7 @@ Ermöglich die Kommunikation von IPS mit dem CLI des Logitech Media Servers.
     6. [Alarm Playlisten](#6-alarm-playlisten)  
     7. [Favoriten](#7-favoriten)  
     8. [Radio & Apps](#8-radio--apps)  
-8. [Anhang](#8-anhang)  
-9. [Lizenz](#9-lizenz)
+8. [Lizenz](#8-lizenz)
 
 ## 1. Funktionsumfang
 
@@ -38,7 +38,7 @@ Ermöglich die Kommunikation von IPS mit dem CLI des Logitech Media Servers.
 
 ## 2. Voraussetzungen
 
- - IPS 4.3 oder höher
+ - IPS 5.0 oder höher
  - Logitech Media Server (getestet ab 7.9.x)
  - kompatibler Player
 
@@ -679,23 +679,7 @@ LMS_GetRadioOrAppDataEx($id,"search",'','Anime');
 | Isaudio  | bool    | true wenn es ein Audiofile ist                                |
 | Hasitems | bool    | true wenn unterhalb des Eintrages noch Element vorhanden sind |
 
-## 8. Anhang
-
-**Changlog:**  
-
-Version 2.03:  
-- Fixes für PHP 7.3
-
-Version 2.02:  
-- Fixes für Fehlermeldungen wenn der LMS-Scanner aktiv war.  
-
-Version 2.0:  
- - Komplett überarbeitete Version für IPS 4.3 und höher  
-
-Version 1.0:  
- - Erstes offizielles Release  
-
-## 9. Lizenz
+## 8. Lizenz
 
   IPS-Modul:  
   [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)  

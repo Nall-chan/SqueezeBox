@@ -1,24 +1,12 @@
 {
     "translations": {
         "de": {
-            "Reload": "Neu laden",
-            "No devices found!": "Keine Ger\u00e4te gefunden",
-            "List of Players with MAC\/IP": "Liste der Player mit MAC\/IP",
-            "No new devices found!": "Keine neuen Ger\u00e4te gefunden!",
-            "No disconnected devices found!": "Keine getrennten Ger\u00e4te gefunden!",
-            "Name": "Name",
-            "MAC\/IP": "MAC\/IP",
+            "Players": "Player",
+            "Alarms": "Wecker",
+            "Battery": "Batterie",
+            "Address": "Adresse",
             "Location": "Lokation",
-            "InstanceID": "InstanzID",
-            "List of Battery-Instances with IP": "Liste von Batterie-Instanzen mit IP",
-            "IP": "IP",
-            "Create Player-Instance": "Player-Instanz erzeugen",
-            "Create Player Battery-Instance": "Batterie-Instanz erzeugen",
-            "Create Alarm-Instance": "Wecker-Instanz erzeugen",
-            "Devices found: %d": "Ger\u00e4te gefunden: %d",
-            "New devices: %d": "Neue Ger\u00e4te: %d",
-            "Disconnected devices: %d": "Getrennte Ger\u00e4te: %d",
-            "Sorry please close and reopen configurator.": "Bitte Konfigurator schlie\u00dfen und neu \u00f6ffnen."
+            "Instance has no active parent.": "Instanz hat keinen aktiven Parent."
         }
     }
 }
