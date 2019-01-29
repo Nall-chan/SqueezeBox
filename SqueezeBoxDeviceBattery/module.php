@@ -30,7 +30,6 @@ require_once __DIR__ . '/../libs/VariableProfileHelper.php';
  */
 class SqueezeboxBattery extends IPSModule
 {
-
     use VariableProfileHelper;
     /**
      * Interne Funktion des SDK.
@@ -220,7 +219,6 @@ class SqueezeboxBattery extends IPSModule
             $this->SetValue($Ident, $value);
         }
     }
-
 }
 
 /** @} */
