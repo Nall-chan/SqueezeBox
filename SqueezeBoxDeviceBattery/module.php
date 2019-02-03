@@ -30,6 +30,7 @@ require_once __DIR__ . '/../libs/VariableProfileHelper.php';
  */
 class SqueezeboxBattery extends IPSModule
 {
+
     use VariableProfileHelper;
     /**
      * Interne Funktion des SDK.
@@ -91,14 +92,13 @@ class SqueezeboxBattery extends IPSModule
         $this->RegisterVariableFloat("BatteryVMon2", $this->Translate("Battery voltage 2"), "~Volt", 9);
         $this->RegisterVariableInteger("BatteryCapacity", $this->Translate("Battery capacity"), "LSQB.mAh", 10);
 
-        // Addresse prüfen
+        // Adresse prüfen
         $Address = $this->ReadPropertyString('Address');
         if (trim($Address) == '') {
             $this->SetStatus(IS_INACTIVE);
             $this->SetTimerInterval("RequestState", 0);
             return;
         }
-
 
         if ($this->ReadPropertyInteger("Interval") >= 30) {
             $this->SetStatus(IS_ACTIVE);
@@ -111,6 +111,10 @@ class SqueezeboxBattery extends IPSModule
             }
 
             $this->SetTimerInterval("RequestState", 0);
+        }
+        
+        if (IPS_GetKernelRunlevel() <> KR_READY) {
+            return;
         }
         $this->RequestState();
     }
@@ -219,6 +223,7 @@ class SqueezeboxBattery extends IPSModule
             $this->SetValue($Ident, $value);
         }
     }
+
 }
 
 /** @} */
