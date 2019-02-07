@@ -203,10 +203,4 @@ class LMSDiscovery extends ipsmodule
     }
 }
 
-if (count(IPS_GetInstanceListByModuleID("{28AC8A6C-4E03-43BE-9C3E-B8FEF78D374C}")) == 0) {
-    $id = IPS_CreateInstance("{28AC8A6C-4E03-43BE-9C3E-B8FEF78D374C}");
-    IPS_SetName($id, "Logitech Media Server Discovery");
-}
-
-
 /* @} */
