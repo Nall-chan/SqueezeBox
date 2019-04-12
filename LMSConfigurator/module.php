@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 /*
  * @addtogroup squeezebox
@@ -9,9 +9,9 @@ declare(strict_types = 1);
  * @package       Squeezebox
  * @file          module.php
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2018 Michael Tröger
+ * @copyright     2019 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.0
+ * @version       3.1
  *
  */
 require_once __DIR__ . '/../libs/BufferHelper.php';  // diverse Klassen
@@ -32,6 +32,7 @@ require_once __DIR__ . '/../libs/SqueezeBoxClass.php';  // diverse Klassen
  */
 class LMSConfigurator extends IPSModule
 {
+
     use DebugHelper,
         BufferHelper,
         InstanceStatus {
@@ -129,7 +130,7 @@ class LMSConfigurator extends IPSModule
     private function GetDeviceInfo()
     {
         $count = $this->Send(new LMSData(array('player', 'count'), '?'));
-        if (($count === false) or ($count === null)) {
+        if (($count === false) or ( $count === null)) {
             return [];
         }
         $players = [];
@@ -330,6 +331,7 @@ class LMSConfigurator extends IPSModule
                 'location'   => stristr(IPS_GetLocation($InstanceID), IPS_GetName($InstanceID), true)
             ];
         }
+        $AlarmValues = [];
         foreach ($FoundAlarms as $Address => $Device) {
             $InstanceID = array_search($Address, $InstanceIDListAlarms);
             if ($InstanceID !== false) {
@@ -364,6 +366,7 @@ class LMSConfigurator extends IPSModule
                 'location'   => IPS_GetLocation($InstanceID)
             ];
         }
+        $BatteryValues = [];
         foreach ($FoundBattery as $Address => $Device) {
             $InstanceID = array_search($Address, $InstanceIDListBattery);
             if ($InstanceID !== false) {
@@ -436,4 +439,5 @@ class LMSConfigurator extends IPSModule
             return null;
         }
     }
+
 }
