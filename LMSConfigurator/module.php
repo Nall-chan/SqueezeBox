@@ -32,7 +32,6 @@ eval('declare(strict_types=1);namespace squeezebox {?>' . file_get_contents(__DI
  */
 class LMSConfigurator extends IPSModule
 {
-
     use \squeezebox\DebugHelper,
         \squeezebox\BufferHelper,
         \squeezebox\InstanceStatus {
@@ -155,18 +154,18 @@ class LMSConfigurator extends IPSModule
     private function GetDeviceInfo()
     {
         $count = $this->Send(new LMSData(['player', 'count'], '?'));
-        if (($count === false) or ( $count === null)) {
+        if (($count === false) or ($count === null)) {
             return [];
         }
         $players = [];
         for ($i = 0; $i < $count->Data[0]; $i++) {
-        $playerid = $this->Send(new LMSData(['player', 'id'], [$i, '?']));
+            $playerid = $this->Send(new LMSData(['player', 'id'], [$i, '?']));
             if ($playerid === false) {
                 continue;
             }
             $id = strtolower(rawurldecode($playerid->Data[1]));
 
-        $playerip = $this->Send(new LMSData(['player', 'ip'], [$i, '?']));
+            $playerip = $this->Send(new LMSData(['player', 'ip'], [$i, '?']));
             if ($playerip === false) {
                 continue;
             }
@@ -464,5 +463,4 @@ class LMSConfigurator extends IPSModule
             return null;
         }
     }
-
 }

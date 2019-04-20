@@ -30,7 +30,6 @@ eval('declare(strict_types=1);namespace squeezebox {?>' . file_get_contents(__DI
  */
 class LMSDiscovery extends ipsmodule
 {
-
     use \squeezebox\DebugHelper,
         \squeezebox\BufferHelper;
     /**
@@ -205,7 +204,6 @@ class LMSDiscovery extends ipsmodule
         $this->Devices = $this->DiscoverDevices();
         // Alt neu vergleich fehlt, sowie die Events an IPS senden wenn neues Gerät im Netz gefunden wurde.
     }
-
 }
 
 /* @} */

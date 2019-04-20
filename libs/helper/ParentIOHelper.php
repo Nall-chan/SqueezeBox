@@ -20,7 +20,7 @@ trait InstanceStatus
 {
     /**
      * Interne Funktion des SDK.
-     * Alle Events des Parent werden hier verarbeitet und entkoppelt über RequestAction an IOChangeState übergeben.  
+     * Alle Events des Parent werden hier verarbeitet und entkoppelt über RequestAction an IOChangeState übergeben.
      * @access public
      */
     protected function MessageSink($TimeStamp, $SenderID, $Message, $Data)
@@ -53,7 +53,7 @@ trait InstanceStatus
     /**
      * Interne Funktion des SDK.
      * Empfängt über RequestAction die Events vom Parent und führt IOChangeState aus.
-     * 
+     *
      * @access public
      * @return bool True wenn $Ident verarbeitet wurde.
      */
@@ -69,7 +69,7 @@ trait InstanceStatus
     /**
      * Ermittelt den Parent und verwaltet die Einträge des Parent im MessageSink
      * Ermöglicht es das Statusänderungen des Parent empfangen werden können.
-     * 
+     *
      * @access protected
      * @return int ID des Parent.
      */
@@ -94,7 +94,7 @@ trait InstanceStatus
     /**
      * Interne Funktion des SDK.
      * Erweitert die SDK funktion um die Prüfung ob überhaupt ein Parent verbunden ist.
-     * @return bool True wenn Parent-Kette vorhanden und aktiv ist. 
+     * @return bool True wenn Parent-Kette vorhanden und aktiv ist.
      */
     protected function HasActiveParent()
     {
@@ -103,7 +103,6 @@ trait InstanceStatus
         }
         return false;
     }
-
 }
 
 /* @} */

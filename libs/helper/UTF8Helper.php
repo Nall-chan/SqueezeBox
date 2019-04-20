@@ -44,5 +44,4 @@ trait UTF8Coder
             }
         }
     }
-
 }

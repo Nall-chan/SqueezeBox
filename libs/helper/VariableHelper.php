@@ -69,7 +69,6 @@ trait VariableHelper
     {
         $this->SetValue($Ident, (string) $value);
     }
-
 }
 
 /* @} */

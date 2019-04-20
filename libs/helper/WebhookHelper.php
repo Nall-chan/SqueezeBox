@@ -73,7 +73,6 @@ trait WebhookHelper
             }
         }
     }
-
 }
 
 /* @} */
