@@ -1,11 +1,10 @@
 <?php
 
-declare(strict_types=1);
 /**
- * @addtogroup squeezebox
+ * @addtogroup generic
  * @{
  *
- * @package       Squeezebox
+ * @package       generic
  * @file          DebugHelper.php
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2018 Michael Tröger
@@ -13,34 +12,22 @@ declare(strict_types=1);
  * @version       5.0
  */
 
-namespace squeezebox;
-
 /**
  * DebugHelper ergänzt SendDebug um die Möglichkeit Array und Objekte auszugeben.
- *
  */
 trait DebugHelper
 {
     /**
      * Ergänzt SendDebug um Möglichkeit Objekte und Array auszugeben.
      *
-     * @access protected
-     * @param string $Message Nachricht für Data.
-     * @param mixed $Data Daten für die Ausgabe.
+     * @param string                                           $Message Nachricht für Data.
+     * @param mixed $Data    Daten für die Ausgabe.
+     *
      * @return int $Format Ausgabeformat für Strings.
      */
     protected function SendDebug($Message, $Data, $Format)
     {
-        if (is_a($Data, 'LMSResponse')) {
-            $this->SendDebug($Message . ' LMSResponse->Address', $Data->Address, 0);
-            $this->SendDebug($Message . ' LMSResponse->Command', $Data->Command, 0);
-            $this->SendDebug($Message . ' LMSResponse->Data', $Data->Data, 0);
-        } elseif (is_a($Data, 'LMSData')) {
-            $this->SendDebug($Message . ' LMSData->Address', $Data->Address, 0);
-            $this->SendDebug($Message . ' LMSData->Command', $Data->Command, 0);
-            $this->SendDebug($Message . ' LMSData->Data', $Data->Data, 0);
-            $this->SendDebug($Message . ' LMSData->needResponse', ($Data->needResponse ? 'true' : 'false'), 0);
-        } elseif (is_array($Data)) {
+        if (is_array($Data)) {
             if (count($Data) > 25) {
                 $this->SendDebug($Message, array_slice($Data, 0, 20), 0);
                 $this->SendDebug($Message . ':CUT', '-------------CUT-----------------', 0);

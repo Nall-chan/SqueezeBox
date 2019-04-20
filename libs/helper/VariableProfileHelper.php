@@ -1,6 +1,5 @@
 <?php
 
-declare(strict_types = 1);
 /**
  * @addtogroup generic
  * @{
@@ -78,7 +77,7 @@ trait VariableProfileHelper
      */
     protected function RegisterProfileBoolean($Name, $Icon, $Prefix, $Suffix)
     {
-        $this->RegisterProfile(vtBoolean, $Name, $Icon, $Prefix, $Suffix, 0, 0, 0);
+        $this->RegisterProfile(VARIABLETYPE_BOOLEAN, $Name, $Icon, $Prefix, $Suffix, 0, 0, 0);
     }
 
     /**
@@ -94,7 +93,7 @@ trait VariableProfileHelper
      */
     protected function RegisterProfileInteger($Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, $StepSize)
     {
-        $this->RegisterProfile(vtInteger, $Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, $StepSize);
+        $this->RegisterProfile(VARIABLETYPE_INTEGER, $Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, $StepSize);
     }
 
     /**
@@ -110,7 +109,7 @@ trait VariableProfileHelper
      */
     protected function RegisterProfileFloat($Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, $StepSize, $Digits)
     {
-        $this->RegisterProfile(vtFloat, $Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, $StepSize, $Digits);
+        $this->RegisterProfile(VARIABLETYPE_FLOAT, $Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, $StepSize, $Digits);
     }
 
     /**
@@ -138,10 +137,10 @@ trait VariableProfileHelper
 
         IPS_SetVariableProfileIcon($Name, $Icon);
         IPS_SetVariableProfileText($Name, $Prefix, $Suffix);
-        if ($VarTyp != vtBoolean) {
+        if ($VarTyp != VARIABLETYPE_BOOLEAN) {
             IPS_SetVariableProfileValues($Name, $MinValue, $MaxValue, $StepSize);
         }
-        if ($VarTyp == vtFloat) {
+        if ($VarTyp == VARIABLETYPE_FLOAT) {
             IPS_SetVariableProfileDigits($Name, $Digits);
         }
     }
@@ -169,4 +168,7 @@ trait VariableProfileHelper
         }
         IPS_DeleteVariableProfile($Name);
     }
+
 }
+
+/* @} */

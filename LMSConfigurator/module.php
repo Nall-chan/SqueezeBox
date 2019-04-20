@@ -14,10 +14,10 @@ declare(strict_types=1);
  * @version       3.1
  *
  */
-require_once __DIR__ . '/../libs/BufferHelper.php';  // diverse Klassen
 require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
-require_once __DIR__ . '/../libs/ParentIOHelper.php';  // diverse Klassen
 require_once __DIR__ . '/../libs/SqueezeBoxClass.php';  // diverse Klassen
+eval('declare(strict_types=1);namespace squeezebox {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
+eval('declare(strict_types=1);namespace squeezebox {?>' . file_get_contents(__DIR__ . '/../libs/helper/ParentIOHelper.php') . '}');
 
 /**
  * LMSConfigurator Klasse für ein SqueezeBox Konfigurator.
@@ -32,10 +32,13 @@ require_once __DIR__ . '/../libs/SqueezeBoxClass.php';  // diverse Klassen
  */
 class LMSConfigurator extends IPSModule
 {
-    use DebugHelper,
-        BufferHelper,
-        InstanceStatus {
-        InstanceStatus::MessageSink as IOMessageSink;
+
+    use \squeezebox\DebugHelper,
+        \squeezebox\BufferHelper,
+        \squeezebox\InstanceStatus {
+        \squeezebox\InstanceStatus::MessageSink as IOMessageSink;
+        \squeezebox\InstanceStatus::RegisterParent as IORegisterParent;
+        \squeezebox\InstanceStatus::RequestAction as IORequestAction;
     }
     /**
      * Interne Funktion des SDK.
@@ -45,7 +48,7 @@ class LMSConfigurator extends IPSModule
     public function Create()
     {
         parent::Create();
-        $this->ConnectParent("{96A9AB3A-2538-42C5-A130-FC34205A706A}");
+        $this->ConnectParent('{96A9AB3A-2538-42C5-A130-FC34205A706A}');
         $this->SetReceiveDataFilter('.*"nothingtoreceive":.*');
         $this->ParentID = 0;
     }
@@ -101,9 +104,31 @@ class LMSConfigurator extends IPSModule
     protected function KernelReady()
     {
         $this->RegisterParent();
-        if ($this->HasActiveParent()) {
-            $this->IOChangeState(IS_ACTIVE);
+        /* if ($this->HasActiveParent()) {
+          $this->IOChangeState(IS_ACTIVE);
+          } */
+    }
+
+    public function RequestAction($Ident, $Value)
+    {
+        if ($this->IORequestAction($Ident, $Value)) {
+            return true;
         }
+        return false;
+    }
+
+    protected function RegisterParent()
+    {
+        $SplitterId = $this->IORegisterParent();
+        if ($SplitterId > 0) {
+            $IOId = @IPS_GetInstance($SplitterId)['ConnectionID'];
+            if ($IOId > 0) {
+                $this->SetSummary(IPS_GetProperty($IOId, 'Host'));
+
+                return;
+            }
+        }
+        $this->SetSummary(('none'));
     }
 
     /**
@@ -112,6 +137,7 @@ class LMSConfigurator extends IPSModule
      */
     protected function IOChangeState($State)
     {
+        $this->LogMessage(__METHOD__, KL_DEBUG);
         if ($State == IS_ACTIVE) {
             // Gerätebuffer laden
         } else {
@@ -128,29 +154,29 @@ class LMSConfigurator extends IPSModule
      */
     private function GetDeviceInfo()
     {
-        $count = $this->Send(new LMSData(array('player', 'count'), '?'));
-        if (($count === false) or ($count === null)) {
+        $count = $this->Send(new LMSData(['player', 'count'], '?'));
+        if (($count === false) or ( $count === null)) {
             return [];
         }
         $players = [];
         for ($i = 0; $i < $count->Data[0]; $i++) {
-            $playerid = $this->Send(new LMSData(array('player', 'id'), array($i, '?')));
+        $playerid = $this->Send(new LMSData(['player', 'id'], [$i, '?']));
             if ($playerid === false) {
                 continue;
             }
             $id = strtolower(rawurldecode($playerid->Data[1]));
 
-            $playerip = $this->Send(new LMSData(array('player', 'ip'), array($i, '?')));
+        $playerip = $this->Send(new LMSData(['player', 'ip'], [$i, '?']));
             if ($playerip === false) {
                 continue;
             }
             $players[$id]['ip'] = rawurldecode(explode(':', $playerip->Data[1])[0]);
-            $playername = $this->Send(new LMSData(array('player', 'name'), array($i, '?')));
+            $playername = $this->Send(new LMSData(['player', 'name'], [$i, '?']));
             if ($playername === false) {
                 continue;
             }
             $players[$id]['name'] = rawurldecode($playername->Data[1]);
-            $playermodel = $this->Send(new LMSData(array('player', 'model'), array($i, '?')));
+            $playermodel = $this->Send(new LMSData(['player', 'model'], [$i, '?']));
             if ($playermodel === false) {
                 continue;
             }
@@ -248,11 +274,11 @@ class LMSConfigurator extends IPSModule
 
         if (!$this->HasActiveParent()) {
             $Form['actions'][] = [
-                "type"  => "PopupAlert",
-                "popup" => [
-                    "items" => [[
-                    "type"    => "Label",
-                    "caption" => "Instance has no active parent."
+                'type'  => 'PopupAlert',
+                'popup' => [
+                    'items' => [[
+                    'type'    => 'Label',
+                    'caption' => 'Instance has no active parent.'
                         ]]
                 ]
             ];
@@ -286,11 +312,11 @@ class LMSConfigurator extends IPSModule
         $FoundBattery = array_filter($FoundBattery, [$this, 'FilterBattery']);
         $this->SendDebug('Found Players', $FoundPlayers, 0);
         $this->SendDebug('Found Battery', $FoundBattery, 0);
-        $InstanceIDListPlayers = $this->GetInstanceList("{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}", 'Address');
+        $InstanceIDListPlayers = $this->GetInstanceList('{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}', 'Address');
         $this->SendDebug('IPS Players', $InstanceIDListPlayers, 0);
-        $InstanceIDListAlarms = $this->GetInstanceList("{E7423083-3502-42C8-B244-2852D0BE41D4}", 'Address');
+        $InstanceIDListAlarms = $this->GetInstanceList('{E7423083-3502-42C8-B244-2852D0BE41D4}', 'Address');
         $this->SendDebug('IPS Alarms', $InstanceIDListAlarms, 0);
-        $InstanceIDListBattery = $this->GetInstanceList("{718158BB-B247-4A71-9440-9C2FF1378752}", 'Address');
+        $InstanceIDListBattery = $this->GetInstanceList('{718158BB-B247-4A71-9440-9C2FF1378752}', 'Address');
         $this->SendDebug('IPS Battery', $InstanceIDListBattery, 0);
         $PlayerValues = [];
         foreach ($FoundPlayers as $Address => $Device) {
@@ -422,7 +448,7 @@ class LMSConfigurator extends IPSModule
     private function Send(LMSData $LMSData)
     {
         try {
-            $JSONData = $LMSData->ToJSONString("{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}");
+            $JSONData = $LMSData->ToJSONString('{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}');
             $anwser = @$this->SendDataToParent($JSONData);
             if ($anwser === false) {
                 return null;
@@ -438,4 +464,5 @@ class LMSConfigurator extends IPSModule
             return null;
         }
     }
+
 }

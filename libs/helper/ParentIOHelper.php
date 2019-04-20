@@ -1,6 +1,5 @@
 <?php
 
-declare(strict_types = 1);
 /**
  * @addtogroup generic
  * @{
@@ -21,7 +20,7 @@ trait InstanceStatus
 {
     /**
      * Interne Funktion des SDK.
-     *
+     * Alle Events des Parent werden hier verarbeitet und entkoppelt über RequestAction an IOChangeState übergeben.  
      * @access public
      */
     protected function MessageSink($TimeStamp, $SenderID, $Message, $Data)
@@ -31,27 +30,46 @@ trait InstanceStatus
             case IM_CHANGESETTINGS:
                 $this->RegisterParent();
                 if ($this->HasActiveParent()) {
-                    $this->IOChangeState(IS_ACTIVE);
+                    $State = IS_ACTIVE;
                 } else {
-                    $this->IOChangeState(IS_INACTIVE);
+                    $State = IS_INACTIVE;
                 }
+
                 break;
             case FM_DISCONNECT:
                 $this->RegisterParent();
-                $this->IOChangeState(IS_INACTIVE);
+                $State = IS_INACTIVE;
                 break;
             case IM_CHANGESTATUS:
-                if ($SenderID == $this->ParentID) {
-                    $this->IOChangeState($Data[0]);
-                }
+                $State = $Data[0];
+                break;
+            default:
+                return;
                 break;
         }
+        IPS_RunScriptText('IPS_RequestAction(' . $this->InstanceID . ',"IOChangeState",' . $State . ');');
+    }
+
+    /**
+     * Interne Funktion des SDK.
+     * Empfängt über RequestAction die Events vom Parent und führt IOChangeState aus.
+     * 
+     * @access public
+     * @return bool True wenn $Ident verarbeitet wurde.
+     */
+    protected function RequestAction($Ident, $Value)
+    {
+        if ($Ident != 'IOChangeState') {
+            return false;
+        }
+        $this->IOChangeState($Value);
+        return true;
     }
 
     /**
      * Ermittelt den Parent und verwaltet die Einträge des Parent im MessageSink
      * Ermöglicht es das Statusänderungen des Parent empfangen werden können.
-     *
+     * 
      * @access protected
      * @return int ID des Parent.
      */
@@ -61,11 +79,9 @@ trait InstanceStatus
         $ParentId = @IPS_GetInstance($this->InstanceID)['ConnectionID'];
         if ($ParentId <> $OldParentId) {
             if ($OldParentId > 0) {
-                $this->UnregisterMessage($OldParentId, IM_CHANGESETTINGS);
                 $this->UnregisterMessage($OldParentId, IM_CHANGESTATUS);
             }
             if ($ParentId > 0) {
-                $this->RegisterMessage($ParentId, IM_CHANGESETTINGS);
                 $this->RegisterMessage($ParentId, IM_CHANGESTATUS);
             } else {
                 $ParentId = 0;
@@ -76,27 +92,18 @@ trait InstanceStatus
     }
 
     /**
-     * Prüft den Parent auf vorhandensein und Status.
-     *
-     * @access protected
-     * @return bool True wenn Parent vorhanden und in Status 102, sonst false.
+     * Interne Funktion des SDK.
+     * Erweitert die SDK funktion um die Prüfung ob überhaupt ein Parent verbunden ist.
+     * @return bool True wenn Parent-Kette vorhanden und aktiv ist. 
      */
     protected function HasActiveParent()
     {
-        $instance = IPS_GetInstance($this->InstanceID);
-        if ($instance['ConnectionID'] > 0) {
-            $parent = IPS_GetInstance($instance['ConnectionID']);
-            if ($parent['ModuleInfo']['ModuleType'] == 2) {
-                if ($parent['ConnectionID'] > 0) {
-                    $parent = IPS_GetInstance($parent['ConnectionID']);
-                } else {
-                    return false;
-                }
-            }
-            if ($parent['InstanceStatus'] == 102) {
-                return true;
-            }
+        if ($this->ParentID > 0) {
+            return parent::HasActiveParent();
         }
         return false;
     }
+
 }
+
+/* @} */

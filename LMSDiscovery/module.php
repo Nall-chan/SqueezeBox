@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 /*
  * @addtogroup squeezebox
  * @{
@@ -13,8 +13,8 @@ declare(strict_types = 1);
  * @version       3.0
  *
  */
-require_once __DIR__ . '/../libs/BufferHelper.php';  // diverse Klassen
 require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
+eval('declare(strict_types=1);namespace squeezebox {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
 
 /**
  * LMSDiscovery Klasse implementiert
@@ -30,8 +30,9 @@ require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
  */
 class LMSDiscovery extends ipsmodule
 {
-    use DebugHelper,
-        BufferHelper;
+
+    use \squeezebox\DebugHelper,
+        \squeezebox\BufferHelper;
     /**
      * Interne Funktion des SDK.
      */
@@ -53,7 +54,7 @@ class LMSDiscovery extends ipsmodule
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
-        $this->Devices = $this->DiscoverDevices();
+        IPS_RunScriptText('LMS_Discover(' . $this->InstanceID . ');');
     }
 
     /**
@@ -69,7 +70,7 @@ class LMSDiscovery extends ipsmodule
     {
         switch ($Message) {
             case IPS_KERNELSTARTED:
-                $this->Devices = $this->DiscoverDevices();
+                IPS_RunScriptText('LMS_Discover(' . $this->InstanceID . ');');
                 break;
         }
     }
@@ -96,7 +97,10 @@ class LMSDiscovery extends ipsmodule
      */
     public function GetConfigurationForm()
     {
-        $Devices = $this->DiscoverDevices();
+        $Devices = $this->Devices;
+        if (count($Devices) == 0) {
+            $Devices = $this->DiscoverDevices();
+        }
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
         $IPSDevices = $this->GetIPSInstances();
 
@@ -124,7 +128,7 @@ class LMSDiscovery extends ipsmodule
                 [
                     'moduleID'      => '{96A9AB3A-2538-42C5-A130-FC34205A706A}',
                     'configuration' => [
-                        'Webport' => (int)$Device['JSON']
+                        'Webport' => (int) $Device['JSON']
                     ]
                 ],
                 [
@@ -161,7 +165,7 @@ class LMSDiscovery extends ipsmodule
         }
         socket_set_option($socket, SOL_SOCKET, SO_BROADCAST, 1);
         socket_set_option($socket, SOL_SOCKET, SO_REUSEADDR, 1);
-        socket_set_option($socket, SOL_SOCKET, SO_RCVTIMEO, array("sec" => 1, "usec" => 100000));
+        socket_set_option($socket, SOL_SOCKET, SO_RCVTIMEO, ['sec' => 1, 'usec' => 100000]);
         socket_bind($socket, '0.0.0.0', 0);
         $message = "\x65\x49\x50\x41\x44\x00\x4e\x41\x4d\x45\x00\x4a\x53\x4f\x4e\x00\x56\x45\x52\x53\x00\x55\x55\x49\x44\x00\x4a\x56\x49\x44\x06\x12\x34\x56\x78\x12\x34";
         $this->SendDebug('Serach', $message, 1);
@@ -201,6 +205,7 @@ class LMSDiscovery extends ipsmodule
         $this->Devices = $this->DiscoverDevices();
         // Alt neu vergleich fehlt, sowie die Events an IPS senden wenn neues Gerät im Netz gefunden wurde.
     }
+
 }
 
 /* @} */

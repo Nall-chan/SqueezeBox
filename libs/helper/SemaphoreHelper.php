@@ -1,6 +1,5 @@
 <?php
 
-declare(strict_types = 1);
 /**
  * @addtogroup generic
  * @{
@@ -43,4 +42,7 @@ trait Semaphore
     {
         IPS_SemaphoreLeave(__CLASS__ . '.' . (string) $this->InstanceID . (string) $ident);
     }
+
 }
+
+/* @} */
