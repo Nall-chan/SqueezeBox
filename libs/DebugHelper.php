@@ -64,7 +64,6 @@ trait DebugHelper
             }
         }
     }
-
 }
 
 /* @} */

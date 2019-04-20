@@ -2,13 +2,13 @@
 
 /**
  * Trait welcher Array in eine String Attribute schreiben und lesen kann.
- * @filesource 
+ * @filesource
  */
 trait AttributeArrayHelper
 {
     /**
      * Registriert ein Array Attribute.
-     * 
+     *
      * @access protected
      * @param string $name Attributname
      * @param array $Value Standardwert des Attribut
@@ -72,5 +72,4 @@ trait AttributeArrayHelper
             $this->WriteAttributeString($name, $Data);
         }
     }
-
 }
