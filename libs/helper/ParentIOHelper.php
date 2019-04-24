@@ -45,7 +45,6 @@ trait InstanceStatus
                 break;
             default:
                 return;
-                break;
         }
         IPS_RunScriptText('IPS_RequestAction(' . $this->InstanceID . ',"IOChangeState",' . $State . ');');
     }
@@ -103,6 +102,7 @@ trait InstanceStatus
         }
         return false;
     }
+
 }
 
 /* @} */

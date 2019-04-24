@@ -44,6 +44,7 @@ eval('declare(strict_types=1);namespace squeezebox {?>' . file_get_contents(__DI
  */
 class LMSSplitter extends IPSModule
 {
+
     use LMSHTMLTable,
         LMSSongURL,
         LMSProfile,
@@ -116,7 +117,7 @@ class LMSSplitter extends IPSModule
      */
     public function ApplyChanges()
     {
-        $this->RegisterMessage(0, IPS_KERNELMESSAGE);
+        $this->RegisterMessage(0, IPS_KERNELSTARTED);
         $this->RegisterMessage($this->InstanceID, FM_CONNECT);
         $this->RegisterMessage($this->InstanceID, FM_DISCONNECT);
         $this->ReplyLMSData = [];
@@ -156,7 +157,7 @@ class LMSSplitter extends IPSModule
         }
 
         // Wenn Kernel nicht bereit, dann warten... KR_READY kommt ja gleich
-        if (IPS_GetKernelRunlevel() <> KR_READY) {
+        if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
 
@@ -172,9 +173,6 @@ class LMSSplitter extends IPSModule
 
 
         // Wenn Parent aktiv, dann Anmeldung an der Hardware bzw. Datenabgleich starten
-        /* if ($this->HasActiveParent()) {
-          $this->IOChangeState(IS_ACTIVE);
-          } */
         if ($this->ParentID > 0) {
             IPS_ApplyChanges($this->ParentID);
         }
@@ -190,13 +188,11 @@ class LMSSplitter extends IPSModule
         $this->IOMessageSink($TimeStamp, $SenderID, $Message, $Data);
 
         switch ($Message) {
-            case IPS_KERNELMESSAGE:
-                if ($Data[0] == KR_READY) {
-                    $this->KernelReady();
-                }
+            case IPS_KERNELSTARTED:
+                $this->KernelReady();
                 break;
             case VM_UPDATE:
-                if (($SenderID == $this->ScannerID) and ($Data[0] == 0)) {
+                if (($SenderID == $this->ScannerID) and ( $Data[0] == 0)) {
                     $this->RefreshAllPlaylists();
                 }
                 break;
@@ -208,10 +204,7 @@ class LMSSplitter extends IPSModule
      */
     protected function KernelReady()
     {
-        $this->RegisterParent();
-        /* if ($this->HasActiveParent()) {
-          $this->IOChangeState(IS_ACTIVE);
-          } */
+        $this->ApplyChanges();
     }
 
     protected function RegisterParent()
@@ -232,7 +225,6 @@ class LMSSplitter extends IPSModule
      */
     protected function IOChangeState($State)
     {
-        $this->LogMessage(__METHOD__, KL_DEBUG);
         if ($State == IS_ACTIVE) {
             if ($this->HasActiveParent()) {
                 if ($this->CheckLogin() !== true) {
@@ -477,7 +469,7 @@ class LMSSplitter extends IPSModule
                 } elseif ($Value == 4) {
                     $ret = $this->WipeCache();
                 }
-                if (($Value <> 0) and (($ret === null) or ($ret === false))) {
+                if (($Value <> 0) and ( ($ret === null) or ( $ret === false))) {
                     echo $this->Translate('Error on send scanner-command');
                     return false;
                 }
@@ -499,7 +491,7 @@ class LMSSplitter extends IPSModule
      */
     protected function ProcessHookdata()
     {
-        if ((!isset($_GET['ID'])) or (!isset($_GET['Type'])) or (!isset($_GET['Secret']))) {
+        if ((!isset($_GET['ID'])) or ( !isset($_GET['Type'])) or ( !isset($_GET['Secret']))) {
             echo $this->Translate('Bad Request');
             return;
         }
@@ -1902,7 +1894,7 @@ class LMSSplitter extends IPSModule
                     }
                     return true;
                 } else {
-                    if (($LMSData->Data[0] == 'done') or ($LMSData->Data[0] == '0')) {
+                    if (($LMSData->Data[0] == 'done') or ( $LMSData->Data[0] == '0')) {
                         if ($this->GetValue('RescanState') <> 0) {
                             $this->SetValueInteger('RescanState', 0);   // fertig
                         }
@@ -2338,6 +2330,7 @@ class LMSSplitter extends IPSModule
             return sprintf('%02d:%02d', ($Time / 60 % 60), $Time % 60);
         }
     }
+
 }
 
 /** @} */

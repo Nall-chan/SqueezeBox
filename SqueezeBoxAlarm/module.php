@@ -216,6 +216,7 @@ class LSA_Alarm
     {
         $this->Time = ((($Time[0] * 60) + $Time[1]) * 60) + $Time[2];
     }
+
 }
 
 /**
@@ -332,6 +333,7 @@ class LSA_AlarmList
         }
         return false;
     }
+
 }
 
 /**
@@ -350,6 +352,7 @@ class LSA_AlarmList
  */
 class SqueezeboxAlarm extends IPSModule
 {
+
     use \squeezebox\VariableProfileHelper,
         LMSHTMLTable,
         \squeezebox\DebugHelper,
@@ -607,10 +610,7 @@ class SqueezeboxAlarm extends IPSModule
      */
     protected function KernelReady()
     {
-        $this->RegisterParent();
-        /* if ($this->HasActiveParent()) {
-          $this->IOChangeState(IS_ACTIVE);
-          } */
+        $this->ApplyChanges();
     }
 
     protected function RegisterParent()
@@ -649,7 +649,7 @@ class SqueezeboxAlarm extends IPSModule
      */
     protected function ProcessHookdata()
     {
-        if ((!isset($_GET['ID'])) or (!isset($_GET['Type'])) or (!isset($_GET['Secret']))) {
+        if ((!isset($_GET['ID'])) or ( !isset($_GET['Type'])) or ( !isset($_GET['Secret']))) {
             echo $this->Translate('Bad Request');
             return;
         }
@@ -794,6 +794,10 @@ class SqueezeboxAlarm extends IPSModule
         $Playlist = $this->Multi_Playlist;
         if (count($Playlist) == 0) {
             $this->LoadAlarmPlaylists();
+            $Playlist = $this->Multi_Playlist;
+        }
+        if (count($Playlist) == 0) {
+            return false;
         }
         if ($Url == 'CURRENT_PLAYLIST') {
             $Url = '';
@@ -887,16 +891,16 @@ class SqueezeboxAlarm extends IPSModule
         $this->RegisterMessage($eid, EM_CHANGECYCLICTIMEFROM);
 
         $PlaylistItem = $this->GetPlaylistItemFromUrl($Alarm->Url);
+        if ($PlaylistItem !== false) {
+            $vid = @$this->GetIDForIdent('AlarmPlaylistName' . $Alarm->Index);
+            if ($vid === false) {
+                $vid = $this->RegisterVariableString('AlarmPlaylistName' . $Alarm->Index, sprintf($this->Translate('Alarm %d playlist'), $Alarm->Index + 1), '', (($Alarm->Index + 1) * 10) + 6);
+                IPS_SetIcon($vid, 'Database');
+            }
+            $this->SetValueString('AlarmPlaylistName' . $Alarm->Index, $PlaylistItem['Title']);
 
-        $vid = @$this->GetIDForIdent('AlarmPlaylistName' . $Alarm->Index);
-        if ($vid === false) {
-            $vid = $this->RegisterVariableString('AlarmPlaylistName' . $Alarm->Index, sprintf($this->Translate('Alarm %d playlist'), $Alarm->Index + 1), '', (($Alarm->Index + 1) * 10) + 6);
-            IPS_SetIcon($vid, 'Database');
+            $this->RefreshPlaylist($Alarm->Index, $PlaylistItem['Index']);
         }
-        $this->SetValueString('AlarmPlaylistName' . $Alarm->Index, $PlaylistItem['Title']);
-
-        $this->RefreshPlaylist($Alarm->Index, $PlaylistItem['Index']);
-
         $vid = @$this->GetIDForIdent('AlarmShuffle' . $Alarm->Index);
         if ($vid === false) {
             $this->RegisterVariableInteger('AlarmShuffle' . $Alarm->Index, sprintf($this->Translate('Alarm %d playlist shuffle'), $Alarm->Index + 1), 'LSA.Shuffle', (($Alarm->Index + 1) * 10) + 5);
@@ -1128,7 +1132,7 @@ class SqueezeboxAlarm extends IPSModule
             return false;
         }
         $LMSResponse->SliceData();
-        if ((count($LMSResponse->Data) == 0) or ($LMSResponse->Data[0] == '?')) {
+        if ((count($LMSResponse->Data) == 0) or ( $LMSResponse->Data[0] == '?')) {
             trigger_error($this->Translate('Player not connected'), E_USER_NOTICE);
             return false;
         }
@@ -1362,7 +1366,7 @@ class SqueezeboxAlarm extends IPSModule
             trigger_error(sprintf($this->Translate('%s out of range.'), 'AlarmIndex'), E_USER_NOTICE);
             return false;
         }
-        if (($Url == '0') or ($Url == '')) {
+        if (($Url == '0') or ( $Url == '')) {
             $Url = 'CURRENT_PLAYLIST';
         }
 
@@ -1389,7 +1393,7 @@ class SqueezeboxAlarm extends IPSModule
             trigger_error(sprintf($this->Translate('%s must be integer.'), 'Value'), E_USER_NOTICE);
             return false;
         }
-        if (($Value < 0) or ($Value > 2)) {
+        if (($Value < 0) or ( $Value > 2)) {
             trigger_error(sprintf($this->Translate('%s must be 0, 1 or 2.'), 'Value'), E_USER_NOTICE);
             return false;
         }
@@ -1804,7 +1808,7 @@ class SqueezeboxAlarm extends IPSModule
                 $this->RefreshEvents($this->Alarms);
                 break;
             case 'client':
-                if (($LMSData->Data[0] == 'new') or ($LMSData->Data[0] == 'reconnect')) {
+                if (($LMSData->Data[0] == 'new') or ( $LMSData->Data[0] == 'reconnect')) {
                     $this->RequestAllState();
                 }
                 break;
@@ -1941,6 +1945,7 @@ class SqueezeboxAlarm extends IPSModule
         }
         return null;
     }
+
 }
 
 /** @} */

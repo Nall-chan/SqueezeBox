@@ -102,10 +102,7 @@ class LMSConfigurator extends IPSModule
      */
     protected function KernelReady()
     {
-        $this->RegisterParent();
-        /* if ($this->HasActiveParent()) {
-          $this->IOChangeState(IS_ACTIVE);
-          } */
+        $this->ApplyChanges();
     }
 
     public function RequestAction($Ident, $Value)
@@ -136,7 +133,6 @@ class LMSConfigurator extends IPSModule
      */
     protected function IOChangeState($State)
     {
-        $this->LogMessage(__METHOD__, KL_DEBUG);
         if ($State == IS_ACTIVE) {
             // Gerätebuffer laden
         } else {

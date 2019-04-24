@@ -345,10 +345,7 @@ class SqueezeboxDevice extends IPSModule
      */
     protected function KernelReady()
     {
-        $this->RegisterParent();
-        /* if ($this->HasActiveParent()) {
-          $this->IOChangeState(IS_ACTIVE);
-          } */
+        $this->ApplyChanges();
     }
 
     protected function RegisterParent()
@@ -371,7 +368,6 @@ class SqueezeboxDevice extends IPSModule
      */
     protected function IOChangeState($State)
     {
-        $this->LogMessage(__METHOD__, KL_DEBUG);
         $Value = false;
         if ($State == IS_ACTIVE) {
             $LMSResponse = $this->SendDirect(new LMSData('connected', '?'));

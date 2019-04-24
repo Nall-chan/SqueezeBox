@@ -10,7 +10,7 @@ trait UTF8Coder
      *
      * @param string|object|array &$item Zu dekodierene Daten.
      */
-    private function DecodeUTF8(&$item)
+    protected function DecodeUTF8(&$item)
     {
         if (is_string($item)) {
             $item = utf8_decode($item);
@@ -30,7 +30,7 @@ trait UTF8Coder
      *
      * @param string|object|array &$item Zu Enkodierene Daten.
      */
-    private function EncodeUTF8(&$item)
+    protected function EncodeUTF8(&$item)
     {
         if (is_string($item)) {
             $item = utf8_encode($item);
