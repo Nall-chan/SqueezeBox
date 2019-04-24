@@ -102,7 +102,6 @@ trait InstanceStatus
         }
         return false;
     }
-
 }
 
 /* @} */
