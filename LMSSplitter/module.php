@@ -1988,7 +1988,6 @@ class LMSSplitter extends IPSModule
                 //TODO ???
                 break;
             default:
-                //IPS_LogMessage('unhandled Decode LMS', print_r($LMSData, true));
                 break;
         }
         return false;
