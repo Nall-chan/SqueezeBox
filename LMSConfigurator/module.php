@@ -32,7 +32,6 @@ eval('declare(strict_types=1);namespace LMSConfigurator {?>' . file_get_contents
  */
 class LMSConfigurator extends IPSModule
 {
-
     use \squeezebox\DebugHelper,
         \LMSConfigurator\BufferHelper,
         \LMSConfigurator\InstanceStatus {
@@ -151,7 +150,7 @@ class LMSConfigurator extends IPSModule
     private function GetDeviceInfo()
     {
         $count = $this->Send(new LMSData(['player', 'count'], '?'));
-        if (($count === false) or ( $count === null)) {
+        if (($count === false) or ($count === null)) {
             return [];
         }
         $players = [];
@@ -460,5 +459,4 @@ class LMSConfigurator extends IPSModule
             return null;
         }
     }
-
 }
