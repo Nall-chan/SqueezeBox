@@ -29,7 +29,6 @@ eval('declare(strict_types=1);namespace SqueezeboxBattery {?>' . file_get_conten
  */
 class SqueezeboxBattery extends IPSModule
 {
-
     use \SqueezeboxBattery\VariableProfileHelper,
         \SqueezeboxBattery\VariableHelper;
     /**
@@ -194,7 +193,6 @@ class SqueezeboxBattery extends IPSModule
         $this->SendDebug('Disconnect', '', 0);
         return true;
     }
-
 }
 
 /** @} */
