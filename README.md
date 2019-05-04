@@ -1,10 +1,10 @@
 [![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20Version-3.10-blue.svg)]()
+[![Version](https://img.shields.io/badge/Modul%20Version-3.20-blue.svg)]()
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
-[![Version](https://img.shields.io/badge/Symcon%20Version-5.0%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857-IP-Symcon-5-0-%28Stable%29-Changelog)
+[![Version](https://img.shields.io/badge/Symcon%20Version-5.1%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857-IP-Symcon-5-1-%28Stable%29-Changelog)
 [![StyleCI](https://styleci.io/repos/38763445/shield?style=flat)](https://styleci.io/repos/38763445)  
 
-# IPSSqueezeBox
+# Symcon-Modul: SqueezeBox
 Ermöglich die Steuerung sowie die Darstellung der Zustände
 von SqueezeBox Geräten in IPS, in Verbindung mit dem
 Logitech Media Server.
@@ -75,10 +75,9 @@ Logitech Media Server.
 
 ## 3. Software-Installation
 
-**IPS 5.0:**  
-   Bei privater Nutzung: Über das 'Module-Control' in IPS folgende URL hinzufügen.  
-    `git://github.com/Nall-chan/IPSSqueezeBox.git`  
-
+**IPS 5.1:**  
+   Bei privater Nutzung:
+     Über den 'Module-Store' in IPS.  
    **Bei kommerzieller Nutzung (z.B. als Errichter oder Integrator) wenden Sie sich bitte an den Autor.**  
 
 ## 4. Einrichten der Instanzen in IP-Symcon
@@ -94,6 +93,7 @@ Es wird empfohlen die Einrichtung mit dem Squeezebox Konfigurator zu starten (LM
  
 | Modul             | Typ          |Prefix  | GUID                                   |
 | :---------------: | :----------: | :----: | :------------------------------------: |
+| LMSDiscovery      | Discovery    | LMS    | {28AC8A6C-4E03-43BE-9C3E-B8FEF78D374C} |
 | LMSSplitter       | Splitter     | LMS    | {96A9AB3A-2538-42C5-A130-FC34205A706A} |
 | LMSConfigurator   | Configurator | LMC    | {35028918-3F9C-4524-9FB4-DBAF429C6E18} |
 | SqueezeboxDevice  | Device       | LSQ    | {118189F9-DC7E-4DF4-80E1-9A4DF0882DD7} |
@@ -118,6 +118,9 @@ Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:
 | Data        | array   | Daten des Kommandos als Array |
 
 ### 3. Changlog
+
+Version 3.20:
+- Release für IPS 5.1 und den Module-Store   
 
 Version 3.10:  
 - Bugfix für Konfigurator wenn keine Batterie-Geräte vorhanden sind.  
