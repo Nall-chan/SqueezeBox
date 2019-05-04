@@ -65,7 +65,7 @@
                         }, {
                             "caption": "Visible",
                             "name": "show",
-                            "width": "50px",
+                            "width": "75px",
                             "edit": {
                                 "caption": "Visible as column ?",                        
                                 "type": "CheckBox"
@@ -81,7 +81,7 @@
                         }, {
                             "caption": "Display-Name",
                             "name": "name", 
-                            "width": "75px",
+                            "width": "150px",
                             "edit": {
                                 "caption": "Display-Name:",                        
                                 "type": "ValidationTextBox"
@@ -97,7 +97,7 @@
                         }, {
                             "caption": "Alignment",
                             "name": "align", 
-                            "width": "75px",
+                            "width": "100px",
                             "edit": {
                                 "type": "Select",
                                 "caption": "Text alignment",
@@ -127,7 +127,7 @@
                         }, {
                             "caption": "CSS",
                             "name": "style", 
-                            "width": "100px",
+                            "width": "auto",
                             "edit": {
                                 "caption": "CSS:",                        
                                 "type": "ValidationTextBox"
@@ -182,6 +182,9 @@
             ],
     "actions":
             [
+                {
+                    "type": "TestCenter"
+                },
                 {
                     "type": "Button",
                     "caption": "Request state",

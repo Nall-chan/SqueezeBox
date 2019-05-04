@@ -69,7 +69,7 @@ Logitech Media Server.
 
 ## 2. Voraussetzungen
 
- - IPS 5.0 oder höher
+ - IPS 5.1 oder höher
  - Logitech Media Server (getestet ab 7.9.x)
  - kompatible Player
 
@@ -119,7 +119,7 @@ Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:
 
 ### 3. Changlog
 
-Version 3.20:
+Version 3.20:  
 - Release für IPS 5.1 und den Module-Store   
 
 Version 3.10:  

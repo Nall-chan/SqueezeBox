@@ -16,8 +16,8 @@ declare(strict_types=1);
  */
 require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
 require_once __DIR__ . '/../libs/SqueezeBoxClass.php';  // diverse Klassen
-eval('declare(strict_types=1);namespace squeezebox {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
-eval('declare(strict_types=1);namespace squeezebox {?>' . file_get_contents(__DIR__ . '/../libs/helper/ParentIOHelper.php') . '}');
+eval('declare(strict_types=1);namespace LMSConfigurator {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
+eval('declare(strict_types=1);namespace LMSConfigurator {?>' . file_get_contents(__DIR__ . '/../libs/helper/ParentIOHelper.php') . '}');
 
 /**
  * LMSConfigurator Klasse für ein SqueezeBox Konfigurator.
@@ -32,12 +32,13 @@ eval('declare(strict_types=1);namespace squeezebox {?>' . file_get_contents(__DI
  */
 class LMSConfigurator extends IPSModule
 {
+
     use \squeezebox\DebugHelper,
-        \squeezebox\BufferHelper,
-        \squeezebox\InstanceStatus {
-        \squeezebox\InstanceStatus::MessageSink as IOMessageSink;
-        \squeezebox\InstanceStatus::RegisterParent as IORegisterParent;
-        \squeezebox\InstanceStatus::RequestAction as IORequestAction;
+        \LMSConfigurator\BufferHelper,
+        \LMSConfigurator\InstanceStatus {
+        \LMSConfigurator\InstanceStatus::MessageSink as IOMessageSink;
+        \LMSConfigurator\InstanceStatus::RegisterParent as IORegisterParent;
+        \LMSConfigurator\InstanceStatus::RequestAction as IORequestAction;
     }
     /**
      * Interne Funktion des SDK.
@@ -150,7 +151,7 @@ class LMSConfigurator extends IPSModule
     private function GetDeviceInfo()
     {
         $count = $this->Send(new LMSData(['player', 'count'], '?'));
-        if (($count === false) or ($count === null)) {
+        if (($count === false) or ( $count === null)) {
             return [];
         }
         $players = [];
@@ -459,4 +460,5 @@ class LMSConfigurator extends IPSModule
             return null;
         }
     }
+
 }

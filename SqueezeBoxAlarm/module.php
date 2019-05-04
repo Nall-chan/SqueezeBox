@@ -16,11 +16,11 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
 require_once __DIR__ . '/../libs/SqueezeBoxClass.php';  // diverse Klassen
-eval('declare(strict_types=1);namespace squeezebox {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
-eval('declare(strict_types=1);namespace squeezebox {?>' . file_get_contents(__DIR__ . '/../libs/helper/ParentIOHelper.php') . '}');
-eval('declare(strict_types=1);namespace squeezebox {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableHelper.php') . '}');
-eval('declare(strict_types=1);namespace squeezebox {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableProfileHelper.php') . '}');
-eval('declare(strict_types=1);namespace squeezebox {?>' . file_get_contents(__DIR__ . '/../libs/helper/WebhookHelper.php') . '}');
+eval('declare(strict_types=1);namespace SqueezeboxAlarm {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
+eval('declare(strict_types=1);namespace SqueezeboxAlarm {?>' . file_get_contents(__DIR__ . '/../libs/helper/ParentIOHelper.php') . '}');
+eval('declare(strict_types=1);namespace SqueezeboxAlarm {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableHelper.php') . '}');
+eval('declare(strict_types=1);namespace SqueezeboxAlarm {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableProfileHelper.php') . '}');
+eval('declare(strict_types=1);namespace SqueezeboxAlarm {?>' . file_get_contents(__DIR__ . '/../libs/helper/WebhookHelper.php') . '}');
 
 /**
  * Enthält die Daten eines Alarm.
@@ -350,16 +350,16 @@ class LSA_AlarmList
  */
 class SqueezeboxAlarm extends IPSModule
 {
-    use \squeezebox\VariableProfileHelper,
+    use \SqueezeboxAlarm\VariableProfileHelper,
         LMSHTMLTable,
         \squeezebox\DebugHelper,
-        \squeezebox\BufferHelper,
-        \squeezebox\InstanceStatus,
-        \squeezebox\VariableHelper,
-        \squeezebox\WebhookHelper {
-        \squeezebox\InstanceStatus::MessageSink as IOMessageSink;
-        \squeezebox\InstanceStatus::RegisterParent as IORegisterParent;
-        \squeezebox\InstanceStatus::RequestAction as IORequestAction;
+        \SqueezeboxAlarm\BufferHelper,
+        \SqueezeboxAlarm\InstanceStatus,
+        \SqueezeboxAlarm\VariableHelper,
+        \SqueezeboxAlarm\WebhookHelper {
+        \SqueezeboxAlarm\InstanceStatus::MessageSink as IOMessageSink;
+        \SqueezeboxAlarm\InstanceStatus::RegisterParent as IORegisterParent;
+        \SqueezeboxAlarm\InstanceStatus::RequestAction as IORequestAction;
     }
     /**
      * TCP-Socket

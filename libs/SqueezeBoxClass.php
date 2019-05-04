@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 eval('declare(strict_types=1);namespace squeezebox {?>' . file_get_contents(__DIR__ . '/helper/UTF8Helper.php') . '}');
 require_once __DIR__ . '/TimeConvert.php';  // diverse Klassen
 
@@ -177,7 +178,7 @@ class LMSData extends stdClass
         if (is_array($Data)) {
             $this->Data = array_map('rawurlencode', $Data);
         } else {
-            $this->Data = rawurlencode($Data);
+            $this->Data = rawurlencode((string)$Data);
         }
         $this->needResponse = $needResponse;
     }

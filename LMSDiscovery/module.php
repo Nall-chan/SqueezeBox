@@ -14,7 +14,7 @@ declare(strict_types=1);
  *
  */
 require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
-eval('declare(strict_types=1);namespace squeezebox {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
+eval('declare(strict_types=1);namespace LMSDiscovery {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
 
 /**
  * LMSDiscovery Klasse implementiert
@@ -30,8 +30,9 @@ eval('declare(strict_types=1);namespace squeezebox {?>' . file_get_contents(__DI
  */
 class LMSDiscovery extends ipsmodule
 {
+
     use \squeezebox\DebugHelper,
-        \squeezebox\BufferHelper;
+        \LMSDiscovery\BufferHelper;
     /**
      * Interne Funktion des SDK.
      */
@@ -204,6 +205,7 @@ class LMSDiscovery extends ipsmodule
         $this->Devices = $this->DiscoverDevices();
         // Alt neu vergleich fehlt, sowie die Events an IPS senden wenn neues Gerät im Netz gefunden wurde.
     }
+
 }
 
 /* @} */

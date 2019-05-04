@@ -78,7 +78,7 @@
                         }, {
                             "caption": "Visible",
                             "name": "show",
-                            "width": "50px",
+                            "width": "75px",
                             "edit": {
                                 "caption": "Visible as column ?",                        
                                 "type": "CheckBox"
@@ -94,7 +94,7 @@
                         }, {
                             "caption": "Display-Name",
                             "name": "name", 
-                            "width": "75px",
+                            "width": "150px",
                             "edit": {
                                 "caption": "Display-Name:",                        
                                 "type": "ValidationTextBox"
@@ -110,7 +110,7 @@
                         }, {
                             "caption": "Alignment",
                             "name": "align", 
-                            "width": "75px",
+                            "width": "100px",
                             "edit": {
                                 "type": "Select",
                                 "caption": "Text alignment",
@@ -140,14 +140,14 @@
                         }, {
                             "caption": "CSS",
                             "name": "style", 
-                            "width": "100px",
+                            "width": "auto",
                             "edit": {
                                 "caption": "CSS:",                        
                                 "type": "ValidationTextBox"
                             }
                         }
                     ]
-                },  {
+                }, {
                     "type": "List",
                     "name": "Rows",
                     "caption": "Playlist rows",
@@ -159,8 +159,8 @@
                             "caption": "",
                             "width": "75px",
                             "save": true,
-                            "visible":false
-                        },{
+                            "visible": false
+                        }, {
                             "name": "name", 
                             "caption": "Row",
                             "width": "50px"
