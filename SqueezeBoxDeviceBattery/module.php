@@ -13,8 +13,8 @@ declare(strict_types=1);
  * @version       3.2
  *
  */
-eval('declare(strict_types=1);namespace squeezebox {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableHelper.php') . '}');
-eval('declare(strict_types=1);namespace squeezebox {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableProfileHelper.php') . '}');
+eval('declare(strict_types=1);namespace SqueezeboxBattery {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableHelper.php') . '}');
+eval('declare(strict_types=1);namespace SqueezeboxBattery {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableProfileHelper.php') . '}');
 
 /**
  * SqueezeboxBattery Klasse für die Stromversorgung einer SqueezeBox als Instanz in IPS.
@@ -29,8 +29,9 @@ eval('declare(strict_types=1);namespace squeezebox {?>' . file_get_contents(__DI
  */
 class SqueezeboxBattery extends IPSModule
 {
-    use \squeezebox\VariableProfileHelper,
-        \squeezebox\VariableHelper;
+
+    use \SqueezeboxBattery\VariableProfileHelper,
+        \SqueezeboxBattery\VariableHelper;
     /**
      * Interne Funktion des SDK.
      *
@@ -193,6 +194,7 @@ class SqueezeboxBattery extends IPSModule
         $this->SendDebug('Disconnect', '', 0);
         return true;
     }
+
 }
 
 /** @} */

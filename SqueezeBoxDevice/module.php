@@ -17,11 +17,11 @@ declare(strict_types=1);
 require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
 require_once __DIR__ . '/../libs/SqueezeBoxClass.php';  // diverse Klassen
 
-eval('declare(strict_types=1);namespace squeezebox {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
-eval('declare(strict_types=1);namespace squeezebox {?>' . file_get_contents(__DIR__ . '/../libs/helper/ParentIOHelper.php') . '}');
-eval('declare(strict_types=1);namespace squeezebox {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableHelper.php') . '}');
-eval('declare(strict_types=1);namespace squeezebox {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableProfileHelper.php') . '}');
-eval('declare(strict_types=1);namespace squeezebox {?>' . file_get_contents(__DIR__ . '/../libs/helper/WebhookHelper.php') . '}');
+eval('declare(strict_types=1);namespace SqueezeboxDevice {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
+eval('declare(strict_types=1);namespace SqueezeboxDevice {?>' . file_get_contents(__DIR__ . '/../libs/helper/ParentIOHelper.php') . '}');
+eval('declare(strict_types=1);namespace SqueezeboxDevice {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableHelper.php') . '}');
+eval('declare(strict_types=1);namespace SqueezeboxDevice {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableProfileHelper.php') . '}');
+eval('declare(strict_types=1);namespace SqueezeboxDevice {?>' . file_get_contents(__DIR__ . '/../libs/helper/WebhookHelper.php') . '}');
 
 /**
  * SqueezeboxDevice Klasse für eine SqueezeBox-Instanz in IPS.
@@ -49,15 +49,15 @@ class SqueezeboxDevice extends IPSModule
         LMSSongURL,
         LMSCover,
         LSQProfile,
-        \squeezebox\VariableHelper,
-        \squeezebox\VariableProfileHelper,
+        \SqueezeboxDevice\VariableHelper,
+        \SqueezeboxDevice\VariableProfileHelper,
         \squeezebox\DebugHelper,
-        \squeezebox\BufferHelper,
-        \squeezebox\InstanceStatus,
-        \squeezebox\WebhookHelper {
-        \squeezebox\InstanceStatus::MessageSink as IOMessageSink;
-        \squeezebox\InstanceStatus::RegisterParent as IORegisterParent;
-        \squeezebox\InstanceStatus::RequestAction as IORequestAction;
+        \SqueezeboxDevice\BufferHelper,
+        \SqueezeboxDevice\InstanceStatus,
+        \SqueezeboxDevice\WebhookHelper {
+        \SqueezeboxDevice\InstanceStatus::MessageSink as IOMessageSink;
+        \SqueezeboxDevice\InstanceStatus::RegisterParent as IORegisterParent;
+        \SqueezeboxDevice\InstanceStatus::RequestAction as IORequestAction;
     }
     private $Socket = false;
 
