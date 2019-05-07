@@ -24,5 +24,4 @@ trait TimeConvert
             return sprintf('%02d:%02d', ($Time / 60 % 60), $Time % 60);
         }
     }
-
 }
