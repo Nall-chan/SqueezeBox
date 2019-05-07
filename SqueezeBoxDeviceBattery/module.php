@@ -35,7 +35,6 @@ $autoloader->register();
  */
 class SqueezeboxBattery extends IPSModule
 {
-
     use \SqueezeboxBattery\VariableProfileHelper,
         \SqueezeboxBattery\VariableHelper;
 
@@ -195,7 +194,6 @@ class SqueezeboxBattery extends IPSModule
         $this->SendDebug('Disconnect', '', 0);
         return true;
     }
-
 }
 
 /* @} */
