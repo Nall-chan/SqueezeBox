@@ -7,11 +7,13 @@ namespace squeezebox {
     /**
      * Ein Trait welcher Sekunden in einen lesbare Zeit konvertiert.
      */
-    trait TimeConverter
+    trait TimeConvert
     {
         /**
          *  Konvertiert Sekunden in einen lesbare Zeit.
+         *
          * @param int $Time Zeit in Sekunden
+         *
          * @return string Zeit als String.
          */
         protected function ConvertSeconds(int $Time)
