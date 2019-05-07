@@ -871,7 +871,7 @@ trait LMSSongURL
  */
 trait LMSHTMLTable
 {
-    use \squeezebox\TimeConverter;
+    use \squeezebox\TimeConvert;
 
     /**
      * Liefert den Header der HTML-Tabelle.
