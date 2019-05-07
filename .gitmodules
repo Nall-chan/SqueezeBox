@@ -1,3 +1,7 @@
 [submodule "libs/helper"]
 	path = libs/helper
 	url = https://github.com/Nall-chan/SymconModulHelper
+[submodule "libs/phpseclib"]
+	path = libs/phpseclib
+	url = https://github.com/phpseclib/phpseclib.git
+	branch = 2.0

@@ -16,6 +16,11 @@ declare(strict_types=1);
 eval('declare(strict_types=1);namespace SqueezeboxBattery {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableHelper.php') . '}');
 eval('declare(strict_types=1);namespace SqueezeboxBattery {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableProfileHelper.php') . '}');
 
+require_once __DIR__ . '/../libs/load_phpseclib.php';
+$autoloader = new AutoloaderPHPseclib('phpseclib\Net\SSH2');
+
+$autoloader->register();
+
 /**
  * SqueezeboxBattery Klasse für die Stromversorgung einer SqueezeBox als Instanz in IPS.
  * Erweitert IPSModule.
@@ -29,6 +34,7 @@ eval('declare(strict_types=1);namespace SqueezeboxBattery {?>' . file_get_conten
  */
 class SqueezeboxBattery extends IPSModule
 {
+
     use \SqueezeboxBattery\VariableProfileHelper,
         \SqueezeboxBattery\VariableHelper;
     /**
@@ -133,10 +139,11 @@ class SqueezeboxBattery extends IPSModule
         if ($Address == '') {
             return false;
         }
-        set_include_path(__DIR__ . '/libs');
-        require_once(__DIR__ . '/libs/Net/SSH2.php');
+        //set_include_path(get_include_path() . ';' . __DIR__ . '/../libs/phpseclib/phpseclib/Math;' . __DIR__ . '/../libs/phpseclib/phpseclib/Crypt;');
+        //include 'vendor/autoload.php';
+        //require_once(__DIR__ . '/../libs/phpseclib/phpseclib/Net/SSH2.php');
 
-        $ssh = new Net_SSH2($this->ReadPropertyString('Address'));
+        $ssh = new \phpseclib\Net\SSH2($this->ReadPropertyString('Address'));
         $login = @$ssh->login('root', $this->ReadPropertyString('Password'));
         if ($login == false) {
             echo $this->Translate('Login failed.');
@@ -193,6 +200,7 @@ class SqueezeboxBattery extends IPSModule
         $this->SendDebug('Disconnect', '', 0);
         return true;
     }
+
 }
 
 /** @} */
