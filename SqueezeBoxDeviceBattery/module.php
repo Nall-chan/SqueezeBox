@@ -20,21 +20,21 @@ eval('declare(strict_types=1);namespace SqueezeboxBattery {?>' . file_get_conten
  * SqueezeboxBattery Klasse für die Stromversorgung einer SqueezeBox als Instanz in IPS.
  * Erweitert IPSModule.
  *
- * @package       Squeezebox
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2019 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
+ *
  * @version       3.2
+ *
  * @example <b>Ohne</b>
  */
 class SqueezeboxBattery extends IPSModule
 {
     use \SqueezeboxBattery\VariableProfileHelper,
         \SqueezeboxBattery\VariableHelper;
+
     /**
      * Interne Funktion des SDK.
-     *
-     * @access public
      */
     public function Create()
     {
@@ -50,8 +50,6 @@ class SqueezeboxBattery extends IPSModule
 
     /**
      * Interne Funktion des SDK.
-     *
-     * @access public
      */
     public function ApplyChanges()
     {
@@ -114,13 +112,14 @@ class SqueezeboxBattery extends IPSModule
             $this->SetTimerInterval('RequestState', 0);
         }
 
-        if (IPS_GetKernelRunlevel() <> KR_READY) {
+        if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
         $this->RequestState();
     }
 
-    ################## PUBLIC
+    //################# PUBLIC
+
     /**
      * IPS-Instanz-Funktion 'LSQB_RequestState'.
      * Aktuellen Status des Devices ermitteln und, wenn verbunden, abfragen.
@@ -134,7 +133,7 @@ class SqueezeboxBattery extends IPSModule
             return false;
         }
         set_include_path(__DIR__ . '/libs');
-        require_once(__DIR__ . '/libs/Net/SSH2.php');
+        require_once __DIR__ . '/libs/Net/SSH2.php';
 
         $ssh = new Net_SSH2($this->ReadPropertyString('Address'));
         $login = @$ssh->login('root', $this->ReadPropertyString('Password'));
@@ -161,7 +160,7 @@ class SqueezeboxBattery extends IPSModule
         $ChargeState = (int) $ssh->exec('cat /sys/class/i2c-adapter/i2c-1/1-0010/charger_state');
         $this->SendDebug('ChargeState', $ChargeState, 0);
         $this->SetValueInteger('ChargeState', $ChargeState);
-        if ($ChargeState <> 1) {
+        if ($ChargeState != 1) {
             $BatteryLevel = (int) $ssh->exec('cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_charge') / 2000;
             $this->SendDebug('BatteryLevel', $BatteryLevel, 0);
             $this->SetValueFloat('BatteryLevel', $BatteryLevel);
@@ -195,4 +194,4 @@ class SqueezeboxBattery extends IPSModule
     }
 }
 
-/** @} */
+/* @} */

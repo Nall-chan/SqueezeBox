@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * Pure-PHP implementation of SCP.
  *
@@ -42,10 +43,11 @@
  * THE SOFTWARE.
  *
  * @category  Net
- * @package   Net_SCP
+ *
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2010 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ *
  * @link      http://phpseclib.sourceforge.net
  */
 
@@ -57,7 +59,7 @@
  * Reads data from a local file.
  */
 define('NET_SCP_LOCAL_FILE', 1);
-/**
+/*
  * Reads data from a string.
  */
 define('NET_SCP_STRING', 2);
@@ -68,11 +70,11 @@ define('NET_SCP_STRING', 2);
  * @see self::_send()
  * @see self::_receive()
  */
-/**
+/*
  * SSH1 is being used.
  */
 define('NET_SCP_SSH1', 1);
-/**
+/*
  * SSH2 is being used.
  */
 define('NET_SCP_SSH2', 2);
@@ -81,33 +83,28 @@ define('NET_SCP_SSH2', 2);
 /**
  * Pure-PHP implementations of SCP.
  *
- * @package Net_SCP
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 class Net_SCP
 {
     /**
-     * SSH Object
+     * SSH Object.
      *
      * @var object
-     * @access private
      */
     public $ssh;
 
     /**
-     * Packet Size
+     * Packet Size.
      *
      * @var int
-     * @access private
      */
     public $packet_size;
 
     /**
-     * Mode
+     * Mode.
      *
      * @var int
-     * @access private
      */
     public $mode;
 
@@ -117,8 +114,8 @@ class Net_SCP
      * Connects to an SSH server
      *
      * @param Net_SSH1|Net_SSH2 $ssh
+     *
      * @return Net_SCP
-     * @access public
      */
     public function __construct($ssh)
     {
@@ -145,8 +142,8 @@ class Net_SCP
      * PHP4 compatible Default Constructor.
      *
      * @see self::__construct()
+     *
      * @param Net_SSH1|Net_SSH2 $ssh
-     * @access public
      */
     public function Net_SCP($ssh)
     {
@@ -167,12 +164,12 @@ class Net_SCP
      * Currently, only binary mode is supported.  As such, if the line endings need to be adjusted, you will need to take
      * care of that, yourself.
      *
-     * @param string $remote_file
-     * @param string $data
-     * @param int $mode
+     * @param string   $remote_file
+     * @param string   $data
+     * @param int      $mode
      * @param callable $callback
+     *
      * @return bool
-     * @access public
      */
     public function put($remote_file, $data, $mode = NET_SCP_STRING, $callback = null)
     {
@@ -221,7 +218,7 @@ class Net_SCP
         while ($sent < $size) {
             $temp = $mode & NET_SCP_STRING ? substr($data, $sent, $this->packet_size) : fread($fp, $this->packet_size);
             $this->_send($temp);
-            $sent+= strlen($temp);
+            $sent += strlen($temp);
 
             if (is_callable($callback)) {
                 call_user_func($callback, $sent);
@@ -245,8 +242,8 @@ class Net_SCP
      *
      * @param string $remote_file
      * @param string $local_file
+     *
      * @return mixed
-     * @access public
      */
     public function get($remote_file, $local_file = false)
     {
@@ -279,12 +276,12 @@ class Net_SCP
         while ($size < $info['size']) {
             $data = $this->_receive();
             // SCP usually seems to split stuff out into 16k chunks
-            $size+= strlen($data);
+            $size += strlen($data);
 
             if ($local_file === false) {
-                $content.= $data;
+                $content .= $data;
             } else {
-                fputs($fp, $data);
+                fwrite($fp, $data);
             }
         }
 
@@ -299,10 +296,9 @@ class Net_SCP
     }
 
     /**
-     * Sends a packet to an SSH server
+     * Sends a packet to an SSH server.
      *
      * @param string $data
-     * @access private
      */
     public function _send($data)
     {
@@ -317,10 +313,9 @@ class Net_SCP
     }
 
     /**
-     * Receives a packet from an SSH server
+     * Receives a packet from an SSH server.
      *
      * @return string
-     * @access private
      */
     public function _receive()
     {
@@ -356,9 +351,7 @@ class Net_SCP
     }
 
     /**
-     * Closes the connection to an SSH server
-     *
-     * @access private
+     * Closes the connection to an SSH server.
      */
     public function _close()
     {

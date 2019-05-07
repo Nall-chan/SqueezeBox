@@ -1,6 +1,8 @@
 <?php
+
+declare(strict_types=1);
 /**
- * Pure-PHP ssh-agent client wrapper
+ * Pure-PHP ssh-agent client wrapper.
  *
  * PHP versions 4 and 5
  *
@@ -28,12 +30,13 @@
  * THE SOFTWARE.
  *
  * @category  System
- * @package   System_SSH_Agent
+ *
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2014 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ *
  * @link      http://phpseclib.sourceforge.net
+ *
  * @internal  See http://api.libssh.org/rfc/PROTOCOL.agent
  */
-
 require_once 'SSH/Agent.php';

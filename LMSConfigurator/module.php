@@ -23,11 +23,12 @@ eval('declare(strict_types=1);namespace LMSConfigurator {?>' . file_get_contents
  * LMSConfigurator Klasse für ein SqueezeBox Konfigurator.
  * Erweitert IPSModule.
  *
- * @package       Squeezebox
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2019 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
+ *
  * @version       3.2
+ *
  * @example <b>Ohne</b>
  */
 class LMSConfigurator extends IPSModule
@@ -39,10 +40,9 @@ class LMSConfigurator extends IPSModule
         \LMSConfigurator\InstanceStatus::RegisterParent as IORegisterParent;
         \LMSConfigurator\InstanceStatus::RequestAction as IORequestAction;
     }
+
     /**
      * Interne Funktion des SDK.
-     *
-     * @access public
      */
     public function Create()
     {
@@ -54,8 +54,6 @@ class LMSConfigurator extends IPSModule
 
     /**
      * Interne Funktion des SDK.
-     *
-     * @access public
      */
     public function ApplyChanges()
     {
@@ -66,7 +64,7 @@ class LMSConfigurator extends IPSModule
         $this->RegisterMessage($this->InstanceID, FM_DISCONNECT);
 
         parent::ApplyChanges();
-        if (IPS_GetKernelRunlevel() <> KR_READY) {
+        if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
 
@@ -79,7 +77,6 @@ class LMSConfigurator extends IPSModule
     /**
      * Interne Funktion des SDK.
      *
-     * @access public
      *
      * @param type $TimeStamp
      * @param type $SenderID
@@ -129,7 +126,6 @@ class LMSConfigurator extends IPSModule
 
     /**
      * Wird ausgeführt wenn sich der Status vom Parent ändert.
-     * @access protected
      */
     protected function IOChangeState($State)
     {
@@ -142,9 +138,8 @@ class LMSConfigurator extends IPSModule
 
     /**
      * IPS-Instanz-Funktion 'LMC_GetDeviceInfo'.
-     * Lädt die bekannten Player vom LMS
+     * Lädt die bekannten Player vom LMS.
      *
-     * @access private
      * @result array|bool Assoziertes Array,  false und Fehlermeldung.
      */
     private function GetDeviceInfo()
@@ -196,7 +191,7 @@ class LMSConfigurator extends IPSModule
 
     private function FilterBattery($Values)
     {
-        return ($Values['model'] == 'baby');
+        return $Values['model'] == 'baby';
     }
 
     private function GetConfigParam(&$item1, $InstanceID, $ConfigParam)
@@ -260,8 +255,6 @@ class LMSConfigurator extends IPSModule
 
     /**
      * Interne Funktion des SDK.
-     *
-     * @access public
      */
     public function GetConfigurationForm()
     {
@@ -436,8 +429,8 @@ class LMSConfigurator extends IPSModule
     /**
      * Konvertiert $Data zu einem JSONString und versendet diese an den Splitter.
      *
-     * @access protected
      * @param LMSData $LMSData Zu versendende Daten.
+     *
      * @return LMSData Objekt mit der Antwort. NULL im Fehlerfall.
      */
     private function Send(LMSData $LMSData)
