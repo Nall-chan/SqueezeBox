@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 class AutoloaderPHPseclib
 {
     private $namespace;
@@ -11,7 +12,7 @@ class AutoloaderPHPseclib
 
     public function register()
     {
-        spl_autoload_register(array($this, 'loadClass'));
+        spl_autoload_register([$this, 'loadClass']);
     }
 
     public function loadClass($className)
@@ -21,5 +22,4 @@ class AutoloaderPHPseclib
             require_once $file;
         }
     }
-
 }
