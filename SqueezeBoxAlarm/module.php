@@ -630,7 +630,6 @@ class SqueezeboxAlarm extends IPSModule
      */
     protected function IOChangeState($State)
     {
-        $this->LogMessage(__METHOD__, KL_DEBUG);
         if ($State == IS_ACTIVE) {
             $this->LoadAlarmPlaylists();
             $this->RequestAllState();
