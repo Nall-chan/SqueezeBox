@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 /**
  * Pure-PHP implementation of AES.
  *
@@ -58,15 +59,16 @@
  * THE SOFTWARE.
  *
  * @category  Crypt
- * @package   Crypt_AES
+ *
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2008 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ *
  * @link      http://phpseclib.sourceforge.net
  */
 
 /**
- * Include Crypt_Rijndael
+ * Include Crypt_Rijndael.
  */
 if (!class_exists('Crypt_Rijndael')) {
     include_once 'Rijndael.php';
@@ -77,7 +79,7 @@ if (!class_exists('Crypt_Rijndael')) {
  * @see self::encrypt()
  * @see self::decrypt()
  */
-/**
+/*
  * Encrypt / decrypt using the Counter mode.
  *
  * Set to -1 since that's what Crypt/Random.php uses to index the CTR mode.
@@ -85,25 +87,25 @@ if (!class_exists('Crypt_Rijndael')) {
  * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Counter_.28CTR.29
  */
 define('CRYPT_AES_MODE_CTR', CRYPT_MODE_CTR);
-/**
+/*
  * Encrypt / decrypt using the Electronic Code Book mode.
  *
  * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Electronic_codebook_.28ECB.29
  */
 define('CRYPT_AES_MODE_ECB', CRYPT_MODE_ECB);
-/**
+/*
  * Encrypt / decrypt using the Code Book Chaining mode.
  *
  * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher-block_chaining_.28CBC.29
  */
 define('CRYPT_AES_MODE_CBC', CRYPT_MODE_CBC);
-/**
+/*
  * Encrypt / decrypt using the Cipher Feedback mode.
  *
  * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher_feedback_.28CFB.29
  */
 define('CRYPT_AES_MODE_CFB', CRYPT_MODE_CFB);
-/**
+/*
  * Encrypt / decrypt using the Cipher Feedback mode.
  *
  * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Output_feedback_.28OFB.29
@@ -114,9 +116,7 @@ define('CRYPT_AES_MODE_OFB', CRYPT_MODE_OFB);
 /**
  * Pure-PHP implementation of AES.
  *
- * @package Crypt_AES
  * @author  Jim Wigginton <terrafrost@php.net>
- * @access  public
  */
 class Crypt_AES extends Crypt_Rijndael
 {
@@ -124,18 +124,18 @@ class Crypt_AES extends Crypt_Rijndael
      * The namespace used by the cipher for its constants.
      *
      * @see Crypt_Base::const_namespace
+     *
      * @var string
-     * @access private
      */
     public $const_namespace = 'AES';
 
     /**
-     * Dummy function
+     * Dummy function.
      *
      * Since Crypt_AES extends Crypt_Rijndael, this function is, technically, available, but it doesn't do anything.
      *
      * @see Crypt_Rijndael::setBlockLength()
-     * @access public
+     *
      * @param int $length
      */
     public function setBlockLength($length)
@@ -144,13 +144,13 @@ class Crypt_AES extends Crypt_Rijndael
     }
 
     /**
-     * Sets the key length
+     * Sets the key length.
      *
      * Valid key lengths are 128, 192, and 256.  If the length is less than 128, it will be rounded up to
      * 128.  If the length is greater than 128 and invalid, it will be rounded down to the closest valid amount.
      *
      * @see Crypt_Rijndael:setKeyLength()
-     * @access public
+     *
      * @param int $length
      */
     public function setKeyLength($length)
@@ -172,7 +172,7 @@ class Crypt_AES extends Crypt_Rijndael
      *
      * @see Crypt_Rijndael:setKey()
      * @see setKeyLength()
-     * @access public
+     *
      * @param string $key
      */
     public function setKey($key)

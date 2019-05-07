@@ -19,7 +19,7 @@ require_once __DIR__ . '/TimeConvert.php';  // diverse Klassen
  */
 
 /**
- * Trait mit allen Profilen der Instanz Squeezebox-Device
+ * Trait mit allen Profilen der Instanz Squeezebox-Device.
  */
 trait LSQProfile
 {
@@ -89,7 +89,7 @@ trait LSQProfile
 }
 
 /**
- * Trait mit allen Profilen der Instanz Squeezebox-Device
+ * Trait mit allen Profilen der Instanz Squeezebox-Device.
  */
 trait LMSProfile
 {
@@ -121,11 +121,12 @@ trait LMSProfile
 /**
  * Definiert eine Datensatz zum Versenden an des LMS.
  *
- * @package       Squeezebox
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2016 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
+ *
  * @version       1.0
+ *
  * @example <b>Ohne</b>
  */
 class LMSData extends stdClass
@@ -133,39 +134,45 @@ class LMSData extends stdClass
     use \squeezebox\UTF8Coder;
     /**
      * Adresse des Gerätes.
+     *
      * @var string
      */
     public $Address;
 
     /**
      * Alle Kommandos als Array.
+     *
      * @var string|array
      */
     public $Command;
 
     /**
      * Alle Daten des Kommandos.
+     *
      * @var string|array
      */
     public $Data;
 
     /**
      * Flag ob auf Antwort gewartet werden muss.
+     *
      * @var bool
      */
     public $needResponse;
 
     /**
      * Anzahl der versendeten Daten.
+     *
      * @var int
      */
     private $SendValues;
 
     /**
      * Erzeugt ein Objekt vom Typ LMSData.
-     * @param string|array $Command Kommando
-     * @param string|array $Data Nutzdaten
-     * @param bool $needResponse Auf Antwort warten.
+     *
+     * @param string|array $Command      Kommando
+     * @param string|array $Data         Nutzdaten
+     * @param bool         $needResponse Auf Antwort warten.
      */
     public function __construct($Command = '', $Data = '', $needResponse = true)
     {
@@ -178,14 +185,16 @@ class LMSData extends stdClass
         if (is_array($Data)) {
             $this->Data = array_map('rawurlencode', $Data);
         } else {
-            $this->Data = rawurlencode((string)$Data);
+            $this->Data = rawurlencode((string) $Data);
         }
         $this->needResponse = $needResponse;
     }
 
     /**
      * Erzeugt einen String für den Datenaustausch mit einer IO-Instanz.
+     *
      * @param type $GUID Die TX-GUID
+     *
      * @return type Der JSON-String für den Datenaustausch.
      */
     public function ToJSONStringForLMS($GUID)
@@ -195,6 +204,7 @@ class LMSData extends stdClass
 
     /**
      * Erzeugt einen String für das CLI des LMS.
+     *
      * @return string CLI-Befehl für den LMS.
      */
     public function ToRawStringForLMS()
@@ -216,6 +226,7 @@ class LMSData extends stdClass
 
     /**
      * Liefert das Suchmuster für die SendQueue.
+     *
      * @return string Das Suchmuster.
      */
     public function GetSearchPatter()
@@ -225,6 +236,7 @@ class LMSData extends stdClass
 
     /**
      * Befüllt das Objekt mit neuen Daten aus dem Datenaustausch.
+     *
      * @param stdClass $Data Das Objekt aus dem Datenaustausch.
      */
     public function CreateFromGenericObject($Data)
@@ -248,35 +260,38 @@ class LMSData extends stdClass
 
     /**
      * Erzeugt ein JSON-String für den internen Datenaustausch dieses Moduls.
+     *
      * @param string $GUID GUID des Datenpaketes.
+     *
      * @return string Der JSON-String.
      */
     public function ToJSONString($GUID)
     {
         $this->EncodeUTF8($this);
         return json_encode(['DataID'       => $GUID,
-            'Address'      => $this->Address,
-            'Command'      => $this->Command,
-            'Data'         => $this->Data,
-            'needResponse' => $this->needResponse
+            'Address'                      => $this->Address,
+            'Command'                      => $this->Command,
+            'Data'                         => $this->Data,
+            'needResponse'                 => $this->needResponse
             ]);
     }
 }
 
 /**
- * Klasse mit den Empfangenen Daten vom LMS
+ * Klasse mit den Empfangenen Daten vom LMS.
  *
- * @package       Squeezebox
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2016 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
+ *
  * @version       1.0
+ *
  * @example <b>Ohne</b>
  */
 class LMSResponse extends LMSData
 {
     /**
-     * Antwort ist vom LMS-Server
+     * Antwort ist vom LMS-Server.
      *
      * @static
      */
@@ -297,7 +312,7 @@ class LMSResponse extends LMSData
     const isIP = 2;
 
     /**
-     * Enthält den Type des Versenders einer Antwort
+     * Enthält den Type des Versenders einer Antwort.
      *
      * @var int Kann ::isServer, ::isMAC oder ::isIP sein.
      */
@@ -312,18 +327,18 @@ class LMSResponse extends LMSData
     {
         $array = explode(' ', $RawString); // Antwortstring in Array umwandeln
         if (strpos($array[0], '%3A') == 2) { //isMAC
-            $this->Device = LMSResponse::isMAC;
+            $this->Device = self::isMAC;
             $this->Address = rawurldecode(array_shift($array));
         } elseif (strpos($array[0], '.')) { //isIP
-            $this->Device = LMSResponse::isIP;
+            $this->Device = self::isIP;
             $this->Address = array_shift($array);
         } else { // isServer
-            $this->Device = LMSResponse::isServer;
+            $this->Device = self::isServer;
             $this->Address = '';
         }
         $this->Command = [array_shift($array)];
-        if ($this->Device == LMSResponse::isServer) {
-            if (count($array) <> 0) {
+        if ($this->Device == self::isServer) {
+            if (count($array) != 0) {
                 switch ($this->Command[0]) {
                     case 'player':
                     case 'alarm':
@@ -343,7 +358,7 @@ class LMSResponse extends LMSData
                 }
             }
         } else {
-            if (count($array) <> 0) {
+            if (count($array) != 0) {
                 switch ($this->Command[0]) {
                     case 'mixer':
                     case 'playlist':
@@ -420,15 +435,16 @@ class LMSResponse extends LMSData
      * Erzeugt aus dem Objekt einen JSON-String.
      *
      * @param string $GUID GUID welche in den JSON-String eingebunden wird.
+     *
      * @return string Der JSON-String für den Datenaustausch
      */
     public function ToJSONStringForDevice(string $GUID)
     {
         $this->EncodeUTF8($this);
         return json_encode(['DataID'  => $GUID,
-            'Address' => $this->Address,
-            'Command' => $this->Command,
-            'Data'    => $this->Data
+            'Address'                 => $this->Address,
+            'Command'                 => $this->Command,
+            'Data'                    => $this->Data
             ]);
     }
 }
@@ -436,23 +452,22 @@ class LMSResponse extends LMSData
 /**
  * Zerlegt einen getaggten Datensatz in Name und Wert.
  *
- * @package       Squeezebox
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2016 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
+ *
  * @version       1.0
+ *
  * @example <b>Ohne</b>
  */
 class LMSTaggingData extends stdClass
 {
     /**
-     * @access public
      * @var string Der Name des Datensatzes.
      */
     public $Name;
 
     /**
-     * @access public
      * @var string Der Inhalt des Datensatzen.
      */
     public $Value;
@@ -460,7 +475,6 @@ class LMSTaggingData extends stdClass
     /**
      * Erzeugt ein LMSTaggingData-Objekt aus $TaggedDataLine.
      *
-     * @access public
      * @param string $TaggedDataLine Die Rohdaten.
      */
     public function __construct($TaggedDataLine)
@@ -483,11 +497,12 @@ class LMSTaggingData extends stdClass
 /**
  * Zerlegt einen Array aus getaggten Datensätzen.
  *
- * @package       Squeezebox
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2016 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
+ *
  * @version       1.0
+ *
  * @example <b>Ohne</b>
  */
 class LMSTaggingArray extends stdClass
@@ -498,7 +513,6 @@ class LMSTaggingArray extends stdClass
     private $DataArray;
 
     /**
-     *
      * @var array Enthält alle zu dekodierenen Index mit ihren Typenumwandlungen.
      */
     public static $DataFields = [
@@ -570,10 +584,9 @@ class LMSTaggingArray extends stdClass
     /**
      * Erzeugt aus einem Array mit getaggten Daten ein mehrdimensionales Array.
      *
-     * @access public
-     * @param array $TaggedData Das Array mit allen getaggten Zeilen.
+     * @param array  $TaggedData  Das Array mit allen getaggten Zeilen.
      * @param string $UsedIdIndex Der zu verwendene Index welcher als Trenner zwischen den Objekten fungiert.
-     * @param string $Filter Ein auf alle Index anzuwendender Filter, nur Index welche den Filter am Anfang enthalten werden übernommen.
+     * @param string $Filter      Ein auf alle Index anzuwendender Filter, nur Index welche den Filter am Anfang enthalten werden übernommen.
      */
     public function __construct(array $TaggedData, $UsedIdIndex = 'id', $Filter = '')
     {
@@ -638,9 +651,8 @@ class LMSTaggingArray extends stdClass
     }
 
     /**
-     * Liefert das Array mit allen Nutzdaten
+     * Liefert das Array mit allen Nutzdaten.
      *
-     * @access public
      * @return array Das Array mit allen Nutzdaten.
      */
     public function DataArray()
@@ -651,7 +663,6 @@ class LMSTaggingArray extends stdClass
     /**
      * Bricht das Array auf einen bestimmte Index runter.
      *
-     * @access public
      * @param string $Index Der zu verwendende Index.
      */
     public function Compact(string $Index)
@@ -660,9 +671,8 @@ class LMSTaggingArray extends stdClass
     }
 
     /**
-     * Callback-Funktion für Compact
+     * Callback-Funktion für Compact.
      *
-     * @access protected
      * @param mixed $Item Das aktuelle Item.
      * @param mixed Der übergeben Index von Item.
      * @param string $Index Der Index aus Item der hochkopiert wird.
@@ -675,7 +685,6 @@ class LMSTaggingArray extends stdClass
     /**
      * Liefert die Anzahl der Daten im DataArray.
      *
-     * @access public
      * @return int Anzahl der Einträge in DataArray.
      */
     public function Count()
@@ -685,31 +694,35 @@ class LMSTaggingArray extends stdClass
 }
 
 /**
- * Zerlegt einen Array aus getaggten Datensätzen zu SongInfos
+ * Zerlegt einen Array aus getaggten Datensätzen zu SongInfos.
  *
- * @package       Squeezebox
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2016 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
+ *
  * @version       1.0
+ *
  * @example <b>Ohne</b>
  */
 class LMSSongInfo extends stdClass
 {
     /**
-     * Ein Array das alle Songs enthält
+     * Ein Array das alle Songs enthält.
+     *
      * @var array
      */
     private $SongArray = [];
 
     /**
      * Die gesamte Spielzeit in Sekunden.
+     *
      * @var int
      */
     private $Duration = 0;
 
     /**
      * Enthält die Zuordnung zu den Datentypen.
+     *
      * @var array
      */
     public static $SongFields = [
@@ -740,6 +753,7 @@ class LMSSongInfo extends stdClass
 
     /**
      * Erzeugt aus einem Array mit getaggten Daten ein LMSSongInfo Objekt.
+     *
      * @param array $TaggedData
      */
     public function __construct(array $TaggedData)
@@ -765,7 +779,6 @@ class LMSSongInfo extends stdClass
                 continue;
             }
 
-
             if ($Part->Name == 'duration') {
                 $Duration = +intval($Part->Value);
             }
@@ -777,7 +790,7 @@ class LMSSongInfo extends stdClass
                 $Songs[$id][$Index] = rawurldecode($Part->Value);
             }
         }
-        if ((count($Songs) <> 1) and isset($Songs[-1])) {
+        if ((count($Songs) != 1) and isset($Songs[-1])) {
             unset($Songs[-1]);
         }
         $this->SongArray = $Songs;
@@ -786,6 +799,7 @@ class LMSSongInfo extends stdClass
 
     /**
      * Liefert den ersten Datensatz der Songs.
+     *
      * @return array Der Datensatz des Songs.
      */
     public function GetSong()
@@ -795,6 +809,7 @@ class LMSSongInfo extends stdClass
 
     /**
      * Liefert alle Datensätze der Songs.
+     *
      * @return array Alle Datensätze.
      */
     public function GetAllSongs()
@@ -804,6 +819,7 @@ class LMSSongInfo extends stdClass
 
     /**
      * Liefert die Laufzeit alle Songs.
+     *
      * @return int Die Laufzeit in Sekunden.
      */
     public function GetTotalDuration()
@@ -813,6 +829,7 @@ class LMSSongInfo extends stdClass
 
     /**
      * Liefert die Anzahl alles Songs.
+     *
      * @return int Die Anzahl der Songs.
      */
     public function CountAllSongs()
@@ -822,14 +839,16 @@ class LMSSongInfo extends stdClass
 }
 
 /**
- * Prüft und korrigiert eine URL
+ * Prüft und korrigiert eine URL.
  */
 trait LMSSongURL
 {
     /**
-     * Prüft und korrigiert eine URL
+     * Prüft und korrigiert eine URL.
+     *
      * @param type $SongURL
-     * @return boolean True wenn URL valid ist, sonst false
+     *
+     * @return bool True wenn URL valid ist, sonst false
      */
     protected function GetValidSongURL(&$SongURL)
     {
@@ -853,11 +872,12 @@ trait LMSSongURL
 trait LMSHTMLTable
 {
     use \squeezebox\TimeConverter;
+
     /**
      * Liefert den Header der HTML-Tabelle.
      *
-     * @access private
      * @param array $Config Die Kofiguration der Tabelle
+     *
      * @return string HTML-String
      */
     protected function GetTableHeader($Config_Table, $Config_Columns)
@@ -939,11 +959,13 @@ sleep(10).then(() => {
 
     /**
      * Liefert den Inhalt der HTML-Box für ein Tabelle.
-     * @param array $Data Die Nutzdaten der Tabelle.
-     * @param string $HookPrefix Der Prefix des Webhook.
-     * @param string $HookType Ein String welcher als Parameter Type im Webhook übergeben wird.
-     * @param string $HookId Der Index aus dem Array $Data welcher die Nutzdaten (Parameter ID) des Webhook enthält.
-     * @param int $CurrentLine Die Aktuelle Zeile welche als Aktiv erzeugt werden soll.
+     *
+     * @param array  $Data        Die Nutzdaten der Tabelle.
+     * @param string $HookPrefix  Der Prefix des Webhook.
+     * @param string $HookType    Ein String welcher als Parameter Type im Webhook übergeben wird.
+     * @param string $HookId      Der Index aus dem Array $Data welcher die Nutzdaten (Parameter ID) des Webhook enthält.
+     * @param int    $CurrentLine Die Aktuelle Zeile welche als Aktiv erzeugt werden soll.
+     *
      * @return string Der HTML-String.
      */
     protected function GetTable($Data, $HookPrefix, $HookType, $HookId, $CurrentLine = -1)
@@ -957,7 +979,6 @@ sleep(10).then(() => {
 
         $NewSecret = base64_encode(openssl_random_pseudo_bytes(12));
         $this->{'WebHookSecret' . $HookType} = $NewSecret;
-
 
         $HTMLData = $this->GetTableHeader($Config_Table, $Config_Columns);
         $pos = 0;
@@ -1012,7 +1033,6 @@ sleep(10).then(() => {
     /**
      * Liefert den Footer der HTML-Tabelle.
      *
-     * @access private
      * @return string HTML-String
      */
     protected function GetTableFooter()
@@ -1030,10 +1050,12 @@ trait LMSCover
 {
     /**
      * Liefert die Rohdaten eines Covers, welches vom LMS geladen wurde.
+     *
      * @param string $CoverID Die ID des Covers.
-     * @param string $Size Die Größe des Covers in Pixel.
-     * @param string $Player Die Player-MAC.
-     * @return boolean|string Die Rohdaten des Covers, oder false im Fehlerfall.
+     * @param string $Size    Die Größe des Covers in Pixel.
+     * @param string $Player  Die Player-MAC.
+     *
+     * @return bool|string Die Rohdaten des Covers, oder false im Fehlerfall.
      */
     protected function GetCover(string $CoverID, string $Size, string $Player)
     {
@@ -1052,7 +1074,7 @@ trait LMSCover
         }
         $Host = gethostbyname($Hostname);
         $Host .= ':' . $Webport;
-        if ($Player <> '') {
+        if ($Player != '') {
             $Player = '?player=' . rawurlencode($Player);
             $CoverID = 'current';
         }
@@ -1062,4 +1084,4 @@ trait LMSCover
     }
 }
 
-/** @} */
+/* @} */

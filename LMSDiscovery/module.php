@@ -17,7 +17,7 @@ require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
 eval('declare(strict_types=1);namespace LMSDiscovery {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
 
 /**
- * LMSDiscovery Klasse implementiert
+ * LMSDiscovery Klasse implementiert.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2019 Michael Tröger
@@ -26,12 +26,14 @@ eval('declare(strict_types=1);namespace LMSDiscovery {?>' . file_get_contents(__
  * @version       3.2
  *
  * @example <b>Ohne</b>
+ *
  * @property array $Devices
  */
 class LMSDiscovery extends ipsmodule
 {
     use \squeezebox\DebugHelper,
         \LMSDiscovery\BufferHelper;
+
     /**
      * Interne Funktion des SDK.
      */
