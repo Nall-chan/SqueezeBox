@@ -138,15 +138,6 @@ class SqueezeboxBattery extends IPSModule
         if ($Address == '') {
             return false;
         }
-<<<<<<< HEAD
-        //set_include_path(get_include_path() . ';' . __DIR__ . '/../libs/phpseclib/phpseclib/Math;' . __DIR__ . '/../libs/phpseclib/phpseclib/Crypt;');
-        //include 'vendor/autoload.php';
-        //require_once(__DIR__ . '/../libs/phpseclib/phpseclib/Net/SSH2.php');
-=======
-        set_include_path(__DIR__ . '/libs');
-        require_once __DIR__ . '/libs/Net/SSH2.php';
->>>>>>> ab7dbc74f331106b16a99378beaa1d6ba273b844
-
         $ssh = new \phpseclib\Net\SSH2($this->ReadPropertyString('Address'));
         $login = @$ssh->login('root', $this->ReadPropertyString('Password'));
         if ($login == false) {
