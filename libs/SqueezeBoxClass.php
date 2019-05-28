@@ -86,6 +86,7 @@ trait LSQProfile
         $this->UnregisterProfile('LSQ.Preset');
         $this->UnregisterProfile('LSQ.SleepTimer');
     }
+
 }
 
 /**
@@ -116,6 +117,7 @@ trait LMSProfile
         $this->UnregisterProfile('LMS.PlayerSelect' . $this->InstanceID);
         $this->UnregisterProfile('LMS.Scanner');
     }
+
 }
 
 /**
@@ -131,6 +133,7 @@ trait LMSProfile
  */
 class LMSData extends stdClass
 {
+
     use \squeezebox\UTF8Coder;
     /**
      * Adresse des Gerätes.
@@ -217,7 +220,7 @@ class LMSData extends stdClass
             $this->SendValues = count($this->Data);
         } else {
             $Data = $this->Data;
-            if (($this->Data !== null) and ($this->Data != '%3F')) {
+            if (($this->Data !== null) and ( $this->Data != '%3F')) {
                 $this->SendValues = 1;
             }
         }
@@ -269,12 +272,13 @@ class LMSData extends stdClass
     {
         $this->EncodeUTF8($this);
         return json_encode(['DataID'       => $GUID,
-            'Address'                      => $this->Address,
-            'Command'                      => $this->Command,
-            'Data'                         => $this->Data,
-            'needResponse'                 => $this->needResponse
-            ]);
+            'Address'      => $this->Address,
+            'Command'      => $this->Command,
+            'Data'         => $this->Data,
+            'needResponse' => $this->needResponse
+        ]);
     }
+
 }
 
 /**
@@ -442,11 +446,12 @@ class LMSResponse extends LMSData
     {
         $this->EncodeUTF8($this);
         return json_encode(['DataID'  => $GUID,
-            'Address'                 => $this->Address,
-            'Command'                 => $this->Command,
-            'Data'                    => $this->Data
-            ]);
+            'Address' => $this->Address,
+            'Command' => $this->Command,
+            'Data'    => $this->Data
+        ]);
     }
+
 }
 
 /**
@@ -492,6 +497,7 @@ class LMSTaggingData extends stdClass
             $this->Value = (string) $this->Value;
         }
     }
+
 }
 
 /**
@@ -579,7 +585,7 @@ class LMSTaggingArray extends stdClass
         'Volume'                  => 1,
         'Weight'                  => 1,
         'Year'                    => 1 // Y
-       ];
+    ];
 
     /**
      * Erzeugt aus einem Array mit getaggten Daten ein mehrdimensionales Array.
@@ -691,6 +697,7 @@ class LMSTaggingArray extends stdClass
     {
         return count($this->DataArray);
     }
+
 }
 
 /**
@@ -741,7 +748,7 @@ class LMSSongInfo extends stdClass
         'Rating'           => 1, // R
         'Album_id'         => 1, // e
         'Artwork_track_id' => 3, // J
-        'Samplesize'       => 3, // I
+        'Samplesize'       => 1, // I
         'Remote_title'     => 3, //N
         'Genre_id'         => 1, //p
         'Artist_id'        => 1, //s
@@ -749,7 +756,7 @@ class LMSSongInfo extends stdClass
         'Name'             => 3,
         'Modified'         => 0,
         'Playlist'         => 3
-       ];
+    ];
 
     /**
      * Erzeugt aus einem Array mit getaggten Daten ein LMSSongInfo Objekt.
@@ -787,7 +794,11 @@ class LMSSongInfo extends stdClass
             } elseif (static::$SongFields[$Index] == 1) {
                 $Songs[$id][$Index] = intval($Part->Value);
             } else {
-                $Songs[$id][$Index] = rawurldecode($Part->Value);
+                if (is_string($Part->Value)) {
+                    $Songs[$id][$Index] = rawurldecode($Part->Value);
+                } else {
+                    $Songs[$id][$Index] = $Part->Value;
+                }
             }
         }
         if ((count($Songs) != 1) and isset($Songs[-1])) {
@@ -836,6 +847,7 @@ class LMSSongInfo extends stdClass
     {
         return count($this->SongArray);
     }
+
 }
 
 /**
@@ -864,6 +876,7 @@ trait LMSSongURL
         $SongURL = str_replace('\\', '/', $SongURL);
         return true;
     }
+
 }
 
 /**
@@ -871,8 +884,8 @@ trait LMSSongURL
  */
 trait LMSHTMLTable
 {
-    use \squeezebox\TimeConvert;
 
+    use \squeezebox\TimeConvert;
     /**
      * Liefert den Header der HTML-Tabelle.
      *
@@ -1041,6 +1054,7 @@ sleep(10).then(() => {
         $table .= '</table>' . PHP_EOL;
         return $table;
     }
+
 }
 
 /**
@@ -1067,7 +1081,7 @@ trait LMSCover
             'AuthUser' => IPS_GetProperty($SplitterID, 'User'),
             'AuthPass' => IPS_GetProperty($SplitterID, 'Password'),
             'Timeout'  => 5000
-            ];
+        ];
 
         if ($Hostname === '') {
             return false;
@@ -1082,6 +1096,7 @@ trait LMSCover
         $this->SendDebug('GetCover', $URL, 0);
         return @Sys_GetURLContentEx($URL, $Login);
     }
+
 }
 
 /* @} */
