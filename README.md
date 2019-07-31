@@ -119,6 +119,9 @@ Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:
 
 ### 3. Changlog
 
+Version 3.21:  
+- Fix Bitrate und Samplesize Datentypen  
+
 Version 3.20:  
 - Release für IPS 5.1 und den Module-Store   
 
