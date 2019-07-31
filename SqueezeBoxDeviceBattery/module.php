@@ -16,10 +16,35 @@ declare(strict_types=1);
 eval('declare(strict_types=1);namespace SqueezeboxBattery {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableHelper.php') . '}');
 eval('declare(strict_types=1);namespace SqueezeboxBattery {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableProfileHelper.php') . '}');
 
-require_once __DIR__ . '/../libs/load_phpseclib.php';
-$autoloader = new AutoloaderPHPseclib('phpseclib\Net\SSH2');
-
+$autoloader = new AutoloaderSqueezeboxBatteryPHPseclib('Net\SSH2');
 $autoloader->register();
+
+class AutoloaderSqueezeboxBatteryPHPseclib
+{
+    private $namespace;
+
+    public function __construct($namespace = null)
+    {
+        $this->namespace = $namespace;
+    }
+
+    public function register()
+    {
+        spl_autoload_register([$this, 'loadClass']);
+    }
+
+    public function loadClass($className)
+    {
+        $libpath = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'libs' . DIRECTORY_SEPARATOR;
+        $file = __DIR__ . DIRECTORY_SEPARATOR . 'phpseclib' . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $className) . '.php';
+        $includes[] = $libpath . 'phpseclib' . DIRECTORY_SEPARATOR . 'phpseclib';
+        set_include_path(get_include_path() . PATH_SEPARATOR . implode(PATH_SEPARATOR, $includes));
+        $file = str_replace('\\', DIRECTORY_SEPARATOR, $className) . '.php';
+        require_once $file;
+        restore_include_path();
+    }
+
+}
 
 /**
  * SqueezeboxBattery Klasse für die Stromversorgung einer SqueezeBox als Instanz in IPS.
@@ -35,9 +60,9 @@ $autoloader->register();
  */
 class SqueezeboxBattery extends IPSModule
 {
+
     use \SqueezeboxBattery\VariableProfileHelper,
         \SqueezeboxBattery\VariableHelper;
-
     /**
      * Interne Funktion des SDK.
      */
@@ -124,7 +149,6 @@ class SqueezeboxBattery extends IPSModule
     }
 
     //################# PUBLIC
-
     /**
      * IPS-Instanz-Funktion 'LSQB_RequestState'.
      * Aktuellen Status des Devices ermitteln und, wenn verbunden, abfragen.
@@ -194,6 +218,7 @@ class SqueezeboxBattery extends IPSModule
         $this->SendDebug('Disconnect', '', 0);
         return true;
     }
+
 }
 
 /* @} */
