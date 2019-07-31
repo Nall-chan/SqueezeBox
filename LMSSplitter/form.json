@@ -132,7 +132,7 @@
                         }, {
                             "caption": "Color",
                             "name": "color", 
-                            "width": "75px",
+                            "width": "100px",
                             "edit": {
                                 "caption": "Color of Text:",                        
                                 "type": "SelectColor"
@@ -157,17 +157,18 @@
                     "columns": [{
                             "name": "row", 
                             "caption": "",
-                            "width": "75px",
+                            "width": "50px",
                             "save": true,
                             "visible": false
                         }, {
                             "name": "name", 
                             "caption": "Row",
-                            "width": "50px"
+                            "width": "150px",
+                            "save": true
                         }, {
                             "caption": "Backgroundcolor",
                             "name": "bgcolor", 
-                            "width": "100px",
+                            "width": "150px",
                             "edit": {
                                 "caption": "Color of background:",
                                 "type": "SelectColor"
@@ -175,7 +176,7 @@
                         }, {
                             "caption": "Color",
                             "name": "color", 
-                            "width": "75px",
+                            "width": "100px",
                             "edit": {
                                 "caption": "Color of Text:",
                                 "type": "SelectColor"
