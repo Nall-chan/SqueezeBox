@@ -36,14 +36,12 @@ class AutoloaderSqueezeboxBatteryPHPseclib
     public function loadClass($className)
     {
         $libpath = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'libs' . DIRECTORY_SEPARATOR;
-        $file = __DIR__ . DIRECTORY_SEPARATOR . 'phpseclib' . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $className) . '.php';
-        $includes[] = $libpath . 'phpseclib' . DIRECTORY_SEPARATOR . 'phpseclib';
+        $includes[] = $libpath . 'phpseclib';
         set_include_path(get_include_path() . PATH_SEPARATOR . implode(PATH_SEPARATOR, $includes));
         $file = str_replace('\\', DIRECTORY_SEPARATOR, $className) . '.php';
         require_once $file;
         restore_include_path();
     }
-
 }
 
 /**
@@ -60,9 +58,9 @@ class AutoloaderSqueezeboxBatteryPHPseclib
  */
 class SqueezeboxBattery extends IPSModule
 {
-
     use \SqueezeboxBattery\VariableProfileHelper,
         \SqueezeboxBattery\VariableHelper;
+
     /**
      * Interne Funktion des SDK.
      */
@@ -149,6 +147,7 @@ class SqueezeboxBattery extends IPSModule
     }
 
     //################# PUBLIC
+
     /**
      * IPS-Instanz-Funktion 'LSQB_RequestState'.
      * Aktuellen Status des Devices ermitteln und, wenn verbunden, abfragen.
@@ -218,7 +217,6 @@ class SqueezeboxBattery extends IPSModule
         $this->SendDebug('Disconnect', '', 0);
         return true;
     }
-
 }
 
 /* @} */
