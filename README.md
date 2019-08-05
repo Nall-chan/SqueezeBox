@@ -2,7 +2,7 @@
 [![Version](https://img.shields.io/badge/Modul%20Version-3.22-blue.svg)]()
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
 [![Version](https://img.shields.io/badge/Symcon%20Version-5.1%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857-IP-Symcon-5-1-%28Stable%29-Changelog)
-[![StyleCI](https://styleci.io/repos/38763445/shield?style=flat)](https://styleci.io/repos/38763445)  
+[![StyleCI](https://styleci.io/repos/199910754/shield?style=flat)](https://styleci.io/repos/199910754)  
 
 # Symcon-Modul: SqueezeBox
 Ermöglich die Steuerung sowie die Darstellung der Zustände
