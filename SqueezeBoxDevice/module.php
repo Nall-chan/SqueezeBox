@@ -47,6 +47,7 @@ eval('declare(strict_types=1);namespace SqueezeboxDevice {?>' . file_get_content
  */
 class SqueezeboxDevice extends IPSModule
 {
+
     use LMSHTMLTable,
         LMSSongURL,
         LMSCover,
@@ -323,10 +324,11 @@ class SqueezeboxDevice extends IPSModule
                     $this->_RefreshPlaylistIndex();
                 }
                 if ($SenderID == $this->PlayerTracks) {
-                    $this->RegisterProfileInteger('LSQ.Tracklist.' . $this->InstanceID, '', '', '', 1, $Data[0], 1);
                     if ($Data[0] == 0) {
+                        $this->RegisterProfileInteger('LSQ.Tracklist.' . $this->InstanceID, '', '', '', 0, 0, 1);
                         $this->_RefreshPlaylist(true);
                     } else {
+                        $this->RegisterProfileInteger('LSQ.Tracklist.' . $this->InstanceID, '', '', '', 1, $Data[0], 1);
                         $this->_RefreshPlaylist();
                     }
                 }
@@ -374,133 +376,168 @@ class SqueezeboxDevice extends IPSModule
     private function GenerateHTMLStyleProperty()
     {
         $NewTableConfig = [
-            ['tag'      => '<table>',
-                'style' => 'margin:0 auto; font-size:0.8em;'],
-            ['tag'      => '<thead>',
-                'style' => ''],
-            ['tag'      => '<tbody>',
-                'style' => '']
+            [
+                'tag'   => '<table>',
+                'style' => 'margin:0 auto; font-size:0.8em;'
+            ],
+            [
+                'tag'   => '<thead>',
+                'style' => ''
+            ],
+            [
+                'tag'   => '<tbody>',
+                'style' => ''
+            ]
         ];
         $NewColumnsConfig = [
-            ['index'    => 0,
+            [
+                'index' => 0,
                 'key'   => 'Play',
                 'name'  => '',
                 'show'  => true,
                 'width' => 50,
                 'color' => 0xffffff,
                 'align' => 'center',
-                'style' => ''],
-            ['index'    => 1,
+                'style' => ''
+            ],
+            [
+                'index' => 1,
                 'key'   => 'Position',
                 'name'  => 'Pos',
                 'show'  => true,
                 'width' => 50,
                 'color' => 0xffffff,
                 'align' => 'center',
-                'style' => ''],
-            ['index'    => 2,
+                'style' => ''
+            ],
+            [
+                'index' => 2,
                 'key'   => 'Title',
                 'name'  => $this->Translate('Title'),
                 'show'  => true,
                 'width' => 250,
                 'color' => 0xffffff,
                 'align' => 'center',
-                'style' => ''],
-            ['index'    => 3,
+                'style' => ''
+            ],
+            [
+                'index' => 3,
                 'key'   => 'Artist',
                 'name'  => $this->Translate('Artist'),
                 'show'  => true,
                 'width' => 250,
                 'color' => 0xffffff,
                 'align' => 'center',
-                'style' => ''],
-            ['index'    => 4,
+                'style' => ''
+            ],
+            [
+                'index' => 4,
                 'key'   => 'Bitrate',
                 'name'  => 'Bitrate',
                 'show'  => false,
                 'width' => 150,
                 'color' => 0xffffff,
                 'align' => 'center',
-                'style' => ''],
-            ['index'    => 5,
+                'style' => ''
+            ],
+            [
+                'index' => 5,
                 'key'   => 'Duration',
                 'name'  => $this->Translate('Duration'),
                 'show'  => true,
                 'width' => 100,
                 'color' => 0xffffff,
                 'align' => 'center',
-                'style' => ''],
-            ['index'    => 6,
+                'style' => ''
+            ],
+            [
+                'index' => 6,
                 'key'   => 'Genre',
                 'name'  => $this->Translate('Genre'),
                 'show'  => false,
                 'width' => 200,
                 'color' => 0xffffff,
                 'align' => 'center',
-                'style' => ''],
-            ['index'    => 7,
+                'style' => ''
+            ],
+            [
+                'index' => 7,
                 'key'   => 'Album',
                 'name'  => 'Album',
                 'show'  => false,
                 'width' => 250,
                 'color' => 0xffffff,
                 'align' => 'center',
-                'style' => ''],
-            ['index'    => 8,
+                'style' => ''
+            ],
+            [
+                'index' => 8,
                 'key'   => 'Disc',
                 'name'  => 'Disc',
                 'show'  => false,
                 'width' => 35,
                 'color' => 0xffffff,
                 'align' => 'center',
-                'style' => ''],
-            ['index'    => 9,
+                'style' => ''
+            ],
+            [
+                'index' => 9,
                 'key'   => 'Disccount',
                 'name'  => 'Disccount',
                 'show'  => false,
                 'width' => 35,
                 'color' => 0xffffff,
                 'align' => 'center',
-                'style' => ''],
-            ['index'    => 10,
+                'style' => ''
+            ],
+            [
+                'index' => 10,
                 'key'   => 'Tracknum',
                 'name'  => 'Track',
                 'show'  => false,
                 'width' => 35,
                 'color' => 0xffffff,
                 'align' => 'center',
-                'style' => ''],
-            ['index'    => 11,
+                'style' => ''
+            ],
+            [
+                'index' => 11,
                 'key'   => 'Year',
                 'name'  => $this->Translate('Year'),
                 'show'  => false,
                 'width' => 60,
                 'color' => 0xffffff,
                 'align' => 'center',
-                'style' => ''],
+                'style' => ''
+            ]
         ];
         $NewRowsConfig = [
-            ['row'        => 'odd',
+            [
+                'row'     => 'odd',
                 'name'    => $this->Translate('odd'),
                 'bgcolor' => 0x000000,
                 'color'   => 0xffffff,
-                'style'   => ''],
-            ['row'        => 'even',
+                'style'   => ''
+            ],
+            [
+                'row'     => 'even',
                 'name'    => $this->Translate('even'),
                 'bgcolor' => 0x080808,
                 'color'   => 0xffffff,
-                'style'   => ''],
-            ['row'        => 'active',
+                'style'   => ''
+            ],
+            [
+                'row'     => 'active',
                 'name'    => $this->Translate('active'),
                 'bgcolor' => 0x808000,
                 'color'   => 0xffffff,
-                'style'   => '']
+                'style'   => ''
+            ]
         ];
         return ['Table' => $NewTableConfig, 'Columns' => $NewColumnsConfig, 'Rows' => $NewRowsConfig];
     }
 
     //################# PUBLIC
-
     /**
      * Aktuellen Status des Devices ermitteln und, wenn verbunden, abfragen..
      *
@@ -753,7 +790,6 @@ class SqueezeboxDevice extends IPSModule
     ///////////////////////////////////////////////////////////////
     // START PLAYER
     ///////////////////////////////////////////////////////////////
-
     /**
      * Setzten den Namen in dem Device.
      *
@@ -797,8 +833,6 @@ class SqueezeboxDevice extends IPSModule
         return $LMSData->Data[0];
     }
 
-    //fertig
-
     /**
      * Schaltet das Gerät ein oder aus.
      *
@@ -822,8 +856,6 @@ class SqueezeboxDevice extends IPSModule
         }
         return (int) $LMSData->Data[0] == (int) $Value;
     }
-
-    //fertig
 
     /**
      * Restzeit bis zum Sleep setzen.
@@ -850,8 +882,6 @@ class SqueezeboxDevice extends IPSModule
         return (int) $LMSData->Data[0] == $Seconds;
     }
 
-    //fertig
-
     /**
      * Setzten der Stummschaltung.
      *
@@ -876,8 +906,6 @@ class SqueezeboxDevice extends IPSModule
         return (int) $LMSData->Data[0] == (int) $Value;
     }
 
-    //fertig
-
     /**
      * Setzten der Lautstärke.
      *
@@ -893,7 +921,7 @@ class SqueezeboxDevice extends IPSModule
             trigger_error(sprintf($this->Translate('%s must integer.'), 'Value'), E_USER_NOTICE);
             return false;
         }
-        if (($Value < 0) or ($Value > 100)) {
+        if (($Value < 0) or ( $Value > 100)) {
             trigger_error($this->Translate('Value invalid.'), E_USER_NOTICE);
             return false;
         }
@@ -903,8 +931,6 @@ class SqueezeboxDevice extends IPSModule
         }
         return (int) $LMSData->Data[0] == $Value;
     }
-
-    //fertig
 
     /**
      * Setzten der Lautstärke.
@@ -921,11 +947,11 @@ class SqueezeboxDevice extends IPSModule
             trigger_error(sprintf($this->Translate('%s must string.'), 'Value'), E_USER_NOTICE);
             return false;
         }
-        if (($Value[0] != '-') and ($Value[0] != '+')) {
+        if (($Value[0] != '-') and ( $Value[0] != '+')) {
             trigger_error($this->Translate('Value invalid.'), E_USER_NOTICE);
             return false;
         }
-        if (((int) $Value < -100) or ((int) $Value > 100)) {
+        if (((int) $Value < -100) or ( (int) $Value > 100)) {
             trigger_error($this->Translate('Value invalid.'), E_USER_NOTICE);
             return false;
         }
@@ -935,8 +961,6 @@ class SqueezeboxDevice extends IPSModule
         }
         return (int) $LMSData->Data[0] == $Value;
     }
-
-    //fertig
 
     /**
      * Setzt den Bass-Wert.
@@ -957,7 +981,7 @@ class SqueezeboxDevice extends IPSModule
             trigger_error(sprintf($this->Translate('%s must integer.'), 'Value'), E_USER_NOTICE);
             return false;
         }
-        if (($Value < 0) or ($Value > 100)) {
+        if (($Value < 0) or ( $Value > 100)) {
             trigger_error($this->Translate('Value invalid.'), E_USER_NOTICE);
             return false;
         }
@@ -987,11 +1011,11 @@ class SqueezeboxDevice extends IPSModule
             trigger_error(sprintf($this->Translate('%s must string.'), 'Value'), E_USER_NOTICE);
             return false;
         }
-        if (($Value[0] != '-') and ($Value[0] != '+')) {
+        if (($Value[0] != '-') and ( $Value[0] != '+')) {
             trigger_error($this->Translate('Value invalid.'), E_USER_NOTICE);
             return false;
         }
-        if (((int) $Value < -100) or ((int) $Value > 100)) {
+        if (((int) $Value < -100) or ( (int) $Value > 100)) {
             trigger_error($this->Translate('Value invalid.'), E_USER_NOTICE);
             return false;
         }
@@ -1001,8 +1025,6 @@ class SqueezeboxDevice extends IPSModule
         }
         return (int) $LMSData->Data[0] == $Value;
     }
-
-    //fertig
 
     /**
      * Setzt den Treble-Wert.
@@ -1024,7 +1046,7 @@ class SqueezeboxDevice extends IPSModule
             trigger_error(sprintf($this->Translate('%s must integer.'), 'Value'), E_USER_NOTICE);
             return false;
         }
-        if (($Value < 0) or ($Value > 100)) {
+        if (($Value < 0) or ( $Value > 100)) {
             trigger_error($this->Translate('Value invalid.'), E_USER_NOTICE);
             return false;
         }
@@ -1034,8 +1056,6 @@ class SqueezeboxDevice extends IPSModule
         }
         return (int) $LMSData->Data[0] == $Value;
     }
-
-    //fertig
 
     /**
      * Setzt den Treble-Wert.
@@ -1056,11 +1076,11 @@ class SqueezeboxDevice extends IPSModule
             trigger_error(sprintf($this->Translate('%s must string.'), 'Value'), E_USER_NOTICE);
             return false;
         }
-        if (($Value[0] != '-') and ($Value[0] != '+')) {
+        if (($Value[0] != '-') and ( $Value[0] != '+')) {
             trigger_error($this->Translate('Value invalid.'), E_USER_NOTICE);
             return false;
         }
-        if (((int) $Value < -100) or ((int) $Value > 100)) {
+        if (((int) $Value < -100) or ( (int) $Value > 100)) {
             trigger_error($this->Translate('Value invalid.'), E_USER_NOTICE);
             return false;
         }
@@ -1070,8 +1090,6 @@ class SqueezeboxDevice extends IPSModule
         }
         return (int) $LMSData->Data[0] == $Value;
     }
-
-    //fertig
 
     /**
      * Setzt den Pitch-Wert.
@@ -1093,7 +1111,7 @@ class SqueezeboxDevice extends IPSModule
             trigger_error(sprintf($this->Translate('%s must integer.'), 'Value'), E_USER_NOTICE);
             return false;
         }
-        if (($Value < 80) or ($Value > 120)) {
+        if (($Value < 80) or ( $Value > 120)) {
             trigger_error($this->Translate('Value invalid.'), E_USER_NOTICE);
             return false;
         }
@@ -1103,8 +1121,6 @@ class SqueezeboxDevice extends IPSModule
         }
         return (int) $LMSData->Data[0] == $Value;
     }
-
-    //fertig
 
     /**
      * Setzt den Pitch-Wert.
@@ -1125,11 +1141,11 @@ class SqueezeboxDevice extends IPSModule
             trigger_error(sprintf($this->Translate('%s must string.'), 'Value'), E_USER_NOTICE);
             return false;
         }
-        if (($Value[0] != '-') and ($Value[0] != '+')) {
+        if (($Value[0] != '-') and ( $Value[0] != '+')) {
             trigger_error($this->Translate('Value invalid.'), E_USER_NOTICE);
             return false;
         }
-        if (((int) $Value < -40) or ((int) $Value > 40)) {
+        if (((int) $Value < -40) or ( (int) $Value > 40)) {
             trigger_error($this->Translate('Value invalid.'), E_USER_NOTICE);
             return false;
         }
@@ -1139,8 +1155,6 @@ class SqueezeboxDevice extends IPSModule
         }
         return (int) $LMSData->Data[0] == $Value;
     }
-
-    //fertig
 
     /**
      * Simuliert einen Tastendruck.
@@ -1155,11 +1169,8 @@ class SqueezeboxDevice extends IPSModule
         if ($LMSData === null) {
             return false;
         }
-//            $this->_SetPlay();
         return $LMSData->Data[0] == 'jump_rew';
     }
-
-    //fertig
 
     /**
      * Simuliert einen Tastendruck.
@@ -1174,11 +1185,8 @@ class SqueezeboxDevice extends IPSModule
         if ($LMSData === null) {
             return false;
         }
-//            $this->_SetPlay();
         return $LMSData->Data[0] == 'jump_fwd';
     }
-
-    //fertig
 
     /**
      * Simuliert einen Tastendruck auf einen der Preset-Tasten.
@@ -1196,7 +1204,7 @@ class SqueezeboxDevice extends IPSModule
             trigger_error(sprintf($this->Translate('%s must integer.'), 'Value'), E_USER_NOTICE);
             return false;
         }
-        if (($Value < 1) or ($Value > 6)) {
+        if (($Value < 1) or ( $Value > 6)) {
             trigger_error(sprintf($this->Translate('%s out of Range.'), 'Value'), E_USER_NOTICE);
             return false;
         }
@@ -1207,8 +1215,6 @@ class SqueezeboxDevice extends IPSModule
         }
         return $LMSData->Data[0] == $Value;
     }
-
-    //fertig
 
     /**
      * Startet die Wiedergabe.
@@ -1244,8 +1250,6 @@ class SqueezeboxDevice extends IPSModule
         return true;
     }
 
-    //fertig
-
     /**
      * Stoppt die Wiedergabe.
      *
@@ -1263,7 +1267,6 @@ class SqueezeboxDevice extends IPSModule
     }
 
     //ferig
-
     /**
      * Pausiert die Wiedergabe.
      *
@@ -1341,7 +1344,7 @@ class SqueezeboxDevice extends IPSModule
 
     public function Display2Lines(string $Text1, string $Text2, int $Duration)
     {
-        if (!is_string($Text1) or !is_string($Text2)) {
+        if (!is_string($Text1) or ! is_string($Text2)) {
             trigger_error(sprintf($this->Translate('%s must be string.'), 'Text'), E_USER_NOTICE);
             return false;
         }
@@ -1354,7 +1357,7 @@ class SqueezeboxDevice extends IPSModule
 
     public function Display2LinesEx(string $Text1, string $Text2, int $Duration, bool $Centered, int $Brightness)
     {
-        if (!is_string($Text1) or !is_string($Text2)) {
+        if (!is_string($Text1) or ! is_string($Text2)) {
             trigger_error(sprintf($this->Translate('%s must be string.'), 'Text'), E_USER_NOTICE);
             return false;
         }
@@ -1402,7 +1405,7 @@ class SqueezeboxDevice extends IPSModule
 
     public function DisplayText(string $Text1, string $Text2, int $Duration)
     {
-        if (!is_string($Text1) or !is_string($Text2)) {
+        if (!is_string($Text1) or ! is_string($Text2)) {
             trigger_error(sprintf($this->Translate('%s must be string.'), 'Text'), E_USER_NOTICE);
             return false;
         }
@@ -1475,7 +1478,6 @@ class SqueezeboxDevice extends IPSModule
     ///////////////////////////////////////////////////////////////
     // START PLAYLIST
     ///////////////////////////////////////////////////////////////
-
     /**
      * Lädt eine neue Playlist.
      *
@@ -1610,14 +1612,13 @@ class SqueezeboxDevice extends IPSModule
         if ($LMSData === null) {
             return false;
         }
-        if (($LMSData->Data[0] != $Position) or ($LMSData->Data[1] != $NewPosition)) {
+        if (($LMSData->Data[0] != $Position) or ( $LMSData->Data[1] != $NewPosition)) {
             trigger_error($this->Translate('Error on move song in playlist.'), E_USER_NOTICE);
             return false;
         }
         return true;
     }
 
-    //fertig
     /*
       The "playlist delete" command deletes the song at the specified index from the current playlist.
      */
@@ -1665,8 +1666,6 @@ class SqueezeboxDevice extends IPSModule
         return true;
     }
 
-    //fertig
-
     /**
      * Speichert die aktuelle Wiedergabeliste vom Gerät in einer unter $Name angegebenen Wiedergabelisten-Datei auf dem LMS-Server.
      *
@@ -1694,8 +1693,6 @@ class SqueezeboxDevice extends IPSModule
         return $LMSData->Data[0] == $Name;
     }
 
-    //fertig
-
     /**
      * Speichert die aktuelle Wiedergabeliste vom Gerät in einer festen Wiedergabelisten-Datei auf dem LMS-Server.
      *
@@ -1707,8 +1704,6 @@ class SqueezeboxDevice extends IPSModule
     {
         return $this->SavePlaylist('tempplaylist_' . str_replace(':', '', $this->ReadPropertyString('Address')));
     }
-
-    //fertig
 
     /**
      * Lädt eine Wiedergabelisten-Datei aus dem LMS-Server und spring an die zuletzt abgespielten Track.
@@ -1735,14 +1730,12 @@ class SqueezeboxDevice extends IPSModule
             return false;
         }
         $ret = $LMSData->Data[0];
-        if (($ret == '/' . $Name) or ($ret == '\\' . $Name)) {
+        if (($ret == '/' . $Name) or ( $ret == '\\' . $Name)) {
             trigger_error($this->Translate('Playlist not found.'), E_USER_NOTICE);
             return false;
         }
         return $ret;
     }
-
-    //fertig
 
     /**
      * Lädt eine zuvor gespeicherte Wiedergabelisten-Datei und setzt die Wiedergabe fort.
@@ -1763,8 +1756,6 @@ class SqueezeboxDevice extends IPSModule
         }
         return true;
     }
-
-    //fertig
 
     /**
      * Lädt eine Wiedergabelisten-Datei aus dem LMS-Server und startet die Wiedergabe derselben auf dem Gerät.
@@ -1791,7 +1782,7 @@ class SqueezeboxDevice extends IPSModule
             return false;
         }
         $ret = $LMSData->Data[0];
-        if (($ret == '/' . $Name) or ($ret == '\\' . $Name)) {
+        if (($ret == '/' . $Name) or ( $ret == '\\' . $Name)) {
             trigger_error($this->Translate('Playlist not found.'), E_USER_NOTICE);
             return false;
         }
@@ -1824,7 +1815,7 @@ class SqueezeboxDevice extends IPSModule
             $Album = '*';
         }
 
-        if (($Genre == '*') and ($Genre == '*') and ($Genre == '*')) {
+        if (($Genre == '*') and ( $Genre == '*') and ( $Genre == '*')) {
             trigger_error($this->Translate('One search patter is requiered'), E_USER_NOTICE);
             return false;
         }
@@ -1862,7 +1853,7 @@ class SqueezeboxDevice extends IPSModule
             $Album = '*';
         }
 
-        if (($Genre == '*') and ($Genre == '*') and ($Genre == '*')) {
+        if (($Genre == '*') and ( $Genre == '*') and ( $Genre == '*')) {
             trigger_error($this->Translate('One search patter is requiered'), E_USER_NOTICE);
             return false;
         }
@@ -2046,7 +2037,7 @@ class SqueezeboxDevice extends IPSModule
             $Album = '*';
         }
 
-        if (($Genre == '*') and ($Genre == '*') and ($Genre == '*')) {
+        if (($Genre == '*') and ( $Genre == '*') and ( $Genre == '*')) {
             trigger_error($this->Translate('One search patter is requiered'), E_USER_NOTICE);
             return false;
         }
@@ -2084,7 +2075,7 @@ class SqueezeboxDevice extends IPSModule
             $Album = '*';
         }
 
-        if (($Genre == '*') and ($Genre == '*') and ($Genre == '*')) {
+        if (($Genre == '*') and ( $Genre == '*') and ( $Genre == '*')) {
             trigger_error($this->Translate('One search patter is requiered'), E_USER_NOTICE);
             return false;
         }
@@ -2234,7 +2225,7 @@ class SqueezeboxDevice extends IPSModule
             trigger_error(sprintf($this->Translate('%s must be integer.'), 'Index'), E_USER_NOTICE);
             return false;
         }
-        if (($Index < 1) or ($Index > $this->GetValue('Tracks'))) {
+        if (($Index < 1) or ( $Index > $this->GetValue('Tracks'))) {
             trigger_error(sprintf($this->Translate('%s out of Range.'), 'Index'), E_USER_NOTICE);
             return false;
         }
@@ -2245,8 +2236,6 @@ class SqueezeboxDevice extends IPSModule
         }
         return $LMSData->Data[0] == $Index - 1;
     }
-
-    //fertig
 
     /**
      * Springt in der aktuellen Wiedergabeliste auf den nächsten Titel.
@@ -2264,8 +2253,6 @@ class SqueezeboxDevice extends IPSModule
         return $LMSData->Data[0] == '+1';
     }
 
-    //fertig
-
     /**
      * Springt in der aktuellen Wiedergabeliste auf den vorherigen Titel.
      *
@@ -2281,8 +2268,6 @@ class SqueezeboxDevice extends IPSModule
         }
         return $LMSData->Data[0] == '-1';
     }
-
-    //fertig
 
     /**
      * Setzen des Zufallsmodus.
@@ -2302,7 +2287,7 @@ class SqueezeboxDevice extends IPSModule
             trigger_error(sprintf($this->Translate('%s must integer.'), 'Value'), E_USER_NOTICE);
             return false;
         }
-        if (($Value < 0) or ($Value > 2)) {
+        if (($Value < 0) or ( $Value > 2)) {
             trigger_error($this->Translate('Value must be 0, 1 or 2.'), E_USER_NOTICE);
             return false;
         }
@@ -2312,8 +2297,6 @@ class SqueezeboxDevice extends IPSModule
         }
         return (int) $LMSData->Data[0] == $Value;
     }
-
-    //fertig
 
     /**
      * Setzen des Wiederholungsmodus.
@@ -2333,7 +2316,7 @@ class SqueezeboxDevice extends IPSModule
             trigger_error(sprintf($this->Translate('%s must integer.'), 'Value'), E_USER_NOTICE);
             return false;
         }
-        if (($Value < 0) or ($Value > 2)) {
+        if (($Value < 0) or ( $Value > 2)) {
             trigger_error($this->Translate('Value must be 0, 1 or 2.'), E_USER_NOTICE);
             return false;
         }
@@ -2345,7 +2328,6 @@ class SqueezeboxDevice extends IPSModule
         return (int) $LMSData->Data[0] == $Value;
     }
 
-    //fertig
     private function _PlaylistControl(string $cmd, string $item, string $errormsg)
     {
         $LMSData = $this->SendDirect(new LMSData('playlistcontrol', [$cmd, $item]));
@@ -2362,7 +2344,6 @@ class SqueezeboxDevice extends IPSModule
         return true;
     }
 
-    //fertig
     public function LoadPlaylistByAlbumID(int $AlbumID)
     {
         if (!is_int($AlbumID)) {
@@ -2372,7 +2353,6 @@ class SqueezeboxDevice extends IPSModule
         return $this->_PlaylistControl('cmd:load', 'album_id:' . $AlbumID, sprintf($this->Translate('%s not found.'), 'AlbumID'));
     }
 
-    //fertig
     public function LoadPlaylistByGenreID(int $GenreID)
     {
         if (!is_int($GenreID)) {
@@ -2382,7 +2362,6 @@ class SqueezeboxDevice extends IPSModule
         return $this->_PlaylistControl('cmd:load', 'genre_id:' . $GenreID, sprintf($this->Translate('%s not found.'), 'GenreID'));
     }
 
-    //fertig
     public function LoadPlaylistByArtistID(int $ArtistID)
     {
         if (!is_int($ArtistID)) {
@@ -2392,7 +2371,6 @@ class SqueezeboxDevice extends IPSModule
         return $this->_PlaylistControl('cmd:load', 'artist_id:' . $ArtistID, sprintf($this->Translate('%s not found.'), 'ArtistID'));
     }
 
-    //fertig
     public function LoadPlaylistByPlaylistID(int $PlaylistID)
     {
         if (!is_int($PlaylistID)) {
@@ -2402,7 +2380,6 @@ class SqueezeboxDevice extends IPSModule
         return $this->_PlaylistControl('cmd:load', 'playlist_id:' . $PlaylistID, sprintf($this->Translate('%s not found.'), 'PlaylistID'));
     }
 
-    //fertig
     public function LoadPlaylistBySongIDs(string $SongIDs)
     {
         if (!is_string($SongIDs)) {
@@ -2412,7 +2389,6 @@ class SqueezeboxDevice extends IPSModule
         return $this->_PlaylistControl('cmd:load', 'track_id:' . $SongIDs, sprintf($this->Translate('%s not found.'), 'SongIDs'));
     }
 
-    //fertig
     public function LoadPlaylistByFolderID(int $FolderID)
     {
         if (!is_int($FolderID)) {
@@ -2422,7 +2398,6 @@ class SqueezeboxDevice extends IPSModule
         return $this->_PlaylistControl('cmd:load', 'folder_id:' . $FolderID, sprintf($this->Translate('%s not found.'), 'FolderID'));
     }
 
-    //fertig
     public function AddToPlaylistByAlbumID(int $AlbumID)
     {
         if (!is_int($AlbumID)) {
@@ -2432,7 +2407,6 @@ class SqueezeboxDevice extends IPSModule
         return $this->_PlaylistControl('cmd:add', 'album_id:' . $AlbumID, sprintf($this->Translate('%s not found.'), 'AlbumID'));
     }
 
-    //fertig
     public function AddToPlaylistByGenreID(int $GenreID)
     {
         if (!is_int($GenreID)) {
@@ -2442,7 +2416,6 @@ class SqueezeboxDevice extends IPSModule
         return $this->_PlaylistControl('cmd:add', 'genre_id:' . $GenreID, sprintf($this->Translate('%s not found.'), 'GenreID'));
     }
 
-    //fertig
     public function AddToPlaylistByArtistID(int $ArtistID)
     {
         if (!is_int($ArtistID)) {
@@ -2452,7 +2425,6 @@ class SqueezeboxDevice extends IPSModule
         return $this->_PlaylistControl('cmd:add', 'artist_id:' . $ArtistID, sprintf($this->Translate('%s not found.'), 'ArtistID'));
     }
 
-    //fertig
     public function AddToPlaylistByPlaylistID(int $PlaylistID)
     {
         if (!is_int($PlaylistID)) {
@@ -2462,7 +2434,6 @@ class SqueezeboxDevice extends IPSModule
         return $this->_PlaylistControl('cmd:add', 'playlist_id:' . $PlaylistID, sprintf($this->Translate('%s not found.'), 'PlaylistID'));
     }
 
-    //fertig
     public function AddToPlaylistBySongIDs(string $SongIDs)
     {
         if (!is_string($SongIDs)) {
@@ -2472,7 +2443,6 @@ class SqueezeboxDevice extends IPSModule
         return $this->_PlaylistControl('cmd:add', 'track_id:' . $SongIDs, sprintf($this->Translate('%s not found.'), 'SongIDs'));
     }
 
-    //fertig
     public function AddToPlaylistByFolderID(int $FolderID)
     {
         if (!is_int($FolderID)) {
@@ -2484,7 +2454,6 @@ class SqueezeboxDevice extends IPSModule
 
     //todo alles auch mit add + move
     //todo insert testen !?!?
-    //fertig
     public function InsertInPlaylistByAlbumID(int $AlbumID)
     {
         if (!is_int($AlbumID)) {
@@ -2494,7 +2463,6 @@ class SqueezeboxDevice extends IPSModule
         return $this->_PlaylistControl('cmd:insert', 'album_id:' . $AlbumID, sprintf($this->Translate('%s not found.'), 'AlbumID'));
     }
 
-    //fertig
     public function InsertInPlaylistByGenreID(int $GenreID)
     {
         if (!is_int($GenreID)) {
@@ -2504,7 +2472,6 @@ class SqueezeboxDevice extends IPSModule
         return $this->_PlaylistControl('cmd:insert', 'genre_id:' . $GenreID, sprintf($this->Translate('%s not found.'), 'GenreID'));
     }
 
-    //fertig
     public function InsertInPlaylistByArtistID(int $ArtistID)
     {
         if (!is_int($ArtistID)) {
@@ -2514,7 +2481,6 @@ class SqueezeboxDevice extends IPSModule
         return $this->_PlaylistControl('cmd:insert', 'artist_id:' . $ArtistID, sprintf($this->Translate('%s not found.'), 'ArtistID'));
     }
 
-    //fertig
     public function InsertInPlaylistByPlaylistID(int $PlaylistID)
     {
         if (!is_int($PlaylistID)) {
@@ -2524,7 +2490,6 @@ class SqueezeboxDevice extends IPSModule
         return $this->_PlaylistControl('cmd:insert', 'playlist_id:' . $PlaylistID, sprintf($this->Translate('%s not found.'), 'PlaylistID'));
     }
 
-    //fertig
     public function InsertInPlaylistBySongIDs(string $SongIDs)
     {
         if (!is_string($SongIDs)) {
@@ -2534,7 +2499,6 @@ class SqueezeboxDevice extends IPSModule
         return $this->_PlaylistControl('cmd:insert', 'track_id:' . $SongIDs, sprintf($this->Translate('%s not found.'), 'SongIDs'));
     }
 
-    //fertig
     public function InsertInPlaylistByFolderID(int $FolderID)
     {
         if (!is_int($FolderID)) {
@@ -2563,7 +2527,6 @@ class SqueezeboxDevice extends IPSModule
         return true;
     }
 
-    //fertig
     public function DeleteFromPlaylistByAlbumID(int $AlbumID)
     {
         if (!is_int($AlbumID)) {
@@ -2573,7 +2536,6 @@ class SqueezeboxDevice extends IPSModule
         return $this->_PlaylistControl('cmd:delete', 'album_id:' . $AlbumID, sprintf($this->Translate('%s not found.'), 'AlbumID'));
     }
 
-    //fertig
     public function DeleteFromPlaylistByGenreID(int $GenreID)
     {
         if (!is_int($GenreID)) {
@@ -2583,7 +2545,6 @@ class SqueezeboxDevice extends IPSModule
         return $this->_PlaylistControl('cmd:delete', 'genre_id:' . $GenreID, sprintf($this->Translate('%s not found.'), 'GenreID'));
     }
 
-    //fertig
     public function DeleteFromPlaylistByArtistID(int $ArtistID)
     {
         if (!is_int($ArtistID)) {
@@ -2593,7 +2554,6 @@ class SqueezeboxDevice extends IPSModule
         return $this->_PlaylistControl('cmd:delete', 'artist_id:' . $ArtistID, sprintf($this->Translate('%s not found.'), 'ArtistID'));
     }
 
-    //fertig
     public function DeleteFromPlaylistByPlaylistID(int $PlaylistID)
     {
         if (!is_int($PlaylistID)) {
@@ -2603,7 +2563,6 @@ class SqueezeboxDevice extends IPSModule
         return $this->_PlaylistControl('cmd:delete', 'playlist_id:' . $PlaylistID, sprintf($this->Translate('%s not found.'), 'PlaylistID'));
     }
 
-    //fertig
     public function DeleteFromPlaylistBySongIDs(string $SongIDs)
     {
         if (!is_string($SongIDs)) {
@@ -2612,9 +2571,6 @@ class SqueezeboxDevice extends IPSModule
         }
         return $this->_PlaylistControl('cmd:delete', 'track_id:' . $SongIDs, sprintf($this->Translate('%s not found.'), 'SongIDs'));
     }
-
-    //fertig
-    //fertig
 
     /**
      * Liefert Informationen über einen Song aus der aktuelle Wiedergabeliste.
@@ -2657,8 +2613,6 @@ class SqueezeboxDevice extends IPSModule
         }
         return $SongArray;
     }
-
-    //fertig
 
     /**
      * Liefert Informationen über alle Songs aus der aktuelle Wiedergabeliste.
@@ -2878,7 +2832,7 @@ class SqueezeboxDevice extends IPSModule
      */
     protected function ProcessHookdata()
     {
-        if ((!isset($_GET['ID'])) or (!isset($_GET['Type'])) or (!isset($_GET['Secret']))) {
+        if ((!isset($_GET['ID'])) or ( !isset($_GET['Type'])) or ( !isset($_GET['Secret']))) {
             echo $this->Translate('Bad Request');
             return;
         }
@@ -2898,13 +2852,11 @@ class SqueezeboxDevice extends IPSModule
     }
 
     //################# PRIVATE
-    //fertig
     private function _isPlayerConnected()
     {
         return (bool) $this->GetValue('Connected');
     }
 
-    //fertig
     private function _isPlayerOn()
     {
         return (bool) $this->GetValue('Power');
@@ -2924,7 +2876,6 @@ class SqueezeboxDevice extends IPSModule
         $this->SetCover();
     }
 
-    //fertig
     private function _SetNewName(string $Name)
     {
         if (!$this->ReadPropertyBoolean('changeName')) {
@@ -2935,7 +2886,6 @@ class SqueezeboxDevice extends IPSModule
         }
     }
 
-    //fertig
     private function _SetNewPower(bool $Power)
     {
         $this->SetValueBoolean('Power', $Power);
@@ -2946,7 +2896,6 @@ class SqueezeboxDevice extends IPSModule
         }
     }
 
-    //fertig
     private function _SetModeToPlay()
     {
         if ($this->GetValue('Status') != 2) {
@@ -2954,7 +2903,6 @@ class SqueezeboxDevice extends IPSModule
         }
     }
 
-    //fertig
     private function _SetModeToPause()
     {
         if (!$this->_isPlayerOn()) {
@@ -2965,7 +2913,6 @@ class SqueezeboxDevice extends IPSModule
         }
     }
 
-    //fertig
     private function _SetModeToStop()
     {
         if ($this->GetValue('Status') != 1) {
@@ -2973,10 +2920,9 @@ class SqueezeboxDevice extends IPSModule
         }
     }
 
-    //fertig
     private function _SetNewVolume($Value)
     {
-        if (is_string($Value) and (($Value[0] == '+') or $Value[0] == '-')) {
+        if (is_string($Value) and ( ($Value[0] == '+') or $Value[0] == '-')) {
             $Value = $this->GetValue('Volume') + (int) $Value;
             if ($Value < 0) {
                 $Value = 0;
@@ -2994,13 +2940,12 @@ class SqueezeboxDevice extends IPSModule
         $this->SetValueInteger('Volume', $Value);
     }
 
-    //fertig
     private function _SetNewBass($Value)
     {
         if ($Value == '') {
             return;
         }
-        if (is_string($Value) and (($Value[0] == '+') or $Value[0] == '-')) {
+        if (is_string($Value) and ( ($Value[0] == '+') or $Value[0] == '-')) {
             $Value = $this->GetValue('Bass') + (int) $Value;
             if ($Value < 0) {
                 $Value = 0;
@@ -3012,13 +2957,12 @@ class SqueezeboxDevice extends IPSModule
         $this->SetValueInteger('Bass', $Value);
     }
 
-    //fertig
     private function _SetNewTreble($Value)
     {
         if ($Value == '') {
             return;
         }
-        if (is_string($Value) and (($Value[0] == '+') or $Value[0] == '-')) {
+        if (is_string($Value) and ( ($Value[0] == '+') or $Value[0] == '-')) {
             $Value = $this->GetValue('Treble') + (int) $Value;
             if ($Value < 0) {
                 $Value = 0;
@@ -3030,13 +2974,12 @@ class SqueezeboxDevice extends IPSModule
         $this->SetValueInteger('Treble', $Value);
     }
 
-    //fertig
     private function _SetNewPitch($Value)
     {
         if ($Value == '') {
             return;
         }
-        if (is_string($Value) and (($Value[0] == '+') or $Value[0] == '-')) {
+        if (is_string($Value) and ( ($Value[0] == '+') or $Value[0] == '-')) {
             $Value = $this->GetValue('Pitch') + (int) $Value;
             if ($Value < 80) {
                 $Value = 80;
@@ -3048,7 +2991,6 @@ class SqueezeboxDevice extends IPSModule
         $this->SetValueInteger('Pitch', $Value);
     }
 
-    //fertig
     private function _SetNewTime(int $Time)
     {
         if ($this->DurationRAW == 0) {
@@ -3063,7 +3005,6 @@ class SqueezeboxDevice extends IPSModule
         }
     }
 
-    //fertig
     private function _SetNewDuration(int $Duration)
     {
         $this->DurationRAW = $Duration;
@@ -3081,7 +3022,6 @@ class SqueezeboxDevice extends IPSModule
         }
     }
 
-    //fertig
     private function _SetNewSleepTimeout(int $Value)
     {
         $this->SetValueString('SleepTimeout', $this->ConvertSeconds($Value));
@@ -3110,7 +3050,6 @@ class SqueezeboxDevice extends IPSModule
         $PlayerMACs = explode(',', $this->GetBuffer('Sync'));
     }
 
-    //fertig
     private function _SetSeekable(bool $Value)
     {
         if ($Value != $this->isSeekable) {
@@ -3123,7 +3062,6 @@ class SqueezeboxDevice extends IPSModule
         }
     }
 
-    //fertig
     private function _RefreshPlaylistIndex()
     {
         $this->SetCover();
@@ -3139,7 +3077,6 @@ class SqueezeboxDevice extends IPSModule
         $this->SetValueString('Playlist', $HTML);
     }
 
-    //fertig
     private function _RefreshPlaylist($Empty = false)
     {
         if (!$this->ReadPropertyBoolean('showPlaylist')) {
@@ -3311,7 +3248,7 @@ class SqueezeboxDevice extends IPSModule
                         if ($LMSData->Data[0] == '') {
                             break;
                         }
-                        if (((string) $LMSData->Data[0][0] === '+') or ((string) $LMSData->Data[0][0] === '-')) {
+                        if (((string) $LMSData->Data[0][0] === '+') or ( (string) $LMSData->Data[0][0] === '-')) {
                             $this->SetValueInteger('Index', $this->GetValue('Index') + (int) $LMSData->Data[0]);
                         } else {
                             $this->SetValueInteger('Index', (int) $LMSData->Data[0] + 1);
@@ -3379,9 +3316,9 @@ class SqueezeboxDevice extends IPSModule
                 break;
 // events
             case 'client':
-                if (($LMSData->Data[0] == 'disconnect') or ($LMSData->Data[0] == 'forget')) {
+                if (($LMSData->Data[0] == 'disconnect') or ( $LMSData->Data[0] == 'forget')) {
                     $this->SetValueBoolean('Connected', false);
-                } elseif (($LMSData->Data[0] == 'new') or ($LMSData->Data[0] == 'reconnect')) {
+                } elseif (($LMSData->Data[0] == 'new') or ( $LMSData->Data[0] == 'reconnect')) {
                     $this->SetValueBoolean('Connected', true);
                 }
                 break;
@@ -3573,7 +3510,6 @@ class SqueezeboxDevice extends IPSModule
     }
 
     //################# Datenaustausch
-
     /**
      * Konvertiert $Data zu einem JSONString und versendet diese an den Splitter.
      *
@@ -3588,7 +3524,7 @@ class SqueezeboxDevice extends IPSModule
         }
 
         try {
-            if (!$this->_isPlayerConnected() and ($LMSData->Command[0] != 'connected')) {
+            if (!$this->_isPlayerConnected() and ( $LMSData->Command[0] != 'connected')) {
                 throw new Exception($this->Translate('Player not connected'), E_USER_NOTICE);
             }
             if (!$this->HasActiveParent()) {
@@ -3633,7 +3569,7 @@ class SqueezeboxDevice extends IPSModule
                 throw new Exception($this->Translate('Instance has no active parent.'), E_USER_NOTICE);
             }
 
-            if (!$this->_isPlayerConnected() and ($LMSData->Command[0] != 'connected')) {
+            if (!$this->_isPlayerConnected() and ( $LMSData->Command[0] != 'connected')) {
                 throw new Exception($this->Translate('Player not connected'), E_USER_NOTICE);
             }
 
@@ -3687,6 +3623,7 @@ class SqueezeboxDevice extends IPSModule
         }
         return null;
     }
+
 }
 
 /* @} */
