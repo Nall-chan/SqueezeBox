@@ -7,5 +7,6 @@
     "parentRequirements": ["{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}"],
     "childRequirements": [],
     "implemented": ["{CB5950B3-593C-4126-9F0F-8655A3944419}"],
-    "prefix": "LMC"
+    "prefix": "LMC",
+    "url": "https://github.com/Nall-chan/IPSSqueezeBox/blob/master/LMSConfigurator/README.md"
 }

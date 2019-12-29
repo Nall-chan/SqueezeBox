@@ -10,7 +10,7 @@ declare(strict_types=1);
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2019 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.2
+ * @version       3.3
  *
  */
 
@@ -961,7 +961,7 @@ class SqueezeboxAlarm extends IPSModule
                 if ($delete) {
                     IPS_DeleteVariable($vid);
                 } else {
-                    $this->SetValueString($vid, '');
+                    $this->SetValueString('AlarmPlaylistName' . $i, '');
                 }
             }
 
@@ -970,7 +970,7 @@ class SqueezeboxAlarm extends IPSModule
                 if ($delete) {
                     IPS_DeleteVariable($vid);
                 } else {
-                    $this->SetValueInteger($vid, 0);
+                    $this->SetValueInteger('AlarmShuffle' . $i, 0);
                 }
             }
 
@@ -979,7 +979,7 @@ class SqueezeboxAlarm extends IPSModule
                 if ($delete) {
                     IPS_DeleteVariable($vid);
                 } else {
-                    $this->SetValueBoolean($vid, false);
+                    $this->SetValueBoolean('AlarmRepeat' . $i, false);
                 }
             }
 
@@ -988,7 +988,7 @@ class SqueezeboxAlarm extends IPSModule
                 if ($delete) {
                     IPS_DeleteVariable($vid);
                 } else {
-                    $this->SetValueInteger($vid, 0);
+                    $this->SetValueInteger('AlarmVolume' . $i, 0);
                 }
             }
 
@@ -997,7 +997,7 @@ class SqueezeboxAlarm extends IPSModule
                 if ($delete) {
                     IPS_DeleteVariable($vid);
                 } else {
-                    $this->SetValueInteger($vid, 0);
+                    $this->SetValueInteger('AlarmState' . $i, 0);
                 }
             }
 
@@ -1007,7 +1007,7 @@ class SqueezeboxAlarm extends IPSModule
                     if ($delete) {
                         IPS_DeleteVariable($vid);
                     } else {
-                        $this->SetValueString($vid, '');
+                        $this->SetValueString('AlarmPlaylist' . $i, '');
                     }
                 } else {
                     IPS_DeleteVariable($vid);
@@ -1632,7 +1632,7 @@ class SqueezeboxAlarm extends IPSModule
                             if ($delete) {
                                 IPS_DeleteVariable($vid);
                             } else {
-                                $this->SetValueString($vid, '');
+                                $this->SetValueString('AlarmPlaylistName' . $AlarmIndex, '');
                             }
                         }
 
@@ -1641,7 +1641,7 @@ class SqueezeboxAlarm extends IPSModule
                             if ($delete) {
                                 IPS_DeleteVariable($vid);
                             } else {
-                                $this->SetValueInteger($vid, 0);
+                                $this->SetValueInteger('AlarmShuffle' . $AlarmIndex, 0);
                             }
                         }
 
@@ -1650,7 +1650,7 @@ class SqueezeboxAlarm extends IPSModule
                             if ($delete) {
                                 IPS_DeleteVariable($vid);
                             } else {
-                                $this->SetValueBoolean($vid, false);
+                                $this->SetValueBoolean('AlarmRepeat' . $AlarmIndex, false);
                             }
                         }
 
@@ -1659,7 +1659,7 @@ class SqueezeboxAlarm extends IPSModule
                             if ($delete) {
                                 IPS_DeleteVariable($vid);
                             } else {
-                                $this->SetValueInteger($vid, 0);
+                                $this->SetValueInteger('AlarmVolume' . $AlarmIndex, 0);
                             }
                         }
 
@@ -1668,7 +1668,7 @@ class SqueezeboxAlarm extends IPSModule
                             if ($delete) {
                                 IPS_DeleteVariable($vid);
                             } else {
-                                $this->SetValueInteger($vid, 0);
+                                $this->SetValueInteger('AlarmState' . $AlarmIndex, 0);
                             }
                         }
 
@@ -1678,7 +1678,7 @@ class SqueezeboxAlarm extends IPSModule
                                 if ($delete) {
                                     IPS_DeleteVariable($vid);
                                 } else {
-                                    $this->SetValueString($vid, '');
+                                    $this->SetValueString('AlarmPlaylist' . $AlarmIndex, '');
                                 }
                             } else {
                                 IPS_DeleteVariable($vid);

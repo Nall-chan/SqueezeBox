@@ -1,5 +1,5 @@
 [![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20Version-3.23-blue.svg)]()
+[![Version](https://img.shields.io/badge/Modul%20Version-3.30-blue.svg)]()
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
 [![Version](https://img.shields.io/badge/Symcon%20Version-5.1%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857-IP-Symcon-5-1-%28Stable%29-Changelog)
 [![StyleCI](https://styleci.io/repos/199910754/shield?style=flat)](https://styleci.io/repos/199910754)  
@@ -118,6 +118,11 @@ Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:
 | Data        | array   | Daten des Kommandos als Array |
 
 ### 3. Changlog
+
+Version 3.30:  
+- Fix Fehlermeldungen im Wecker behoben.  
+- Fix Fehlermeldung im Splitter bei deaktiver HTML-Playlist behoben.  
+- Zusätzlicher Fix für Fehlermeldung beim Profil der TrackList.  
 
 Version 3.23:  
 - Fix Fehlermeldung beim Profil der TrackList
