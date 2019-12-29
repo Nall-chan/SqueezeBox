@@ -47,7 +47,6 @@ eval('declare(strict_types=1);namespace LMSSplitter {?>' . file_get_contents(__D
  */
 class LMSSplitter extends IPSModule
 {
-
     use LMSHTMLTable,
         LMSSongURL,
         LMSProfile,
@@ -186,7 +185,7 @@ class LMSSplitter extends IPSModule
                 $this->KernelReady();
                 break;
             case VM_UPDATE:
-                if (($SenderID == $this->ScannerID) and ( $Data[0] == 0)) {
+                if (($SenderID == $this->ScannerID) and ($Data[0] == 0)) {
                     $this->RefreshAllPlaylists();
                 }
                 break;
@@ -328,6 +327,7 @@ class LMSSplitter extends IPSModule
     }
 
     //################# Privat
+
     /**
      * Ändert das Variablenprofil PlayerSelect anhand der bekannten Player.
      *
@@ -415,6 +415,7 @@ class LMSSplitter extends IPSModule
     }
 
     //################# Action
+
     /**
      * Actionhandler der Statusvariablen. Interne SDK-Funktion.
      *
@@ -459,7 +460,7 @@ class LMSSplitter extends IPSModule
                 } elseif ($Value == 4) {
                     $ret = $this->WipeCache();
                 }
-                if (($Value != 0) and ( ($ret === null) or ( $ret === false))) {
+                if (($Value != 0) and (($ret === null) or ($ret === false))) {
                     echo $this->Translate('Error on send scanner-command');
                     return false;
                 }
@@ -480,7 +481,7 @@ class LMSSplitter extends IPSModule
      */
     protected function ProcessHookdata()
     {
-        if ((!isset($_GET['ID'])) or ( !isset($_GET['Type'])) or ( !isset($_GET['Secret']))) {
+        if ((!isset($_GET['ID'])) or (!isset($_GET['Type'])) or (!isset($_GET['Secret']))) {
             echo $this->Translate('Bad Request');
             return;
         }
@@ -528,6 +529,7 @@ class LMSSplitter extends IPSModule
     }
 
     //################# PUBLIC
+
     /**
      * IPS-Instanz-Funktion 'LMS_KeepAlive'.
      * Sendet einen listen Abfrage an den LMS um die Kommunikation zu erhalten.
@@ -644,6 +646,7 @@ class LMSSplitter extends IPSModule
     ///////////////////////////////////////////////////////////////
     // START TODO
     ///////////////////////////////////////////////////////////////
+
     /**
      * IPS-Instanz-Funktion 'LMS_GetSyncGroups'.
      * Liefer ein Array welches die Gruppen mit ihren jeweiligen IPS-InstanzeIDs enthält.
@@ -688,6 +691,7 @@ class LMSSplitter extends IPSModule
     ///////////////////////////////////////////////////////////////
     // START PLAYERINFO
     ///////////////////////////////////////////////////////////////
+
     /**
      * IPS-Instanz-Funktion 'LMS_GetPlayerInfo'.
      *
@@ -731,6 +735,7 @@ class LMSSplitter extends IPSModule
     ///////////////////////////////////////////////////////////////
     // START DATABASE
     ///////////////////////////////////////////////////////////////
+
     /**
      * IPS-Instanz-Funktion 'LMS_Rescan'.
      * Startet einen rescan der Datenbank.
@@ -1514,6 +1519,7 @@ class LMSSplitter extends IPSModule
     ///////////////////////////////////////////////////////////////
     // START ALARM PLAYLISTS COMMANDS
     ///////////////////////////////////////////////////////////////
+
     /**
      * IPS-Instanz-Funktion 'LMS_GetAlarmPlaylists'.
      * Liefert alle Playlisten welche für den Wecker genutzt werden können.
@@ -1536,6 +1542,7 @@ class LMSSplitter extends IPSModule
     ///////////////////////////////////////////////////////////////
     // START FAVORITEN
     ///////////////////////////////////////////////////////////////
+
     /**
      * IPS-Instanz-Funktion 'LMS_GetFavorites'.
      * Liefert ein Array mit allen in $FavoriteID enthaltenen Favoriten.
@@ -1874,7 +1881,7 @@ class LMSSplitter extends IPSModule
                     }
                     return true;
                 } else {
-                    if (($LMSData->Data[0] == 'done') or ( $LMSData->Data[0] == '0')) {
+                    if (($LMSData->Data[0] == 'done') or ($LMSData->Data[0] == '0')) {
                         if ($this->GetValue('RescanState') != 0) {
                             $this->SetValueInteger('RescanState', 0);   // fertig
                         }
@@ -1975,6 +1982,7 @@ class LMSSplitter extends IPSModule
     }
 
     //################# DATAPOINTS DEVICE
+
     /**
      * Interne Funktion des SDK. Nimmt Daten von Childs entgegen und sendet Diese weiter.
      *
@@ -2007,6 +2015,7 @@ class LMSSplitter extends IPSModule
     }
 
     //################# DATAPOINTS PARENT
+
     /**
      * Empfängt Daten vom Parent.
      *
@@ -2233,6 +2242,7 @@ class LMSSplitter extends IPSModule
     }
 
     //################# SENDQUEUE
+
     /**
      * Fügt eine Anfrage in die SendQueue ein.
      *
@@ -2308,7 +2318,6 @@ class LMSSplitter extends IPSModule
             return sprintf('%02d:%02d', ($Time / 60 % 60), $Time % 60);
         }
     }
-
 }
 
 /* @} */
