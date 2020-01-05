@@ -94,163 +94,12 @@ class LMSConfigurator extends IPSModule
         }
     }
 
-    /**
-     * Wird ausgeführt wenn der Kernel hochgefahren wurde.
-     */
-    protected function KernelReady()
-    {
-        $this->ApplyChanges();
-    }
-
     public function RequestAction($Ident, $Value)
     {
         if ($this->IORequestAction($Ident, $Value)) {
             return true;
         }
         return false;
-    }
-
-    protected function RegisterParent()
-    {
-        $SplitterId = $this->IORegisterParent();
-        if ($SplitterId > 0) {
-            $IOId = @IPS_GetInstance($SplitterId)['ConnectionID'];
-            if ($IOId > 0) {
-                $this->SetSummary(IPS_GetProperty($IOId, 'Host'));
-
-                return;
-            }
-        }
-        $this->SetSummary(('none'));
-    }
-
-    /**
-     * Wird ausgeführt wenn sich der Status vom Parent ändert.
-     */
-    protected function IOChangeState($State)
-    {
-        if ($State == IS_ACTIVE) {
-            // Gerätebuffer laden
-        } else {
-            // Gerätebuffer leeren
-        }
-    }
-
-    /**
-     * IPS-Instanz-Funktion 'LMC_GetDeviceInfo'.
-     * Lädt die bekannten Player vom LMS.
-     *
-     * @result array|bool Assoziertes Array,  false und Fehlermeldung.
-     */
-    private function GetDeviceInfo()
-    {
-        $count = $this->Send(new LMSData(['player', 'count'], '?'));
-        if (($count === false) or ($count === null)) {
-            return [];
-        }
-        $players = [];
-        for ($i = 0; $i < $count->Data[0]; $i++) {
-            $playerid = $this->Send(new LMSData(['player', 'id'], [$i, '?']));
-            if ($playerid === false) {
-                continue;
-            }
-            $id = strtolower(rawurldecode($playerid->Data[1]));
-
-            $playerip = $this->Send(new LMSData(['player', 'ip'], [$i, '?']));
-            if ($playerip === false) {
-                continue;
-            }
-            $players[$id]['ip'] = rawurldecode(explode(':', $playerip->Data[1])[0]);
-            $playername = $this->Send(new LMSData(['player', 'name'], [$i, '?']));
-            if ($playername === false) {
-                continue;
-            }
-            $players[$id]['name'] = rawurldecode($playername->Data[1]);
-            $playermodel = $this->Send(new LMSData(['player', 'model'], [$i, '?']));
-            if ($playermodel === false) {
-                continue;
-            }
-            $players[$id]['model'] = rawurldecode($playermodel->Data[1]);
-        }
-        return $players;
-    }
-
-    private function GetInstanceList(string $GUID, string $ConfigParam)
-    {
-        $InstanceIDList = array_flip(array_values(array_filter(IPS_GetInstanceListByModuleID($GUID), [$this, 'FilterInstances'])));
-        if ($ConfigParam != '') {
-            array_walk($InstanceIDList, [$this, 'GetConfigParam'], $ConfigParam);
-        }
-        return $InstanceIDList;
-    }
-
-    private function FilterInstances(int $InstanceID)
-    {
-        return IPS_GetInstance($InstanceID)['ConnectionID'] == $this->ParentID;
-    }
-
-    private function FilterBattery($Values)
-    {
-        return $Values['model'] == 'baby';
-    }
-
-    private function GetConfigParam(&$item1, $InstanceID, $ConfigParam)
-    {
-        $item1 = IPS_GetProperty($InstanceID, $ConfigParam);
-    }
-
-    private function GetConfiguratorArray(string $GUID, string $ConfigParamName)
-    {
-        $ModuleName = IPS_GetModule($GUID)['Aliases'][0];
-        $InstancesDevices = $this->GetInstanceList($GUID, $ConfigParamName);
-        $this->SendDebug($ModuleName, $InstancesDevices, 0);
-        $Devices = [];
-        $Device = [];
-        if ($ConfigParamName != '') {
-            $InstanceID = array_search($index, $InstancesDevices);
-            $Device['line'] = $index;
-        } else {
-            $InstanceID = array_search(0, $InstancesDevices);
-        }
-        if ($InstanceID === false) {
-            $Device['instanceID'] = 0;
-            $Device['name'] = $ModuleName;
-        } else {
-            unset($InstancesDevices[$InstanceID]);
-            $Device['instanceID'] = $InstanceID;
-            $Device['name'] = IPS_GetLocation($InstanceID);
-        }
-        $Create = [
-            'moduleID'      => $GUID,
-            'configuration' => new stdClass()
-        ];
-        if ($ConfigParamName != '') {
-            $Create['configuration'] = [
-                $ConfigParamName => $index
-            ];
-        }
-        $Device['create'] = array_merge([$Create], $ParentCreate);
-        $Devices[] = $Device;
-
-        if ($ConfigParamName !== '') {
-            foreach ($InstancesDevices as $InstanceID => $Line) {
-                $Devices[] = [
-                    'instanceID' => $InstanceID,
-                    'type'       => $ModuleName,
-                    'line'       => $Line,
-                    'name'       => IPS_GetLocation($InstanceID)
-                ];
-            }
-        } else {
-            foreach ($InstancesDevices as $InstanceID => $Line) {
-                $Devices[] = [
-                    'instanceID' => $InstanceID,
-                    'type'       => $ModuleName,
-                    'name'       => IPS_GetLocation($InstanceID)
-                ];
-            }
-        }
-        return $Devices;
     }
 
     /**
@@ -265,9 +114,9 @@ class LMSConfigurator extends IPSModule
                 'type'  => 'PopupAlert',
                 'popup' => [
                     'items' => [[
-                    'type'    => 'Label',
-                    'caption' => 'Instance has no active parent.'
-                        ]]
+                        'type'    => 'Label',
+                        'caption' => 'Instance has no active parent.'
+                    ]]
                 ]
             ];
             $this->SendDebug('FORM', json_encode($Form), 0);
@@ -424,6 +273,157 @@ class LMSConfigurator extends IPSModule
         $this->SendDebug('FORM', json_encode($Form), 0);
         $this->SendDebug('FORM', json_last_error_msg(), 0);
         return json_encode($Form);
+    }
+
+    /**
+     * Wird ausgeführt wenn der Kernel hochgefahren wurde.
+     */
+    protected function KernelReady()
+    {
+        $this->ApplyChanges();
+    }
+
+    protected function RegisterParent()
+    {
+        $SplitterId = $this->IORegisterParent();
+        if ($SplitterId > 0) {
+            $IOId = @IPS_GetInstance($SplitterId)['ConnectionID'];
+            if ($IOId > 0) {
+                $this->SetSummary(IPS_GetProperty($IOId, 'Host'));
+
+                return;
+            }
+        }
+        $this->SetSummary(('none'));
+    }
+
+    /**
+     * Wird ausgeführt wenn sich der Status vom Parent ändert.
+     */
+    protected function IOChangeState($State)
+    {
+        if ($State == IS_ACTIVE) {
+            // Gerätebuffer laden
+        } else {
+            // Gerätebuffer leeren
+        }
+    }
+
+    /**
+     * IPS-Instanz-Funktion 'LMC_GetDeviceInfo'.
+     * Lädt die bekannten Player vom LMS.
+     *
+     * @result array|bool Assoziertes Array,  false und Fehlermeldung.
+     */
+    private function GetDeviceInfo()
+    {
+        $count = $this->Send(new LMSData(['player', 'count'], '?'));
+        if (($count === false) || ($count === null)) {
+            return [];
+        }
+        $players = [];
+        for ($i = 0; $i < $count->Data[0]; $i++) {
+            $playerid = $this->Send(new LMSData(['player', 'id'], [$i, '?']));
+            if ($playerid === false) {
+                continue;
+            }
+            $id = strtolower(rawurldecode($playerid->Data[1]));
+
+            $playerip = $this->Send(new LMSData(['player', 'ip'], [$i, '?']));
+            if ($playerip === false) {
+                continue;
+            }
+            $players[$id]['ip'] = rawurldecode(explode(':', $playerip->Data[1])[0]);
+            $playername = $this->Send(new LMSData(['player', 'name'], [$i, '?']));
+            if ($playername === false) {
+                continue;
+            }
+            $players[$id]['name'] = rawurldecode($playername->Data[1]);
+            $playermodel = $this->Send(new LMSData(['player', 'model'], [$i, '?']));
+            if ($playermodel === false) {
+                continue;
+            }
+            $players[$id]['model'] = rawurldecode($playermodel->Data[1]);
+        }
+        return $players;
+    }
+
+    private function GetInstanceList(string $GUID, string $ConfigParam)
+    {
+        $InstanceIDList = array_flip(array_values(array_filter(IPS_GetInstanceListByModuleID($GUID), [$this, 'FilterInstances'])));
+        if ($ConfigParam != '') {
+            array_walk($InstanceIDList, [$this, 'GetConfigParam'], $ConfigParam);
+        }
+        return $InstanceIDList;
+    }
+
+    private function FilterInstances(int $InstanceID)
+    {
+        return IPS_GetInstance($InstanceID)['ConnectionID'] == $this->ParentID;
+    }
+
+    private function FilterBattery($Values)
+    {
+        return $Values['model'] == 'baby';
+    }
+
+    private function GetConfigParam(&$item1, $InstanceID, $ConfigParam)
+    {
+        $item1 = IPS_GetProperty($InstanceID, $ConfigParam);
+    }
+
+    private function GetConfiguratorArray(string $GUID, string $ConfigParamName)
+    {
+        $ModuleName = IPS_GetModule($GUID)['Aliases'][0];
+        $InstancesDevices = $this->GetInstanceList($GUID, $ConfigParamName);
+        $this->SendDebug($ModuleName, $InstancesDevices, 0);
+        $Devices = [];
+        $Device = [];
+        if ($ConfigParamName != '') {
+            $InstanceID = array_search($index, $InstancesDevices);
+            $Device['line'] = $index;
+        } else {
+            $InstanceID = array_search(0, $InstancesDevices);
+        }
+        if ($InstanceID === false) {
+            $Device['instanceID'] = 0;
+            $Device['name'] = $ModuleName;
+        } else {
+            unset($InstancesDevices[$InstanceID]);
+            $Device['instanceID'] = $InstanceID;
+            $Device['name'] = IPS_GetLocation($InstanceID);
+        }
+        $Create = [
+            'moduleID'      => $GUID,
+            'configuration' => new stdClass()
+        ];
+        if ($ConfigParamName != '') {
+            $Create['configuration'] = [
+                $ConfigParamName => $index
+            ];
+        }
+        $Device['create'] = array_merge([$Create], $ParentCreate);
+        $Devices[] = $Device;
+
+        if ($ConfigParamName !== '') {
+            foreach ($InstancesDevices as $InstanceID => $Line) {
+                $Devices[] = [
+                    'instanceID' => $InstanceID,
+                    'type'       => $ModuleName,
+                    'line'       => $Line,
+                    'name'       => IPS_GetLocation($InstanceID)
+                ];
+            }
+        } else {
+            foreach ($InstancesDevices as $InstanceID => $Line) {
+                $Devices[] = [
+                    'instanceID' => $InstanceID,
+                    'type'       => $ModuleName,
+                    'name'       => IPS_GetLocation($InstanceID)
+                ];
+            }
+        }
+        return $Devices;
     }
 
     /**

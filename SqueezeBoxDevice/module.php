@@ -335,207 +335,6 @@ class SqueezeboxDevice extends IPSModule
         }
     }
 
-    /**
-     * Wird ausgeführt wenn der Kernel hochgefahren wurde.
-     */
-    protected function KernelReady()
-    {
-        $this->ApplyChanges();
-    }
-
-    protected function RegisterParent()
-    {
-        $SplitterId = $this->IORegisterParent();
-        if ($SplitterId > 0) {
-            $IOId = @IPS_GetInstance($SplitterId)['ConnectionID'];
-            if ($IOId > 0) {
-                $this->SetSummary(IPS_GetProperty($IOId, 'Host'));
-
-                return;
-            }
-        }
-        $this->SetSummary(('none'));
-    }
-
-    /**
-     * Wird ausgeführt wenn sich der Status vom Parent ändert.
-     */
-    protected function IOChangeState($State)
-    {
-        $Value = false;
-        if ($State == IS_ACTIVE) {
-            $LMSResponse = $this->SendDirect(new LMSData('connected', '?'));
-            if ($LMSResponse != null) {
-                $Value = ($LMSResponse->Data[0] == '1');
-            }
-        }
-        $this->SetValueBoolean('Connected', $Value);
-    }
-
-    private function GenerateHTMLStyleProperty()
-    {
-        $NewTableConfig = [
-            [
-                'tag'   => '<table>',
-                'style' => 'margin:0 auto; font-size:0.8em;'
-            ],
-            [
-                'tag'   => '<thead>',
-                'style' => ''
-            ],
-            [
-                'tag'   => '<tbody>',
-                'style' => ''
-            ]
-        ];
-        $NewColumnsConfig = [
-            [
-                'index' => 0,
-                'key'   => 'Play',
-                'name'  => '',
-                'show'  => true,
-                'width' => 50,
-                'color' => 0xffffff,
-                'align' => 'center',
-                'style' => ''
-            ],
-            [
-                'index' => 1,
-                'key'   => 'Position',
-                'name'  => 'Pos',
-                'show'  => true,
-                'width' => 50,
-                'color' => 0xffffff,
-                'align' => 'center',
-                'style' => ''
-            ],
-            [
-                'index' => 2,
-                'key'   => 'Title',
-                'name'  => $this->Translate('Title'),
-                'show'  => true,
-                'width' => 250,
-                'color' => 0xffffff,
-                'align' => 'center',
-                'style' => ''
-            ],
-            [
-                'index' => 3,
-                'key'   => 'Artist',
-                'name'  => $this->Translate('Artist'),
-                'show'  => true,
-                'width' => 250,
-                'color' => 0xffffff,
-                'align' => 'center',
-                'style' => ''
-            ],
-            [
-                'index' => 4,
-                'key'   => 'Bitrate',
-                'name'  => 'Bitrate',
-                'show'  => false,
-                'width' => 150,
-                'color' => 0xffffff,
-                'align' => 'center',
-                'style' => ''
-            ],
-            [
-                'index' => 5,
-                'key'   => 'Duration',
-                'name'  => $this->Translate('Duration'),
-                'show'  => true,
-                'width' => 100,
-                'color' => 0xffffff,
-                'align' => 'center',
-                'style' => ''
-            ],
-            [
-                'index' => 6,
-                'key'   => 'Genre',
-                'name'  => $this->Translate('Genre'),
-                'show'  => false,
-                'width' => 200,
-                'color' => 0xffffff,
-                'align' => 'center',
-                'style' => ''
-            ],
-            [
-                'index' => 7,
-                'key'   => 'Album',
-                'name'  => 'Album',
-                'show'  => false,
-                'width' => 250,
-                'color' => 0xffffff,
-                'align' => 'center',
-                'style' => ''
-            ],
-            [
-                'index' => 8,
-                'key'   => 'Disc',
-                'name'  => 'Disc',
-                'show'  => false,
-                'width' => 35,
-                'color' => 0xffffff,
-                'align' => 'center',
-                'style' => ''
-            ],
-            [
-                'index' => 9,
-                'key'   => 'Disccount',
-                'name'  => 'Disccount',
-                'show'  => false,
-                'width' => 35,
-                'color' => 0xffffff,
-                'align' => 'center',
-                'style' => ''
-            ],
-            [
-                'index' => 10,
-                'key'   => 'Tracknum',
-                'name'  => 'Track',
-                'show'  => false,
-                'width' => 35,
-                'color' => 0xffffff,
-                'align' => 'center',
-                'style' => ''
-            ],
-            [
-                'index' => 11,
-                'key'   => 'Year',
-                'name'  => $this->Translate('Year'),
-                'show'  => false,
-                'width' => 60,
-                'color' => 0xffffff,
-                'align' => 'center',
-                'style' => ''
-            ]
-        ];
-        $NewRowsConfig = [
-            [
-                'row'     => 'odd',
-                'name'    => $this->Translate('odd'),
-                'bgcolor' => 0x000000,
-                'color'   => 0xffffff,
-                'style'   => ''
-            ],
-            [
-                'row'     => 'even',
-                'name'    => $this->Translate('even'),
-                'bgcolor' => 0x080808,
-                'color'   => 0xffffff,
-                'style'   => ''
-            ],
-            [
-                'row'     => 'active',
-                'name'    => $this->Translate('active'),
-                'bgcolor' => 0x808000,
-                'color'   => 0xffffff,
-                'style'   => ''
-            ]
-        ];
-        return ['Table' => $NewTableConfig, 'Columns' => $NewColumnsConfig, 'Rows' => $NewRowsConfig];
-    }
-
     //################# PUBLIC
 
     /**
@@ -922,7 +721,7 @@ class SqueezeboxDevice extends IPSModule
             trigger_error(sprintf($this->Translate('%s must integer.'), 'Value'), E_USER_NOTICE);
             return false;
         }
-        if (($Value < 0) or ($Value > 100)) {
+        if (($Value < 0) || ($Value > 100)) {
             trigger_error($this->Translate('Value invalid.'), E_USER_NOTICE);
             return false;
         }
@@ -948,11 +747,11 @@ class SqueezeboxDevice extends IPSModule
             trigger_error(sprintf($this->Translate('%s must string.'), 'Value'), E_USER_NOTICE);
             return false;
         }
-        if (($Value[0] != '-') and ($Value[0] != '+')) {
+        if (($Value[0] != '-') && ($Value[0] != '+')) {
             trigger_error($this->Translate('Value invalid.'), E_USER_NOTICE);
             return false;
         }
-        if (((int) $Value < -100) or ((int) $Value > 100)) {
+        if (((int) $Value < -100) || ((int) $Value > 100)) {
             trigger_error($this->Translate('Value invalid.'), E_USER_NOTICE);
             return false;
         }
@@ -982,7 +781,7 @@ class SqueezeboxDevice extends IPSModule
             trigger_error(sprintf($this->Translate('%s must integer.'), 'Value'), E_USER_NOTICE);
             return false;
         }
-        if (($Value < 0) or ($Value > 100)) {
+        if (($Value < 0) || ($Value > 100)) {
             trigger_error($this->Translate('Value invalid.'), E_USER_NOTICE);
             return false;
         }
@@ -1012,11 +811,11 @@ class SqueezeboxDevice extends IPSModule
             trigger_error(sprintf($this->Translate('%s must string.'), 'Value'), E_USER_NOTICE);
             return false;
         }
-        if (($Value[0] != '-') and ($Value[0] != '+')) {
+        if (($Value[0] != '-') && ($Value[0] != '+')) {
             trigger_error($this->Translate('Value invalid.'), E_USER_NOTICE);
             return false;
         }
-        if (((int) $Value < -100) or ((int) $Value > 100)) {
+        if (((int) $Value < -100) || ((int) $Value > 100)) {
             trigger_error($this->Translate('Value invalid.'), E_USER_NOTICE);
             return false;
         }
@@ -1047,7 +846,7 @@ class SqueezeboxDevice extends IPSModule
             trigger_error(sprintf($this->Translate('%s must integer.'), 'Value'), E_USER_NOTICE);
             return false;
         }
-        if (($Value < 0) or ($Value > 100)) {
+        if (($Value < 0) || ($Value > 100)) {
             trigger_error($this->Translate('Value invalid.'), E_USER_NOTICE);
             return false;
         }
@@ -1077,11 +876,11 @@ class SqueezeboxDevice extends IPSModule
             trigger_error(sprintf($this->Translate('%s must string.'), 'Value'), E_USER_NOTICE);
             return false;
         }
-        if (($Value[0] != '-') and ($Value[0] != '+')) {
+        if (($Value[0] != '-') && ($Value[0] != '+')) {
             trigger_error($this->Translate('Value invalid.'), E_USER_NOTICE);
             return false;
         }
-        if (((int) $Value < -100) or ((int) $Value > 100)) {
+        if (((int) $Value < -100) || ((int) $Value > 100)) {
             trigger_error($this->Translate('Value invalid.'), E_USER_NOTICE);
             return false;
         }
@@ -1112,7 +911,7 @@ class SqueezeboxDevice extends IPSModule
             trigger_error(sprintf($this->Translate('%s must integer.'), 'Value'), E_USER_NOTICE);
             return false;
         }
-        if (($Value < 80) or ($Value > 120)) {
+        if (($Value < 80) || ($Value > 120)) {
             trigger_error($this->Translate('Value invalid.'), E_USER_NOTICE);
             return false;
         }
@@ -1142,11 +941,11 @@ class SqueezeboxDevice extends IPSModule
             trigger_error(sprintf($this->Translate('%s must string.'), 'Value'), E_USER_NOTICE);
             return false;
         }
-        if (($Value[0] != '-') and ($Value[0] != '+')) {
+        if (($Value[0] != '-') && ($Value[0] != '+')) {
             trigger_error($this->Translate('Value invalid.'), E_USER_NOTICE);
             return false;
         }
-        if (((int) $Value < -40) or ((int) $Value > 40)) {
+        if (((int) $Value < -40) || ((int) $Value > 40)) {
             trigger_error($this->Translate('Value invalid.'), E_USER_NOTICE);
             return false;
         }
@@ -1205,7 +1004,7 @@ class SqueezeboxDevice extends IPSModule
             trigger_error(sprintf($this->Translate('%s must integer.'), 'Value'), E_USER_NOTICE);
             return false;
         }
-        if (($Value < 1) or ($Value > 6)) {
+        if (($Value < 1) || ($Value > 6)) {
             trigger_error(sprintf($this->Translate('%s out of Range.'), 'Value'), E_USER_NOTICE);
             return false;
         }
@@ -1346,7 +1145,7 @@ class SqueezeboxDevice extends IPSModule
 
     public function Display2Lines(string $Text1, string $Text2, int $Duration)
     {
-        if (!is_string($Text1) or !is_string($Text2)) {
+        if (!is_string($Text1) || !is_string($Text2)) {
             trigger_error(sprintf($this->Translate('%s must be string.'), 'Text'), E_USER_NOTICE);
             return false;
         }
@@ -1359,7 +1158,7 @@ class SqueezeboxDevice extends IPSModule
 
     public function Display2LinesEx(string $Text1, string $Text2, int $Duration, bool $Centered, int $Brightness)
     {
-        if (!is_string($Text1) or !is_string($Text2)) {
+        if (!is_string($Text1) || !is_string($Text2)) {
             trigger_error(sprintf($this->Translate('%s must be string.'), 'Text'), E_USER_NOTICE);
             return false;
         }
@@ -1378,36 +1177,9 @@ class SqueezeboxDevice extends IPSModule
         return $this->DisplayLines($Text1, $Text2, false, $Duration, $Centered, $Brightness);
     }
 
-    private function DisplayLines($Line1 = '', $Line2 = '', $Huge = false, $Duration = 3, $Centered = false, $Brightness = 4)
-    {
-        $Duration = ($Duration < 3 ? 3 : $Duration);
-        $Brightness = ($Brightness < 0 ? 0 : $Brightness);
-        $Brightness = ($Brightness > 4 ? 4 : $Brightness);
-        $Values = [];
-        if ($Line1 != '') {
-            $Values[] = 'line1:' . utf8_decode($Line1);
-        }
-        if ($Line2 != '') {
-            $Values[] = 'line2:' . utf8_decode($Line2);
-        }
-        $Values[] = 'duration:' . $Duration;
-        $Values[] = 'brightness:' . $Brightness;
-        if ($Huge) {
-            $Values[] = 'font:huge';
-        }
-        if ($Centered) {
-            $Values[] = 'centered:1';
-        }
-        $LMSData = $this->Send(new LMSData('show', $Values));
-        if ($LMSData === null) {
-            return false;
-        }
-        return true;
-    }
-
     public function DisplayText(string $Text1, string $Text2, int $Duration)
     {
-        if (!is_string($Text1) or !is_string($Text2)) {
+        if (!is_string($Text1) || !is_string($Text2)) {
             trigger_error(sprintf($this->Translate('%s must be string.'), 'Text'), E_USER_NOTICE);
             return false;
         }
@@ -1615,7 +1387,7 @@ class SqueezeboxDevice extends IPSModule
         if ($LMSData === null) {
             return false;
         }
-        if (($LMSData->Data[0] != $Position) or ($LMSData->Data[1] != $NewPosition)) {
+        if (($LMSData->Data[0] != $Position) || ($LMSData->Data[1] != $NewPosition)) {
             trigger_error($this->Translate('Error on move song in playlist.'), E_USER_NOTICE);
             return false;
         }
@@ -1733,7 +1505,7 @@ class SqueezeboxDevice extends IPSModule
             return false;
         }
         $ret = $LMSData->Data[0];
-        if (($ret == '/' . $Name) or ($ret == '\\' . $Name)) {
+        if (($ret == '/' . $Name) || ($ret == '\\' . $Name)) {
             trigger_error($this->Translate('Playlist not found.'), E_USER_NOTICE);
             return false;
         }
@@ -1785,7 +1557,7 @@ class SqueezeboxDevice extends IPSModule
             return false;
         }
         $ret = $LMSData->Data[0];
-        if (($ret == '/' . $Name) or ($ret == '\\' . $Name)) {
+        if (($ret == '/' . $Name) || ($ret == '\\' . $Name)) {
             trigger_error($this->Translate('Playlist not found.'), E_USER_NOTICE);
             return false;
         }
@@ -1818,7 +1590,7 @@ class SqueezeboxDevice extends IPSModule
             $Album = '*';
         }
 
-        if (($Genre == '*') and ($Genre == '*') and ($Genre == '*')) {
+        if (($Genre == '*') && ($Genre == '*') && ($Genre == '*')) {
             trigger_error($this->Translate('One search patter is requiered'), E_USER_NOTICE);
             return false;
         }
@@ -1856,7 +1628,7 @@ class SqueezeboxDevice extends IPSModule
             $Album = '*';
         }
 
-        if (($Genre == '*') and ($Genre == '*') and ($Genre == '*')) {
+        if (($Genre == '*') && ($Genre == '*') && ($Genre == '*')) {
             trigger_error($this->Translate('One search patter is requiered'), E_USER_NOTICE);
             return false;
         }
@@ -2040,7 +1812,7 @@ class SqueezeboxDevice extends IPSModule
             $Album = '*';
         }
 
-        if (($Genre == '*') and ($Genre == '*') and ($Genre == '*')) {
+        if (($Genre == '*') && ($Genre == '*') && ($Genre == '*')) {
             trigger_error($this->Translate('One search patter is requiered'), E_USER_NOTICE);
             return false;
         }
@@ -2078,7 +1850,7 @@ class SqueezeboxDevice extends IPSModule
             $Album = '*';
         }
 
-        if (($Genre == '*') and ($Genre == '*') and ($Genre == '*')) {
+        if (($Genre == '*') && ($Genre == '*') && ($Genre == '*')) {
             trigger_error($this->Translate('One search patter is requiered'), E_USER_NOTICE);
             return false;
         }
@@ -2228,7 +2000,7 @@ class SqueezeboxDevice extends IPSModule
             trigger_error(sprintf($this->Translate('%s must be integer.'), 'Index'), E_USER_NOTICE);
             return false;
         }
-        if (($Index < 1) or ($Index > $this->GetValue('Tracks'))) {
+        if (($Index < 1) || ($Index > $this->GetValue('Tracks'))) {
             trigger_error(sprintf($this->Translate('%s out of Range.'), 'Index'), E_USER_NOTICE);
             return false;
         }
@@ -2290,7 +2062,7 @@ class SqueezeboxDevice extends IPSModule
             trigger_error(sprintf($this->Translate('%s must integer.'), 'Value'), E_USER_NOTICE);
             return false;
         }
-        if (($Value < 0) or ($Value > 2)) {
+        if (($Value < 0) || ($Value > 2)) {
             trigger_error($this->Translate('Value must be 0, 1 or 2.'), E_USER_NOTICE);
             return false;
         }
@@ -2319,7 +2091,7 @@ class SqueezeboxDevice extends IPSModule
             trigger_error(sprintf($this->Translate('%s must integer.'), 'Value'), E_USER_NOTICE);
             return false;
         }
-        if (($Value < 0) or ($Value > 2)) {
+        if (($Value < 0) || ($Value > 2)) {
             trigger_error($this->Translate('Value must be 0, 1 or 2.'), E_USER_NOTICE);
             return false;
         }
@@ -2329,22 +2101,6 @@ class SqueezeboxDevice extends IPSModule
         }
 
         return (int) $LMSData->Data[0] == $Value;
-    }
-
-    private function _PlaylistControl(string $cmd, string $item, string $errormsg)
-    {
-        $LMSData = $this->SendDirect(new LMSData('playlistcontrol', [$cmd, $item]));
-        if ($LMSData === null) {
-            return false;
-        }
-        $LMSData->SliceData();
-        /** @var array $LMSTaggedData */
-        $LMSTaggedData = (new LMSTaggingArray($LMSData->Data))->DataArray();
-        if (!array_key_exists('Count', $LMSTaggedData)) {
-            trigger_error($errormsg, E_USER_NOTICE);
-            return false;
-        }
-        return true;
     }
 
     public function LoadPlaylistByAlbumID(int $AlbumID)
@@ -2828,6 +2584,63 @@ class SqueezeboxDevice extends IPSModule
         }
     }
 
+    //################# DataPoints Ankommend von Parent-LMS-Splitter
+    public function ReceiveData($JSONString)
+    {
+        $this->SendDebug('Receive Event', $JSONString, 0);
+        $Data = json_decode($JSONString);
+        // Objekt erzeugen welches die Commands und die Values enthält.
+        $LMSData = new LMSData();
+        $LMSData->CreateFromGenericObject($Data);
+        // Ist das Command schon bekannt ?
+
+        if ($LMSData->Command[0] != false) {
+            if ($LMSData->Command[0] == 'ignore') {
+                return;
+            }
+            $this->DecodeLMSResponse($LMSData);
+        } else {
+            $this->SendDebug('UNKNOW', $LMSData, 0);
+        }
+    }
+
+    /**
+     * Wird ausgeführt wenn der Kernel hochgefahren wurde.
+     */
+    protected function KernelReady()
+    {
+        $this->ApplyChanges();
+    }
+
+    protected function RegisterParent()
+    {
+        $SplitterId = $this->IORegisterParent();
+        if ($SplitterId > 0) {
+            $IOId = @IPS_GetInstance($SplitterId)['ConnectionID'];
+            if ($IOId > 0) {
+                $this->SetSummary(IPS_GetProperty($IOId, 'Host'));
+
+                return;
+            }
+        }
+        $this->SetSummary(('none'));
+    }
+
+    /**
+     * Wird ausgeführt wenn sich der Status vom Parent ändert.
+     */
+    protected function IOChangeState($State)
+    {
+        $Value = false;
+        if ($State == IS_ACTIVE) {
+            $LMSResponse = $this->SendDirect(new LMSData('connected', '?'));
+            if ($LMSResponse != null) {
+                $Value = ($LMSResponse->Data[0] == '1');
+            }
+        }
+        $this->SetValueBoolean('Connected', $Value);
+    }
+
     /**
      * Verarbeitet Daten aus dem Webhook.
      *
@@ -2835,7 +2648,7 @@ class SqueezeboxDevice extends IPSModule
      */
     protected function ProcessHookdata()
     {
-        if ((!isset($_GET['ID'])) or (!isset($_GET['Type'])) or (!isset($_GET['Secret']))) {
+        if ((!isset($_GET['ID'])) || (!isset($_GET['Type'])) || (!isset($_GET['Secret']))) {
             echo $this->Translate('Bad Request');
             return;
         }
@@ -2852,6 +2665,286 @@ class SqueezeboxDevice extends IPSModule
         if ($this->GoToTrack((int) $_GET['ID'])) {
             echo 'OK';
         }
+    }
+
+    /**
+     * Konvertiert $Data zu einem String und versendet diesen direkt an den LMS.
+     *
+     * @param LMSData $LMSData Zu versendende Daten.
+     *
+     * @return LMSData Objekt mit der Antwort. NULL im Fehlerfall.
+     */
+    protected function SendDirect(LMSData $LMSData)
+    {
+        if ($this->ReadPropertyString('Address') == '') {
+            return null;
+        }
+
+        try {
+            if (!$this->HasActiveParent()) {
+                throw new Exception($this->Translate('Instance has no active parent.'), E_USER_NOTICE);
+            }
+
+            if (!$this->_isPlayerConnected() && ($LMSData->Command[0] != 'connected')) {
+                throw new Exception($this->Translate('Player not connected'), E_USER_NOTICE);
+            }
+
+            $LMSData->Address = $this->ReadPropertyString('Address');
+            $this->SendDebug('Send Direct', $LMSData, 0);
+
+            if (!$this->Socket) {
+                $SplitterID = IPS_GetInstance($this->InstanceID)['ConnectionID'];
+                $IoID = IPS_GetInstance($SplitterID)['ConnectionID'];
+                $Host = IPS_GetProperty($IoID, 'Host');
+                if ($Host === '') {
+                    return null;
+                }
+                $Host = gethostbyname($Host);
+
+                $Port = IPS_GetProperty($SplitterID, 'Port');
+                $User = IPS_GetProperty($SplitterID, 'User');
+                $Pass = IPS_GetProperty($SplitterID, 'Password');
+
+                $LoginData = (new LMSData('login', [$User, $Pass]))->ToRawStringForLMS();
+                $this->SendDebug('Send Direct', $LoginData, 0);
+                $this->Socket = @stream_socket_client('tcp://' . $Host . ':' . $Port, $errno, $errstr, 2);
+                if (!$this->Socket) {
+                    throw new Exception($this->Translate('No anwser from LMS'), E_USER_NOTICE);
+                }
+                stream_set_timeout($this->Socket, 5);
+                fwrite($this->Socket, $LoginData);
+                $anwserlogin = stream_get_line($this->Socket, 1024 * 1024 * 2, chr(0x0d));
+                $this->SendDebug('Response Direct', $anwserlogin, 0);
+                if ($anwserlogin === false) {
+                    throw new Exception($this->Translate('No anwser from LMS'), E_USER_NOTICE);
+                }
+            }
+
+            $Data = $LMSData->ToRawStringForLMS();
+            $this->SendDebug('Send Direct', $Data, 0);
+            fwrite($this->Socket, $Data);
+            $anwser = stream_get_line($this->Socket, 1024 * 1024 * 2, chr(0x0d));
+            $this->SendDebug('Response Direct', $anwser, 0);
+            if ($anwser === false) {
+                throw new Exception($this->Translate('No anwser from LMS'), E_USER_NOTICE);
+            }
+
+            $ReplyData = new LMSResponse($anwser);
+            $LMSData->Data = $ReplyData->Data;
+            $this->SendDebug('Response Direct', $LMSData, 0);
+            return $LMSData;
+        } catch (Exception $ex) {
+            $this->SendDebug('Receive Direct', $ex->getMessage(), 0);
+            trigger_error($ex->getMessage(), $ex->getCode());
+        }
+        return null;
+    }
+
+    private function GenerateHTMLStyleProperty()
+    {
+        $NewTableConfig = [
+            [
+                'tag'   => '<table>',
+                'style' => 'margin:0 auto; font-size:0.8em;'
+            ],
+            [
+                'tag'   => '<thead>',
+                'style' => ''
+            ],
+            [
+                'tag'   => '<tbody>',
+                'style' => ''
+            ]
+        ];
+        $NewColumnsConfig = [
+            [
+                'index' => 0,
+                'key'   => 'Play',
+                'name'  => '',
+                'show'  => true,
+                'width' => 50,
+                'color' => 0xffffff,
+                'align' => 'center',
+                'style' => ''
+            ],
+            [
+                'index' => 1,
+                'key'   => 'Position',
+                'name'  => 'Pos',
+                'show'  => true,
+                'width' => 50,
+                'color' => 0xffffff,
+                'align' => 'center',
+                'style' => ''
+            ],
+            [
+                'index' => 2,
+                'key'   => 'Title',
+                'name'  => $this->Translate('Title'),
+                'show'  => true,
+                'width' => 250,
+                'color' => 0xffffff,
+                'align' => 'center',
+                'style' => ''
+            ],
+            [
+                'index' => 3,
+                'key'   => 'Artist',
+                'name'  => $this->Translate('Artist'),
+                'show'  => true,
+                'width' => 250,
+                'color' => 0xffffff,
+                'align' => 'center',
+                'style' => ''
+            ],
+            [
+                'index' => 4,
+                'key'   => 'Bitrate',
+                'name'  => 'Bitrate',
+                'show'  => false,
+                'width' => 150,
+                'color' => 0xffffff,
+                'align' => 'center',
+                'style' => ''
+            ],
+            [
+                'index' => 5,
+                'key'   => 'Duration',
+                'name'  => $this->Translate('Duration'),
+                'show'  => true,
+                'width' => 100,
+                'color' => 0xffffff,
+                'align' => 'center',
+                'style' => ''
+            ],
+            [
+                'index' => 6,
+                'key'   => 'Genre',
+                'name'  => $this->Translate('Genre'),
+                'show'  => false,
+                'width' => 200,
+                'color' => 0xffffff,
+                'align' => 'center',
+                'style' => ''
+            ],
+            [
+                'index' => 7,
+                'key'   => 'Album',
+                'name'  => 'Album',
+                'show'  => false,
+                'width' => 250,
+                'color' => 0xffffff,
+                'align' => 'center',
+                'style' => ''
+            ],
+            [
+                'index' => 8,
+                'key'   => 'Disc',
+                'name'  => 'Disc',
+                'show'  => false,
+                'width' => 35,
+                'color' => 0xffffff,
+                'align' => 'center',
+                'style' => ''
+            ],
+            [
+                'index' => 9,
+                'key'   => 'Disccount',
+                'name'  => 'Disccount',
+                'show'  => false,
+                'width' => 35,
+                'color' => 0xffffff,
+                'align' => 'center',
+                'style' => ''
+            ],
+            [
+                'index' => 10,
+                'key'   => 'Tracknum',
+                'name'  => 'Track',
+                'show'  => false,
+                'width' => 35,
+                'color' => 0xffffff,
+                'align' => 'center',
+                'style' => ''
+            ],
+            [
+                'index' => 11,
+                'key'   => 'Year',
+                'name'  => $this->Translate('Year'),
+                'show'  => false,
+                'width' => 60,
+                'color' => 0xffffff,
+                'align' => 'center',
+                'style' => ''
+            ]
+        ];
+        $NewRowsConfig = [
+            [
+                'row'     => 'odd',
+                'name'    => $this->Translate('odd'),
+                'bgcolor' => 0x000000,
+                'color'   => 0xffffff,
+                'style'   => ''
+            ],
+            [
+                'row'     => 'even',
+                'name'    => $this->Translate('even'),
+                'bgcolor' => 0x080808,
+                'color'   => 0xffffff,
+                'style'   => ''
+            ],
+            [
+                'row'     => 'active',
+                'name'    => $this->Translate('active'),
+                'bgcolor' => 0x808000,
+                'color'   => 0xffffff,
+                'style'   => ''
+            ]
+        ];
+        return ['Table' => $NewTableConfig, 'Columns' => $NewColumnsConfig, 'Rows' => $NewRowsConfig];
+    }
+
+    private function DisplayLines($Line1 = '', $Line2 = '', $Huge = false, $Duration = 3, $Centered = false, $Brightness = 4)
+    {
+        $Duration = ($Duration < 3 ? 3 : $Duration);
+        $Brightness = ($Brightness < 0 ? 0 : $Brightness);
+        $Brightness = ($Brightness > 4 ? 4 : $Brightness);
+        $Values = [];
+        if ($Line1 != '') {
+            $Values[] = 'line1:' . utf8_decode($Line1);
+        }
+        if ($Line2 != '') {
+            $Values[] = 'line2:' . utf8_decode($Line2);
+        }
+        $Values[] = 'duration:' . $Duration;
+        $Values[] = 'brightness:' . $Brightness;
+        if ($Huge) {
+            $Values[] = 'font:huge';
+        }
+        if ($Centered) {
+            $Values[] = 'centered:1';
+        }
+        $LMSData = $this->Send(new LMSData('show', $Values));
+        if ($LMSData === null) {
+            return false;
+        }
+        return true;
+    }
+
+    private function _PlaylistControl(string $cmd, string $item, string $errormsg)
+    {
+        $LMSData = $this->SendDirect(new LMSData('playlistcontrol', [$cmd, $item]));
+        if ($LMSData === null) {
+            return false;
+        }
+        $LMSData->SliceData();
+        /** @var array $LMSTaggedData */
+        $LMSTaggedData = (new LMSTaggingArray($LMSData->Data))->DataArray();
+        if (!array_key_exists('Count', $LMSTaggedData)) {
+            trigger_error($errormsg, E_USER_NOTICE);
+            return false;
+        }
+        return true;
     }
 
     //################# PRIVATE
@@ -2925,7 +3018,7 @@ class SqueezeboxDevice extends IPSModule
 
     private function _SetNewVolume($Value)
     {
-        if (is_string($Value) and (($Value[0] == '+') or $Value[0] == '-')) {
+        if (is_string($Value) && (($Value[0] == '+') || $Value[0] == '-')) {
             $Value = $this->GetValue('Volume') + (int) $Value;
             if ($Value < 0) {
                 $Value = 0;
@@ -2948,7 +3041,7 @@ class SqueezeboxDevice extends IPSModule
         if ($Value == '') {
             return;
         }
-        if (is_string($Value) and (($Value[0] == '+') or $Value[0] == '-')) {
+        if (is_string($Value) && (($Value[0] == '+') || $Value[0] == '-')) {
             $Value = $this->GetValue('Bass') + (int) $Value;
             if ($Value < 0) {
                 $Value = 0;
@@ -2965,7 +3058,7 @@ class SqueezeboxDevice extends IPSModule
         if ($Value == '') {
             return;
         }
-        if (is_string($Value) and (($Value[0] == '+') or $Value[0] == '-')) {
+        if (is_string($Value) && (($Value[0] == '+') || $Value[0] == '-')) {
             $Value = $this->GetValue('Treble') + (int) $Value;
             if ($Value < 0) {
                 $Value = 0;
@@ -2982,7 +3075,7 @@ class SqueezeboxDevice extends IPSModule
         if ($Value == '') {
             return;
         }
-        if (is_string($Value) and (($Value[0] == '+') or $Value[0] == '-')) {
+        if (is_string($Value) && (($Value[0] == '+') || $Value[0] == '-')) {
             $Value = $this->GetValue('Pitch') + (int) $Value;
             if ($Value < 80) {
                 $Value = 80;
@@ -3251,7 +3344,7 @@ class SqueezeboxDevice extends IPSModule
                         if ($LMSData->Data[0] == '') {
                             break;
                         }
-                        if (((string) $LMSData->Data[0][0] === '+') or ((string) $LMSData->Data[0][0] === '-')) {
+                        if (((string) $LMSData->Data[0][0] === '+') || ((string) $LMSData->Data[0][0] === '-')) {
                             $this->SetValueInteger('Index', $this->GetValue('Index') + (int) $LMSData->Data[0]);
                         } else {
                             $this->SetValueInteger('Index', (int) $LMSData->Data[0] + 1);
@@ -3319,9 +3412,9 @@ class SqueezeboxDevice extends IPSModule
                 break;
 // events
             case 'client':
-                if (($LMSData->Data[0] == 'disconnect') or ($LMSData->Data[0] == 'forget')) {
+                if (($LMSData->Data[0] == 'disconnect') || ($LMSData->Data[0] == 'forget')) {
                     $this->SetValueBoolean('Connected', false);
-                } elseif (($LMSData->Data[0] == 'new') or ($LMSData->Data[0] == 'reconnect')) {
+                } elseif (($LMSData->Data[0] == 'new') || ($LMSData->Data[0] == 'reconnect')) {
                     $this->SetValueBoolean('Connected', true);
                 }
                 break;
@@ -3492,26 +3585,6 @@ class SqueezeboxDevice extends IPSModule
         return true;
     }
 
-    //################# DataPoints Ankommend von Parent-LMS-Splitter
-    public function ReceiveData($JSONString)
-    {
-        $this->SendDebug('Receive Event', $JSONString, 0);
-        $Data = json_decode($JSONString);
-        // Objekt erzeugen welches die Commands und die Values enthält.
-        $LMSData = new LMSData();
-        $LMSData->CreateFromGenericObject($Data);
-        // Ist das Command schon bekannt ?
-
-        if ($LMSData->Command[0] != false) {
-            if ($LMSData->Command[0] == 'ignore') {
-                return;
-            }
-            $this->DecodeLMSResponse($LMSData);
-        } else {
-            $this->SendDebug('UNKNOW', $LMSData, 0);
-        }
-    }
-
     //################# Datenaustausch
 
     /**
@@ -3528,7 +3601,7 @@ class SqueezeboxDevice extends IPSModule
         }
 
         try {
-            if (!$this->_isPlayerConnected() and ($LMSData->Command[0] != 'connected')) {
+            if (!$this->_isPlayerConnected() && ($LMSData->Command[0] != 'connected')) {
                 throw new Exception($this->Translate('Player not connected'), E_USER_NOTICE);
             }
             if (!$this->HasActiveParent()) {
@@ -3553,79 +3626,6 @@ class SqueezeboxDevice extends IPSModule
             trigger_error($exc->getMessage() . PHP_EOL . print_r(debug_backtrace(), true), E_USER_NOTICE);
             return null;
         }
-    }
-
-    /**
-     * Konvertiert $Data zu einem String und versendet diesen direkt an den LMS.
-     *
-     * @param LMSData $LMSData Zu versendende Daten.
-     *
-     * @return LMSData Objekt mit der Antwort. NULL im Fehlerfall.
-     */
-    protected function SendDirect(LMSData $LMSData)
-    {
-        if ($this->ReadPropertyString('Address') == '') {
-            return null;
-        }
-
-        try {
-            if (!$this->HasActiveParent()) {
-                throw new Exception($this->Translate('Instance has no active parent.'), E_USER_NOTICE);
-            }
-
-            if (!$this->_isPlayerConnected() and ($LMSData->Command[0] != 'connected')) {
-                throw new Exception($this->Translate('Player not connected'), E_USER_NOTICE);
-            }
-
-            $LMSData->Address = $this->ReadPropertyString('Address');
-            $this->SendDebug('Send Direct', $LMSData, 0);
-
-            if (!$this->Socket) {
-                $SplitterID = IPS_GetInstance($this->InstanceID)['ConnectionID'];
-                $IoID = IPS_GetInstance($SplitterID)['ConnectionID'];
-                $Host = IPS_GetProperty($IoID, 'Host');
-                if ($Host === '') {
-                    return null;
-                }
-                $Host = gethostbyname($Host);
-
-                $Port = IPS_GetProperty($SplitterID, 'Port');
-                $User = IPS_GetProperty($SplitterID, 'User');
-                $Pass = IPS_GetProperty($SplitterID, 'Password');
-
-                $LoginData = (new LMSData('login', [$User, $Pass]))->ToRawStringForLMS();
-                $this->SendDebug('Send Direct', $LoginData, 0);
-                $this->Socket = @stream_socket_client('tcp://' . $Host . ':' . $Port, $errno, $errstr, 2);
-                if (!$this->Socket) {
-                    throw new Exception($this->Translate('No anwser from LMS'), E_USER_NOTICE);
-                }
-                stream_set_timeout($this->Socket, 5);
-                fwrite($this->Socket, $LoginData);
-                $anwserlogin = stream_get_line($this->Socket, 1024 * 1024 * 2, chr(0x0d));
-                $this->SendDebug('Response Direct', $anwserlogin, 0);
-                if ($anwserlogin === false) {
-                    throw new Exception($this->Translate('No anwser from LMS'), E_USER_NOTICE);
-                }
-            }
-
-            $Data = $LMSData->ToRawStringForLMS();
-            $this->SendDebug('Send Direct', $Data, 0);
-            fwrite($this->Socket, $Data);
-            $anwser = stream_get_line($this->Socket, 1024 * 1024 * 2, chr(0x0d));
-            $this->SendDebug('Response Direct', $anwser, 0);
-            if ($anwser === false) {
-                throw new Exception($this->Translate('No anwser from LMS'), E_USER_NOTICE);
-            }
-
-            $ReplyData = new LMSResponse($anwser);
-            $LMSData->Data = $ReplyData->Data;
-            $this->SendDebug('Response Direct', $LMSData, 0);
-            return $LMSData;
-        } catch (Exception $ex) {
-            $this->SendDebug('Receive Direct', $ex->getMessage(), 0);
-            trigger_error($ex->getMessage(), $ex->getCode());
-        }
-        return null;
     }
 }
 

@@ -91,14 +91,6 @@ class LSA_Alarm
     public $Url = 'CURRENT_PLAYLIST';
 
     /**
-     * Liefert die Daten welche behalten werden müssen.
-     */
-    public function __sleep()
-    {
-        return ['Id', 'Index', 'Dow', 'Enabled', 'Repeat', 'Time', 'Volume', 'Url', 'Shufflemode'];
-    }
-
-    /**
      * Erzeugt aus den übergeben Daten einen neuen LSA_Alarm.
      *
      * @param array $Alarm Das Array wie es von LMSTaggingArray erzeugt wird.
@@ -115,6 +107,14 @@ class LSA_Alarm
             $this->{$Key} = $Value;
         }
         $this->Index = $Index;
+    }
+
+    /**
+     * Liefert die Daten welche behalten werden müssen.
+     */
+    public function __sleep()
+    {
+        return ['Id', 'Index', 'Dow', 'Enabled', 'Repeat', 'Time', 'Volume', 'Url', 'Shufflemode'];
     }
 
     /**
@@ -237,14 +237,6 @@ class LSA_AlarmList
     public $Items = [];
 
     /**
-     * Liefert die Daten welche behalten werden müssen.
-     */
-    public function __sleep()
-    {
-        return ['Items'];
-    }
-
-    /**
      * Erzeugt eine neue LSA_AlarmList aus einem Array von LMSTaggingArray mit allen Alarmen.
      *
      * @param array $Alarms Alle Wecker oder null.
@@ -260,6 +252,14 @@ class LSA_AlarmList
             $Alarm = new LSA_Alarm($AlarmData, $Index);
             $this->Items[$Alarm->Id] = $Alarm;
         }
+    }
+
+    /**
+     * Liefert die Daten welche behalten werden müssen.
+     */
+    public function __sleep()
+    {
+        return ['Items'];
     }
 
     /**
@@ -603,6 +603,577 @@ class SqueezeboxAlarm extends IPSModule
         }
     }
 
+    //################# PUBLIC
+
+    /**
+     * IPS-Instanz-Funktion 'LSA_RequestAllState'.
+     * Aktuellen Status des Devices ermitteln und, wenn verbunden, abfragen.
+     *
+     * @return bool True wenn alle Abfragen erfolgreich waren, sonst false.
+     */
+    public function RequestAllState()
+    {
+        if (!$this->RequestState('EnableAll')) {
+            return false;
+        }
+        $ret = $this->RequestState('DefaultVolume');
+        $ret = $ret && $this->RequestState('FadeIn');
+        $ret = $ret && $this->RequestState('Timeout');
+        $ret = $ret && $this->RequestState('SnoozeSeconds');
+        $ret = $ret && $this->RequestState('Alarms');
+        return $ret;
+    }
+
+    /**
+     * IPS-Instanz-Funktion 'LSA_RequestState'.
+     * Fragt einen Wert der Alarme ab. Es ist der Ident der Statusvariable zu übergeben.
+     *
+     * @param string $Ident Der Ident der abzufragenden Statusvariable.
+     * @result bool True wenn erfolgreich, sonst false.
+     */
+    public function RequestState(string $Ident)
+    {
+        switch ($Ident) {
+            case 'Alarms':
+                $LMSResponse = new LMSData('alarms', ['0', '10', 'filter:all']);
+                break;
+            case 'EnableAll':
+                $LMSResponse = new LMSData(['playerpref', 'alarmsEnabled'], '?');
+                break;
+            case 'DefaultVolume':
+                $LMSResponse = new LMSData(['playerpref', 'alarmDefaultVolume'], '?');
+                break;
+            case 'FadeIn':
+                $LMSResponse = new LMSData(['playerpref', 'alarmfadeseconds'], '?');
+                break;
+            case 'Timeout':
+                $LMSResponse = new LMSData(['playerpref', 'alarmTimeoutSeconds'], '?');
+                break;
+            case 'SnoozeSeconds':
+                $LMSResponse = new LMSData(['playerpref', 'alarmSnoozeSeconds'], '?');
+                break;
+            case 'AlarmPlaylistName0':
+            case 'AlarmPlaylistName1':
+            case 'AlarmPlaylistName2':
+            case 'AlarmPlaylistName3':
+            case 'AlarmPlaylistName4':
+            case 'AlarmPlaylistName5':
+            case 'AlarmPlaylistName6':
+            case 'AlarmPlaylistName7':
+            case 'AlarmPlaylistName8':
+            case 'AlarmPlaylistName9':
+            case 'AlarmRepeat0':
+            case 'AlarmRepeat1':
+            case 'AlarmRepeat2':
+            case 'AlarmRepeat3':
+            case 'AlarmRepeat4':
+            case 'AlarmRepeat5':
+            case 'AlarmRepeat6':
+            case 'AlarmRepeat7':
+            case 'AlarmRepeat8':
+            case 'AlarmRepeat9':
+            case 'AlarmVolume0':
+            case 'AlarmVolume1':
+            case 'AlarmVolume2':
+            case 'AlarmVolume3':
+            case 'AlarmVolume4':
+            case 'AlarmVolume5':
+            case 'AlarmVolume6':
+            case 'AlarmVolume7':
+            case 'AlarmVolume8':
+            case 'AlarmVolume9':
+                $LMSResponse = new LMSData('alarms', ['0', '10', 'filter:all']);
+                break;
+            case 'AlarmShuffle0':
+            case 'AlarmShuffle1':
+            case 'AlarmShuffle2':
+            case 'AlarmShuffle3':
+            case 'AlarmShuffle4':
+            case 'AlarmShuffle5':
+            case 'AlarmShuffle6':
+            case 'AlarmShuffle7':
+            case 'AlarmShuffle8':
+            case 'AlarmShuffle9':
+            case 'AlarmState0':
+            case 'AlarmState1':
+            case 'AlarmState2':
+            case 'AlarmState3':
+            case 'AlarmState4':
+            case 'AlarmState5':
+            case 'AlarmState6':
+            case 'AlarmState7':
+            case 'AlarmState8':
+            case 'AlarmState9':
+                trigger_error($this->Translate('Sorry this request is unsupported by LMS.'), E_USER_NOTICE);
+                return false;
+            default:
+                trigger_error($this->Translate('Ident not valid'), E_USER_NOTICE);
+                return false;
+        }
+        $LMSResponse = $this->SendDirect($LMSResponse);
+        if ($LMSResponse == null) {
+            return false;
+        }
+        $LMSResponse->SliceData();
+        if ((count($LMSResponse->Data) == 0) || ($LMSResponse->Data[0] == '?')) {
+            trigger_error($this->Translate('Player not connected'), E_USER_NOTICE);
+            return false;
+        }
+        return $this->DecodeLMSResponse($LMSResponse);
+    }
+
+    /**
+     * IPS-Instanz-Funktion 'LSA_SetAllActive'.
+     * De/Aktiviert die Wekcer-Funktionen des Gerätes.
+     *
+     * @param bool $Value De/Aktiviert die Wecker.
+     * @result bool True wenn erfolgreich, sonst false.
+     */
+    public function SetAllActive(bool $Value)
+    {
+        if (!is_bool($Value)) {
+            trigger_error(sprintf($this->Translate('%s must be bool.'), 'Value'), E_USER_NOTICE);
+            return false;
+        }
+        $LMSData = $this->SendDirect(new LMSData(['alarm', ($Value ? 'enableall' : 'disableall')]));
+        if ($LMSData === null) {
+            return false;
+        }
+        return ($LMSData->Command[1]) == ($Value ? 'enableall' : 'disableall');
+    }
+
+    /**
+     * IPS-Instanz-Funktion 'LSA_SetDefaultVolume'.
+     * Setzt die Standard-Lautstärke für neue Wecker.
+     *
+     * @param int $Value Die neue Lautstärke
+     * @result bool True wenn erfolgreich, sonst false.
+     */
+    public function SetDefaultVolume(int $Value)
+    {
+        if (!is_int($Value)) {
+            trigger_error(sprintf($this->Translate('%s must be integer.'), 'Value'), E_USER_NOTICE);
+            return false;
+        }
+        if (($Value < 0) || ($Value > 100)) {
+            trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
+            return false;
+        }
+        $LMSData = $this->SendDirect(new LMSData(['playerpref', 'alarmDefaultVolume'], (int) $Value));
+        if ($LMSData === null) {
+            return false;
+        }
+        return (int) ($LMSData->Data[0]) == (int) $Value;
+    }
+
+    /**
+     * IPS-Instanz-Funktion 'LSA_SetFadeIn'.
+     * De/Aktiviert das Einblenden der Wiedergabe.
+     *
+     * @param bool $Value True zum aktivieren, False zum deaktivieren.
+     * @result bool True wenn erfolgreich, sonst false.
+     */
+    public function SetFadeIn(bool $Value)
+    {
+        if (!is_bool($Value)) {
+            trigger_error(sprintf($this->Translate('%s must be bool.'), 'Value'), E_USER_NOTICE);
+            return false;
+        }
+        $LMSData = $this->SendDirect(new LMSData(['playerpref', 'alarmfadeseconds'], (int) $Value));
+        if ($LMSData === null) {
+            return false;
+        }
+        return (int) ($LMSData->Data[0]) == (int) $Value;
+    }
+
+    /**
+     * IPS-Instanz-Funktion 'LSA_SetTimeout'.
+     * Setzt die Zeit in Sekunden bis ein Wecker automatisch beendent wird.
+     *
+     * @param int $Value Zeit in Sekunden bis zum abschalten.
+     * @result bool True wenn erfolgreich, sonst false.
+     */
+    public function SetTimeout(int $Value)
+    {
+        if (!is_int($Value)) {
+            trigger_error(sprintf($this->Translate('%s must be integer.'), 'Value'), E_USER_NOTICE);
+            return false;
+        }
+        if ($Value < 0) {
+            trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
+            return false;
+        }
+        $LMSData = $this->SendDirect(new LMSData(['playerpref', 'alarmTimeoutSeconds'], (int) $Value));
+        if ($LMSData === null) {
+            return false;
+        }
+        return (int) ($LMSData->Data[0]) == (int) $Value;
+    }
+
+    /**
+     * IPS-Instanz-Funktion 'LSA_SetSnoozeSeconds'.
+     * Setzt die Schlummerzeit in Sekunden.
+     *
+     * @param int $Value Die Schlummerzeit in Sekunden.
+     * @result bool True wenn erfolgreich, sonst false.
+     */
+    public function SetSnoozeSeconds(int $Value)
+    {
+        if (!is_int($Value)) {
+            trigger_error(sprintf($this->Translate('%s must be integer.'), 'Value'), E_USER_NOTICE);
+            return false;
+        }
+        if ($Value < 0) {
+            trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
+            return false;
+        }
+        $LMSData = $this->SendDirect(new LMSData(['playerpref', 'alarmSnoozeSeconds'], (int) $Value));
+        if ($LMSData === null) {
+            return false;
+        }
+        return (int) ($LMSData->Data[0]) == (int) $Value;
+    }
+
+    /**
+     * IPS-Instanz-Funktion 'LSA_AlarmSnooze'.
+     * Sendet das Schlummersignal an das Gerät und pausiert somit einen aktiven Alarm.
+     *
+     * @result bool True wenn erfolgreich, sonst false.
+     */
+    public function AlarmSnooze()
+    {
+        $LMSData = $this->SendDirect(new LMSData(['button'], ['snooze.single']));
+        if ($LMSData === null) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * IPS-Instanz-Funktion 'LSA_AlarmStop'.
+     * Beendet ein aktiven Alarm.
+     *
+     * @result bool True wenn erfolgreich, sonst false.
+     */
+    public function AlarmStop()
+    {
+        $LMSData = $this->SendDirect(new LMSData(['button'], ['power_off']));
+        if ($LMSData === null) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * IPS-Instanz-Funktion 'LSA_AddAlarm'.
+     * Fragt einen Wert der Alarme ab. Es ist der Ident der Statusvariable zu übergeben.
+     *
+     * @result bool|int Index des Weckers, im Fehlerfall false.
+     */
+    public function AddAlarm()
+    {
+        if (count($this->Alarms->Items) > 9) {
+            return false;
+        }
+        $LMSData = $this->SendDirect(new LMSData(['alarm', 'add'], ['enabled:1', 'time:25200', 'repeat:1', 'playlisturl:CURRENT_PLAYLIST']));
+        if ($LMSData === null) {
+            return false;
+        }
+        /** @var array $Data */
+        $Data = (new LMSTaggingArray($LMSData->Data, ''))->DataArray();
+        if (isset($Data['Id'])) {
+            return count($this->Alarms->Items);
+        }
+        return false;
+    }
+
+    /**
+     * IPS-Instanz-Funktion 'LSA_DelAlarm'.
+     * Löscht einen Wecker.
+     *
+     * @param int $AlarmIndex Der Index des zu löschenden Weckers.
+     * @result bool True wenn erfolgreich, sonst false.
+     */
+    public function DelAlarm(int $AlarmIndex)
+    {
+        if (!is_int($AlarmIndex)) {
+            trigger_error(sprintf($this->Translate('%s must be integer.'), 'AlarmIndex'), E_USER_NOTICE);
+            return false;
+        }
+        $Alarms = $this->Alarms;
+        $Alarm = $Alarms->GetByIndex($AlarmIndex);
+        if ($Alarm === false) {
+            trigger_error(sprintf($this->Translate('%s out of range.'), 'AlarmIndex'), E_USER_NOTICE);
+            return false;
+        }
+
+        $LMSData = $this->SendDirect(new LMSData(['alarm', 'delete'], ['id:' . $Alarm->Id]));
+        if ($LMSData === null) {
+            return false;
+        }
+        $Data = (new LMSTaggingArray($LMSData->Data, ''))->DataArray();
+        return $Data['Id'] === $Alarm->Id;
+    }
+
+    /**
+     * IPS-Instanz-Funktion 'LSA_SetPlaylist'.
+     * Setzt die Playliste bzw. die Wiedergabe für den Wecker.
+     *
+     * @param int    $AlarmIndex Der Index des Weckers.
+     * @param string $Url        Die wiederzugebene URL.
+     * @result bool True wenn erfolgreich, sonst false.
+     */
+    public function SetPlaylist(int $AlarmIndex, string $Url)
+    {
+        if (!is_string($Url)) {
+            trigger_error(sprintf($this->Translate('%s must be string.'), 'Url'), E_USER_NOTICE);
+            return false;
+        }
+        if (!is_int($AlarmIndex)) {
+            trigger_error(sprintf($this->Translate('%s must be integer.'), 'AlarmIndex'), E_USER_NOTICE);
+            return false;
+        }
+        $Alarms = $this->Alarms;
+        $Alarm = $Alarms->GetByIndex($AlarmIndex);
+        if ($Alarm === false) {
+            trigger_error(sprintf($this->Translate('%s out of range.'), 'AlarmIndex'), E_USER_NOTICE);
+            return false;
+        }
+        if (($Url == '0') || ($Url == '')) {
+            $Url = 'CURRENT_PLAYLIST';
+        }
+
+        $LMSData = $this->SendDirect(new LMSData(['alarm', 'update'], ['id:' . $Alarm->Id, 'playlisturl:' . (string) $Url]));
+        if ($LMSData === null) {
+            return false;
+        }
+        $Data = (new LMSTaggingArray($LMSData->Data, ''))->DataArray();
+        return ($Data['Playlisturl']) === (string) $Url;
+    }
+
+    /**
+     * IPS-Instanz-Funktion 'LSA_SetShuffle'.
+     * Setzt den Modus der zufälligen Wiedergabe des Weckers.
+     *
+     * @param int    $AlarmIndex Der Index des Weckers.
+     * @param string $Value      Der neue Modus.
+     * @result bool True wenn erfolgreich, sonst false.
+     */
+    public function SetShuffle(int $AlarmIndex, int $Value)
+    {
+        if (!is_int($Value)) {
+            trigger_error(sprintf($this->Translate('%s must be integer.'), 'Value'), E_USER_NOTICE);
+            return false;
+        }
+        if (($Value < 0) || ($Value > 2)) {
+            trigger_error(sprintf($this->Translate('%s must be 0, 1 or 2.'), 'Value'), E_USER_NOTICE);
+            return false;
+        }
+        if (!is_int($AlarmIndex)) {
+            trigger_error(sprintf($this->Translate('%s must be integer.'), 'AlarmIndex'), E_USER_NOTICE);
+            return false;
+        }
+        $Alarms = $this->Alarms;
+        $Alarm = $Alarms->GetByIndex($AlarmIndex);
+        if ($Alarm === false) {
+            trigger_error(sprintf($this->Translate('%s out of range.'), 'AlarmIndex'), E_USER_NOTICE);
+            return false;
+        }
+        $LMSData = $this->SendDirect(new LMSData(['alarm', 'update'], ['id:' . $Alarm->Id, 'shufflemode:' . (int) $Value]));
+        if ($LMSData === null) {
+            return false;
+        }
+        $Data = (new LMSTaggingArray($LMSData->Data, ''))->DataArray();
+        return (int) ($Data['Shufflemode']) === (int) $Value;
+    }
+
+    /**
+     * IPS-Instanz-Funktion 'LSA_SetRepeat'.
+     * De/Aktiviert die Wiederholung.
+     *
+     * @param int  $AlarmIndex Der Index des Weckers.
+     * @param bool $Value      De/Aktiviert die Wiederholung.
+     * @result bool True wenn erfolgreich, sonst false.
+     */
+    public function SetRepeat(int $AlarmIndex, bool $Value)
+    {
+        if (!is_bool($Value)) {
+            trigger_error(sprintf($this->Translate('%s must be bool.'), 'Value'), E_USER_NOTICE);
+            return false;
+        }
+        if (!is_int($AlarmIndex)) {
+            trigger_error(sprintf($this->Translate('%s must be integer.'), 'AlarmIndex'), E_USER_NOTICE);
+            return false;
+        }
+        $Alarms = $this->Alarms;
+        $Alarm = $Alarms->GetByIndex($AlarmIndex);
+        if ($Alarm === false) {
+            trigger_error(sprintf($this->Translate('%s out of range.'), 'AlarmIndex'), E_USER_NOTICE);
+            return false;
+        }
+        $LMSData = $this->SendDirect(new LMSData(['alarm', 'update'], ['id:' . $Alarm->Id, 'repeat:' . (int) $Value]));
+        if ($LMSData === null) {
+            return false;
+        }
+        $Data = (new LMSTaggingArray($LMSData->Data, ''))->DataArray();
+        return (int) ($Data['Repeat']) === (int) $Value;
+    }
+
+    /**
+     * IPS-Instanz-Funktion 'LSA_SetVolume'.
+     * Setzt die Lautstärke des Weckers.
+     *
+     * @param int $AlarmIndex Der Index des Weckers.
+     * @param int $Value      Die neue Lautstärke des Weckers.
+     * @result bool True wenn erfolgreich, sonst false.
+     */
+    public function SetVolume(int $AlarmIndex, int $Value)
+    {
+        if (!is_int($Value)) {
+            trigger_error(sprintf($this->Translate('%s must be integer.'), 'Value'), E_USER_NOTICE);
+            return false;
+        }
+        if (($Value < 0) || ($Value > 100)) {
+            trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
+            return false;
+        }
+        if (!is_int($AlarmIndex)) {
+            trigger_error(sprintf($this->Translate('%s must be integer.'), 'AlarmIndex'), E_USER_NOTICE);
+            return false;
+        }
+        $Alarms = $this->Alarms;
+        $Alarm = $Alarms->GetByIndex($AlarmIndex);
+        if ($Alarm === false) {
+            trigger_error(sprintf($this->Translate('%s out of range.'), 'AlarmIndex'), E_USER_NOTICE);
+            return false;
+        }
+        $LMSData = $this->SendDirect(new LMSData(['alarm', 'update'], ['id:' . $Alarm->Id, 'volume:' . (int) $Value]));
+        if ($LMSData === null) {
+            return false;
+        }
+        $Data = (new LMSTaggingArray($LMSData->Data, ''))->DataArray();
+        return (int) ($Data['Volume']) === (int) $Value;
+    }
+
+    //################# ActionHandler
+
+    /**
+     * Interne Funktion des SDK.
+     */
+    public function RequestAction($Ident, $Value)
+    {
+        if ($this->IORequestAction($Ident, $Value)) {
+            return;
+        }
+        switch ($Ident) {
+            case 'EnableAll':
+                $result = $this->SetAllActive((bool) $Value);
+                break;
+            case 'DefaultVolume':
+                $result = $this->SetDefaultVolume((int) $Value);
+                break;
+            case 'FadeIn':
+                $result = $this->SetFadeIn((bool) $Value);
+                break;
+            case 'AddAlarm':
+                $AlarmIndex = $this->AddAlarm();
+                $result = ($AlarmIndex !== false);
+                break;
+            case 'DelAlarm':
+                $result = $this->DelAlarm((int) $Value);
+                break;
+            case 'Timeout':
+                $result = $this->SetTimeout((int) $Value);
+                break;
+            case 'SnoozeSeconds':
+                $result = $this->SetSnoozeSeconds((int) $Value);
+                break;
+            case 'AlarmShuffle0':
+            case 'AlarmShuffle1':
+            case 'AlarmShuffle2':
+            case 'AlarmShuffle3':
+            case 'AlarmShuffle4':
+            case 'AlarmShuffle5':
+            case 'AlarmShuffle6':
+            case 'AlarmShuffle7':
+            case 'AlarmShuffle8':
+            case 'AlarmShuffle9':
+                $Index = (int) substr($Ident, -1);
+                $result = $this->SetShuffle($Index, (int) $Value);
+                break;
+            case 'AlarmRepeat0':
+            case 'AlarmRepeat1':
+            case 'AlarmRepeat2':
+            case 'AlarmRepeat3':
+            case 'AlarmRepeat4':
+            case 'AlarmRepeat5':
+            case 'AlarmRepeat6':
+            case 'AlarmRepeat7':
+            case 'AlarmRepeat8':
+            case 'AlarmRepeat9':
+                $Index = (int) substr($Ident, -1);
+                $result = $this->SetRepeat($Index, (bool) $Value);
+                break;
+            case 'AlarmVolume0':
+            case 'AlarmVolume1':
+            case 'AlarmVolume2':
+            case 'AlarmVolume3':
+            case 'AlarmVolume4':
+            case 'AlarmVolume5':
+            case 'AlarmVolume6':
+            case 'AlarmVolume7':
+            case 'AlarmVolume8':
+            case 'AlarmVolume9':
+                $Index = (int) substr($Ident, -1);
+                $result = $this->SetVolume($Index, (int) $Value);
+                break;
+            case 'AlarmState0':
+            case 'AlarmState1':
+            case 'AlarmState2':
+            case 'AlarmState3':
+            case 'AlarmState4':
+            case 'AlarmState5':
+            case 'AlarmState6':
+            case 'AlarmState7':
+            case 'AlarmState8':
+            case 'AlarmState9':
+                $Index = (int) substr($Ident, -1);
+                if ($Value == 0) {
+                    $result = $this->AlarmStop();
+                } elseif ($Value == 1) {
+                    $result = $this->AlarmSnooze();
+                } else {
+                    $result = true;
+                }
+                break;
+            default:
+                trigger_error($this->Translate('Invalid ident'), E_USER_NOTICE);
+                return;
+        }
+        if ($result == false) {
+            trigger_error($this->Translate('Error on Execute Action'), E_USER_NOTICE);
+        }
+    }
+
+    //################# DataPoints Ankommend von Parent-LMS-Splitter
+
+    /**
+     * Interne Funktion des SDK.
+     */
+    public function ReceiveData($JSONString)
+    {
+        $this->SendDebug('Receive Event', $JSONString, 0);
+        $Data = json_decode($JSONString);
+        $LMSData = new LMSData();
+        $LMSData->CreateFromGenericObject($Data);
+        $this->SendDebug('Receive Event ', $LMSData, 0);
+        if (in_array($LMSData->Command[0], ['alarm', 'alarms', 'playerpref', 'prefset', 'client'])) {
+            $this->DecodeLMSResponse($LMSData);
+        } else {
+            $this->SendDebug('UNKNOW', $LMSData, 0);
+        }
+    }
+
     /**
      * Wird ausgeführt wenn der Kernel hochgefahren wurde.
      */
@@ -645,7 +1216,7 @@ class SqueezeboxAlarm extends IPSModule
      */
     protected function ProcessHookdata()
     {
-        if ((!isset($_GET['ID'])) or (!isset($_GET['Type'])) or (!isset($_GET['Secret']))) {
+        if ((!isset($_GET['ID'])) || (!isset($_GET['Type'])) || (!isset($_GET['Secret']))) {
             echo $this->Translate('Bad Request');
             return;
         }
@@ -666,6 +1237,79 @@ class SqueezeboxAlarm extends IPSModule
         if ($this->SetPlaylist((int) $AlarmIndex, rawurldecode($_GET['ID']))) {
             echo 'OK';
         }
+    }
+
+    /**
+     * Konvertiert $Data zu einem String und versendet diesen direkt an den LMS.
+     *
+     * @param LMSData $LMSData Zu versendende Daten.
+     *
+     * @return LMSData Objekt mit der Antwort. NULL im Fehlerfall.
+     */
+    protected function SendDirect(LMSData $LMSData)
+    {
+        try {
+            if (!$this->HasActiveParent()) {
+                throw new Exception($this->Translate('Instance has no active parent.'), E_USER_NOTICE);
+            }
+
+            $SplitterID = IPS_GetInstance($this->InstanceID)['ConnectionID'];
+            $IoID = IPS_GetInstance($SplitterID)['ConnectionID'];
+            $Host = IPS_GetProperty($IoID, 'Host');
+            if ($Host === '') {
+                return null;
+            }
+
+            $LMSData->Address = $this->ReadPropertyString('Address');
+            $this->SendDebug('Send Direct', $LMSData, 0);
+
+            if (!$this->Socket) {
+                $SplitterID = IPS_GetInstance($this->InstanceID)['ConnectionID'];
+                $IoID = IPS_GetInstance($SplitterID)['ConnectionID'];
+                $Host = IPS_GetProperty($IoID, 'Host');
+                if ($Host === '') {
+                    return null;
+                }
+                $Host = gethostbyname($Host);
+
+                $Port = IPS_GetProperty($SplitterID, 'Port');
+                $User = IPS_GetProperty($SplitterID, 'User');
+                $Pass = IPS_GetProperty($SplitterID, 'Password');
+
+                /** @var LMSData $LoginData */
+                $LoginData = (new LMSData('login', [$User, $Pass]))->ToRawStringForLMS();
+                $this->SendDebug('Send Direct', $LoginData, 0);
+                $this->Socket = @stream_socket_client('tcp://' . $Host . ':' . $Port, $errno, $errstr, 2);
+                if (!$this->Socket) {
+                    throw new Exception($this->Translate('No anwser from LMS'), E_USER_NOTICE);
+                }
+                stream_set_timeout($this->Socket, 5);
+                fwrite($this->Socket, $LoginData);
+                $anwserlogin = stream_get_line($this->Socket, 1024 * 1024 * 2, chr(0x0d));
+                $this->SendDebug('Response Direct', $anwserlogin, 0);
+                if ($anwserlogin === false) {
+                    throw new Exception($this->Translate('No anwser from LMS'), E_USER_NOTICE);
+                }
+            }
+
+            $Data = $LMSData->ToRawStringForLMS();
+            $this->SendDebug('Send Direct', $Data, 0);
+            fwrite($this->Socket, $Data);
+            $anwser = stream_get_line($this->Socket, 1024 * 1024 * 2, chr(0x0d));
+            $this->SendDebug('Response Direct', $anwser, 0);
+            if ($anwser === false) {
+                throw new Exception($this->Translate('No anwser from LMS'), E_USER_NOTICE);
+            }
+
+            $ReplyData = new LMSResponse($anwser);
+            $LMSData->Data = $ReplyData->Data;
+            $this->SendDebug('Response Direct', $LMSData, 0);
+            return $LMSData;
+        } catch (Exception $ex) {
+            $this->SendDebug('Receive Direct', $ex->getMessage(), 0);
+            trigger_error($ex->getMessage(), $ex->getCode());
+        }
+        return null;
     }
 
     //################# PRIVATE
@@ -1016,558 +1660,6 @@ class SqueezeboxAlarm extends IPSModule
         }
     }
 
-    //################# PUBLIC
-
-    /**
-     * IPS-Instanz-Funktion 'LSA_RequestAllState'.
-     * Aktuellen Status des Devices ermitteln und, wenn verbunden, abfragen.
-     *
-     * @return bool True wenn alle Abfragen erfolgreich waren, sonst false.
-     */
-    public function RequestAllState()
-    {
-        if (!$this->RequestState('EnableAll')) {
-            return false;
-        }
-        $ret = $this->RequestState('DefaultVolume');
-        $ret = $ret && $this->RequestState('FadeIn');
-        $ret = $ret && $this->RequestState('Timeout');
-        $ret = $ret && $this->RequestState('SnoozeSeconds');
-        $ret = $ret && $this->RequestState('Alarms');
-        return $ret;
-    }
-
-    /**
-     * IPS-Instanz-Funktion 'LSA_RequestState'.
-     * Fragt einen Wert der Alarme ab. Es ist der Ident der Statusvariable zu übergeben.
-     *
-     * @param string $Ident Der Ident der abzufragenden Statusvariable.
-     * @result bool True wenn erfolgreich, sonst false.
-     */
-    public function RequestState(string $Ident)
-    {
-        switch ($Ident) {
-            case 'Alarms':
-                $LMSResponse = new LMSData('alarms', ['0', '10', 'filter:all']);
-                break;
-            case 'EnableAll':
-                $LMSResponse = new LMSData(['playerpref', 'alarmsEnabled'], '?');
-                break;
-            case 'DefaultVolume':
-                $LMSResponse = new LMSData(['playerpref', 'alarmDefaultVolume'], '?');
-                break;
-            case 'FadeIn':
-                $LMSResponse = new LMSData(['playerpref', 'alarmfadeseconds'], '?');
-                break;
-            case 'Timeout':
-                $LMSResponse = new LMSData(['playerpref', 'alarmTimeoutSeconds'], '?');
-                break;
-            case 'SnoozeSeconds':
-                $LMSResponse = new LMSData(['playerpref', 'alarmSnoozeSeconds'], '?');
-                break;
-            case 'AlarmPlaylistName0':
-            case 'AlarmPlaylistName1':
-            case 'AlarmPlaylistName2':
-            case 'AlarmPlaylistName3':
-            case 'AlarmPlaylistName4':
-            case 'AlarmPlaylistName5':
-            case 'AlarmPlaylistName6':
-            case 'AlarmPlaylistName7':
-            case 'AlarmPlaylistName8':
-            case 'AlarmPlaylistName9':
-            case 'AlarmRepeat0':
-            case 'AlarmRepeat1':
-            case 'AlarmRepeat2':
-            case 'AlarmRepeat3':
-            case 'AlarmRepeat4':
-            case 'AlarmRepeat5':
-            case 'AlarmRepeat6':
-            case 'AlarmRepeat7':
-            case 'AlarmRepeat8':
-            case 'AlarmRepeat9':
-            case 'AlarmVolume0':
-            case 'AlarmVolume1':
-            case 'AlarmVolume2':
-            case 'AlarmVolume3':
-            case 'AlarmVolume4':
-            case 'AlarmVolume5':
-            case 'AlarmVolume6':
-            case 'AlarmVolume7':
-            case 'AlarmVolume8':
-            case 'AlarmVolume9':
-                $LMSResponse = new LMSData('alarms', ['0', '10', 'filter:all']);
-                break;
-            case 'AlarmShuffle0':
-            case 'AlarmShuffle1':
-            case 'AlarmShuffle2':
-            case 'AlarmShuffle3':
-            case 'AlarmShuffle4':
-            case 'AlarmShuffle5':
-            case 'AlarmShuffle6':
-            case 'AlarmShuffle7':
-            case 'AlarmShuffle8':
-            case 'AlarmShuffle9':
-            case 'AlarmState0':
-            case 'AlarmState1':
-            case 'AlarmState2':
-            case 'AlarmState3':
-            case 'AlarmState4':
-            case 'AlarmState5':
-            case 'AlarmState6':
-            case 'AlarmState7':
-            case 'AlarmState8':
-            case 'AlarmState9':
-                trigger_error($this->Translate('Sorry this request is unsupported by LMS.'), E_USER_NOTICE);
-                return false;
-            default:
-                trigger_error($this->Translate('Ident not valid'), E_USER_NOTICE);
-                return false;
-        }
-        $LMSResponse = $this->SendDirect($LMSResponse);
-        if ($LMSResponse == null) {
-            return false;
-        }
-        $LMSResponse->SliceData();
-        if ((count($LMSResponse->Data) == 0) or ($LMSResponse->Data[0] == '?')) {
-            trigger_error($this->Translate('Player not connected'), E_USER_NOTICE);
-            return false;
-        }
-        return $this->DecodeLMSResponse($LMSResponse);
-    }
-
-    /**
-     * IPS-Instanz-Funktion 'LSA_SetAllActive'.
-     * De/Aktiviert die Wekcer-Funktionen des Gerätes.
-     *
-     * @param bool $Value De/Aktiviert die Wecker.
-     * @result bool True wenn erfolgreich, sonst false.
-     */
-    public function SetAllActive(bool $Value)
-    {
-        if (!is_bool($Value)) {
-            trigger_error(sprintf($this->Translate('%s must be bool.'), 'Value'), E_USER_NOTICE);
-            return false;
-        }
-        $LMSData = $this->SendDirect(new LMSData(['alarm', ($Value ? 'enableall' : 'disableall')]));
-        if ($LMSData === null) {
-            return false;
-        }
-        return ($LMSData->Command[1]) == ($Value ? 'enableall' : 'disableall');
-    }
-
-    /**
-     * IPS-Instanz-Funktion 'LSA_SetDefaultVolume'.
-     * Setzt die Standard-Lautstärke für neue Wecker.
-     *
-     * @param int $Value Die neue Lautstärke
-     * @result bool True wenn erfolgreich, sonst false.
-     */
-    public function SetDefaultVolume(int $Value)
-    {
-        if (!is_int($Value)) {
-            trigger_error(sprintf($this->Translate('%s must be integer.'), 'Value'), E_USER_NOTICE);
-            return false;
-        }
-        if (($Value < 0) || ($Value > 100)) {
-            trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
-            return false;
-        }
-        $LMSData = $this->SendDirect(new LMSData(['playerpref', 'alarmDefaultVolume'], (int) $Value));
-        if ($LMSData === null) {
-            return false;
-        }
-        return (int) ($LMSData->Data[0]) == (int) $Value;
-    }
-
-    /**
-     * IPS-Instanz-Funktion 'LSA_SetFadeIn'.
-     * De/Aktiviert das Einblenden der Wiedergabe.
-     *
-     * @param bool $Value True zum aktivieren, False zum deaktivieren.
-     * @result bool True wenn erfolgreich, sonst false.
-     */
-    public function SetFadeIn(bool $Value)
-    {
-        if (!is_bool($Value)) {
-            trigger_error(sprintf($this->Translate('%s must be bool.'), 'Value'), E_USER_NOTICE);
-            return false;
-        }
-        $LMSData = $this->SendDirect(new LMSData(['playerpref', 'alarmfadeseconds'], (int) $Value));
-        if ($LMSData === null) {
-            return false;
-        }
-        return (int) ($LMSData->Data[0]) == (int) $Value;
-    }
-
-    /**
-     * IPS-Instanz-Funktion 'LSA_SetTimeout'.
-     * Setzt die Zeit in Sekunden bis ein Wecker automatisch beendent wird.
-     *
-     * @param int $Value Zeit in Sekunden bis zum abschalten.
-     * @result bool True wenn erfolgreich, sonst false.
-     */
-    public function SetTimeout(int $Value)
-    {
-        if (!is_int($Value)) {
-            trigger_error(sprintf($this->Translate('%s must be integer.'), 'Value'), E_USER_NOTICE);
-            return false;
-        }
-        if ($Value < 0) {
-            trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
-            return false;
-        }
-        $LMSData = $this->SendDirect(new LMSData(['playerpref', 'alarmTimeoutSeconds'], (int) $Value));
-        if ($LMSData === null) {
-            return false;
-        }
-        return (int) ($LMSData->Data[0]) == (int) $Value;
-    }
-
-    /**
-     * IPS-Instanz-Funktion 'LSA_SetSnoozeSeconds'.
-     * Setzt die Schlummerzeit in Sekunden.
-     *
-     * @param int $Value Die Schlummerzeit in Sekunden.
-     * @result bool True wenn erfolgreich, sonst false.
-     */
-    public function SetSnoozeSeconds(int $Value)
-    {
-        if (!is_int($Value)) {
-            trigger_error(sprintf($this->Translate('%s must be integer.'), 'Value'), E_USER_NOTICE);
-            return false;
-        }
-        if ($Value < 0) {
-            trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
-            return false;
-        }
-        $LMSData = $this->SendDirect(new LMSData(['playerpref', 'alarmSnoozeSeconds'], (int) $Value));
-        if ($LMSData === null) {
-            return false;
-        }
-        return (int) ($LMSData->Data[0]) == (int) $Value;
-    }
-
-    /**
-     * IPS-Instanz-Funktion 'LSA_AlarmSnooze'.
-     * Sendet das Schlummersignal an das Gerät und pausiert somit einen aktiven Alarm.
-     *
-     * @result bool True wenn erfolgreich, sonst false.
-     */
-    public function AlarmSnooze()
-    {
-        $LMSData = $this->SendDirect(new LMSData(['button'], ['snooze.single']));
-        if ($LMSData === null) {
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * IPS-Instanz-Funktion 'LSA_AlarmStop'.
-     * Beendet ein aktiven Alarm.
-     *
-     * @result bool True wenn erfolgreich, sonst false.
-     */
-    public function AlarmStop()
-    {
-        $LMSData = $this->SendDirect(new LMSData(['button'], ['power_off']));
-        if ($LMSData === null) {
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * IPS-Instanz-Funktion 'LSA_AddAlarm'.
-     * Fragt einen Wert der Alarme ab. Es ist der Ident der Statusvariable zu übergeben.
-     *
-     * @result bool|int Index des Weckers, im Fehlerfall false.
-     */
-    public function AddAlarm()
-    {
-        if (count($this->Alarms->Items) > 9) {
-            return false;
-        }
-        $LMSData = $this->SendDirect(new LMSData(['alarm', 'add'], ['enabled:1', 'time:25200', 'repeat:1', 'playlisturl:CURRENT_PLAYLIST']));
-        if ($LMSData === null) {
-            return false;
-        }
-        /** @var array $Data */
-        $Data = (new LMSTaggingArray($LMSData->Data, ''))->DataArray();
-        if (isset($Data['Id'])) {
-            return count($this->Alarms->Items);
-        }
-        return false;
-    }
-
-    /**
-     * IPS-Instanz-Funktion 'LSA_DelAlarm'.
-     * Löscht einen Wecker.
-     *
-     * @param int $AlarmIndex Der Index des zu löschenden Weckers.
-     * @result bool True wenn erfolgreich, sonst false.
-     */
-    public function DelAlarm(int $AlarmIndex)
-    {
-        if (!is_int($AlarmIndex)) {
-            trigger_error(sprintf($this->Translate('%s must be integer.'), 'AlarmIndex'), E_USER_NOTICE);
-            return false;
-        }
-        $Alarms = $this->Alarms;
-        $Alarm = $Alarms->GetByIndex($AlarmIndex);
-        if ($Alarm === false) {
-            trigger_error(sprintf($this->Translate('%s out of range.'), 'AlarmIndex'), E_USER_NOTICE);
-            return false;
-        }
-
-        $LMSData = $this->SendDirect(new LMSData(['alarm', 'delete'], ['id:' . $Alarm->Id]));
-        if ($LMSData === null) {
-            return false;
-        }
-        $Data = (new LMSTaggingArray($LMSData->Data, ''))->DataArray();
-        return $Data['Id'] === $Alarm->Id;
-    }
-
-    /**
-     * IPS-Instanz-Funktion 'LSA_SetPlaylist'.
-     * Setzt die Playliste bzw. die Wiedergabe für den Wecker.
-     *
-     * @param int    $AlarmIndex Der Index des Weckers.
-     * @param string $Url        Die wiederzugebene URL.
-     * @result bool True wenn erfolgreich, sonst false.
-     */
-    public function SetPlaylist(int $AlarmIndex, string $Url)
-    {
-        if (!is_string($Url)) {
-            trigger_error(sprintf($this->Translate('%s must be string.'), 'Url'), E_USER_NOTICE);
-            return false;
-        }
-        if (!is_int($AlarmIndex)) {
-            trigger_error(sprintf($this->Translate('%s must be integer.'), 'AlarmIndex'), E_USER_NOTICE);
-            return false;
-        }
-        $Alarms = $this->Alarms;
-        $Alarm = $Alarms->GetByIndex($AlarmIndex);
-        if ($Alarm === false) {
-            trigger_error(sprintf($this->Translate('%s out of range.'), 'AlarmIndex'), E_USER_NOTICE);
-            return false;
-        }
-        if (($Url == '0') or ($Url == '')) {
-            $Url = 'CURRENT_PLAYLIST';
-        }
-
-        $LMSData = $this->SendDirect(new LMSData(['alarm', 'update'], ['id:' . $Alarm->Id, 'playlisturl:' . (string) $Url]));
-        if ($LMSData === null) {
-            return false;
-        }
-        $Data = (new LMSTaggingArray($LMSData->Data, ''))->DataArray();
-        return ($Data['Playlisturl']) === (string) $Url;
-    }
-
-    /**
-     * IPS-Instanz-Funktion 'LSA_SetShuffle'.
-     * Setzt den Modus der zufälligen Wiedergabe des Weckers.
-     *
-     * @param int    $AlarmIndex Der Index des Weckers.
-     * @param string $Value      Der neue Modus.
-     * @result bool True wenn erfolgreich, sonst false.
-     */
-    public function SetShuffle(int $AlarmIndex, int $Value)
-    {
-        if (!is_int($Value)) {
-            trigger_error(sprintf($this->Translate('%s must be integer.'), 'Value'), E_USER_NOTICE);
-            return false;
-        }
-        if (($Value < 0) or ($Value > 2)) {
-            trigger_error(sprintf($this->Translate('%s must be 0, 1 or 2.'), 'Value'), E_USER_NOTICE);
-            return false;
-        }
-        if (!is_int($AlarmIndex)) {
-            trigger_error(sprintf($this->Translate('%s must be integer.'), 'AlarmIndex'), E_USER_NOTICE);
-            return false;
-        }
-        $Alarms = $this->Alarms;
-        $Alarm = $Alarms->GetByIndex($AlarmIndex);
-        if ($Alarm === false) {
-            trigger_error(sprintf($this->Translate('%s out of range.'), 'AlarmIndex'), E_USER_NOTICE);
-            return false;
-        }
-        $LMSData = $this->SendDirect(new LMSData(['alarm', 'update'], ['id:' . $Alarm->Id, 'shufflemode:' . (int) $Value]));
-        if ($LMSData === null) {
-            return false;
-        }
-        $Data = (new LMSTaggingArray($LMSData->Data, ''))->DataArray();
-        return (int) ($Data['Shufflemode']) === (int) $Value;
-    }
-
-    /**
-     * IPS-Instanz-Funktion 'LSA_SetRepeat'.
-     * De/Aktiviert die Wiederholung.
-     *
-     * @param int  $AlarmIndex Der Index des Weckers.
-     * @param bool $Value      De/Aktiviert die Wiederholung.
-     * @result bool True wenn erfolgreich, sonst false.
-     */
-    public function SetRepeat(int $AlarmIndex, bool $Value)
-    {
-        if (!is_bool($Value)) {
-            trigger_error(sprintf($this->Translate('%s must be bool.'), 'Value'), E_USER_NOTICE);
-            return false;
-        }
-        if (!is_int($AlarmIndex)) {
-            trigger_error(sprintf($this->Translate('%s must be integer.'), 'AlarmIndex'), E_USER_NOTICE);
-            return false;
-        }
-        $Alarms = $this->Alarms;
-        $Alarm = $Alarms->GetByIndex($AlarmIndex);
-        if ($Alarm === false) {
-            trigger_error(sprintf($this->Translate('%s out of range.'), 'AlarmIndex'), E_USER_NOTICE);
-            return false;
-        }
-        $LMSData = $this->SendDirect(new LMSData(['alarm', 'update'], ['id:' . $Alarm->Id, 'repeat:' . (int) $Value]));
-        if ($LMSData === null) {
-            return false;
-        }
-        $Data = (new LMSTaggingArray($LMSData->Data, ''))->DataArray();
-        return (int) ($Data['Repeat']) === (int) $Value;
-    }
-
-    /**
-     * IPS-Instanz-Funktion 'LSA_SetVolume'.
-     * Setzt die Lautstärke des Weckers.
-     *
-     * @param int $AlarmIndex Der Index des Weckers.
-     * @param int $Value      Die neue Lautstärke des Weckers.
-     * @result bool True wenn erfolgreich, sonst false.
-     */
-    public function SetVolume(int $AlarmIndex, int $Value)
-    {
-        if (!is_int($Value)) {
-            trigger_error(sprintf($this->Translate('%s must be integer.'), 'Value'), E_USER_NOTICE);
-            return false;
-        }
-        if (($Value < 0) || ($Value > 100)) {
-            trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
-            return false;
-        }
-        if (!is_int($AlarmIndex)) {
-            trigger_error(sprintf($this->Translate('%s must be integer.'), 'AlarmIndex'), E_USER_NOTICE);
-            return false;
-        }
-        $Alarms = $this->Alarms;
-        $Alarm = $Alarms->GetByIndex($AlarmIndex);
-        if ($Alarm === false) {
-            trigger_error(sprintf($this->Translate('%s out of range.'), 'AlarmIndex'), E_USER_NOTICE);
-            return false;
-        }
-        $LMSData = $this->SendDirect(new LMSData(['alarm', 'update'], ['id:' . $Alarm->Id, 'volume:' . (int) $Value]));
-        if ($LMSData === null) {
-            return false;
-        }
-        $Data = (new LMSTaggingArray($LMSData->Data, ''))->DataArray();
-        return (int) ($Data['Volume']) === (int) $Value;
-    }
-
-    //################# ActionHandler
-
-    /**
-     * Interne Funktion des SDK.
-     */
-    public function RequestAction($Ident, $Value)
-    {
-        if ($this->IORequestAction($Ident, $Value)) {
-            return;
-        }
-        switch ($Ident) {
-            case 'EnableAll':
-                $result = $this->SetAllActive((bool) $Value);
-                break;
-            case 'DefaultVolume':
-                $result = $this->SetDefaultVolume((int) $Value);
-                break;
-            case 'FadeIn':
-                $result = $this->SetFadeIn((bool) $Value);
-                break;
-            case 'AddAlarm':
-                $AlarmIndex = $this->AddAlarm();
-                $result = ($AlarmIndex !== false);
-                break;
-            case 'DelAlarm':
-                $result = $this->DelAlarm((int) $Value);
-                break;
-            case 'Timeout':
-                $result = $this->SetTimeout((int) $Value);
-                break;
-            case 'SnoozeSeconds':
-                $result = $this->SetSnoozeSeconds((int) $Value);
-                break;
-            case 'AlarmShuffle0':
-            case 'AlarmShuffle1':
-            case 'AlarmShuffle2':
-            case 'AlarmShuffle3':
-            case 'AlarmShuffle4':
-            case 'AlarmShuffle5':
-            case 'AlarmShuffle6':
-            case 'AlarmShuffle7':
-            case 'AlarmShuffle8':
-            case 'AlarmShuffle9':
-                $Index = (int) substr($Ident, -1);
-                $result = $this->SetShuffle($Index, (int) $Value);
-                break;
-            case 'AlarmRepeat0':
-            case 'AlarmRepeat1':
-            case 'AlarmRepeat2':
-            case 'AlarmRepeat3':
-            case 'AlarmRepeat4':
-            case 'AlarmRepeat5':
-            case 'AlarmRepeat6':
-            case 'AlarmRepeat7':
-            case 'AlarmRepeat8':
-            case 'AlarmRepeat9':
-                $Index = (int) substr($Ident, -1);
-                $result = $this->SetRepeat($Index, (bool) $Value);
-                break;
-            case 'AlarmVolume0':
-            case 'AlarmVolume1':
-            case 'AlarmVolume2':
-            case 'AlarmVolume3':
-            case 'AlarmVolume4':
-            case 'AlarmVolume5':
-            case 'AlarmVolume6':
-            case 'AlarmVolume7':
-            case 'AlarmVolume8':
-            case 'AlarmVolume9':
-                $Index = (int) substr($Ident, -1);
-                $result = $this->SetVolume($Index, (int) $Value);
-                break;
-            case 'AlarmState0':
-            case 'AlarmState1':
-            case 'AlarmState2':
-            case 'AlarmState3':
-            case 'AlarmState4':
-            case 'AlarmState5':
-            case 'AlarmState6':
-            case 'AlarmState7':
-            case 'AlarmState8':
-            case 'AlarmState9':
-                $Index = (int) substr($Ident, -1);
-                if ($Value == 0) {
-                    $result = $this->AlarmStop();
-                } elseif ($Value == 1) {
-                    $result = $this->AlarmSnooze();
-                } else {
-                    $result = true;
-                }
-                break;
-            default:
-                trigger_error($this->Translate('Invalid ident'), E_USER_NOTICE);
-                return;
-        }
-        if ($result == false) {
-            trigger_error($this->Translate('Error on Execute Action'), E_USER_NOTICE);
-        }
-    }
-
     //################# Decode Data
     private function DecodeLMSResponse(LMSData $LMSData)
     {
@@ -1729,10 +1821,12 @@ class SqueezeboxAlarm extends IPSModule
                     case 'sound':
                     case 'snooze_end':
                         $State = 2;
+                        // FIXME: No break. Please add proper comment if intentional
                     case 'end':
                         if (!isset($State)) {
                             $State = 0;
                         }
+                        // FIXME: No break. Please add proper comment if intentional
                     case 'snooze':
                         if (!isset($State)) {
                             $State = 1;
@@ -1755,6 +1849,7 @@ class SqueezeboxAlarm extends IPSModule
             case 'prefset':
                 $LMSData->Command[1] = $LMSData->Command[2];
                 unset($LMSData->Command[2]);
+                // FIXME: No break. Please add proper comment if intentional
             case 'playerpref':
                 switch ($LMSData->Command[1]) {
                     case 'alarmfadeseconds':
@@ -1788,7 +1883,7 @@ class SqueezeboxAlarm extends IPSModule
                 $this->RefreshEvents($this->Alarms);
                 break;
             case 'client':
-                if (($LMSData->Data[0] == 'new') or ($LMSData->Data[0] == 'reconnect')) {
+                if (($LMSData->Data[0] == 'new') || ($LMSData->Data[0] == 'reconnect')) {
                     $this->RequestAllState();
                 }
                 break;
@@ -1796,25 +1891,6 @@ class SqueezeboxAlarm extends IPSModule
                 return false;
         }
         return true;
-    }
-
-    //################# DataPoints Ankommend von Parent-LMS-Splitter
-
-    /**
-     * Interne Funktion des SDK.
-     */
-    public function ReceiveData($JSONString)
-    {
-        $this->SendDebug('Receive Event', $JSONString, 0);
-        $Data = json_decode($JSONString);
-        $LMSData = new LMSData();
-        $LMSData->CreateFromGenericObject($Data);
-        $this->SendDebug('Receive Event ', $LMSData, 0);
-        if (in_array($LMSData->Command[0], ['alarm', 'alarms', 'playerpref', 'prefset', 'client'])) {
-            $this->DecodeLMSResponse($LMSData);
-        } else {
-            $this->SendDebug('UNKNOW', $LMSData, 0);
-        }
     }
 
     //################# Datenaustausch
@@ -1851,79 +1927,6 @@ class SqueezeboxAlarm extends IPSModule
             trigger_error($exc->getMessage() . PHP_EOL . print_r(debug_backtrace(), true), E_USER_NOTICE);
             return null;
         }
-    }
-
-    /**
-     * Konvertiert $Data zu einem String und versendet diesen direkt an den LMS.
-     *
-     * @param LMSData $LMSData Zu versendende Daten.
-     *
-     * @return LMSData Objekt mit der Antwort. NULL im Fehlerfall.
-     */
-    protected function SendDirect(LMSData $LMSData)
-    {
-        try {
-            if (!$this->HasActiveParent()) {
-                throw new Exception($this->Translate('Instance has no active parent.'), E_USER_NOTICE);
-            }
-
-            $SplitterID = IPS_GetInstance($this->InstanceID)['ConnectionID'];
-            $IoID = IPS_GetInstance($SplitterID)['ConnectionID'];
-            $Host = IPS_GetProperty($IoID, 'Host');
-            if ($Host === '') {
-                return null;
-            }
-
-            $LMSData->Address = $this->ReadPropertyString('Address');
-            $this->SendDebug('Send Direct', $LMSData, 0);
-
-            if (!$this->Socket) {
-                $SplitterID = IPS_GetInstance($this->InstanceID)['ConnectionID'];
-                $IoID = IPS_GetInstance($SplitterID)['ConnectionID'];
-                $Host = IPS_GetProperty($IoID, 'Host');
-                if ($Host === '') {
-                    return null;
-                }
-                $Host = gethostbyname($Host);
-
-                $Port = IPS_GetProperty($SplitterID, 'Port');
-                $User = IPS_GetProperty($SplitterID, 'User');
-                $Pass = IPS_GetProperty($SplitterID, 'Password');
-
-                /** @var LMSData $LoginData */
-                $LoginData = (new LMSData('login', [$User, $Pass]))->ToRawStringForLMS();
-                $this->SendDebug('Send Direct', $LoginData, 0);
-                $this->Socket = @stream_socket_client('tcp://' . $Host . ':' . $Port, $errno, $errstr, 2);
-                if (!$this->Socket) {
-                    throw new Exception($this->Translate('No anwser from LMS'), E_USER_NOTICE);
-                }
-                stream_set_timeout($this->Socket, 5);
-                fwrite($this->Socket, $LoginData);
-                $anwserlogin = stream_get_line($this->Socket, 1024 * 1024 * 2, chr(0x0d));
-                $this->SendDebug('Response Direct', $anwserlogin, 0);
-                if ($anwserlogin === false) {
-                    throw new Exception($this->Translate('No anwser from LMS'), E_USER_NOTICE);
-                }
-            }
-
-            $Data = $LMSData->ToRawStringForLMS();
-            $this->SendDebug('Send Direct', $Data, 0);
-            fwrite($this->Socket, $Data);
-            $anwser = stream_get_line($this->Socket, 1024 * 1024 * 2, chr(0x0d));
-            $this->SendDebug('Response Direct', $anwser, 0);
-            if ($anwser === false) {
-                throw new Exception($this->Translate('No anwser from LMS'), E_USER_NOTICE);
-            }
-
-            $ReplyData = new LMSResponse($anwser);
-            $LMSData->Data = $ReplyData->Data;
-            $this->SendDebug('Response Direct', $LMSData, 0);
-            return $LMSData;
-        } catch (Exception $ex) {
-            $this->SendDebug('Receive Direct', $ex->getMessage(), 0);
-            trigger_error($ex->getMessage(), $ex->getCode());
-        }
-        return null;
     }
 }
 

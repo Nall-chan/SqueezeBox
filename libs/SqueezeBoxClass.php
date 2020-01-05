@@ -217,7 +217,7 @@ class LMSData extends stdClass
             $this->SendValues = count($this->Data);
         } else {
             $Data = $this->Data;
-            if (($this->Data !== null) and ($this->Data != '%3F')) {
+            if (($this->Data !== null) && ($this->Data != '%3F')) {
                 $this->SendValues = 1;
             }
         }
@@ -479,7 +479,7 @@ class LMSTaggingData extends stdClass
      */
     public function __construct($TaggedDataLine)
     {
-        $Part = explode(':', $TaggedDataLine); //
+        $Part = explode(':', $TaggedDataLine);
         $this->Name = array_shift($Part);
         if (count($Part) > 1) {
             $this->Value = implode(':', $Part);
@@ -508,18 +508,13 @@ class LMSTaggingData extends stdClass
 class LMSTaggingArray extends stdClass
 {
     /**
-     * @var array Enthält die Nutzdaten
-     */
-    private $DataArray;
-
-    /**
      * @var array Enthält alle zu dekodierenen Index mit ihren Typenumwandlungen.
      */
     public static $DataFields = [
         'Album'                   => 3, // l
         'Album_id'                => 1,
         'Artwork_track_id'        => 3, // J
-//        'Albums_count' => 1,
+        //        'Albums_count' => 1,
         'Artist'                  => 3, // a
         'Artist_id'               => 1, //s
         'Bitrate'                 => 3, // r
@@ -550,7 +545,7 @@ class LMSTaggingArray extends stdClass
         'Isaudio'                 => 0,
         'Model'                   => 3,
         'Modelname'               => 3,
-//        'Modified' => 0,
+        //        'Modified' => 0,
         'Name'                    => 3,
         'Newname'                 => 3,
         'Overwritten_playlist_id' => 1,
@@ -560,19 +555,19 @@ class LMSTaggingArray extends stdClass
         'Playlist'                => 3,
         'Playlist_id'             => 1,
         'Repeat'                  => 0,
-//        'Remote' => 0,
-//        'Remote_title' => 3, //N
-//        'Rating' => 1, // R
+        //        'Remote' => 0,
+        //        'Remote_title' => 3, //N
+        //        'Rating' => 1, // R
         'Shufflemode'             => 1,
         'Shuffle'                 => 1,
-//        'Samplesize' => 3, // I
-//        'Singleton'=>0,
+        //        'Samplesize' => 3, // I
+        //        'Singleton'=>0,
         'Type'                    => 3,
         'Time'                    => 1,
         'Title'                   => 3,
         'Track_id'                => 1,
         'Track'                   => 3,
-//        'Tracks_count' => 1,
+        //        'Tracks_count' => 1,
         'Tracknum'                => 1, // t
         'Url'                     => 3, // u
         'Uuid'                    => 3,
@@ -580,6 +575,10 @@ class LMSTaggingArray extends stdClass
         'Weight'                  => 1,
         'Year'                    => 1 // Y
     ];
+    /**
+     * @var array Enthält die Nutzdaten
+     */
+    private $DataArray;
 
     /**
      * Erzeugt aus einem Array mit getaggten Daten ein mehrdimensionales Array.
@@ -671,6 +670,16 @@ class LMSTaggingArray extends stdClass
     }
 
     /**
+     * Liefert die Anzahl der Daten im DataArray.
+     *
+     * @return int Anzahl der Einträge in DataArray.
+     */
+    public function Count()
+    {
+        return count($this->DataArray);
+    }
+
+    /**
      * Callback-Funktion für Compact.
      *
      * @param mixed $Item Das aktuelle Item.
@@ -680,16 +689,6 @@ class LMSTaggingArray extends stdClass
     protected function FlatDataArray(&$Item, $Key, $Index)
     {
         $Item = $Item[$Index];
-    }
-
-    /**
-     * Liefert die Anzahl der Daten im DataArray.
-     *
-     * @return int Anzahl der Einträge in DataArray.
-     */
-    public function Count()
-    {
-        return count($this->DataArray);
     }
 }
 
@@ -706,20 +705,6 @@ class LMSTaggingArray extends stdClass
  */
 class LMSSongInfo extends stdClass
 {
-    /**
-     * Ein Array das alle Songs enthält.
-     *
-     * @var array
-     */
-    private $SongArray = [];
-
-    /**
-     * Die gesamte Spielzeit in Sekunden.
-     *
-     * @var int
-     */
-    private $Duration = 0;
-
     /**
      * Enthält die Zuordnung zu den Datentypen.
      *
@@ -750,6 +735,19 @@ class LMSSongInfo extends stdClass
         'Modified'         => 0,
         'Playlist'         => 3
     ];
+    /**
+     * Ein Array das alle Songs enthält.
+     *
+     * @var array
+     */
+    private $SongArray = [];
+
+    /**
+     * Die gesamte Spielzeit in Sekunden.
+     *
+     * @var int
+     */
+    private $Duration = 0;
 
     /**
      * Erzeugt aus einem Array mit getaggten Daten ein LMSSongInfo Objekt.
@@ -794,7 +792,7 @@ class LMSSongInfo extends stdClass
                 }
             }
         }
-        if ((count($Songs) != 1) and isset($Songs[-1])) {
+        if ((count($Songs) != 1) && isset($Songs[-1])) {
             unset($Songs[-1]);
         }
         $this->SongArray = $Songs;

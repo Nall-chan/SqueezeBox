@@ -185,68 +185,11 @@ class LMSSplitter extends IPSModule
                 $this->KernelReady();
                 break;
             case VM_UPDATE:
-                if (($SenderID == $this->ScannerID) and ($Data[0] == 0)) {
+                if (($SenderID == $this->ScannerID) && ($Data[0] == 0)) {
                     $this->RefreshAllPlaylists();
                 }
                 break;
         }
-    }
-
-    /**
-     * Wird ausgeführt wenn der Kernel hochgefahren wurde.
-     */
-    protected function KernelReady()
-    {
-        $this->ApplyChanges();
-    }
-
-    protected function RegisterParent()
-    {
-        $IOId = $this->IORegisterParent();
-        if ($IOId > 0) {
-            $this->Host = gethostbyname(IPS_GetProperty($this->ParentID, 'Host'));
-            $this->SetSummary(IPS_GetProperty($IOId, 'Host'));
-            return;
-        }
-        $this->Host = '';
-        $this->SetSummary(('none'));
-    }
-
-    /**
-     * Wird ausgeführt wenn sich der Status vom Parent ändert.
-     */
-    protected function IOChangeState($State)
-    {
-        if ($State == IS_ACTIVE) {
-            if ($this->HasActiveParent()) {
-                if ($this->CheckLogin() !== true) {
-                    $this->SetStatus(IS_EBASE + 4);
-                    $this->SetTimerInterval('KeepAlive', 0);
-                    return;
-                }
-                $this->SetStatus(IS_ACTIVE);
-                $User = $this->ReadPropertyString('User');
-                $Pass = $this->ReadPropertyString('Password');
-
-                $LoginData = new LMSData('login', [$User, $Pass]);
-                $this->Send($LoginData);
-                $this->KeepAlive();
-                $this->LogMessage($this->Translate('Connected to LMS'), KL_NOTIFY);
-                $this->RequestState('Version');
-                $this->LogMessage($this->Translate('Version of LMS:') . $this->GetValue('Version'), KL_NOTIFY);
-                $this->RequestState('Players');
-                $this->LogMessage($this->Translate('Connected Players to LMS:') . $this->GetValue('Players'), KL_NOTIFY);
-                $this->RefreshPlayerList();
-                $ret = $this->Send(new LMSData('rescan', '?'));
-                if ($ret !== null) {
-                    $this->DecodeLMSResponse($ret);
-                }
-                $this->SetTimerInterval('KeepAlive', 3600 * 1000);
-                return;
-            }
-        }
-        $this->SetStatus(IS_INACTIVE); // Setzen wir uns auf active, weil wir vorher eventuell im Fehlerzustand waren.
-        $this->SetTimerInterval('KeepAlive', 0);
     }
 
     /**
@@ -256,162 +199,6 @@ class LMSSplitter extends IPSModule
     {
         $Config['Port'] = $this->ReadPropertyInteger('Port');
         return json_encode($Config);
-    }
-
-    private function GenerateHTMLStyleProperty()
-    {
-        $NewTableConfig = [
-            [
-                'tag'   => '<table>',
-                'style' => 'margin:0 auto; font-size:0.8em;'],
-            [
-                'tag'   => '<thead>',
-                'style' => ''],
-            [
-                'tag'   => '<tbody>',
-                'style' => '']
-        ];
-        $NewColumnsConfig = [
-            [
-                'index' => 0,
-                'key'   => 'Id',
-                'name'  => 'PlaylistID',
-                'show'  => false,
-                'width' => 100,
-                'color' => 0xffffff,
-                'align' => 'center',
-                'style' => ''],
-            [
-                'index' => 1,
-                'key'   => 'Playlist',
-                'name'  => 'Playlist-Name',
-                'show'  => true,
-                'width' => 400,
-                'color' => 0xffffff,
-                'align' => 'center',
-                'style' => ''],
-            [
-                'index' => 2,
-                'key'   => 'Tracks',
-                'name'  => 'Tracks',
-                'show'  => true,
-                'width' => 50,
-                'color' => 0xffffff,
-                'align' => 'center',
-                'style' => ''],
-            [
-                'index' => 3,
-                'key'   => 'Duration',
-                'name'  => $this->Translate('Duration'),
-                'show'  => true,
-                'width' => 75,
-                'color' => 0xffffff,
-                'align' => 'center',
-                'style' => '']
-        ];
-        $NewRowsConfig = [
-            [
-                'row'     => 'odd',
-                'name'    => $this->Translate('odd'),
-                'bgcolor' => 0x000000,
-                'color'   => 0xffffff,
-                'style'   => ''],
-            [
-                'row'     => 'even',
-                'name'    => $this->Translate('even'),
-                'bgcolor' => 0x080808,
-                'color'   => 0xffffff,
-                'style'   => '']
-        ];
-        return ['Table' => $NewTableConfig, 'Columns' => $NewColumnsConfig, 'Rows' => $NewRowsConfig];
-    }
-
-    //################# Privat
-
-    /**
-     * Ändert das Variablenprofil PlayerSelect anhand der bekannten Player.
-     *
-     * @return bool TRUE bei Erfolg, sonst FALSE.
-     */
-    private function RefreshPlayerList()
-    {
-        $LMSData = $this->SendDirect(new LMSData(['player', 'count'], '?'));
-        if ($LMSData == null) {
-            return false;
-        }
-        $players = $LMSData->Data[0];
-        $this->SetValueInteger('Players', $players);
-        $Assosiation = [];
-        $Assosiation[] = [-2, 'Keiner', '', 0x00ff00];
-        $Assosiation[] = [-1, 'Alle', '', 0xff0000];
-        for ($i = 0; $i < $players; $i++) {
-            $LMSPlayerData = $this->SendDirect(new LMSData(['player', 'name'], [$i, '?']));
-            if ($LMSPlayerData == null) {
-                continue;
-            }
-            $PlayerName = $LMSPlayerData->Data[1];
-            $Assosiation[] = [$i, $PlayerName, '', -1];
-        }
-        if ($this->ReadPropertyBoolean('showPlaylist')) {
-            $this->RegisterProfileIntegerEx('LMS.PlayerSelect' . $this->InstanceID, 'Speaker', '', '', $Assosiation);
-            $this->SetValueInteger('PlayerSelect', -2);
-        }
-        return true;
-    }
-
-    private function RefreshAllPlaylists()
-    {
-        $Data = [0, 100000, 'tags:u'];
-        $LMSData = $this->SendDirect(new LMSData('playlists', $Data));
-        if ($LMSData === null) {
-            return;
-        }
-        $LMSData->SliceData();
-        $Playlists = (new LMSTaggingArray($LMSData->Data))->DataArray();
-        foreach ($Playlists as $Key => $Playlist) {
-            $Playlists[$Key]['Id'] = $Key;
-            $Playlists[$Key]['Tracks'] = 0;
-            $Playlists[$Key]['Duration'] = 0;
-            $LMSSongData = $this->SendDirect(new LMSData(['playlists', 'tracks'], [0, 100000, 'playlist_id:' . $Key, 'tags:d'], true));
-            if ($LMSSongData === null) {
-                trigger_error(sprintf($this->Translate('Error read Playlist %d .'), $Key), E_USER_NOTICE);
-                $Playlists[$Key]['Playlist'] = $Playlists[$Key]['Playlist'];
-                continue;
-            }
-            $LMSSongData->SliceData();
-            //$this->SendDebug('EXTRA', $LMSSongData, 0);
-            if (count($LMSSongData->Data) > 0) { // Count sollte eigentlich immer kommen und somit
-                $SongInfo = new LMSSongInfo($LMSSongData->Data);
-                $Playlists[$Key]['Tracks'] = $SongInfo->CountAllSongs();
-                $Playlists[$Key]['Duration'] = $SongInfo->GetTotalDuration();
-            }
-        }
-
-        uasort($Playlists, [$this, 'SortPlaylistData']);
-
-        $this->Multi_Playlists = $Playlists;
-        $this->RefreshPlaylist();
-    }
-
-    private function SortPlaylistData($a, $b)
-    {
-        return strcmp($a['Playlist'], $b['Playlist']);
-    }
-
-    /**
-     * Erzeugt eine HTML-Tabelle mit allen Playlisten für eine ~HTMLBox-Variable.
-     */
-    private function RefreshPlaylist()
-    {
-        if (!$this->ReadPropertyBoolean('showPlaylist')) {
-            return;
-        }
-        $Data = $this->Multi_Playlists;
-        if (!is_array($Data)) {
-            $Data = [];
-        }
-        $HTML = $this->GetTable($Data, 'LMSPlaylist', 'Playlist', 'Id');
-        $this->SetValueString('Playlists', $HTML);
     }
 
     //################# Action
@@ -460,7 +247,7 @@ class LMSSplitter extends IPSModule
                 } elseif ($Value == 4) {
                     $ret = $this->WipeCache();
                 }
-                if (($Value != 0) and (($ret === null) or ($ret === false))) {
+                if (($Value != 0) && (($ret === null) || ($ret === false))) {
                     echo $this->Translate('Error on send scanner-command');
                     return false;
                 }
@@ -472,60 +259,6 @@ class LMSSplitter extends IPSModule
                 echo $this->Translate('Invalid Ident');
                 break;
         }
-    }
-
-    /**
-     * Verarbeitet Daten aus dem Webhook.
-     *
-     * @param string $ID Die zu ladenen Playlist oder der zu ladene Favorit.
-     */
-    protected function ProcessHookdata()
-    {
-        if ((!isset($_GET['ID'])) or (!isset($_GET['Type'])) or (!isset($_GET['Secret']))) {
-            echo $this->Translate('Bad Request');
-            return;
-        }
-        $CalcSecret = base64_encode(sha1($this->WebHookSecretPlaylist . '0' . $_GET['ID'], true));
-        if ($CalcSecret != rawurldecode($_GET['Secret'])) {
-            echo $this->Translate('Access denied');
-            return;
-        }
-        $Value = $this->GetValue('PlayerSelect');
-        switch ($Value) {
-            case -2: //keiner
-                echo $this->Translate('No Player selected');
-                return;
-            case -1: //alle
-                $Players = range(0, $this->GetValue('Players') - 1);
-
-                break;
-            case -3: // multi
-                $ProfilName = 'LMS.PlayerSelect' . $this->InstanceID;
-                $Profil = IPS_GetVariableProfile($ProfilName)['Associations'];
-                $Players = [];
-                for ($i = 2; $i < count($Profil); $i++) {
-                    if ($Profil[$i]['Color'] != -1) {
-                        $Players[] = $i - 2;
-                    }
-                }
-                break;
-            default:
-                echo $this->Translate('Unknown Player selected');
-                return;
-        }
-        //Todo auf Sync umbauen
-        foreach ($Players as $PlayerId) {
-            $Player = $this->GetPlayerInfo($PlayerId);
-            if ($Player['Instanceid'] > 0) {
-                if ($_GET['Type'] == 'Playlist') {
-                    LSQ_LoadPlaylistByPlaylistID($Player['Instanceid'], (int) $_GET['ID']);
-                }
-                if ($_GET['Type'] == 'Favorite') {
-                    LSQ_LoadPlaylistByFavoriteID($Player['Instanceid'], (string) $_GET['ID']);
-                }
-            }
-        }
-        echo 'OK';
     }
 
     //################# PUBLIC
@@ -1821,166 +1554,6 @@ class LMSSplitter extends IPSModule
         return (new LMSTaggingArray($LMSData->Data))->DataArray();
     }
 
-    ///////////////////////////////////////////////////////////////
-    // ENDE Plugins Radio & Apps
-    ///////////////////////////////////////////////////////////////
-    //################# Decode Data
-
-    private function DecodeLMSResponse(LMSData $LMSData)
-    {
-        if ($LMSData == null) {
-            return false;
-        }
-        $this->SendDebug('Decode', $LMSData, 0);
-        switch ($LMSData->Command[0]) {
-            case 'listen':
-                return true;
-            case 'scanner':
-                switch ($LMSData->Data[0]) {
-                    case 'notify':
-                        $Data = new LMSTaggingData($LMSData->Data[1]);
-//                        $this->SendDebug('scanner', $Data, 0);
-                        switch ($Data->Name) {
-                            case 'end':
-                            case 'exit':
-                                $this->SetValueString('RescanInfo', '');
-                                $this->SetValueString('RescanProgress', '');
-                                return true;
-                            case 'progress':
-                                $Info = explode('||', $Data->Value);
-                                $StepInfo = $Info[2];
-                                if (strpos($StepInfo, '|')) {
-                                    $StepInfo = explode('|', $StepInfo)[1];
-                                }
-                                $this->SetValueString('RescanInfo', $StepInfo);
-                                $StepProgress = $Info[3] . ' von ' . $Info[4];
-                                $this->SetValueString('RescanProgress', $StepProgress);
-                                return true;
-                        }
-                        break;
-                }
-                break;
-            case 'wipecache':
-                if ($this->GetValue('RescanState') != 4) {
-                    $this->SetValueInteger('RescanState', 4); // Vollständig
-                }
-                return true;
-            case 'player':
-                if ($LMSData->Command[1] == 'count') {
-                    $this->SetValueInteger('Players', (int) $LMSData->Data[0]);
-                    return true;
-                }
-                break;
-            case 'version':
-                $this->SetValueString('Version', $LMSData->Data[0]);
-                return true;
-            case 'rescan':
-                if (!isset($LMSData->Data[0])) {
-                    if ($this->GetValue('RescanState') != 2) {
-                        $this->SetValueInteger('RescanState', 2); // einfacher
-                    }
-                    return true;
-                } else {
-                    if (($LMSData->Data[0] == 'done') or ($LMSData->Data[0] == '0')) {
-                        if ($this->GetValue('RescanState') != 0) {
-                            $this->SetValueInteger('RescanState', 0);   // fertig
-                        }
-                        return true;
-                    } elseif ($LMSData->Data[0] == 'playlists') {
-                        if ($this->GetValue('RescanState') != 3) {
-                            $this->SetValueInteger('RescanState', 3); // Playlists
-                        }
-                        return true;
-                    } elseif ($LMSData->Data[0] == '1') {
-                        //start
-                        if ($this->GetValue('RescanState') != 2) {
-                            $this->SetValueInteger('RescanState', 2); // einfacher
-                        }
-                        return true;
-                    }
-                }
-                break;
-            case 'playlists':
-                if (count($LMSData->Command) > 1) {
-                    $PlaylistData = (new LMSTaggingArray($LMSData->Data))->DataArray();
-                    if (!array_key_exists('Playlist_id', $PlaylistData)) {
-                        return;
-                    }
-                    $Playlists = $this->Multi_Playlists;
-
-                    switch ($LMSData->Command[1]) {
-                        case 'rename':
-                            if (!array_key_exists('Overwritten_playlist_id', $PlaylistData)) {
-                                $Playlists[$PlaylistData['Playlist_id']]['Playlist'] = $PlaylistData['Newname'];
-                            }
-                            break;
-                        case 'delete':
-                            unset($Playlists[$PlaylistData['Playlist_id']]);
-                            break;
-                        case 'new':
-                            $Playlists[$PlaylistData['Playlist_id']]['Playlist'] = $PlaylistData['Name'];
-                            $Playlists[$PlaylistData['Playlist_id']]['Id'] = $PlaylistData['Playlist_id'];
-                            $LMSSongData = $this->SendDirect(new LMSData('songinfo', ['0', '20', 'track_id:' . $PlaylistData['Playlist_id'], 'tags:u']));
-                            if ($LMSSongData === null) {
-                                trigger_error(sprintf($this->Translate('Error read Playlist %d .'), $PlaylistData['Playlist_id']), E_USER_NOTICE);
-                                $Playlists[$PlaylistData['Playlist_id']]['Url'] = '';
-                            } else {
-                                $LMSSongData->SliceData();
-                                $SongInfo = (new LMSTaggingArray($LMSSongData->Data))->DataArray();
-                                if (!array_key_exists($PlaylistData['Playlist_id'], $SongInfo)) {
-                                    $Playlists[$PlaylistData['Playlist_id']]['Url'] = '';
-                                } else {
-                                    $Playlists[$PlaylistData['Playlist_id']]['Url'] = $SongInfo[$PlaylistData['Playlist_id']]['Url'];
-                                }
-                            }
-
-                        case 'edit':
-                            $LMSSongData = $this->SendDirect(new LMSData(['playlists', 'tracks'], [0, 100000, 'playlist_id:' . $PlaylistData['Playlist_id'], 'tags:d'], true));
-                            if ($LMSSongData === null) {
-                                trigger_error(sprintf($this->Translate('Error read Playlist %d .'), $PlaylistData['Playlist_id']), E_USER_NOTICE);
-                                $Playlists[$PlaylistData['Playlist_id']]['Tracks'] = 0;
-                                $Playlists[$PlaylistData['Playlist_id']]['Duration'] = 0;
-                            } else {
-                                $LMSSongData->SliceData();
-                                $SongInfo = new LMSSongInfo($LMSSongData->Data);
-                                $Playlists[$PlaylistData['Playlist_id']]['Tracks'] = $SongInfo->CountAllSongs();
-                                $Playlists[$PlaylistData['Playlist_id']]['Duration'] = $SongInfo->GetTotalDuration();
-                            }
-
-                            break;
-                    }
-                    uasort($Playlists, [$this, 'SortPlaylistData']);
-                    $this->Multi_Playlists = $Playlists;
-                    $this->RefreshPlaylist();
-                    return true;
-                }
-                break;
-            case 'playlist': // Client Playlist info
-                if ($LMSData->Command[1] == 'save') {
-                    $this->RefreshAllPlaylists();
-                    return true;
-                }
-                break;
-            case 'favorites':
-                // TODO
-                if (count($LMSData->Command) > 1) {
-                    if (in_array($LMSData->Command[1], ['addlevel', 'rename', 'delete', 'move', 'changed'])) {
-                        //mediafolder
-                        //$this->RefreshFavoriteslist();
-                        /*
-                         */
-                        break;
-                    }
-                }
-            case 'songinfo':
-                //TODO ???
-                break;
-            default:
-                break;
-        }
-        return false;
-    }
-
     //################# DATAPOINTS DEVICE
 
     /**
@@ -2000,18 +1573,6 @@ class LMSSplitter extends IPSModule
         }
 
         return false;
-    }
-
-    /**
-     * Sendet LSQData an die Childs.
-     *
-     * @param LMSResponse $LMSResponse Ein LMSResponse-Objekt.
-     */
-    private function SendDataToDevice(LMSResponse $LMSResponse)
-    {
-        $Data = $LMSResponse->ToJSONStringForDevice('{CB5950B3-593C-4126-9F0F-8655A3944419}');
-        $this->SendDebug('IPS_SendDataToChildren', $Data, 0);
-        $this->SendDataToChildren($Data);
     }
 
     //################# DATAPOINTS PARENT
@@ -2066,6 +1627,117 @@ class LMSSplitter extends IPSModule
                 }
             }
         }
+    }
+
+    /**
+     * Wird ausgeführt wenn der Kernel hochgefahren wurde.
+     */
+    protected function KernelReady()
+    {
+        $this->ApplyChanges();
+    }
+
+    protected function RegisterParent()
+    {
+        $IOId = $this->IORegisterParent();
+        if ($IOId > 0) {
+            $this->Host = gethostbyname(IPS_GetProperty($this->ParentID, 'Host'));
+            $this->SetSummary(IPS_GetProperty($IOId, 'Host'));
+            return;
+        }
+        $this->Host = '';
+        $this->SetSummary(('none'));
+    }
+
+    /**
+     * Wird ausgeführt wenn sich der Status vom Parent ändert.
+     */
+    protected function IOChangeState($State)
+    {
+        if ($State == IS_ACTIVE) {
+            if ($this->HasActiveParent()) {
+                if ($this->CheckLogin() !== true) {
+                    $this->SetStatus(IS_EBASE + 4);
+                    $this->SetTimerInterval('KeepAlive', 0);
+                    return;
+                }
+                $this->SetStatus(IS_ACTIVE);
+                $User = $this->ReadPropertyString('User');
+                $Pass = $this->ReadPropertyString('Password');
+
+                $LoginData = new LMSData('login', [$User, $Pass]);
+                $this->Send($LoginData);
+                $this->KeepAlive();
+                $this->LogMessage($this->Translate('Connected to LMS'), KL_NOTIFY);
+                $this->RequestState('Version');
+                $this->LogMessage($this->Translate('Version of LMS:') . $this->GetValue('Version'), KL_NOTIFY);
+                $this->RequestState('Players');
+                $this->LogMessage($this->Translate('Connected Players to LMS:') . $this->GetValue('Players'), KL_NOTIFY);
+                $this->RefreshPlayerList();
+                $ret = $this->Send(new LMSData('rescan', '?'));
+                if ($ret !== null) {
+                    $this->DecodeLMSResponse($ret);
+                }
+                $this->SetTimerInterval('KeepAlive', 3600 * 1000);
+                return;
+            }
+        }
+        $this->SetStatus(IS_INACTIVE); // Setzen wir uns auf active, weil wir vorher eventuell im Fehlerzustand waren.
+        $this->SetTimerInterval('KeepAlive', 0);
+    }
+
+    /**
+     * Verarbeitet Daten aus dem Webhook.
+     *
+     * @param string $ID Die zu ladenen Playlist oder der zu ladene Favorit.
+     */
+    protected function ProcessHookdata()
+    {
+        if ((!isset($_GET['ID'])) || (!isset($_GET['Type'])) || (!isset($_GET['Secret']))) {
+            echo $this->Translate('Bad Request');
+            return;
+        }
+        $CalcSecret = base64_encode(sha1($this->WebHookSecretPlaylist . '0' . $_GET['ID'], true));
+        if ($CalcSecret != rawurldecode($_GET['Secret'])) {
+            echo $this->Translate('Access denied');
+            return;
+        }
+        $Value = $this->GetValue('PlayerSelect');
+        switch ($Value) {
+            case -2: //keiner
+                echo $this->Translate('No Player selected');
+                return;
+            case -1: //alle
+                $Players = range(0, $this->GetValue('Players') - 1);
+
+                break;
+            case -3: // multi
+                $ProfilName = 'LMS.PlayerSelect' . $this->InstanceID;
+                $Profil = IPS_GetVariableProfile($ProfilName)['Associations'];
+                $Players = [];
+                for ($i = 2; $i < count($Profil); $i++) {
+                    if ($Profil[$i]['Color'] != -1) {
+                        $Players[] = $i - 2;
+                    }
+                }
+                break;
+            default:
+                echo $this->Translate('Unknown Player selected');
+                return;
+        }
+        //Todo auf Sync umbauen
+        foreach ($Players as $PlayerId) {
+            $Player = $this->GetPlayerInfo($PlayerId);
+            if ($Player['Instanceid'] > 0) {
+                if ($_GET['Type'] == 'Playlist') {
+                    LSQ_LoadPlaylistByPlaylistID($Player['Instanceid'], (int) $_GET['ID']);
+                }
+                if ($_GET['Type'] == 'Favorite') {
+                    LSQ_LoadPlaylistByFavoriteID($Player['Instanceid'], (string) $_GET['ID']);
+                }
+            }
+        }
+        echo 'OK';
     }
 
     /**
@@ -2171,6 +1843,351 @@ class LMSSplitter extends IPSModule
             trigger_error($ex->getMessage(), $ex->getCode());
         }
         return null;
+    }
+
+    /**
+     *  Konvertiert Sekunden in einen lesbare Zeit.
+     *
+     * @param int $Time Zeit in Sekunden
+     *
+     * @return string Zeit als String.
+     */
+    protected function ConvertSeconds(int $Time)
+    {
+        if ($Time > 3600) {
+            return sprintf('%02d:%02d:%02d', ($Time / 3600), ($Time / 60 % 60), $Time % 60);
+        } else {
+            return sprintf('%02d:%02d', ($Time / 60 % 60), $Time % 60);
+        }
+    }
+
+    private function GenerateHTMLStyleProperty()
+    {
+        $NewTableConfig = [
+            [
+                'tag'   => '<table>',
+                'style' => 'margin:0 auto; font-size:0.8em;'],
+            [
+                'tag'   => '<thead>',
+                'style' => ''],
+            [
+                'tag'   => '<tbody>',
+                'style' => '']
+        ];
+        $NewColumnsConfig = [
+            [
+                'index' => 0,
+                'key'   => 'Id',
+                'name'  => 'PlaylistID',
+                'show'  => false,
+                'width' => 100,
+                'color' => 0xffffff,
+                'align' => 'center',
+                'style' => ''],
+            [
+                'index' => 1,
+                'key'   => 'Playlist',
+                'name'  => 'Playlist-Name',
+                'show'  => true,
+                'width' => 400,
+                'color' => 0xffffff,
+                'align' => 'center',
+                'style' => ''],
+            [
+                'index' => 2,
+                'key'   => 'Tracks',
+                'name'  => 'Tracks',
+                'show'  => true,
+                'width' => 50,
+                'color' => 0xffffff,
+                'align' => 'center',
+                'style' => ''],
+            [
+                'index' => 3,
+                'key'   => 'Duration',
+                'name'  => $this->Translate('Duration'),
+                'show'  => true,
+                'width' => 75,
+                'color' => 0xffffff,
+                'align' => 'center',
+                'style' => '']
+        ];
+        $NewRowsConfig = [
+            [
+                'row'     => 'odd',
+                'name'    => $this->Translate('odd'),
+                'bgcolor' => 0x000000,
+                'color'   => 0xffffff,
+                'style'   => ''],
+            [
+                'row'     => 'even',
+                'name'    => $this->Translate('even'),
+                'bgcolor' => 0x080808,
+                'color'   => 0xffffff,
+                'style'   => '']
+        ];
+        return ['Table' => $NewTableConfig, 'Columns' => $NewColumnsConfig, 'Rows' => $NewRowsConfig];
+    }
+
+    //################# Privat
+
+    /**
+     * Ändert das Variablenprofil PlayerSelect anhand der bekannten Player.
+     *
+     * @return bool TRUE bei Erfolg, sonst FALSE.
+     */
+    private function RefreshPlayerList()
+    {
+        $LMSData = $this->SendDirect(new LMSData(['player', 'count'], '?'));
+        if ($LMSData == null) {
+            return false;
+        }
+        $players = $LMSData->Data[0];
+        $this->SetValueInteger('Players', $players);
+        $Assosiation = [];
+        $Assosiation[] = [-2, 'Keiner', '', 0x00ff00];
+        $Assosiation[] = [-1, 'Alle', '', 0xff0000];
+        for ($i = 0; $i < $players; $i++) {
+            $LMSPlayerData = $this->SendDirect(new LMSData(['player', 'name'], [$i, '?']));
+            if ($LMSPlayerData == null) {
+                continue;
+            }
+            $PlayerName = $LMSPlayerData->Data[1];
+            $Assosiation[] = [$i, $PlayerName, '', -1];
+        }
+        if ($this->ReadPropertyBoolean('showPlaylist')) {
+            $this->RegisterProfileIntegerEx('LMS.PlayerSelect' . $this->InstanceID, 'Speaker', '', '', $Assosiation);
+            $this->SetValueInteger('PlayerSelect', -2);
+        }
+        return true;
+    }
+
+    private function RefreshAllPlaylists()
+    {
+        $Data = [0, 100000, 'tags:u'];
+        $LMSData = $this->SendDirect(new LMSData('playlists', $Data));
+        if ($LMSData === null) {
+            return;
+        }
+        $LMSData->SliceData();
+        $Playlists = (new LMSTaggingArray($LMSData->Data))->DataArray();
+        foreach ($Playlists as $Key => $Playlist) {
+            $Playlists[$Key]['Id'] = $Key;
+            $Playlists[$Key]['Tracks'] = 0;
+            $Playlists[$Key]['Duration'] = 0;
+            $LMSSongData = $this->SendDirect(new LMSData(['playlists', 'tracks'], [0, 100000, 'playlist_id:' . $Key, 'tags:d'], true));
+            if ($LMSSongData === null) {
+                trigger_error(sprintf($this->Translate('Error read Playlist %d .'), $Key), E_USER_NOTICE);
+                $Playlists[$Key]['Playlist'] = $Playlists[$Key]['Playlist'];
+                continue;
+            }
+            $LMSSongData->SliceData();
+            //$this->SendDebug('EXTRA', $LMSSongData, 0);
+            if (count($LMSSongData->Data) > 0) { // Count sollte eigentlich immer kommen und somit
+                $SongInfo = new LMSSongInfo($LMSSongData->Data);
+                $Playlists[$Key]['Tracks'] = $SongInfo->CountAllSongs();
+                $Playlists[$Key]['Duration'] = $SongInfo->GetTotalDuration();
+            }
+        }
+
+        uasort($Playlists, [$this, 'SortPlaylistData']);
+
+        $this->Multi_Playlists = $Playlists;
+        $this->RefreshPlaylist();
+    }
+
+    private function SortPlaylistData($a, $b)
+    {
+        return strcmp($a['Playlist'], $b['Playlist']);
+    }
+
+    /**
+     * Erzeugt eine HTML-Tabelle mit allen Playlisten für eine ~HTMLBox-Variable.
+     */
+    private function RefreshPlaylist()
+    {
+        if (!$this->ReadPropertyBoolean('showPlaylist')) {
+            return;
+        }
+        $Data = $this->Multi_Playlists;
+        if (!is_array($Data)) {
+            $Data = [];
+        }
+        $HTML = $this->GetTable($Data, 'LMSPlaylist', 'Playlist', 'Id');
+        $this->SetValueString('Playlists', $HTML);
+    }
+
+    ///////////////////////////////////////////////////////////////
+    // ENDE Plugins Radio & Apps
+    ///////////////////////////////////////////////////////////////
+    //################# Decode Data
+
+    private function DecodeLMSResponse(LMSData $LMSData)
+    {
+        if ($LMSData == null) {
+            return false;
+        }
+        $this->SendDebug('Decode', $LMSData, 0);
+        switch ($LMSData->Command[0]) {
+            case 'listen':
+                return true;
+            case 'scanner':
+                switch ($LMSData->Data[0]) {
+                    case 'notify':
+                        $Data = new LMSTaggingData($LMSData->Data[1]);
+//                        $this->SendDebug('scanner', $Data, 0);
+                        switch ($Data->Name) {
+                            case 'end':
+                            case 'exit':
+                                $this->SetValueString('RescanInfo', '');
+                                $this->SetValueString('RescanProgress', '');
+                                return true;
+                            case 'progress':
+                                $Info = explode('||', $Data->Value);
+                                $StepInfo = $Info[2];
+                                if (strpos($StepInfo, '|')) {
+                                    $StepInfo = explode('|', $StepInfo)[1];
+                                }
+                                $this->SetValueString('RescanInfo', $StepInfo);
+                                $StepProgress = $Info[3] . ' von ' . $Info[4];
+                                $this->SetValueString('RescanProgress', $StepProgress);
+                                return true;
+                        }
+                        break;
+                }
+                break;
+            case 'wipecache':
+                if ($this->GetValue('RescanState') != 4) {
+                    $this->SetValueInteger('RescanState', 4); // Vollständig
+                }
+                return true;
+            case 'player':
+                if ($LMSData->Command[1] == 'count') {
+                    $this->SetValueInteger('Players', (int) $LMSData->Data[0]);
+                    return true;
+                }
+                break;
+            case 'version':
+                $this->SetValueString('Version', $LMSData->Data[0]);
+                return true;
+            case 'rescan':
+                if (!isset($LMSData->Data[0])) {
+                    if ($this->GetValue('RescanState') != 2) {
+                        $this->SetValueInteger('RescanState', 2); // einfacher
+                    }
+                    return true;
+                } else {
+                    if (($LMSData->Data[0] == 'done') || ($LMSData->Data[0] == '0')) {
+                        if ($this->GetValue('RescanState') != 0) {
+                            $this->SetValueInteger('RescanState', 0);   // fertig
+                        }
+                        return true;
+                    } elseif ($LMSData->Data[0] == 'playlists') {
+                        if ($this->GetValue('RescanState') != 3) {
+                            $this->SetValueInteger('RescanState', 3); // Playlists
+                        }
+                        return true;
+                    } elseif ($LMSData->Data[0] == '1') {
+                        //start
+                        if ($this->GetValue('RescanState') != 2) {
+                            $this->SetValueInteger('RescanState', 2); // einfacher
+                        }
+                        return true;
+                    }
+                }
+                break;
+            case 'playlists':
+                if (count($LMSData->Command) > 1) {
+                    $PlaylistData = (new LMSTaggingArray($LMSData->Data))->DataArray();
+                    if (!array_key_exists('Playlist_id', $PlaylistData)) {
+                        return;
+                    }
+                    $Playlists = $this->Multi_Playlists;
+
+                    switch ($LMSData->Command[1]) {
+                        case 'rename':
+                            if (!array_key_exists('Overwritten_playlist_id', $PlaylistData)) {
+                                $Playlists[$PlaylistData['Playlist_id']]['Playlist'] = $PlaylistData['Newname'];
+                            }
+                            break;
+                        case 'delete':
+                            unset($Playlists[$PlaylistData['Playlist_id']]);
+                            break;
+                        case 'new':
+                            $Playlists[$PlaylistData['Playlist_id']]['Playlist'] = $PlaylistData['Name'];
+                            $Playlists[$PlaylistData['Playlist_id']]['Id'] = $PlaylistData['Playlist_id'];
+                            $LMSSongData = $this->SendDirect(new LMSData('songinfo', ['0', '20', 'track_id:' . $PlaylistData['Playlist_id'], 'tags:u']));
+                            if ($LMSSongData === null) {
+                                trigger_error(sprintf($this->Translate('Error read Playlist %d .'), $PlaylistData['Playlist_id']), E_USER_NOTICE);
+                                $Playlists[$PlaylistData['Playlist_id']]['Url'] = '';
+                            } else {
+                                $LMSSongData->SliceData();
+                                $SongInfo = (new LMSTaggingArray($LMSSongData->Data))->DataArray();
+                                if (!array_key_exists($PlaylistData['Playlist_id'], $SongInfo)) {
+                                    $Playlists[$PlaylistData['Playlist_id']]['Url'] = '';
+                                } else {
+                                    $Playlists[$PlaylistData['Playlist_id']]['Url'] = $SongInfo[$PlaylistData['Playlist_id']]['Url'];
+                                }
+                            }
+
+                            // FIXME: No break. Please add proper comment if intentional
+                        case 'edit':
+                            $LMSSongData = $this->SendDirect(new LMSData(['playlists', 'tracks'], [0, 100000, 'playlist_id:' . $PlaylistData['Playlist_id'], 'tags:d'], true));
+                            if ($LMSSongData === null) {
+                                trigger_error(sprintf($this->Translate('Error read Playlist %d .'), $PlaylistData['Playlist_id']), E_USER_NOTICE);
+                                $Playlists[$PlaylistData['Playlist_id']]['Tracks'] = 0;
+                                $Playlists[$PlaylistData['Playlist_id']]['Duration'] = 0;
+                            } else {
+                                $LMSSongData->SliceData();
+                                $SongInfo = new LMSSongInfo($LMSSongData->Data);
+                                $Playlists[$PlaylistData['Playlist_id']]['Tracks'] = $SongInfo->CountAllSongs();
+                                $Playlists[$PlaylistData['Playlist_id']]['Duration'] = $SongInfo->GetTotalDuration();
+                            }
+
+                            break;
+                    }
+                    uasort($Playlists, [$this, 'SortPlaylistData']);
+                    $this->Multi_Playlists = $Playlists;
+                    $this->RefreshPlaylist();
+                    return true;
+                }
+                break;
+            case 'playlist': // Client Playlist info
+                if ($LMSData->Command[1] == 'save') {
+                    $this->RefreshAllPlaylists();
+                    return true;
+                }
+                break;
+            case 'favorites':
+                // TODO
+                if (count($LMSData->Command) > 1) {
+                    if (in_array($LMSData->Command[1], ['addlevel', 'rename', 'delete', 'move', 'changed'])) {
+                        //mediafolder
+                        //$this->RefreshFavoriteslist();
+
+                        break;
+                    }
+                }
+                // FIXME: No break. Please add proper comment if intentional
+            case 'songinfo':
+                //TODO ???
+                break;
+            default:
+                break;
+        }
+        return false;
+    }
+
+    /**
+     * Sendet LSQData an die Childs.
+     *
+     * @param LMSResponse $LMSResponse Ein LMSResponse-Objekt.
+     */
+    private function SendDataToDevice(LMSResponse $LMSResponse)
+    {
+        $Data = $LMSResponse->ToJSONStringForDevice('{CB5950B3-593C-4126-9F0F-8655A3944419}');
+        $this->SendDebug('IPS_SendDataToChildren', $Data, 0);
+        $this->SendDataToChildren($Data);
     }
 
     private function CheckLogin()
@@ -2301,22 +2318,6 @@ class LMSSplitter extends IPSModule
         unset($data[$Index]);
         $this->ReplyLMSData = $data;
         $this->unlock('ReplyLMSData');
-    }
-
-    /**
-     *  Konvertiert Sekunden in einen lesbare Zeit.
-     *
-     * @param int $Time Zeit in Sekunden
-     *
-     * @return string Zeit als String.
-     */
-    protected function ConvertSeconds(int $Time)
-    {
-        if ($Time > 3600) {
-            return sprintf('%02d:%02d:%02d', ($Time / 3600), ($Time / 60 % 60), $Time % 60);
-        } else {
-            return sprintf('%02d:%02d', ($Time / 60 % 60), $Time % 60);
-        }
     }
 }
 

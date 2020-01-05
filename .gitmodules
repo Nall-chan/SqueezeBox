@@ -6,4 +6,4 @@
 	url = https://github.com/symcon/SymconStubs
 [submodule ".style"]
 	path = .style
-	url = https://github.com/symcon/StylePHP
+url=https://github.com/Nall-chan/StylePHP

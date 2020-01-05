@@ -58,7 +58,8 @@ class AutoloaderSqueezeboxBatteryPHPseclib
  */
 class SqueezeboxBattery extends IPSModule
 {
-    use \SqueezeboxBattery\VariableProfileHelper,
+    use \SqueezeboxBattery\VariableProfileHelper;
+    use
         \SqueezeboxBattery\VariableHelper;
 
     /**

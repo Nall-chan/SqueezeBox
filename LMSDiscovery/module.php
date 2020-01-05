@@ -31,7 +31,8 @@ eval('declare(strict_types=1);namespace LMSDiscovery {?>' . file_get_contents(__
  */
 class LMSDiscovery extends ipsmodule
 {
-    use \squeezebox\DebugHelper,
+    use \squeezebox\DebugHelper;
+    use
         \LMSDiscovery\BufferHelper;
 
     /**
@@ -74,23 +75,6 @@ class LMSDiscovery extends ipsmodule
                 IPS_RunScriptText('LMS_Discover(' . $this->InstanceID . ');');
                 break;
         }
-    }
-
-    private function GetIPSInstances(): array
-    {
-        $InstanceIDList = IPS_GetInstanceListByModuleID('{35028918-3F9C-4524-9FB4-DBAF429C6E18}');
-        $Devices = [];
-        foreach ($InstanceIDList as $InstanceID) {
-            $Splitter = IPS_GetInstance($InstanceID)['ConnectionID'];
-            if ($Splitter > 0) {
-                $IO = IPS_GetInstance($Splitter)['ConnectionID'];
-                if ($IO > 0) {
-                    $Devices[$InstanceID] = IPS_GetProperty($IO, 'Host');
-                }
-            }
-        }
-        $this->SendDebug('IPS Devices', $Devices, 0);
-        return $Devices;
     }
 
     /**
@@ -158,6 +142,30 @@ class LMSDiscovery extends ipsmodule
         return json_encode($Form);
     }
 
+    public function Discover()
+    {
+        $this->LogMessage($this->Translate('Background discovery of Logitech Media Servers'), KL_NOTIFY);
+        $this->Devices = $this->DiscoverDevices();
+        // Alt neu vergleich fehlt, sowie die Events an IPS senden wenn neues Gerät im Netz gefunden wurde.
+    }
+
+    private function GetIPSInstances(): array
+    {
+        $InstanceIDList = IPS_GetInstanceListByModuleID('{35028918-3F9C-4524-9FB4-DBAF429C6E18}');
+        $Devices = [];
+        foreach ($InstanceIDList as $InstanceID) {
+            $Splitter = IPS_GetInstance($InstanceID)['ConnectionID'];
+            if ($Splitter > 0) {
+                $IO = IPS_GetInstance($Splitter)['ConnectionID'];
+                if ($IO > 0) {
+                    $Devices[$InstanceID] = IPS_GetProperty($IO, 'Host');
+                }
+            }
+        }
+        $this->SendDebug('IPS Devices', $Devices, 0);
+        return $Devices;
+    }
+
     private function DiscoverDevices(): array
     {
         $socket = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
@@ -198,13 +206,6 @@ class LMSDiscovery extends ipsmodule
         }
         socket_close($socket);
         return $DeviceData;
-    }
-
-    public function Discover()
-    {
-        $this->LogMessage($this->Translate('Background discovery of Logitech Media Servers'), KL_NOTIFY);
-        $this->Devices = $this->DiscoverDevices();
-        // Alt neu vergleich fehlt, sowie die Events an IPS senden wenn neues Gerät im Netz gefunden wurde.
     }
 }
 
