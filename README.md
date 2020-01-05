@@ -2,7 +2,7 @@
 [![Version](https://img.shields.io/badge/Modul%20Version-3.30-blue.svg)]()
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
 [![Version](https://img.shields.io/badge/Symcon%20Version-5.1%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857-IP-Symcon-5-1-%28Stable%29-Changelog)
-[![StyleCI](https://styleci.io/repos/199910754/shield?style=flat)](https://styleci.io/repos/199910754)  
+[![Check Style](https://github.com/Nall-chan/IPSSqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/IPSSqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/IPSSqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/IPSSqueezeBox/actions)  
 
 # Symcon-Modul: SqueezeBox
 Ermöglich die Steuerung sowie die Darstellung der Zustände
@@ -13,16 +13,24 @@ Logitech Media Server.
 
 **Inhaltsverzeichnis**
 
-1. [Funktionsumfang](#1-funktionsumfang)  
-2. [Voraussetzungen](#2-voraussetzungen)  
-3. [Software-Installation](#3-software-installation) 
-4. [Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
-5. [Anhang](#5-anhang)  
-    1. [GUID der Module](#1-guid-der-module)
-    2. [Datenaustausch](#2-Datenaustausch)
-    3. [Changlog](#3-changlog)
-    4. [Spenden](#4-spenden)
-6. [Lizenz](#6-lizenz)
+- [Symcon-Modul: SqueezeBox](#symcon-modul-squeezebox)
+  - [Dokumentation](#dokumentation)
+  - [1. Funktionsumfang](#1-funktionsumfang)
+    - [Discovery:](#discovery)
+    - [Squeezebox Konfigurator:](#squeezebox-konfigurator)
+    - [Logitech Media Server:](#logitech-media-server)
+    - [SqueezeBox Player:](#squeezebox-player)
+    - [Squeezebox Alarm (Wecker):](#squeezebox-alarm-wecker)
+    - [Squeezebox Battery:](#squeezebox-battery)
+  - [2. Voraussetzungen](#2-voraussetzungen)
+  - [3. Software-Installation](#3-software-installation)
+  - [4. Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
+  - [5. Anhang](#5-anhang)
+    - [1. GUID der Module](#1-guid-der-module)
+    - [2. Datenaustausch](#2-datenaustausch)
+    - [3. Changlog](#3-changlog)
+    - [4. Spenden](#4-spenden)
+  - [6. Lizenz](#6-lizenz)
 
 ## 1. Funktionsumfang
 
