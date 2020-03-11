@@ -440,7 +440,7 @@ class LMSSplitter extends IPSModule
     public function GetPlayerInfo(int $Index)
     {
         if (!is_int($Index)) {
-            trigger_error(sprints($this->Translate('%s must be integer.'), 'Index'), E_USER_NOTICE);
+            trigger_error(sprintf($this->Translate('%s must be integer.'), 'Index'), E_USER_NOTICE);
             return false;
         }
         $LMSData = $this->SendDirect(new LMSData('players', [(string) $Index, '1']));

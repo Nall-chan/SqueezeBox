@@ -9,9 +9,9 @@ declare(strict_types=1);
  * @package       Squeezebox
  * @file          module.php
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2019 Michael Tröger
+ * @copyright     2020 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.3
+ * @version       3.40
  *
  */
 require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
@@ -28,10 +28,9 @@ eval('declare(strict_types=1);namespace SqueezeboxDevice {?>' . file_get_content
  * Erweitert IPSModule.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2019 Michael Tröger
+ * @copyright     2020 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- *
- * @version       3.2
+ * @version       3.40
  *
  * @example <b>Ohne</b>
  *
@@ -294,7 +293,6 @@ class SqueezeboxDevice extends IPSModule
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
     {
         $this->IOMessageSink($TimeStamp, $SenderID, $Message, $Data);
-
         switch ($Message) {
             case IPS_KERNELSTARTED:
                 $this->KernelReady();
@@ -3552,7 +3550,7 @@ class SqueezeboxDevice extends IPSModule
                             break;
                         case 'playlist_cur_index':
                         case 'playlist index':
-                            if ((($this->GetValue('Index')) - 1) != (int) $Data->Value + 1) {
+                            if ($this->GetValue('Index') != ((int) $Data->Value + 1)) {
                                 $this->SetValueInteger('Index', (int) $Data->Value + 1);
                             }
                             break;

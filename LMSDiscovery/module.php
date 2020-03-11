@@ -8,22 +8,20 @@ declare(strict_types=1);
  * @package       Squeezebox
  * @file          module.php
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2019 Michael Tröger
+ * @copyright     2020 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.2
+ * @version       3.4
  *
  */
 require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
-eval('declare(strict_types=1);namespace LMSDiscovery {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
 
 /**
  * LMSDiscovery Klasse implementiert.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2019 Michael Tröger
+ * @copyright     2020 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- *
- * @version       3.2
+ * @version       3.4
  *
  * @example <b>Ohne</b>
  *
@@ -32,8 +30,6 @@ eval('declare(strict_types=1);namespace LMSDiscovery {?>' . file_get_contents(__
 class LMSDiscovery extends ipsmodule
 {
     use \squeezebox\DebugHelper;
-    use
-        \LMSDiscovery\BufferHelper;
 
     /**
      * Interne Funktion des SDK.
@@ -41,8 +37,6 @@ class LMSDiscovery extends ipsmodule
     public function Create()
     {
         parent::Create();
-        $this->Devices = [];
-        $this->RegisterTimer('Discovery', 0, 'LMS_Discover($_IPS[\'TARGET\']);');
     }
 
     /**
@@ -52,29 +46,6 @@ class LMSDiscovery extends ipsmodule
     {
         $this->RegisterMessage(0, IPS_KERNELSTARTED);
         parent::ApplyChanges();
-        $this->SetTimerInterval('Discovery', 300000);
-        if (IPS_GetKernelRunlevel() != KR_READY) {
-            return;
-        }
-        IPS_RunScriptText('LMS_Discover(' . $this->InstanceID . ');');
-    }
-
-    /**
-     * Interne Funktion des SDK.
-     * Verarbeitet alle Nachrichten auf die wir uns registriert haben.
-     *
-     * @param int       $TimeStamp
-     * @param int       $SenderID
-     * @param int       $Message
-     * @param array|int $Data
-     */
-    public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
-    {
-        switch ($Message) {
-            case IPS_KERNELSTARTED:
-                IPS_RunScriptText('LMS_Discover(' . $this->InstanceID . ');');
-                break;
-        }
     }
 
     /**
@@ -82,10 +53,8 @@ class LMSDiscovery extends ipsmodule
      */
     public function GetConfigurationForm()
     {
-        $Devices = $this->Devices;
-        if (count($Devices) == 0) {
-            $Devices = $this->DiscoverDevices();
-        }
+        $this->LogMessage($this->Translate('Background discovery of Logitech Media Servers'), KL_NOTIFY);
+        $Devices = $this->DiscoverDevices();
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
         $IPSDevices = $this->GetIPSInstances();
 
@@ -140,13 +109,6 @@ class LMSDiscovery extends ipsmodule
         $this->SendDebug('FORM', json_encode($Form), 0);
         $this->SendDebug('FORM', json_last_error_msg(), 0);
         return json_encode($Form);
-    }
-
-    public function Discover()
-    {
-        $this->LogMessage($this->Translate('Background discovery of Logitech Media Servers'), KL_NOTIFY);
-        $this->Devices = $this->DiscoverDevices();
-        // Alt neu vergleich fehlt, sowie die Events an IPS senden wenn neues Gerät im Netz gefunden wurde.
     }
 
     private function GetIPSInstances(): array

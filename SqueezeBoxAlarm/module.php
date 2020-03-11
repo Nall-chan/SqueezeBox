@@ -351,7 +351,7 @@ class LSA_AlarmList
  * @copyright     2019 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.2
+ * @version       3.3
  *
  * @example <b>Ohne</b>
  *
