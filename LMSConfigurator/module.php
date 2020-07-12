@@ -372,60 +372,6 @@ class LMSConfigurator extends IPSModule
         $item1 = IPS_GetProperty($InstanceID, $ConfigParam);
     }
 
-    private function GetConfiguratorArray(string $GUID, string $ConfigParamName)
-    {
-        $ModuleName = IPS_GetModule($GUID)['Aliases'][0];
-        $InstancesDevices = $this->GetInstanceList($GUID, $ConfigParamName);
-        $this->SendDebug($ModuleName, $InstancesDevices, 0);
-        $Devices = [];
-        $Device = [];
-        if ($ConfigParamName != '') {
-            $InstanceID = array_search($index, $InstancesDevices);
-            $Device['line'] = $index;
-        } else {
-            $InstanceID = array_search(0, $InstancesDevices);
-        }
-        if ($InstanceID === false) {
-            $Device['instanceID'] = 0;
-            $Device['name'] = $ModuleName;
-        } else {
-            unset($InstancesDevices[$InstanceID]);
-            $Device['instanceID'] = $InstanceID;
-            $Device['name'] = IPS_GetLocation($InstanceID);
-        }
-        $Create = [
-            'moduleID'      => $GUID,
-            'configuration' => new stdClass()
-        ];
-        if ($ConfigParamName != '') {
-            $Create['configuration'] = [
-                $ConfigParamName => $index
-            ];
-        }
-        $Device['create'] = array_merge([$Create], $ParentCreate);
-        $Devices[] = $Device;
-
-        if ($ConfigParamName !== '') {
-            foreach ($InstancesDevices as $InstanceID => $Line) {
-                $Devices[] = [
-                    'instanceID' => $InstanceID,
-                    'type'       => $ModuleName,
-                    'line'       => $Line,
-                    'name'       => IPS_GetLocation($InstanceID)
-                ];
-            }
-        } else {
-            foreach ($InstancesDevices as $InstanceID => $Line) {
-                $Devices[] = [
-                    'instanceID' => $InstanceID,
-                    'type'       => $ModuleName,
-                    'name'       => IPS_GetLocation($InstanceID)
-                ];
-            }
-        }
-        return $Devices;
-    }
-
     /**
      * Konvertiert $Data zu einem JSONString und versendet diese an den Splitter.
      *

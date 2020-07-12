@@ -8,9 +8,9 @@ declare(strict_types=1);
  * @package       Squeezebox
  * @file          module.php
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2019 Michael Tröger
+ * @copyright     2020 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.2
+ * @version       3.5
  *
  */
 eval('declare(strict_types=1);namespace SqueezeboxBattery {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableHelper.php') . '}');
@@ -35,12 +35,11 @@ class AutoloaderSqueezeboxBatteryPHPseclib
 
     public function loadClass($className)
     {
-        $libpath = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'libs' . DIRECTORY_SEPARATOR;
-        $includes[] = $libpath . 'phpseclib';
-        set_include_path(get_include_path() . PATH_SEPARATOR . implode(PATH_SEPARATOR, $includes));
-        $file = str_replace('\\', DIRECTORY_SEPARATOR, $className) . '.php';
-        require_once $file;
-        restore_include_path();
+        $libpath = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'libs' . DIRECTORY_SEPARATOR . 'phpseclib' . DIRECTORY_SEPARATOR;
+        $file = $libpath . str_replace('\\', DIRECTORY_SEPARATOR, $className) . '.php';
+        if (file_exists($file)) {
+            require_once $file;
+        }
     }
 }
 

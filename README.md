@@ -1,5 +1,5 @@
 [![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20Version-3.40-blue.svg)]()
+[![Version](https://img.shields.io/badge/Modul%20Version-3.50-blue.svg)]()
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
 [![Version](https://img.shields.io/badge/Symcon%20Version-5.1%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857-IP-Symcon-5-1-%28Stable%29-Changelog)
 [![Check Style](https://github.com/Nall-chan/IPSSqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/IPSSqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/IPSSqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/IPSSqueezeBox/actions)  
@@ -124,6 +124,9 @@ Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:
 | Data        | array   | Daten des Kommandos als Array |
 
 ### 3. Changlog
+
+Version 3.50:  
+- Fix deprecated restore_include_path in Squeezebox-Battery Instanz.  
 
 Version 3.40:  
 - Fix HTML-Playlist wurde immer neu in Variable geschrieben, auch bei keiner Änderung.  
