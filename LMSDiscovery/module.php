@@ -53,7 +53,6 @@ class LMSDiscovery extends ipsmodule
      */
     public function GetConfigurationForm()
     {
-        $this->LogMessage($this->Translate('Background discovery of Logitech Media Servers'), KL_NOTIFY);
         $Devices = $this->DiscoverDevices();
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
         $IPSDevices = $this->GetIPSInstances();
@@ -61,7 +60,6 @@ class LMSDiscovery extends ipsmodule
         $Values = [];
 
         foreach ($Devices as $IPAddress => $Device) {
-            $InstanceID = array_search($IPAddress, $IPSDevices);
             $AddValue = [
                 'IPAddress'  => $IPAddress,
                 'servername' => $Device['ENAME'],
@@ -69,11 +67,19 @@ class LMSDiscovery extends ipsmodule
                 'version'    => $Device['VERS'],
                 'instanceID' => 0
             ];
+            $InstanceID = array_search($IPAddress, $IPSDevices);
+            if ($InstanceID === false) {
+                $InstanceID = array_search(strtolower($Device['Host']), $IPSDevices);
+                if ($InstanceID !== false) {
+                    $AddValue['IPAddress'] = $Device['Host'];
+                }
+            }
             if ($InstanceID !== false) {
                 unset($IPSDevices[$InstanceID]);
                 $AddValue['name'] = IPS_GetLocation($InstanceID);
                 $AddValue['instanceID'] = $InstanceID;
             }
+
             $AddValue['create'] = [
                 [
                     'moduleID'      => '{35028918-3F9C-4524-9FB4-DBAF429C6E18}',
@@ -88,7 +94,7 @@ class LMSDiscovery extends ipsmodule
                 [
                     'moduleID'      => '{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}',
                     'configuration' => [
-                        'Host' => $IPAddress,
+                        'Host' => $AddValue['IPAddress'],
                         'Port' => 9090
                     ]
                 ]
@@ -120,7 +126,7 @@ class LMSDiscovery extends ipsmodule
             if ($Splitter > 0) {
                 $IO = IPS_GetInstance($Splitter)['ConnectionID'];
                 if ($IO > 0) {
-                    $Devices[$InstanceID] = IPS_GetProperty($IO, 'Host');
+                    $Devices[$InstanceID] = strtolower(IPS_GetProperty($IO, 'Host'));
                 }
             }
         }
@@ -130,6 +136,7 @@ class LMSDiscovery extends ipsmodule
 
     private function DiscoverDevices(): array
     {
+        $this->LogMessage($this->Translate('Background discovery of Logitech Media Servers'), KL_NOTIFY);
         $socket = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
         if (!$socket) {
             return [];
@@ -158,6 +165,7 @@ class LMSDiscovery extends ipsmodule
                 $i--;
                 continue;
             }
+            $this->SendDebug('Receive', $buf, 0);
             $Serach = ['UUID', 'ENAME', 'VERS', 'JSON'];
             foreach ($Serach as $Key) {
                 $start = strpos($buf, $Key);
@@ -165,8 +173,10 @@ class LMSDiscovery extends ipsmodule
                     $DeviceData[$IPAddress][$Key] = substr($buf, $start + strlen($Key) + 1, ord($buf[$start + strlen($Key)]));
                 }
             }
+            $DeviceData[$IPAddress]['Host'] = gethostbyaddr($IPAddress);
         }
         socket_close($socket);
+        $this->SendDebug('Found', $DeviceData, 0);
         return $DeviceData;
     }
 }

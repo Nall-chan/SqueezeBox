@@ -125,6 +125,9 @@ Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:
 
 ### 3. Changlog
 
+Version 3.51:  
+- Discovery kommt auch mit Hostnamen zurecht.  
+
 Version 3.50:  
 - Fix deprecated restore_include_path in Squeezebox-Battery Instanz.  
 

@@ -1170,7 +1170,7 @@ class SqueezeboxAlarm extends IPSModule
         if (in_array($LMSData->Command[0], ['alarm', 'alarms', 'playerpref', 'prefset', 'client'])) {
             $this->DecodeLMSResponse($LMSData);
         } else {
-            $this->SendDebug('UNKNOW', $LMSData, 0);
+            $this->SendDebug('UNKNOWN', $LMSData, 0);
         }
     }
 

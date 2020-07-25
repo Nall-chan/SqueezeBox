@@ -6,7 +6,8 @@
             "Battery": "Batterie",
             "Address": "Adresse",
             "Location": "Lokation",
-            "Instance has no active parent.": "Instanz hat keinen aktiven Parent."
+            "Instance has no active parent.": "Instanz hat keinen aktiven Parent.",
+            "unknown": "unbekannt"
         }
     }
 }

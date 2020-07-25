@@ -188,7 +188,7 @@ class LMSConfigurator extends IPSModule
             $PlayerValues[] = [
                 'instanceID' => $InstanceID,
                 'name'       => IPS_GetName($InstanceID),
-                'model'      => 'unknow',
+                'model'      => 'unknown',
                 'address'    => $Address,
                 'location'   => stristr(IPS_GetLocation($InstanceID), IPS_GetName($InstanceID), true)
             ];

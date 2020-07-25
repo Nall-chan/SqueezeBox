@@ -2598,7 +2598,7 @@ class SqueezeboxDevice extends IPSModule
             }
             $this->DecodeLMSResponse($LMSData);
         } else {
-            $this->SendDebug('UNKNOW', $LMSData, 0);
+            $this->SendDebug('UNKNOWN', $LMSData, 0);
         }
     }
 
