@@ -36,9 +36,7 @@ von den in einer SqueezeBox eingerichteten Weckern in IPS.
 
 ## 3. Software-Installation
 
- Dieses Modul ist Bestandteil der SqueezeBox-Library.  
-   *Über das 'Modul Control' folgende URL hinzufügen:  
-    `git://github.com/Nall-chan/SqueezeBox.git`  
+ Dieses Modul ist Bestandteil der [SqueezeBox-Library](../README.md#3-software-installation).    
 
 ## 4. Einrichten der Instanzen in IP-Symcon
 
