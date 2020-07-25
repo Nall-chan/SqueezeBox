@@ -748,10 +748,10 @@ class LMSSplitter extends IPSModule
 
         return (new LMSTaggingArray($LMSData->Data))->DataArray();
     }
-    
+
     public function GetDirectoryByURLRecursiv(string $Directory)
     {
-        trigger_error($this->Translate('Function ist deprecated. Use LMS_GetDirectoryByURLRecursive.',E_USER_DEPRECATED));
+        trigger_error($this->Translate('Function ist deprecated. Use LMS_GetDirectoryByURLRecursive.', E_USER_DEPRECATED));
         return $this->GetDirectoryByURLRecursive($Directory);
     }
     /**
