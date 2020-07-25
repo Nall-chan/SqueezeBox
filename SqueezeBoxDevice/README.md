@@ -1,11 +1,11 @@
 [![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Version](https://img.shields.io/badge/Modul%20Version-3.40-blue.svg)]()
 [![Version](https://img.shields.io/badge/Symcon%20Version-5.1%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857-IP-Symcon-5-1-%28Stable%29-Changelog)  
-[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)[![Check Style](https://github.com/Nall-chan/IPSSqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/IPSSqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/IPSSqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/IPSSqueezeBox/actions)  
+[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)[![Check Style](https://github.com/Nall-chan/SqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/SqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions)  
 
 # SqueezeBox Player (SqueezeBoxDevice)  
 
-Ermöglich die Steuerung sowie die Darstellung der Zustände
+Ermöglicht die Steuerung sowie die Darstellung der Zustände
 von SqueezeBox Geräten in IPS, in Verbindung mit dem
 Logitech Media Server.  
 
@@ -30,14 +30,14 @@ Logitech Media Server.
 ## 1. Funktionsumfang
 
  - Steuern und Abfragen der diversen verschiedenen Zustände und Eigenschaften.  
- - Abfragen, Laden, bearbeiten und speichern von der internen Playliste des Gerätes.  
- - Syncronisierung steuern.  
+ - Abfragen, Laden, bearbeiten und speichern von der internen  des Gerätes.  
+ - Synchronisierung steuern.  
  - Fähigkeiten über das WebFront:  
     *  Modus: Play,Pause, Stop
     *  Audio: Lautstärke mit Stummschaltung, und wenn vom Gerät unterstützt, auch Tonhöhe sowie Höhen und Bass.
     *  Bedienung der 6 Preset-Tasten vom Gerät
     *  Sleeptimer: Setzen und löschen des Timer.
-    *  Playlist: Trackanwahl, nächster, vorheriger Track, Widerholung und Zufallsmodus
+    *  Playlist: Trackwahl, nächster, vorheriger Track, Wiederholung und Zufallsmodus
     *  Darstellung der Daten zum aktuellen Track: Titel, Album, Interpret, Stilrichtung, Cover etc..
     *  Darstellen der Server-Playlisten sowie laden derselben auf Player.
 
@@ -49,16 +49,16 @@ Logitech Media Server.
 
 ## 3. Software-Installation  
 
- Dieses Modul ist Bestandteil der IPSSqueezeBox-Library.  
-   Bei privater Nutzung: Über das 'Module-Control' in IPS folgende URL hinzufügen.  
-    `git://github.com/Nall-chan/IPSSqueezeBox.git`  
+ Dieses Modul ist Bestandteil der SqueezeBox-Library.  
+   Bei privater Nutzung: Über das 'Module Control' in IPS folgende URL hinzufügen.  
+    `git://github.com/Nall-chan/SqueezeBox.git`  
 
    **Bei kommerzieller Nutzung (z.B. als Errichter oder Integrator) wenden Sie sich bitte an den Autor.**  
 
 ## 4. Einrichten der Instanzen in IP-Symcon
 
 Eine einfache Einrichtung ist über den Konfigurator [Logitech Media Server Konfigurator](../../LMSConfigurator/readme.md) möglich.  
-Bei der manuellen Einrichtung ist die Instanz im Dialog 'Instanz hinzufügen' unter dem Hersteller 'Logitech' zufinden.  
+Bei der manuellen Einrichtung ist die Instanz im Dialog 'Instanz hinzufügen' unter dem Hersteller 'Logitech' zu finden.  
 ![Instanz hinzufügen](imgs/add.png)  
 
 **Konfigurationsseite:**  
@@ -91,7 +91,7 @@ Folgende Statusvariablen werden automatisch angelegt.
 | Power                  | boolean | Power          | Player ein- oder ausgeschaltet                            |
 | Status                 | integer | Status         | Wiedergabemodus: Play, Pause, Stop                        |
 | Preset                 | integer | Preset         | Aktionsbutton für das WebFront um einen Preset auszurufen |
-| Mute                   | boolean | Mute           | Stummschaltung aktiv / deaktiv                            |
+| Mute                   | boolean | Mute           | Stummschaltung aktiv / desaktiv                            |
 | Volume                 | integer | Volume         | Lautstärke                                                |
 | Bass                   | integer | Bass           | Regler für Bass                                           |
 | Hochtonregler          | integer | Treble         | Regler für Hochton                                        |
@@ -110,7 +110,7 @@ Folgende Statusvariablen werden automatisch angelegt.
 | Position               | integer | Position2      | Aktuelle Postion im Track in Prozent                      |
 | Signalstärke           | integer | Signalstrength | WLAN-Signalstärke des Players, sofern vorhanden           |
 | Einschlaftimer         | integer | SleepTimer     | Gewählter Zeitraum für Einschlaftimer                     |
-| Ausschalten in         | string  | SleepTimeout   | Zeit bis zum Auschalten                                   |
+| Ausschalten in         | string  | SleepTimeout   | Zeit bis zum Ausschalten                                   |
 | Playlist               | string  | Playlist       | HTML-Box mit der Playlist des Players                     |
 
 **Profile**:
@@ -133,7 +133,7 @@ Folgende Statusvariablen werden automatisch angelegt.
 Die direkte Darstellung im WebFront ist möglich, es wird aber empfohlen mit Links zu arbeiten.  
 ![WebFront Beispiel](imgs/wf1.png)  
 
-Hier ein Beispiel mit einer Splitpane und zwei Dummy-Instanzen (Playlist & Steuerung) welche Links zu den Statusvariablen und dem Cover enthalten.  
+Hier ein Beispiel mit einer SplitPane und zwei Dummy-Instanzen (Playlist & Steuerung) welche Links zu den Statusvariablen und dem Cover enthalten.  
 ![WebFront Beispiel](imgs/wf2.png)  
 
 ## 7. PHP-Befehlsreferenz
@@ -216,7 +216,7 @@ Liefert `true` bei Erfolg, sonst `false`.
 ```php
 bool LSQ_SetMute(int $InstanzID, bool $Value)
 ```
-Stummschaltung aktiv `true`oder deaktiv `false`.  
+Stummschaltung aktiv `true`oder desaktiv `false`.  
 Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
@@ -325,7 +325,7 @@ Liefert `true` bei Erfolg, sonst `false`.
 bool LSQ_SetShuffle(int $InstanzID, int $Value)
 ```
 Setzt dem Modus für die zufällige Wiedergabe. `$Value` kann die Werte 0 für aus,  
-1 für den alle Titel in der Playlist, oder 2 für das die verschiednen Alben in der Playlist enthalten.  
+1 für den alle Titel in der Playlist, oder 2 für das die verschiedenen Alben in der Playlist enthalten.  
 Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
@@ -395,7 +395,7 @@ bool LSQ_LoadPlaylistByArtistID(int $InstanzID, int $ArtistID)
 bool LSQ_LoadPlaylistByPlaylistID(int $InstanzID, int $PlaylistID)
 bool LSQ_LoadPlaylistByFolderID(int $InstanzID, int $FolderID)
 ```
-Lädt eine Playlist bestehend aus der inm zweiten Parameter übergebeneb ID.  
+Lädt eine Playlist bestehend aus der inm zweiten Parameter übergebene ID.  
 Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
@@ -563,7 +563,7 @@ array LSQ_GetPlaylistInfo(int $InstanzID)
 ```
 Liefert Informationen über die Playlist.  
 **Hinweis:**
-Funktioniert nur, wenn wirklich eine Playlist aus den vorhandnene Server-Playlisten geladen wurde.  
+Funktioniert nur, wenn die Playlist aus den vorhandenen Server-Playlisten geladen wurde.  
 Und auch nur, wenn Sie manuell am Player oder per `LSQ_LoadPlaylistByPlaylistID` geladen wurde.
 Playlisten welche mit ihrem Namen über `LSQ_LoadPlaylist` geladen wurden, liefern leider keine Informationen.  
 
@@ -613,7 +613,7 @@ Wird als `$Index` 0 übergeben, so wird der aktuelle Song genutzt.
 array LSQ_GetSongInfoOfCurrentPlaylist(int $InstanzID)
 ```
 Liefert Informationen über alle Songs in der Playlist.  
-Mehrdimensionales Array, wobei der erste Index der Trackposition entspricht.  
+Mehrdimensionales Array, wobei der erste Index der Position in der Playlist entspricht.  
 
 **Array:**  
 

@@ -144,7 +144,7 @@ class SqueezeboxDevice extends IPSModule
             @IPS_SetIdent($vid, 'Artist');
         }
 
-        // Addresse prüfen
+        // Adresse prüfen
         $Address = $this->ReadPropertyString('Address');
         $changeAddress = false;
         $isMac = false;
@@ -171,7 +171,7 @@ class SqueezeboxDevice extends IPSModule
             return;
         }
 
-        // Addresse als Filter setzen
+        // Adresse als Filter setzen
         $this->SetReceiveDataFilter('.*"Address":"' . $Address . '".*');
         $this->SetSummary($Address);
 
@@ -526,7 +526,7 @@ class SqueezeboxDevice extends IPSModule
       }
      */
     /**
-     * Gibt alle mit diesem Gerät syncronisierte Instanzen zurück.
+     * Gibt alle mit diesem Gerät synchronisierte Instanzen zurück.
      *
      * @return string|array
      * @exception
@@ -683,7 +683,7 @@ class SqueezeboxDevice extends IPSModule
     /**
      * Setzten der Stummschaltung.
      *
-     * @param bolean $Value
+     * @param boolean $Value
      *                      true = Stumm an
      *                      false = Stumm aus
      *
@@ -1064,7 +1064,7 @@ class SqueezeboxDevice extends IPSModule
         return true;
     }
 
-    //ferig
+    //fertig
 
     /**
      * Pausiert die Wiedergabe.
@@ -1254,7 +1254,7 @@ class SqueezeboxDevice extends IPSModule
     /**
      * Lädt eine neue Playlist.
      *
-     * @param string $URL SongURL, Verzeichniss oder Remote-Stream
+     * @param string $URL SongURL, Verzeichnis oder Remote-Stream
      *
      * @return type
      */
@@ -1336,13 +1336,13 @@ class SqueezeboxDevice extends IPSModule
         }
         //TODO
         return $LMSData;
-        // todo für neue funktion insertat
+        // todo für neue funktion InsertAt
         //neue Tracks holen
         // alt = 5
         // neu = 10
-        // tomove = neu - alt = 5 hinzufügt.
-        // Postition = 3
-        // move alt(5, = erster neuer) to Postition (3)
+        // ToMove = neu - alt = 5 hinzufügt.
+        // Position = 3
+        // move alt(5, = erster neuer) to Position (3)
         // move alt+1 to position+1
         //etc..
     }
@@ -1358,13 +1358,13 @@ class SqueezeboxDevice extends IPSModule
         }
         //TODO
         return $LMSData;
-        // todo für neue funktion insertat
+        // todo für neue funktion InsertAt
         //neue Tracks holen
         // alt = 5
         // neu = 10
-        // tomove = neu - alt = 5 hinzufügt.
-        // Postition = 3
-        // move alt(5, = erster neuer) to Postition (3)
+        // ToMove = neu - alt = 5 hinzufügt.
+        // Position = 3
+        // move alt(5, = erster neuer) to Position (3)
         // move alt+1 to position+1
         //etc..
     }
@@ -1534,7 +1534,7 @@ class SqueezeboxDevice extends IPSModule
      * Lädt eine Wiedergabelisten-Datei aus dem LMS-Server und startet die Wiedergabe derselben auf dem Gerät.
      *
      * @param string $Name
-     *                     Der Name der Wiedergabeliste. Eine URL zu einem Stream, einem Verzeichniss oder einer Datei
+     *                     Der Name der Wiedergabeliste. Eine URL zu einem Stream, einem Verzeichnis oder einer Datei
      *
      * @return string
      *                Kompletter Pfad der Wiedergabeliste.
@@ -1589,7 +1589,7 @@ class SqueezeboxDevice extends IPSModule
         }
 
         if (($Genre == '*') && ($Genre == '*') && ($Genre == '*')) {
-            trigger_error($this->Translate('One search patter is requiered'), E_USER_NOTICE);
+            trigger_error($this->Translate('One search patter is required'), E_USER_NOTICE);
             return false;
         }
 
@@ -1627,7 +1627,7 @@ class SqueezeboxDevice extends IPSModule
         }
 
         if (($Genre == '*') && ($Genre == '*') && ($Genre == '*')) {
-            trigger_error($this->Translate('One search patter is requiered'), E_USER_NOTICE);
+            trigger_error($this->Translate('One search patter is required'), E_USER_NOTICE);
             return false;
         }
 
@@ -1811,7 +1811,7 @@ class SqueezeboxDevice extends IPSModule
         }
 
         if (($Genre == '*') && ($Genre == '*') && ($Genre == '*')) {
-            trigger_error($this->Translate('One search patter is requiered'), E_USER_NOTICE);
+            trigger_error($this->Translate('One search patter is required'), E_USER_NOTICE);
             return false;
         }
 
@@ -1849,7 +1849,7 @@ class SqueezeboxDevice extends IPSModule
         }
 
         if (($Genre == '*') && ($Genre == '*') && ($Genre == '*')) {
-            trigger_error($this->Translate('One search patter is requiered'), E_USER_NOTICE);
+            trigger_error($this->Translate('One search patter is required'), E_USER_NOTICE);
             return false;
         }
 
@@ -2707,27 +2707,27 @@ class SqueezeboxDevice extends IPSModule
                 $this->SendDebug('Send Direct', $LoginData, 0);
                 $this->Socket = @stream_socket_client('tcp://' . $Host . ':' . $Port, $errno, $errstr, 2);
                 if (!$this->Socket) {
-                    throw new Exception($this->Translate('No anwser from LMS'), E_USER_NOTICE);
+                    throw new Exception($this->Translate('No answer from LMS'), E_USER_NOTICE);
                 }
                 stream_set_timeout($this->Socket, 5);
                 fwrite($this->Socket, $LoginData);
-                $anwserlogin = stream_get_line($this->Socket, 1024 * 1024 * 2, chr(0x0d));
-                $this->SendDebug('Response Direct', $anwserlogin, 0);
-                if ($anwserlogin === false) {
-                    throw new Exception($this->Translate('No anwser from LMS'), E_USER_NOTICE);
+                $answerlogin = stream_get_line($this->Socket, 1024 * 1024 * 2, chr(0x0d));
+                $this->SendDebug('Response Direct', $answerlogin, 0);
+                if ($answerlogin === false) {
+                    throw new Exception($this->Translate('No answer from LMS'), E_USER_NOTICE);
                 }
             }
 
             $Data = $LMSData->ToRawStringForLMS();
             $this->SendDebug('Send Direct', $Data, 0);
             fwrite($this->Socket, $Data);
-            $anwser = stream_get_line($this->Socket, 1024 * 1024 * 2, chr(0x0d));
-            $this->SendDebug('Response Direct', $anwser, 0);
-            if ($anwser === false) {
-                throw new Exception($this->Translate('No anwser from LMS'), E_USER_NOTICE);
+            $answer = stream_get_line($this->Socket, 1024 * 1024 * 2, chr(0x0d));
+            $this->SendDebug('Response Direct', $answer, 0);
+            if ($answer === false) {
+                throw new Exception($this->Translate('No answer from LMS'), E_USER_NOTICE);
             }
 
-            $ReplyData = new LMSResponse($anwser);
+            $ReplyData = new LMSResponse($answer);
             $LMSData->Data = $ReplyData->Data;
             $this->SendDebug('Response Direct', $LMSData, 0);
             return $LMSData;
@@ -3558,8 +3558,8 @@ class SqueezeboxDevice extends IPSModule
                             $this->SetValueString('Playlistname', trim((string) $Data->Value));
                             break;
                         //playlist_timestamp:1474744498.14079
-                        // merken und auf änderung ein Refreh machen ?!
-                        case'current_title':
+                        // merken und auf änderung ein Refresh machen ?!
+                        case 'current_title':
                             break;
                         case 'title':
                             $this->SetValueString('Title', trim((string) $Data->Value));
@@ -3608,12 +3608,12 @@ class SqueezeboxDevice extends IPSModule
             $LMSData->Address = $this->ReadPropertyString('Address');
             $this->SendDebug('Send', $LMSData, 0);
 
-            $anwser = $this->SendDataToParent($LMSData->ToJSONString('{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}'));
-            if ($anwser === false) {
+            $answer = $this->SendDataToParent($LMSData->ToJSONString('{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}'));
+            if ($answer === false) {
                 $this->SendDebug('Response', 'No valid answer', 0);
                 return null;
             }
-            $result = unserialize($anwser);
+            $result = unserialize($answer);
             if ($LMSData->needResponse === false) {
                 return $result;
             }

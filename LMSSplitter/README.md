@@ -1,10 +1,10 @@
 [![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Version](https://img.shields.io/badge/Modul%20Version-3.40-blue.svg)]()
 [![Version](https://img.shields.io/badge/Symcon%20Version-5.1%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857-IP-Symcon-5-1-%28Stable%29-Changelog)  
-[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)[![Check Style](https://github.com/Nall-chan/IPSSqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/IPSSqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/IPSSqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/IPSSqueezeBox/actions)  
+[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)[![Check Style](https://github.com/Nall-chan/SqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/SqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions)  
 
 # Logitech Media Server Splitter (LMSSplitter)
-Ermöglich die Kommunikation von IPS mit dem CLI des Logitech Media Servers.  
+Ermöglicht die Kommunikation von IPS mit dem CLI des Logitech Media Servers.  
 
 ## Dokumentation  <!-- omit in toc -->
 
@@ -43,14 +43,14 @@ Ermöglich die Kommunikation von IPS mit dem CLI des Logitech Media Servers.
 
 ## 3. Software-Installation
 
- Dieses Modul ist Bestandteil der IPSSqueezeBox-Library.  
+ Dieses Modul ist Bestandteil der SqueezeBox-Library.  
    *Über das 'Modul Control' folgende URL hinzufügen:  
-    `git://github.com/Nall-chan/IPSSqueezeBox.git`  
+    `git://github.com/Nall-chan/SqueezeBox.git`  
 
 ## 4. Einrichten der Instanzen in IP-Symcon
 
 Der Splitter wird automatisch erzeugt, sobald z.B. der Konfigurator [Logitech Media Server Konfigurator](../../LMSConfigurator/readme.md) angelegt wird.  
-Bei der manuellen Einrichtung ist die Instanz im Dialog 'Instanz hinzufügen' unter dem Hersteller 'Logitech' zufinden.  
+Bei der manuellen Einrichtung ist die Instanz im Dialog 'Instanz hinzufügen' unter dem Hersteller 'Logitech' zu finden.  
 ![Instanz hinzufügen](imgs/add1.png)  
 
 Alternativ ist es auch in der Liste alle Splitter aufgeführt.  
@@ -172,7 +172,7 @@ Im Fehlerfall wird `false` zurückgegeben.
 ```php
 array LMS_GetPlayerInfo(int $InstanzID, int $Index)
 ```
-Liefert ein assoziertes Array mit den Daten des Players.  
+Liefert ein assoziiertes Array mit den Daten des Players.  
 Im Fehlerfall wird `false` zurückgegeben.  
 
 **Array:**  
@@ -224,7 +224,7 @@ Liefert `true` bei Erfolg, sonst `false`.
 #### 3. Datenbank:
 
 ```php
-array LMS_GetLibaryInfo (int $InstanzID)  
+array LMS_GetLibraryInfo (int $InstanzID)  
 ```
 Liefert Informationen über die Datenbank des LMS.  
 
@@ -292,9 +292,9 @@ Im Fehlerfall wird `false` zurückgegeben.
 
 ```php
 array LMS_GetDirectoryByID (int $InstanzID, int $FolderID)  
-array LMS_GetDirectoryByIDRecursiv (int $InstanzID, int $FolderID)
+array LMS_GetDirectoryByIDRecursive (int $InstanzID, int $FolderID)
 array LMS_GetDirectoryByURL (int $InstanzID, string $Directory)  
-array LMS_GetDirectoryByURLRecursiv (int $InstanzID, string $Directory)
+array LMS_GetDirectoryByURLRecursive (int $InstanzID, string $Directory)
 ```
 Liefert Informationen über ein Verzeichnis des LMS.  
 Es wird ein mehrdimensionales Array zurückgeben mit allen Medien, wobei der erste Index die DateiID der Mediadatei darstellt.  
@@ -327,7 +327,7 @@ array LMS_GetSongInfoByFileID (int $InstanzID, int $SongID)
 array LMS_GetSongInfoByFileURL (int $InstanzID, string $SongURL)
 ```
 Liefert Details zu einem Song anhand der '$SongID' oder '$SongURL'.  
-Es wird ein assoziertes Array zurückgeben.  
+Es wird ein assoziiertes Array zurückgeben.  
 Im Fehlerfall wird `false` zurückgegeben.  
 
 **Array:**  
@@ -366,7 +366,7 @@ Dazu ist jeweils '$AlbumId', '$ArtistId' oder die '$GenreId' zu übergeben.
 Der Parameter '$Search' liefert nur Ergebnisse wo dieser Such-String enthalten ist.  
 Es wird ein mehrdimensionales Array zurückgeben mit allen gefundenen Songs.  
 Im Fehlerfall wird `false` zurückgegeben.  
-Die enthaltenen assozierten Array entsprechen dem von LMS_GetSongInfoBy*.  
+Die enthaltenen assoziierten Array entsprechen dem von LMS_GetSongInfoBy*.  
 
 ---
 
@@ -374,7 +374,7 @@ Die enthaltenen assozierten Array entsprechen dem von LMS_GetSongInfoBy*.
 array LMS_Search(int $InstanzID, string $Value)
 ```
 Sucht nach dem in '$Value' übergebenen String in der Datenbank des LMS.  
-Liefert ein assoziertes Array mit den Schlüsseln 'Contributors', 'Tracks' und 'Albums' welcher die jeweiligen Suchergebnisse einer Kategorie enthalten.  
+Liefert ein assoziiertes Array mit den Schlüsseln 'Contributors', 'Tracks' und 'Albums' welcher die jeweiligen Suchergebnisse einer Kategorie enthalten.  
 Die Suchergebnisse der Kategorie enthalten die jeweiligen Namen und IDs der Datenbank.  
 Im Fehlerfall wird `false` zurückgegeben.  
 
@@ -616,7 +616,7 @@ array LMS_ExistsUrlInFavorite (int $InstanzID, string $URL)
 array LMS_ExistsIdInFavorite (int $InstanzID, int $ID)
 ```
 Prüft ob die in '$ID' oder '$URL' übergebene Datei in den Favoriten vorhanden ist.  
-Liefert ein assoziertes Array.  
+Liefert ein assoziiertes Array.  
 Im Fehlerfall wird `false` zurückgegeben.  
 
 **Array:**  
@@ -634,7 +634,7 @@ array LMS_GetRadios (int $InstanzID)
 array LMS_GetApps (int $InstanzID)
 ```
 Liefert alle Informationen zu installierten Plugins vom Typ Radio oder App.  
-Liefert ein mehrdimensionales assoziertes Array.  
+Liefert ein mehrdimensionales assoziiertes Array.  
 Im Fehlerfall wird `false` zurückgegeben.  
 
 **Array:**  
@@ -642,7 +642,7 @@ Im Fehlerfall wird `false` zurückgegeben.
 | Index  | Typ     | Beschreibung                                            |
 | :----: | :-----: | :-----------------------------------------------------: |
 | Icon   | string  | URL zum Icon des Eintrags                               |
-| Cmd    | string  | Das zu verwendende Kommando für den Playler             |
+| Cmd    | string  | Das zu verwendende Kommando für den Player             |
 | Weight | string  | Sortierreihenfolge                                      |
 | Name   | string  | Der Names des Eintrags                                  |
 | Type   | string  | Der Typ des Eintrags, xmlbrowser oder xmlbrowser_search |
@@ -654,9 +654,9 @@ array LMS_GetRadioOrAppData (int $InstanzID, string $Cmd, string $FolderID)
 array LMS_GetRadioOrAppDataEx (int $InstanzID, string $Cmd, string $FolderID, string $Search)
 ```
 Über den Befehl können die Kommandos von LMS_GetRadios und LMS_GetApps ausgeführt werden.  
-Liefert ein mehrdimensionales assoziertes Array.  
+Liefert ein mehrdimensionales assoziiertes Array.  
 '$Cmd' ist das Kommando z.B. 'world', 'itunes', 'search' etc..  
-'$FolderID' muss entweder einen Leeren String enhalten für die Oberste Ebene des Plugin, oder die ID der Einträge.  
+'$FolderID' muss entweder einen leeren String enthalten für die Oberste Ebene des Plugin, oder die ID der Einträge.  
 '$Search' enthält den Suchparameter für alle Plugins vom Typ xmlbrowser_search.  
 Im Fehlerfall wird `false` zurückgegeben.  
 

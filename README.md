@@ -2,10 +2,10 @@
 [![Version](https://img.shields.io/badge/Modul%20Version-3.50-blue.svg)]()
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
 [![Version](https://img.shields.io/badge/Symcon%20Version-5.1%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857-IP-Symcon-5-1-%28Stable%29-Changelog)
-[![Check Style](https://github.com/Nall-chan/IPSSqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/IPSSqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/IPSSqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/IPSSqueezeBox/actions)  
+[![Check Style](https://github.com/Nall-chan/SqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/SqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions)  
 
 # Symcon-Modul: SqueezeBox
-Ermöglich die Steuerung sowie die Darstellung der Zustände
+Ermöglicht die Steuerung sowie die Darstellung der Zustände
 von SqueezeBox Geräten in IPS, in Verbindung mit dem
 Logitech Media Server.
 
@@ -26,7 +26,7 @@ Logitech Media Server.
 - [5. Anhang](#5-anhang)
   - [1. GUID der Module](#1-guid-der-module)
   - [2. Datenaustausch](#2-datenaustausch)
-  - [3. Changlog](#3-changlog)
+  - [3. Changelog](#3-changelog)
   - [4. Spenden](#4-spenden)
 - [6. Lizenz](#6-lizenz)
 
@@ -53,14 +53,14 @@ Logitech Media Server.
 ### [SqueezeBox Player:](SqueezeBoxDevice/)  
 
  - Steuern und Abfragen der diversen verschiedenen Zustände und Eigenschaften.  
- - Abfragen, Laden, bearbeiten und speichern von der internen Playliste des Gerätes.  
- - Syncronisierung steuern.  
+ - Abfragen, Laden, bearbeiten und speichern von der internen Playlist des Gerätes.  
+ - Synchronisierung steuern.  
  - Fähigkeiten über das WebFront:  
     *  Modus: Play,Pause, Stop
     *  Audio: Lautstärke mit Stummschaltung, und wenn vom Gerät unterstützt, auch Tonhöhe sowie Höhen und Bass.
     *  Bedienung der 6 Preset-Tasten vom Gerät
     *  Sleeptimer: Setzen und löschen des Timer.
-    *  Playlist: Trackanwahl, nächster, vorheriger Track, Widerholung und Zufallsmodus
+    *  Playlist: Trackwahl, nächster, vorheriger Track, Wiederholung und Zufallsmodus
     *  Darstellung der Daten zum aktuellen Track: Titel, Album, Interpret, Stilrichtung, Cover etc..
     *  Darstellen der Server-Playlisten sowie laden derselben auf Player.
 
@@ -123,10 +123,11 @@ Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:
 | Command     | array   | CLI Kommandos als Array       |
 | Data        | array   | Daten des Kommandos als Array |
 
-### 3. Changlog
+### 3. Changelog
 
 Version 3.51:  
 - Discovery kommt auch mit Hostnamen zurecht.  
+- Schreibfehler korrigiert.  
 
 Version 3.50:  
 - Fix deprecated restore_include_path in Squeezebox-Battery Instanz.  
@@ -137,7 +138,7 @@ Version 3.40:
 
 Version 3.30:  
 - Fix Fehlermeldungen im Wecker behoben.  
-- Fix Fehlermeldung im Splitter bei deaktiver HTML-Playlist behoben.  
+- Fix Fehlermeldung im Splitter bei deaktivierter HTML-Playlist behoben.  
 - Zusätzlicher Fix für Fehlermeldung beim Profil der TrackList.  
 
 Version 3.23:  
@@ -176,7 +177,7 @@ Version 1.0:
 
 ### 4. Spenden  
   
-  Die Library ist für die nicht kommzerielle Nutzung kostenlos, Schenkungen als Unterstützung für den Autor werden hier akzeptiert:  
+  Die Library ist für die nicht kommerzielle Nutzung kostenlos, Schenkungen als Unterstützung für den Autor werden hier akzeptiert:  
 
 <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=G2SLW2MEMQZH2" target="_blank"><img src="https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_LG.gif" border="0" /></a>
 

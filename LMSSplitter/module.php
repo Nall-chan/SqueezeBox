@@ -9,9 +9,9 @@ declare(strict_types=1);
  * @package       Squeezebox
  * @file          module.php
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2019 Michael Tröger
+ * @copyright     2020 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.3
+ * @version       3.51
  *
  */
 
@@ -31,15 +31,15 @@ eval('declare(strict_types=1);namespace LMSSplitter {?>' . file_get_contents(__D
  * @todo          Favoriten als Tabelle oder Baum ?! für das WF
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2019 Michael Tröger
+ * @copyright     2020 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.2
+ * @version       3.51
  *
  * @example <b>Ohne</b>
  *
- * @property array $ReplyLMSData Enthält die versendeten Befehle und buffert die Antworten.
- * @property string $Buffer Empfangsbuffer
+ * @property array $ReplyLMSData Enthält die versendeten Befehle und speichert die Antworten.
+ * @property string $Buffer EmpfangsBuffer
  * @property string $Host Adresse des LMS (aus IO-Parent ausgelesen)
  * @property int $ParentID Die InstanzeID des IO-Parent
  * @property array $Multi_Playlists Alle Datensätze der Playlisten
@@ -137,7 +137,7 @@ class LMSSplitter extends IPSModule
         $this->EnableAction('RescanState');
 
         $this->RegisterVariableString('RescanInfo', $this->Translate('Rescan state'), '', 2);
-        $this->RegisterVariableString('RescanProgress', $this->Translate('Rescan progess'), '', 3);
+        $this->RegisterVariableString('RescanProgress', $this->Translate('Rescan progress'), '', 3);
         $this->RegisterVariableInteger('Players', 'Number of players', '', 4);
 
         // ServerPlaylisten
@@ -289,7 +289,7 @@ class LMSSplitter extends IPSModule
      * IPS-Instanz-Funktion 'LMS_SendSpecial'.
      * Sendet einen Anfrage an den LMS.
      *
-     * @param string $Command Das zu sendene Kommando.
+     * @param string $Command Das zu sendende Kommando.
      * @param string $Value   Die zu sendenden Werte als JSON String.
      * @result array|bool Antwort des LMS als Array, false im Fehlerfall.
      */
@@ -435,7 +435,7 @@ class LMSSplitter extends IPSModule
      * var_dump($ret);
      * </code>
      *
-     * @return array Ein assoziertes Array mit den Daten des Players.
+     * @return array Ein assoziiertes Array mit den Daten des Players.
      */
     public function GetPlayerInfo(int $Index)
     {
@@ -514,11 +514,11 @@ class LMSSplitter extends IPSModule
     }
 
     /**
-     * IPS-Instanz-Funktion 'LMS_GetLibaryInfo'.
+     * IPS-Instanz-Funktion 'LMS_GetLibraryInfo'.
      *
      * @result array
      */
-    public function GetLibaryInfo()
+    public function GetLibraryInfo()
     {
         $genres = $this->Send(new LMSData(['info', 'total', 'genres'], '?'));
         if ($genres === null) {
@@ -689,14 +689,19 @@ class LMSSplitter extends IPSModule
         return (new LMSTaggingArray($LMSData->Data))->DataArray();
     }
 
+    public function GetDirectoryByIDRecursiv(int $FolderID)
+    {
+        trigger_error($this->Translate('Function ist deprecated. Use LMS_GetDirectoryByIDRecursive.', E_USER_DEPRECATED));
+        return $this->GetDirectoryByIDRecursive($FolderID);
+    }
     /**
-     * IPS-Instanz-Funktion 'LMS_GetDirectoryByIDRecursiv'. Liefert rekursiv Informationen zu einem Verzeichnis.
+     * IPS-Instanz-Funktion 'LMS_GetDirectoryByIDRecursive'. Liefert rekursiv Informationen zu einem Verzeichnis.
      *
      * @param int $FolderID ID des Verzeichnis welches durchsucht werden soll.
      *
      * @return array|bool Array mit den Quellen oder false bei Fehler.
      */
-    public function GetDirectoryByIDRecursiv(int $FolderID)
+    public function GetDirectoryByIDRecursive(int $FolderID)
     {
         if (!is_int($FolderID)) {
             trigger_error(sprintf($this->Translate('%s must be integer'), 'FolderID'), E_USER_NOTICE);
@@ -743,15 +748,20 @@ class LMSSplitter extends IPSModule
 
         return (new LMSTaggingArray($LMSData->Data))->DataArray();
     }
-
+    
+    public function GetDirectoryByURLRecursiv(string $Directory)
+    {
+        trigger_error($this->Translate('Function ist deprecated. Use LMS_GetDirectoryByURLRecursive.',E_USER_DEPRECATED));
+        return $this->GetDirectoryByURLRecursive($Directory);
+    }
     /**
-     * IPS-Instanz-Funktion 'LMS_GetDirectoryByURLRecursiv'. Liefert rekursiv Informationen zu einem Verzeichnis.
+     * IPS-Instanz-Funktion 'LMS_GetDirectoryByURLRecursive'. Liefert rekursiv Informationen zu einem Verzeichnis.
      *
      * @param string $Directory URL des Verzeichnis welches durchsucht werden soll.
      *
      * @return array|bool Array mit den Quellen oder false bei Fehler.
      */
-    public function GetDirectoryByURLRecursiv(string $Directory)
+    public function GetDirectoryByURLRecursive(string $Directory)
     {
         if (!is_string($Directory)) {
             trigger_error(sprintf($this->Translate('%s must be string'), 'Directory'), E_USER_NOTICE);
@@ -1280,7 +1290,7 @@ class LMSSplitter extends IPSModule
      * IPS-Instanz-Funktion 'LMS_GetFavorites'.
      * Liefert ein Array mit allen in $FavoriteID enthaltenen Favoriten.
      *
-     * @param string $FavoriteID ID des Favortien welcher ausgelesen werden soll. '' für oberste Ebene.
+     * @param string $FavoriteID ID des Favoriten welcher ausgelesen werden soll. '' für oberste Ebene.
      * @result array
      */
     public function GetFavorites(string $FavoriteID)
@@ -1557,7 +1567,7 @@ class LMSSplitter extends IPSModule
     //################# DATAPOINTS DEVICE
 
     /**
-     * Interne Funktion des SDK. Nimmt Daten von Childs entgegen und sendet Diese weiter.
+     * Interne Funktion des SDK. Nimmt Daten von Children entgegen und sendet Diese weiter.
      *
      * @param string $JSONString Ein LSQData-Objekt welches als JSONString kodiert ist.
      * @result LMSData|bool
@@ -1587,14 +1597,14 @@ class LMSSplitter extends IPSModule
     {
         $data = json_decode($JSONString);
 
-        // Datenstream zusammenfügen
+        // DatenStream zusammenfügen
         $head = $this->Buffer;
         $Data = $head . utf8_decode($data->Buffer);
 
         // Stream in einzelne Pakete schneiden
         $packet = explode(chr(0x0d), $Data);
 
-        // Rest vom Stream wieder in den Empfangsbuffer schieben
+        // Rest vom Stream wieder in den EmpfangsBuffer schieben
         $tail = trim(array_pop($packet));
         $this->Buffer = $tail;
 
@@ -1689,7 +1699,7 @@ class LMSSplitter extends IPSModule
     /**
      * Verarbeitet Daten aus dem Webhook.
      *
-     * @param string $ID Die zu ladenen Playlist oder der zu ladene Favorit.
+     * @param string $ID Die zu ladenden Playlist oder der zu ladende Favorit.
      */
     protected function ProcessHookdata()
     {
@@ -1751,7 +1761,7 @@ class LMSSplitter extends IPSModule
     {
         try {
             if (IPS_GetInstance($this->InstanceID)['InstanceStatus'] != IS_ACTIVE) {
-                throw new Exception($this->Translate('Instance inactiv.'), E_USER_NOTICE);
+                throw new Exception($this->Translate('Instance inactive.'), E_USER_NOTICE);
             }
 
             if (!$this->HasActiveParent()) {
@@ -1765,7 +1775,7 @@ class LMSSplitter extends IPSModule
                 $ReplyDataArray = $this->WaitForResponse($LMSData);
 
                 if ($ReplyDataArray === false) {
-                    throw new Exception($this->Translate('No anwser from LMS'), E_USER_NOTICE);
+                    throw new Exception($this->Translate('No answer from LMS'), E_USER_NOTICE);
                 }
 
                 $LMSData->Data = $ReplyDataArray;
@@ -1792,7 +1802,7 @@ class LMSSplitter extends IPSModule
     {
         try {
             if (IPS_GetInstance($this->InstanceID)['InstanceStatus'] != IS_ACTIVE) {
-                throw new Exception($this->Translate('Instance inactiv.'), E_USER_NOTICE);
+                throw new Exception($this->Translate('Instance inactive.'), E_USER_NOTICE);
             }
 
             if (!$this->HasActiveParent()) {
@@ -1814,27 +1824,27 @@ class LMSSplitter extends IPSModule
                 $this->SendDebug('Send Direct', $LoginData, 0);
                 $this->Socket = @stream_socket_client('tcp://' . $this->Host . ':' . $Port, $errno, $errstr, 1);
                 if (!$this->Socket) {
-                    throw new Exception($this->Translate('No anwser from LMS'), E_USER_NOTICE);
+                    throw new Exception($this->Translate('No answer from LMS'), E_USER_NOTICE);
                 }
                 stream_set_timeout($this->Socket, 5);
                 fwrite($this->Socket, $LoginData);
-                $anwserlogin = stream_get_line($this->Socket, 1024 * 1024 * 2, chr(0x0d));
-                $this->SendDebug('Response Direct', $anwserlogin, 0);
-                if ($anwserlogin === false) {
-                    throw new Exception($this->Translate('No anwser from LMS'), E_USER_NOTICE);
+                $answerlogin = stream_get_line($this->Socket, 1024 * 1024 * 2, chr(0x0d));
+                $this->SendDebug('Response Direct', $answerlogin, 0);
+                if ($answerlogin === false) {
+                    throw new Exception($this->Translate('No answer from LMS'), E_USER_NOTICE);
                 }
             }
 
             $Data = $LMSData->ToRawStringForLMS();
             $this->SendDebug('Send Direct', $Data, 0);
             fwrite($this->Socket, $Data);
-            $anwser = stream_get_line($this->Socket, 1024 * 1024 * 2, chr(0x0d));
-            $this->SendDebug('Response Direct', $anwser, 0);
-            if ($anwser === false) {
-                throw new Exception($this->Translate('No anwser from LMS'), E_USER_NOTICE);
+            $answer = stream_get_line($this->Socket, 1024 * 1024 * 2, chr(0x0d));
+            $this->SendDebug('Response Direct', $answer, 0);
+            if ($answer === false) {
+                throw new Exception($this->Translate('No answer from LMS'), E_USER_NOTICE);
             }
 
-            $ReplyData = new LMSResponse($anwser);
+            $ReplyData = new LMSResponse($answer);
             $LMSData->Data = $ReplyData->Data;
             $this->SendDebug('Response Direct', $LMSData, 0);
             return $LMSData;
@@ -1944,19 +1954,19 @@ class LMSSplitter extends IPSModule
         }
         $players = $LMSData->Data[0];
         $this->SetValueInteger('Players', $players);
-        $Assosiation = [];
-        $Assosiation[] = [-2, 'Keiner', '', 0x00ff00];
-        $Assosiation[] = [-1, 'Alle', '', 0xff0000];
+        $Assoziation = [];
+        $Assoziation[] = [-2, 'Keiner', '', 0x00ff00];
+        $Assoziation[] = [-1, 'Alle', '', 0xff0000];
         for ($i = 0; $i < $players; $i++) {
             $LMSPlayerData = $this->SendDirect(new LMSData(['player', 'name'], [$i, '?']));
             if ($LMSPlayerData == null) {
                 continue;
             }
             $PlayerName = $LMSPlayerData->Data[1];
-            $Assosiation[] = [$i, $PlayerName, '', -1];
+            $Assoziation[] = [$i, $PlayerName, '', -1];
         }
         if ($this->ReadPropertyBoolean('showPlaylist')) {
-            $this->RegisterProfileIntegerEx('LMS.PlayerSelect' . $this->InstanceID, 'Speaker', '', '', $Assosiation);
+            $this->RegisterProfileIntegerEx('LMS.PlayerSelect' . $this->InstanceID, 'Speaker', '', '', $Assoziation);
             $this->SetValueInteger('PlayerSelect', -2);
         }
         return true;
@@ -2163,7 +2173,7 @@ class LMSSplitter extends IPSModule
                 if (count($LMSData->Command) > 1) {
                     if (in_array($LMSData->Command[1], ['addlevel', 'rename', 'delete', 'move', 'changed'])) {
                         //mediafolder
-                        //$this->RefreshFavoriteslist();
+                        //$this->RefreshFavoritesList();
 
                         break;
                     }
@@ -2179,7 +2189,7 @@ class LMSSplitter extends IPSModule
     }
 
     /**
-     * Sendet LSQData an die Childs.
+     * Sendet LSQData an die Children.
      *
      * @param LMSResponse $LMSResponse Ein LMSResponse-Objekt.
      */
@@ -2208,24 +2218,24 @@ class LMSSplitter extends IPSModule
             if (!$fp) {
                 $this->SendDebug('no socket', $errstr, 0);
 
-                throw new Exception($this->Translate('No anwser from LMS') . ' ' . $errstr, E_USER_NOTICE);
+                throw new Exception($this->Translate('No answer from LMS') . ' ' . $errstr, E_USER_NOTICE);
             } else {
                 stream_set_timeout($fp, 5);
                 $this->SendDebug('Check login', $LoginData, 0);
                 fwrite($fp, $LoginData);
-                $anwserlogin = stream_get_line($fp, 1024 * 1024 * 2, chr(0x0d));
-                $this->SendDebug('Receive login', $anwserlogin, 0);
+                $answerlogin = stream_get_line($fp, 1024 * 1024 * 2, chr(0x0d));
+                $this->SendDebug('Receive login', $answerlogin, 0);
                 $this->SendDebug('Connection check', $CheckData, 0);
                 fwrite($fp, $CheckData);
-                $anwser = stream_get_line($fp, 1024 * 1024 * 2, chr(0x0d));
+                $answer = stream_get_line($fp, 1024 * 1024 * 2, chr(0x0d));
                 fclose($fp);
-                $this->SendDebug('Receive check', $anwser, 0);
+                $this->SendDebug('Receive check', $answer, 0);
             }
-            if ($anwserlogin === false) {
-                throw new Exception($this->Translate('No anwser from LMS'), E_USER_NOTICE);
+            if ($answerlogin === false) {
+                throw new Exception($this->Translate('No answer from LMS'), E_USER_NOTICE);
             }
-            if ($anwser === false) {
-                throw new Exception($this->Translate('No anwser from LMS'), E_USER_NOTICE);
+            if ($answer === false) {
+                throw new Exception($this->Translate('No answer from LMS'), E_USER_NOTICE);
             }
         } catch (Exception $ex) {
             echo $ex->getMessage();

@@ -9,9 +9,9 @@ declare(strict_types=1);
  * @package       Squeezebox
  * @file          module.php
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2019 Michael Tröger
+ * @copyright     2020 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.2
+ * @version       3.51
  *
  */
 require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
@@ -24,10 +24,10 @@ eval('declare(strict_types=1);namespace LMSConfigurator {?>' . file_get_contents
  * Erweitert IPSModule.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2019 Michael Tröger
+ * @copyright     2020 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.2
+ * @version       3.51
  *
  * @example <b>Ohne</b>
  */
@@ -303,9 +303,9 @@ class LMSConfigurator extends IPSModule
     protected function IOChangeState($State)
     {
         if ($State == IS_ACTIVE) {
-            // Gerätebuffer laden
+            // Buffer aller Player laden
         } else {
-            // Gerätebuffer leeren
+            // Buffer aller Player leeren
         }
     }
 
@@ -313,7 +313,7 @@ class LMSConfigurator extends IPSModule
      * IPS-Instanz-Funktion 'LMC_GetDeviceInfo'.
      * Lädt die bekannten Player vom LMS.
      *
-     * @result array|bool Assoziertes Array,  false und Fehlermeldung.
+     * @result array|bool Assoziiertes Array,  false und Fehlermeldung.
      */
     private function GetDeviceInfo()
     {
@@ -383,11 +383,11 @@ class LMSConfigurator extends IPSModule
     {
         try {
             $JSONData = $LMSData->ToJSONString('{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}');
-            $anwser = @$this->SendDataToParent($JSONData);
-            if ($anwser === false) {
+            $answer = @$this->SendDataToParent($JSONData);
+            if ($answer === false) {
                 return null;
             }
-            $result = @unserialize($anwser);
+            $result = @unserialize($answer);
             if ($result === null) {
                 return null;
             }

@@ -1,12 +1,12 @@
 {
     "id": "{DC3BA2AD-B442-4F51-B743-6BF8F90B96B8}",
     "author": "Michael Tr\u00f6ger",
-    "name": "Squeezbox Library",
-    "url": "https://github.com/Nall-chan/IPSSqueezebox",
+    "name": "Squeezebox Library",
+    "url": "https://github.com/Nall-chan/Squeezebox",
     "compatibility": {
         "version": "5.1"
     },
-    "version": "3.50",
-    "build": 230,
-    "date": 1594559336     
+    "version": "3.51",
+    "build": 240,
+    "date": 1595684957     
 }

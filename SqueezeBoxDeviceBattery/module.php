@@ -10,16 +10,16 @@ declare(strict_types=1);
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2020 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.5
+ * @version       3.51
  *
  */
 eval('declare(strict_types=1);namespace SqueezeboxBattery {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableHelper.php') . '}');
 eval('declare(strict_types=1);namespace SqueezeboxBattery {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableProfileHelper.php') . '}');
 
-$autoloader = new AutoloaderSqueezeboxBatteryPHPseclib('Net\SSH2');
-$autoloader->register();
+$AutoLoader = new AutoLoaderSqueezeboxBatteryPHPSecLib('Net\SSH2');
+$AutoLoader->register();
 
-class AutoloaderSqueezeboxBatteryPHPseclib
+class AutoLoaderSqueezeboxBatteryPHPSecLib
 {
     private $namespace;
 
@@ -35,8 +35,8 @@ class AutoloaderSqueezeboxBatteryPHPseclib
 
     public function loadClass($className)
     {
-        $libpath = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'libs' . DIRECTORY_SEPARATOR . 'phpseclib' . DIRECTORY_SEPARATOR;
-        $file = $libpath . str_replace('\\', DIRECTORY_SEPARATOR, $className) . '.php';
+        $LibPath = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'libs' . DIRECTORY_SEPARATOR . 'phpseclib' . DIRECTORY_SEPARATOR;
+        $file = $LibPath . str_replace('\\', DIRECTORY_SEPARATOR, $className) . '.php';
         if (file_exists($file)) {
             require_once $file;
         }
@@ -48,10 +48,10 @@ class AutoloaderSqueezeboxBatteryPHPseclib
  * Erweitert IPSModule.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2019 Michael Tröger
+ * @copyright     2020 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.2
+ * @version       3.51
  *
  * @example <b>Ohne</b>
  */

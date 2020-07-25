@@ -12,9 +12,9 @@ require_once __DIR__ . '/TimeConvert.php';  // diverse Klassen
  * @package       Squeezebox
  * @file          SqueezeBoxClass.php
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2019 Michael Tröger
+ * @copyright     2020 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.2
+ * @version       3.51
  *
  */
 
@@ -468,7 +468,7 @@ class LMSTaggingData extends stdClass
     public $Name;
 
     /**
-     * @var string Der Inhalt des Datensatzen.
+     * @var string Der Inhalt des Datensatz.
      */
     public $Value;
 
@@ -508,7 +508,7 @@ class LMSTaggingData extends stdClass
 class LMSTaggingArray extends stdClass
 {
     /**
-     * @var array Enthält alle zu dekodierenen Index mit ihren Typenumwandlungen.
+     * @var array Enthält alle zu dekodierenden Index mit ihren Typenumwandlungen.
      */
     public static $DataFields = [
         'Album'                   => 3, // l
@@ -584,7 +584,7 @@ class LMSTaggingArray extends stdClass
      * Erzeugt aus einem Array mit getaggten Daten ein mehrdimensionales Array.
      *
      * @param array  $TaggedData  Das Array mit allen getaggten Zeilen.
-     * @param string $UsedIdIndex Der zu verwendene Index welcher als Trenner zwischen den Objekten fungiert.
+     * @param string $UsedIdIndex Der zu verwendende Index welcher als Trenner zwischen den Objekten fungiert.
      * @param string $Filter      Ein auf alle Index anzuwendender Filter, nur Index welche den Filter am Anfang enthalten werden übernommen.
      */
     public function __construct(array $TaggedData, $UsedIdIndex = 'id', $Filter = '')
@@ -878,7 +878,7 @@ trait LMSHTMLTable
     /**
      * Liefert den Header der HTML-Tabelle.
      *
-     * @param array $Config Die Kofiguration der Tabelle
+     * @param array $Config Die Konfiguration der Tabelle
      *
      * @return string HTML-String
      */

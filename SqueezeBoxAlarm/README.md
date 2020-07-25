@@ -1,10 +1,10 @@
 [![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Version](https://img.shields.io/badge/Modul%20Version-3.40-blue.svg)]()
 [![Version](https://img.shields.io/badge/Symcon%20Version-5.1%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857-IP-Symcon-5-1-%28Stable%29-Changelog)  
-[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)[![Check Style](https://github.com/Nall-chan/IPSSqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/IPSSqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/IPSSqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/IPSSqueezeBox/actions)  
+[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)[![Check Style](https://github.com/Nall-chan/SqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/SqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions)  
 
 # Squeezebox Alarm (Wecker)
-Ermöglich die Steuerung sowie die Darstellung der Zustände  
+Ermöglicht die Steuerung sowie die Darstellung der Zustände  
 von den in einer SqueezeBox eingerichteten Weckern in IPS.
 
 ## Dokumentation  <!-- omit in toc -->
@@ -36,14 +36,14 @@ von den in einer SqueezeBox eingerichteten Weckern in IPS.
 
 ## 3. Software-Installation
 
- Dieses Modul ist Bestandteil der IPSSqueezeBox-Library.  
+ Dieses Modul ist Bestandteil der SqueezeBox-Library.  
    *Über das 'Modul Control' folgende URL hinzufügen:  
-    `git://github.com/Nall-chan/IPSSqueezeBox.git`  
+    `git://github.com/Nall-chan/SqueezeBox.git`  
 
 ## 4. Einrichten der Instanzen in IP-Symcon
 
 Eine einfache Einrichtung ist über den Konfigurator [Logitech Media Server Konfigurator](../../LMSConfigurator/readme.md) möglich.  
-Bei der manuellen Einrichtung ist die Instanz im Dialog 'Instanz hinzufügen' unter dem Hersteller 'Logitech' zufinden.  
+Bei der manuellen Einrichtung ist die Instanz im Dialog 'Instanz hinzufügen' unter dem Hersteller 'Logitech' zu finden.  
 ![Instanz hinzufügen](imgs/add.png)  
 
 **Konfigurationsseite:**  
@@ -76,7 +76,7 @@ Folgende Statusvariablen werden automatisch angelegt.
 
 **Ereignisse und Statusvariablen pro Wecker:**  
 
-Werden pro in der Queezebox eingerichteten Wecker automatisch erzeugt.  
+Werden pro in der Squeezebox eingerichteten Wecker automatisch erzeugt.  
 Wird ein Wecker in der SqueezeBox gelöscht, so werden bei konfigurierten Auto-Löschen die Variablen auch wieder entfernt.  
 (X = Nummer vom Wecker)  
 
@@ -165,7 +165,7 @@ oder `false` im Fehlerfall.
 ```php
 bool LSA_SetTimeout(int $InstanzID, int $Value)
 ```
-Setzt die Zeit in Sekunden bis ein Wecker automatisch beendent wird.  
+Setzt die Zeit in Sekunden bis ein Wecker automatisch beendend wird.  
 Es wird `true` zurückgeben wenn der Befehl vom Server bestätigt wurde,  
 oder `false` im Fehlerfall.  
 
@@ -221,7 +221,7 @@ oder `false` im Fehlerfall.
 ```php
 bool LSA_SetPlaylist(int $InstanzID, int $AlarmIndex, string $Url)
 ```
-Setzt die Playliste bzw. die Wiedergabe für den Wecker.  
+Setzt die Playlist bzw. die Wiedergabe für den Wecker.  
 Die wiederzugebene URL muss in $Url übergeben werden.  
 Es wird `true` zurückgeben wenn der Befehl vom Server bestätigt wurde,  
 oder `false` im Fehlerfall.  

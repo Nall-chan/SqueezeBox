@@ -8,9 +8,9 @@ declare(strict_types=1);
  * @package       Squeezebox
  * @file          module.php
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2019 Michael Tröger
+ * @copyright     2020 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.3
+ * @version       3.51
  *
  */
 
@@ -160,7 +160,7 @@ class LSA_Alarm
     }
 
     /**
-     * Fügt einen Wochentag zum Wekcer hinzu.
+     * Fügt einen Wochentag zum Wecker hinzu.
      *
      * @param int $Dow Ein Wochentag.
      */
@@ -348,10 +348,10 @@ class LSA_AlarmList
  * Erweitert IPSModule.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2019 Michael Tröger
+ * @copyright     2020 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.3
+ * @version       3.51
  *
  * @example <b>Ohne</b>
  *
@@ -381,7 +381,7 @@ class SqueezeboxAlarm extends IPSModule
 
     /**
      * Destruktor
-     * schließt bei bedarf den noch offnen TCP-Socket.
+     * schließt bei Bedarf den noch offenen TCP-Socket.
      */
     public function __destruct()
     {
@@ -441,7 +441,7 @@ class SqueezeboxAlarm extends IPSModule
 
         parent::ApplyChanges();
 
-        // Addresse prüfen
+        // Adresse prüfen
         $Address = $this->ReadPropertyString('Address');
         $changeAddress = false;
         //ip Adresse:
@@ -466,7 +466,7 @@ class SqueezeboxAlarm extends IPSModule
             return;
         }
 
-        // Addresse als Filter setzen
+        // Adresse als Filter setzen
         $this->SetReceiveDataFilter('.*(?=.*"Address":"' . $Address . '".*)(?=(.*"Command":\["alarm.*)|(.*"Command":\["client".*)|(.*"Command":\["playerpref","alarm.*)|(.*"Command":\["prefset","server","alarm.*)).*');
         $this->SetSummary($Address);
 
@@ -545,10 +545,10 @@ class SqueezeboxAlarm extends IPSModule
      * Interne Funktion des SDK.
      *
      *
-     * @param type $TimeStamp
-     * @param type $SenderID
-     * @param type $Message
-     * @param type $Data
+     * @param int $TimeStamp
+     * @param int $SenderID
+     * @param int $Message
+     * @param array $Data
      */
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
     {
@@ -724,7 +724,7 @@ class SqueezeboxAlarm extends IPSModule
 
     /**
      * IPS-Instanz-Funktion 'LSA_SetAllActive'.
-     * De/Aktiviert die Wekcer-Funktionen des Gerätes.
+     * De/Aktiviert die Wecker-Funktionen des Gerätes.
      *
      * @param bool $Value De/Aktiviert die Wecker.
      * @result bool True wenn erfolgreich, sonst false.
@@ -788,7 +788,7 @@ class SqueezeboxAlarm extends IPSModule
 
     /**
      * IPS-Instanz-Funktion 'LSA_SetTimeout'.
-     * Setzt die Zeit in Sekunden bis ein Wecker automatisch beendent wird.
+     * Setzt die Zeit in Sekunden bis ein Wecker automatisch beendend wird.
      *
      * @param int $Value Zeit in Sekunden bis zum abschalten.
      * @result bool True wenn erfolgreich, sonst false.
@@ -917,7 +917,7 @@ class SqueezeboxAlarm extends IPSModule
 
     /**
      * IPS-Instanz-Funktion 'LSA_SetPlaylist'.
-     * Setzt die Playliste bzw. die Wiedergabe für den Wecker.
+     * Setzt die Playlist bzw. die Wiedergabe für den Wecker.
      *
      * @param int    $AlarmIndex Der Index des Weckers.
      * @param string $Url        Die wiederzugebene URL.
@@ -1281,27 +1281,27 @@ class SqueezeboxAlarm extends IPSModule
                 $this->SendDebug('Send Direct', $LoginData, 0);
                 $this->Socket = @stream_socket_client('tcp://' . $Host . ':' . $Port, $errno, $errstr, 2);
                 if (!$this->Socket) {
-                    throw new Exception($this->Translate('No anwser from LMS'), E_USER_NOTICE);
+                    throw new Exception($this->Translate('No answer from LMS'), E_USER_NOTICE);
                 }
                 stream_set_timeout($this->Socket, 5);
                 fwrite($this->Socket, $LoginData);
-                $anwserlogin = stream_get_line($this->Socket, 1024 * 1024 * 2, chr(0x0d));
-                $this->SendDebug('Response Direct', $anwserlogin, 0);
-                if ($anwserlogin === false) {
-                    throw new Exception($this->Translate('No anwser from LMS'), E_USER_NOTICE);
+                $answerlogin = stream_get_line($this->Socket, 1024 * 1024 * 2, chr(0x0d));
+                $this->SendDebug('Response Direct', $answerlogin, 0);
+                if ($answerlogin === false) {
+                    throw new Exception($this->Translate('No answer from LMS'), E_USER_NOTICE);
                 }
             }
 
             $Data = $LMSData->ToRawStringForLMS();
             $this->SendDebug('Send Direct', $Data, 0);
             fwrite($this->Socket, $Data);
-            $anwser = stream_get_line($this->Socket, 1024 * 1024 * 2, chr(0x0d));
-            $this->SendDebug('Response Direct', $anwser, 0);
-            if ($anwser === false) {
-                throw new Exception($this->Translate('No anwser from LMS'), E_USER_NOTICE);
+            $answer = stream_get_line($this->Socket, 1024 * 1024 * 2, chr(0x0d));
+            $this->SendDebug('Response Direct', $answer, 0);
+            if ($answer === false) {
+                throw new Exception($this->Translate('No answer from LMS'), E_USER_NOTICE);
             }
 
-            $ReplyData = new LMSResponse($anwser);
+            $ReplyData = new LMSResponse($answer);
             $LMSData->Data = $ReplyData->Data;
             $this->SendDebug('Response Direct', $LMSData, 0);
             return $LMSData;
@@ -1401,7 +1401,7 @@ class SqueezeboxAlarm extends IPSModule
      * Erzeugt eine HTML-Tabelle mit allen Playlisten für eine ~HTMLBox-Variable.
      *
      * @param int $AlarmIndex    Der Index des Alarms.
-     * @param int $PlaylistIndex Der Index der aktuell gewählten Alarm-Playliste
+     * @param int $PlaylistIndex Der Index der aktuell gewählten Alarm-Playlist
      */
     private function RefreshPlaylist(int $AlarmIndex, int $PlaylistIndex)
     {
@@ -1457,11 +1457,11 @@ class SqueezeboxAlarm extends IPSModule
      */
     private function RefreshDeleteProfil(int $Count)
     {
-        $Assos = [];
+        $Assoziations = [];
         for ($index = 0; $index < $Count; $index++) {
-            $Assos[] = [$index, (string) ($index + 1), '', -1];
+            $Assoziations[] = [$index, (string) ($index + 1), '', -1];
         }
-        $this->RegisterProfileIntegerEx('LSA.Del.' . $this->InstanceID, 'Cross', '', '', $Assos);
+        $this->RegisterProfileIntegerEx('LSA.Del.' . $this->InstanceID, 'Cross', '', '', $Assoziations);
     }
 
     /**
@@ -1501,7 +1501,7 @@ class SqueezeboxAlarm extends IPSModule
             IPS_SetName($eid, sprintf($this->Translate('Alarm %d alarmtime'), $Alarm->Index + 1));
             IPS_SetPosition($eid, (($Alarm->Index + 1) * 10) + 1);
             IPS_SetIcon($eid, 'Alert');
-            IPS_SetEventScript($eid, $this->Translate("/*\r\nDont change the action and target of this event!\r\nPut your code after this comment.\r\nBeware, that this event can be deletet when\r\n'Delete unused objects' is set.\r\n*/"));
+            IPS_SetEventScript($eid, $this->Translate("/*\r\nDon't change the action and target of this event!\r\nPut your code after this comment.\r\nBeware, that this event can be deleted when\r\n'Delete unused objects' is set.\r\n*/"));
             IPS_SetEventCyclic($eid, 3, 1, 127, 0, 0, 0);
         }
         $Event = IPS_GetEvent($eid);
@@ -1571,7 +1571,7 @@ class SqueezeboxAlarm extends IPSModule
     }
 
     /**
-     *  Aktualisiert alle Statusvariablen bei Veränderung und löscht ggfls. Statusvariablen.
+     *  Aktualisiert alle Statusvariablen bei Veränderung und löscht u.U. Statusvariablen.
      *
      * @param LSA_AlarmList $Alarms Die komplette Alarmliste.
      */
@@ -1911,12 +1911,12 @@ class SqueezeboxAlarm extends IPSModule
             $LMSData->Address = $this->ReadPropertyString('Address');
             $this->SendDebug('Send', $LMSData, 0);
 
-            $anwser = $this->SendDataToParent($LMSData->ToJSONString('{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}'));
-            if ($anwser === false) {
+            $answer = $this->SendDataToParent($LMSData->ToJSONString('{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}'));
+            if ($answer === false) {
                 $this->SendDebug('Response', 'No valid answer', 0);
                 return null;
             }
-            $result = unserialize($anwser);
+            $result = unserialize($answer);
             if ($LMSData->needResponse === false) {
                 return $result;
             }

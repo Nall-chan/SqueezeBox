@@ -3,7 +3,7 @@
             [
                 {
                     "type": "Label",
-                    "caption": "IP-Address of Squeezbox Radio"
+                    "caption": "IP-Address of Squeezebox Radio"
                 },
                 {
                     "name": "Address",

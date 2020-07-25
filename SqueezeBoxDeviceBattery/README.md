@@ -1,7 +1,7 @@
 [![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20Version-3.50-blue.svg)]()
+[![Version](https://img.shields.io/badge/Modul%20Version-3.51-blue.svg)]()
 [![Version](https://img.shields.io/badge/Symcon%20Version-5.1%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857-IP-Symcon-5-1-%28Stable%29-Changelog)  
-[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)[![Check Style](https://github.com/Nall-chan/IPSSqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/IPSSqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/IPSSqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/IPSSqueezeBox/actions)  
+[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)[![Check Style](https://github.com/Nall-chan/SqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/SqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions)  
 
 # Squeezebox Battery
 Daten zur Stromversorgung und des Akkus in IPS einbinden.  
@@ -30,13 +30,13 @@ Daten zur Stromversorgung und des Akkus in IPS einbinden.
 
 ## 3. Software-Installation
 
- Dieses Modul ist Bestandteil der IPSSqueezeBox-Library.  
+ Dieses Modul ist Bestandteil der SqueezeBox-Library.  
    *Über das 'Modul Control' folgende URL hinzufügen:  
-    `git://github.com/Nall-chan/IPSSqueezeBox.git`  
+    `git://github.com/Nall-chan/SqueezeBox.git`  
 
 ## 4. Einrichten der Instanzen in IP-Symcon
 
-Das Modul ist im Dialog 'Instanz hinzufügen' unter dem Hersteller 'Logitech' zufinden.  
+Das Modul ist im Dialog 'Instanz hinzufügen' unter dem Hersteller 'Logitech' zu finden.  
 ![Instanz hinzufügen](imgs/add.png)  
 
 **Konfigurationsseite:**  

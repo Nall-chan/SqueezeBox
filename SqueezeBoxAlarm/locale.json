@@ -1,7 +1,7 @@
 {
     "translations": {
         "de": {
-            "MAC-Address for SqueezeBox": "MAC-Adresse f\u00fcr Squeezbox",
+            "MAC-Address for SqueezeBox": "MAC-Adresse f\u00fcr Squeezebox",
             "MAC Address": "MAC Adresse",
             "Display button for create new alarm.": "Button anzeigen f\u00fcr Wecker anlegen.",
             "Display button for delete alarm.": "Button anzeigen f\u00fcr Wecker l\u00f6schen.",
@@ -73,8 +73,8 @@
             "Bad Request": "Ung\u00fcltige Anfrage",
             "Access denied": "Zugriff verweigert",
             "Instance has no active parent.": "Instanz hat keinen aktiven Parent.",
-            "No anwser from LMS": "Keine Antwort vom LMS",
-            "\/*\r\nDont change the action and target of this event!\r\nPut your code after this comment.\r\nBeware, that this event can be deletet when\r\n'Delete unused objects' is set.\r\n*\/": "\/*\r\nNicht die Aktion und das Ziel dieses Events \u00e4ndern!\r\nEigener Code unter diesem Kommentar platzieren.\r\nAchtung, dieses Event kann gel\u00f6scht werden, wenn\r\n'Nicht benutzte Objekte l\u00f6schen.' aktiviert ist.\r\n*\/"
+            "No answer from LMS": "Keine Antwort vom LMS",
+            "\/*\r\nDon't change the action and target of this event!\r\nPut your code after this comment.\r\nBeware, that this event can be deleted when\r\n'Delete unused objects' is set.\r\n*\/": "\/*\r\nNicht die Aktion und das Ziel dieses Events \u00e4ndern!\r\nEigener Code unter diesem Kommentar platzieren.\r\nAchtung, dieses Event kann gel\u00f6scht werden, wenn\r\n'Nicht benutzte Objekte l\u00f6schen.' aktiviert ist.\r\n*\/"
         }
     }
 }
