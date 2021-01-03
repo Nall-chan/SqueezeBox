@@ -74,6 +74,7 @@
             "Access denied": "Zugriff verweigert",
             "Instance has no active parent.": "Instanz hat keinen aktiven Parent.",
             "No answer from LMS": "Keine Antwort vom LMS",
+            "Off":"Aus",
             "\/*\r\nDon't change the action and target of this event!\r\nPut your code after this comment.\r\nBeware, that this event can be deleted when\r\n'Delete unused objects' is set.\r\n*\/": "\/*\r\nNicht die Aktion und das Ziel dieses Events \u00e4ndern!\r\nEigener Code unter diesem Kommentar platzieren.\r\nAchtung, dieses Event kann gel\u00f6scht werden, wenn\r\n'Nicht benutzte Objekte l\u00f6schen.' aktiviert ist.\r\n*\/"
         }
     }

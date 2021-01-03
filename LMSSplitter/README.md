@@ -1,9 +1,10 @@
 [![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20Version-3.40-blue.svg)]()
-[![Version](https://img.shields.io/badge/Symcon%20Version-5.1%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857-IP-Symcon-5-1-%28Stable%29-Changelog)  
-[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)[![Check Style](https://github.com/Nall-chan/SqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/SqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions)  
-
-# Logitech Media Server Splitter (LMSSplitter)
+[![Version](https://img.shields.io/badge/Modul%20Version-3.60-blue.svg)]()
+[![Version](https://img.shields.io/badge/Symcon%20Version-5.3%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857)  
+[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![Check Style](https://github.com/Nall-chan/SqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/SqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions)  
+[![Spenden](https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_SM.gif)](../README.md#6-spenden)  
+# Logitech Media Server Splitter (LMSSplitter) <!-- omit in toc -->  
 Ermöglicht die Kommunikation von IPS mit dem CLI des Logitech Media Servers.  
 
 ## Dokumentation  <!-- omit in toc -->
@@ -37,27 +38,24 @@ Ermöglicht die Kommunikation von IPS mit dem CLI des Logitech Media Servers.
 
 ## 2. Voraussetzungen
 
- - IPS 5.0 oder höher
+ - IPS 5.3 oder höher
  - Logitech Media Server (getestet ab 7.9.x)
  - kompatibler Player
 
 ## 3. Software-Installation
 
- Dieses Modul ist Bestandteil der [SqueezeBox-Library](../README.md#3-software-installation).   
+ Dieses Modul ist Bestandteil der [SqueezeBox-Library](../README.md#3-software-installation).  
 
 ## 4. Einrichten der Instanzen in IP-Symcon
 
-Der Splitter wird automatisch erzeugt, sobald z.B. der Konfigurator [Logitech Media Server Konfigurator](../../LMSConfigurator/readme.md) angelegt wird.  
-Bei der manuellen Einrichtung ist die Instanz im Dialog 'Instanz hinzufügen' unter dem Hersteller 'Logitech' zu finden.  
-![Instanz hinzufügen](imgs/add1.png)  
+ Diese Instanz wird automatisch angelegt, wenn im ['Discovery-Modul'](../LMSDiscovery/README.md) ein ['Konfigurator'](../LMSConfigurator/README.md) in Symcon angelegt wird.  
+ Bei der manuellen Einrichtung ist die Instanz im Dialog `Instanz hinzufügen` unter dem Hersteller `Logitech` zu finden.  
+ ![Instanz hinzufügen](imgs/add1.png)  
 
-Alternativ ist es auch in der Liste alle Splitter aufgeführt.  
-![Instanz hinzufügen](imgs/add2.png)  
-
-Es wird automatisch eine 'Client Socket' Instanz erzeugt.  
-Dieser muss über die Schaltfläche 'Gateway konfigurieren' noch geöffnet und konfiguriert werden.  
-In dem Client Socket ist die IP-Adresse bzw. der Hostname einzutragen unter dem der 'Logitech Media Server' erreichbar ist.  
-![Instanz hinzufügen](imgs/conf1.png)  
+ Es wird automatisch eine `Client Socket` Instanz erzeugt.  
+ Dieser muss über die Schaltfläche `Schnittstelle konfigurieren` oder den Button `Öffne Client-Socket` noch geöffnet und konfiguriert werden.  
+ In dem Client Socket ist die IP-Adresse bzw. der Hostname einzutragen unter dem der `Logitech Media Server` erreichbar ist.  
+ ![Instanz hinzufügen](imgs/conf1.png)  
 
 **Konfigurationsseite:**  
 ![Instanz hinzufügen](imgs/conf2.png)  
@@ -93,10 +91,10 @@ Folgende Statusvariablen werden automatisch angelegt.
 
 **Profile**:
 
-| Name               | Typ     | verwendet von Statusvariablen |
-| :----------------: | :-----: | :---------------------------: |
-| LMS.Scanner        | integer | Scanner                       |
-| LMS.PlayerSelect.* | integer | PlayerSelect                  |
+| Name                            | Typ     | verwendet von Statusvariablen |
+| :-----------------------------: | :-----: | :---------------------------: |
+| LMS.Scanner                     | integer | Scanner                       |
+| LMS.PlayerSelect.\<InstanzeID\> | integer | PlayerSelect                  |
 
 
 ## 6. WebFront
@@ -104,6 +102,10 @@ Folgende Statusvariablen werden automatisch angelegt.
 Die direkte Darstellung im WebFront ist nicht möglich, es ist zwingend ein Link auf die Instanz bzw die Statusvariablen anzulegen.  
 Beispiel mit einem Link auf die Instanz:  
 ![WebFront Beispiel](imgs/wf1.png)  
+
+Die Statusvariable `Player wählen` verfügt über ein besonderes dynamisches Variablenprofil und ist nur sinnvoll aus dem WebFront zu bedienen.  
+Zusammen mit der Variable `Playlisten` welche eine Tabelle der Serverplaylisten darstellt, ermöglichen diese das Auswählen von mehreren Player-Instanzen und anschließende Laden einer Playlist.  
+Dabei wird die Synchronisierung der Player automatisch gesetzt, geändert bzw. aufgehoben.  
 
 ## 7. PHP-Befehlsreferenz
 
@@ -125,9 +127,9 @@ Liefert `true` bei Erfolg, sonst `false`.
 array LMS_SendSpecial(int $InstanzID,string $Command, string $Value)
 ```
 Sendet ein CLI Kommando an den LMS.  
-Hierzu ist in $Command das Kommando z.B. 'version' zu übergeben.  
+Hierzu ist in $Command das Kommando z.B. `version` zu übergeben.  
 In $Value wird ein als JSON-String codiertes Array erwartet, welche die Daten des Kommandos enthalten muss.  
-z.B. '["?"]'   
+z.B. `["?"]`   
 Liefert die Antwort als Array.  
 Im Fehlerfall wird `false` zurückgegeben.  
 
@@ -146,7 +148,7 @@ bool LMS_RequestState(int $InstanzID, string $Ident)`
 ```
 Fragt einen einzelnen Wert ab.  
 Es ist der Ident der Statusvariable zu übergeben.  
-Unterstützt wird 'Players', 'Version' und 'Playlists'.  
+Unterstützt wird `Players`, `Version` und `Playlists`.  
 Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
@@ -242,7 +244,7 @@ array LMS_GetGenres (int $InstanzID)
 array LMS_GetGenresEx (int $InstanzID, string $Search)  
 ```
 Liefert Informationen über die Genres des LMS.  
-'$Search' kann benutzt werden um nur nach bestimmten Zeichenketten in den Genres zu suchen.  
+`$Search` kann benutzt werden um nur nach bestimmten Zeichenketten in den Genres zu suchen.  
 Es wird ein Array zurückgeben mit allen Genres, wobei der Index die GenreID des Servers darstellt.  
 Im Fehlerfall wird `false` zurückgegeben.  
 **Beispiel:**  
@@ -258,7 +260,7 @@ array LMS_GetAlbums (int $InstanzID)
 array LMS_GetAlbumsEx (int $InstanzID, string $Search)  
 ```
 Liefert Informationen über die Alben des LMS.  
-'$Search' kann benutzt werden um nur nach bestimmten Zeichenketten in den Alben zu suchen.  
+`$Search` kann benutzt werden um nur nach bestimmten Zeichenketten in den Alben zu suchen.  
 Es wird ein Array zurückgeben mit allen Alben, wobei der Index die AlbumID des Servers darstellt.  
 Im Fehlerfall wird `false` zurückgegeben.  
 **Beispiel:**  
@@ -266,7 +268,7 @@ Im Fehlerfall wird `false` zurückgegeben.
   [1359] => "Bubblegum Crisis: Complete Vocal Collection, Volume 1"  
   [1361] => "Bubblegum Crisis Tokyo 2040"  
   [2373] => "Buffy the Vampire Slayer: The Album"  
-  [1791] => "Can't Stop Raving"  
+  [1791] => "Can`t Stop Raving"  
   [1365] => "Captain Future"  
 ```
 ---
@@ -276,7 +278,7 @@ array LMS_GetArtists (int $InstanzID)
 array LMS_GetArtistsEx (int $InstanzID, string $Search)  
 ```
 Liefert Informationen über die Interpreten.  
-'$Search' kann benutzt werden um nur nach bestimmten Zeichenketten in den Namen zu suchen.  
+`$Search` kann benutzt werden um nur nach bestimmten Zeichenketten in den Namen zu suchen.  
 Es wird ein Array zurückgeben mit allen bekannten Interpreten, wobei der Index die ArtistID des Servers darstellt.  
 Im Fehlerfall wird `false` zurückgegeben.  
 **Beispiel:**  
@@ -324,7 +326,7 @@ Im Fehlerfall wird `false` zurückgegeben.
 array LMS_GetSongInfoByFileID (int $InstanzID, int $SongID)
 array LMS_GetSongInfoByFileURL (int $InstanzID, string $SongURL)
 ```
-Liefert Details zu einem Song anhand der '$SongID' oder '$SongURL'.  
+Liefert Details zu einem Song anhand der `$SongID` oder `$SongURL`.  
 Es wird ein assoziiertes Array zurückgeben.  
 Im Fehlerfall wird `false` zurückgegeben.  
 
@@ -360,8 +362,8 @@ array LMS_GetSongsByGenre(int $InstanzID, int $GenreId)
 array LMS_GetSongsByGenreEx(int $InstanzID, int $GenreId, string $Search)
 ```
 Liefert Details über Songs, welche den angegeben Suchkriterien entsprechen.  
-Dazu ist jeweils '$AlbumId', '$ArtistId' oder die '$GenreId' zu übergeben.  
-Der Parameter '$Search' liefert nur Ergebnisse wo dieser Such-String enthalten ist.  
+Dazu ist jeweils `$AlbumId`, `$ArtistId` oder die `$GenreId` zu übergeben.  
+Der Parameter `$Search` liefert nur Ergebnisse wo dieser Such-String enthalten ist.  
 Es wird ein mehrdimensionales Array zurückgeben mit allen gefundenen Songs.  
 Im Fehlerfall wird `false` zurückgegeben.  
 Die enthaltenen assoziierten Array entsprechen dem von LMS_GetSongInfoBy*.  
@@ -371,8 +373,8 @@ Die enthaltenen assoziierten Array entsprechen dem von LMS_GetSongInfoBy*.
 ```php
 array LMS_Search(int $InstanzID, string $Value)
 ```
-Sucht nach dem in '$Value' übergebenen String in der Datenbank des LMS.  
-Liefert ein assoziiertes Array mit den Schlüsseln 'Contributors', 'Tracks' und 'Albums' welcher die jeweiligen Suchergebnisse einer Kategorie enthalten.  
+Sucht nach dem in `$Value` übergebenen String in der Datenbank des LMS.  
+Liefert ein assoziiertes Array mit den Schlüsseln `Contributors`, `Tracks` und `Albums` welcher die jeweiligen Suchergebnisse einer Kategorie enthalten.  
 Die Suchergebnisse der Kategorie enthalten die jeweiligen Namen und IDs der Datenbank.  
 Im Fehlerfall wird `false` zurückgegeben.  
 
@@ -469,8 +471,8 @@ Es wird die PlaylistID der Playlist zurückgegeben, oder `false` im Fehlerfall.
 bool LMS_RenamePlaylist (int $InstanzID, int $PlaylistId, string $Name)
 bool LMS_RenamePlaylistEx (int $InstanzID, int $PlaylistId, string $Name, bool $Overwrite)
 ```
-Ändert den Namen der in '$PlaylistId' übergebenen Playlist in '$Name'.  
-Soll eine vorhandene Playlist überschrieben werden, so ist '$Overwrite' auf `true`zu setzen.  
+Ändert den Namen der in `$PlaylistId` übergebenen Playlist in `$Name`.  
+Soll eine vorhandene Playlist überschrieben werden, so ist `$Overwrite` auf `true`zu setzen.  
 Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
@@ -478,7 +480,7 @@ Liefert `true` bei Erfolg, sonst `false`.
 ```php
 bool LMS_DeletePlaylist (int $InstanzID, int $PlaylistId)
 ```
-Löscht die in '$PlaylistId' übergebene Playlist.  
+Löscht die in `$PlaylistId` übergebene Playlist.  
 Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
@@ -487,8 +489,8 @@ Liefert `true` bei Erfolg, sonst `false`.
 bool LMS_AddSongToPlaylist (int $InstanzID, int $PlaylistId, string $SongURL)
 bool LMS_AddSongToPlaylistEx (int $InstanzID, int $PlaylistId, string $SongURL, int $Position)
 ```
-Fügt der Playlist '$PlaylistId' einen in '$SongURL' übergeben Song hinzu.  
-Der Song wird am Ende hinzugefügt, außer es wurde ein anderer Index in '$Position' übergeben.  
+Fügt der Playlist `$PlaylistId` einen in `$SongURL` übergeben Song hinzu.  
+Der Song wird am Ende hinzugefügt, außer es wurde ein anderer Index in `$Position` übergeben.  
 Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
@@ -497,7 +499,7 @@ Liefert `true` bei Erfolg, sonst `false`.
 bool LMS_MoveSongInPlaylist (int $InstanzID, int $PlaylistId, int $Position, int $NewPosition)
 ```
 Verschiebt die Position eines Song innerhalb einer Playlist.  
-Es ist die PlaylistID in '$PlaylistId', der alte Index in '$Position' und der Ziel-Index in '$NewPosition' zu übergeben.  
+Es ist die PlaylistID in `$PlaylistId`, der alte Index in `$Position` und der Ziel-Index in `$NewPosition` zu übergeben.  
 Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
@@ -506,7 +508,7 @@ Liefert `true` bei Erfolg, sonst `false`.
 bool LMS_DeleteSongFromPlaylist (int $InstanzID, int $PlaylistId, int $Position)
 ```
 Entfernt einen Song aus einer Playlist.  
-Es ist die PlaylistID in '$PlaylistId', und der zu entfernende Index in '$Position' zu übergeben.  
+Es ist die PlaylistID in `$PlaylistId`, und der zu entfernende Index in `$Position` zu übergeben.  
 Liefert `true` bei Erfolg, sonst `false`.  
 
 #### 6. Alarm Playlisten:
@@ -531,10 +533,10 @@ Im Fehlerfall wird `false` zurückgegeben.
 ```php
 array LMS_GetFavorites (int $InstanzID, string $FavoriteID)
 ```
-Liefert Informationen über die unterhalb der '$FavoriteID' übergeben Favoriten.  
+Liefert Informationen über die unterhalb der `$FavoriteID` übergeben Favoriten.  
 Zum auslesen der obersten Ebene der Favoriten ist ein leerer String zu übergeben.  
-Es wird ein mehrdimensionales Array mit allen Favoriten der unter '$FavoritenID' vorhandenen Ebene zurückgeben.  
-Dabei ist der erste Index die '$FavoriteID' des jeweiligen Favoriten.  
+Es wird ein mehrdimensionales Array mit allen Favoriten der unter `$FavoritenID` vorhandenen Ebene zurückgeben.  
+Dabei ist der erste Index die `$FavoriteID` des jeweiligen Favoriten.  
 Im Fehlerfall wird `false` zurückgegeben.  
 
 **Array:**  
@@ -549,7 +551,7 @@ Im Fehlerfall wird `false` zurückgegeben.
 
 **Beispiel:**  
 ```php
-print_r(LMS_GetFavorites($id,'6.1'));
+print_r(LMS_GetFavorites($id,`6.1`));
 ```
 
 ```  
@@ -572,7 +574,7 @@ Array
 ```php
 bool LMS_AddFavorite (int $InstanzID, string $ParentFavoriteID, string $Title, string $URL)
 ```
-Fügt dem Favoriten '$ParentFavoriteID' einen in '$URL' übergeben Eintrag mit dem Namen aus '$Name' hinzu.  
+Fügt dem Favoriten `$ParentFavoriteID` einen in `$URL` übergeben Eintrag mit dem Namen aus `$Name` hinzu.  
 Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
@@ -580,7 +582,7 @@ Liefert `true` bei Erfolg, sonst `false`.
 ```php
 bool LMS_AddFavoriteLevel (int $InstanzID, string $ParentFavoriteID, string $Title)
 ```
-Fügt dem Favoriten '$ParentFavoriteID' einen neuen Unterordner mit dem Namen aus '$Name' hinzu.  
+Fügt dem Favoriten `$ParentFavoriteID` einen neuen Unterordner mit dem Namen aus `$Name` hinzu.  
 Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
@@ -588,7 +590,7 @@ Liefert `true` bei Erfolg, sonst `false`.
 ```php
 bool LMS_RenameFavorite (int $InstanzID, string $FavoriteID, string $Title)
 ```
-Ändert den Namen des Favoriten '$FavoriteID' in den unter '$Title' angegeben Namen.
+Ändert den Namen des Favoriten `$FavoriteID` in den unter `$Title` angegeben Namen.
 Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
@@ -596,7 +598,7 @@ Liefert `true` bei Erfolg, sonst `false`.
 ```php
 bool LMS_MoveFavorite (int $InstanzID, string $FavoriteID, string $NewParentFavoriteID)
 ```
-Verschiebt dem Favoriten '$FavoriteID' unter den in '$NewParentFavoriteID' angegebenen Favoriten.  
+Verschiebt dem Favoriten `$FavoriteID` unter den in `$NewParentFavoriteID` angegebenen Favoriten.  
 Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
@@ -604,7 +606,7 @@ Liefert `true` bei Erfolg, sonst `false`.
 ```php
 bool LMS_DeleteFavorite (int $InstanzID, string $FavoriteID)
 ```
-Löscht den in '$FavoriteID' übergebenen Favoriten.  
+Löscht den in `$FavoriteID` übergebenen Favoriten.  
 Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
@@ -613,7 +615,7 @@ Liefert `true` bei Erfolg, sonst `false`.
 array LMS_ExistsUrlInFavorite (int $InstanzID, string $URL)
 array LMS_ExistsIdInFavorite (int $InstanzID, int $ID)
 ```
-Prüft ob die in '$ID' oder '$URL' übergebene Datei in den Favoriten vorhanden ist.  
+Prüft ob die in `$ID` oder `$URL` übergebene Datei in den Favoriten vorhanden ist.  
 Liefert ein assoziiertes Array.  
 Im Fehlerfall wird `false` zurückgegeben.  
 
@@ -653,16 +655,16 @@ array LMS_GetRadioOrAppDataEx (int $InstanzID, string $Cmd, string $FolderID, st
 ```
 Über den Befehl können die Kommandos von LMS_GetRadios und LMS_GetApps ausgeführt werden.  
 Liefert ein mehrdimensionales assoziiertes Array.  
-'$Cmd' ist das Kommando z.B. 'world', 'itunes', 'search' etc..  
-'$FolderID' muss entweder einen leeren String enthalten für die Oberste Ebene des Plugin, oder die ID der Einträge.  
-'$Search' enthält den Suchparameter für alle Plugins vom Typ xmlbrowser_search.  
+`$Cmd` ist das Kommando z.B. `world`, `itunes`, `search` etc..  
+`$FolderID` muss entweder einen leeren String enthalten für die Oberste Ebene des Plugin, oder die ID der Einträge.  
+`$Search` enthält den Suchparameter für alle Plugins vom Typ xmlbrowser_search.  
 Im Fehlerfall wird `false` zurückgegeben.  
 
 **Beispiel:**  
 ```php
-LMS_GetRadioOrAppData($id,"lma",'');  
-LMS_GetRadioOrAppData($id,"world",'1.1');  
-LMS_GetRadioOrAppDataEx($id,"search",'','Anime');  
+LMS_GetRadioOrAppData($id,"lma",``);  
+LMS_GetRadioOrAppData($id,"world",`1.1`);  
+LMS_GetRadioOrAppDataEx($id,"search",``,`Anime`);  
 ```
 
 **Array:**  

@@ -1,10 +1,10 @@
 [![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20Version-3.50-blue.svg)]()
-[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
-[![Version](https://img.shields.io/badge/Symcon%20Version-5.1%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857-IP-Symcon-5-1-%28Stable%29-Changelog)
+[![Version](https://img.shields.io/badge/Modul%20Version-3.60-blue.svg)]()
+[![Version](https://img.shields.io/badge/Symcon%20Version-5.3%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857)  
+[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Check Style](https://github.com/Nall-chan/SqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/SqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions)  
-
-# Symcon-Modul: SqueezeBox
+[![Spenden](https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_SM.gif)](#6-spenden)  
+# Symcon-Modul: SqueezeBox  <!-- omit in toc -->  
 Ermöglicht die Steuerung sowie die Darstellung der Zustände
 von SqueezeBox Geräten in IPS, in Verbindung mit dem
 Logitech Media Server.
@@ -27,8 +27,8 @@ Logitech Media Server.
   - [1. GUID der Module](#1-guid-der-module)
   - [2. Datenaustausch](#2-datenaustausch)
   - [3. Changelog](#3-changelog)
-  - [4. Spenden](#4-spenden)
-- [6. Lizenz](#6-lizenz)
+- [6. Spenden](#6-spenden)
+- [7. Lizenz](#7-lizenz)
 
 ## 1. Funktionsumfang
 
@@ -83,7 +83,7 @@ Logitech Media Server.
 
 **IPS 5.1:**  
    Bei privater Nutzung:
-     Über den 'Module-Store' in IPS.  
+     Über den `Module-Store` in IPS.  
    **Bei kommerzieller Nutzung (z.B. als Errichter oder Integrator) wenden Sie sich bitte an den Autor.**  
 
 ## 4. Einrichten der Instanzen in IP-Symcon
@@ -125,7 +125,21 @@ Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:
 
 ### 3. Changelog
 
-Version 3.51:  
+Version 3.60:  
+- Unter bestimmten Umständen wurde nicht erkannt das ein Player die Wiedergabe gestartet hat.  
+- Bei aktuell nicht verbundenen Playern wird kein falsches Coverbild geladen.  
+- Hat ein Player die Verbindung zum LMS verloren, so wurde die Power-Variable nicht korrekt gesetzt.  
+- `Connected` Variable von der Player-Instanz entfernt, es wird jetzt der Status der Instanze bei nicht verbundenen Playern auf 104 (inaktiv) gesetzt.
+- Neue Instanz-Funktionen für Player (SetSync, UnSync und GetSync).  
+- Layout der Konfigurationsseiten aufgeräumt.  
+- Fehlende Übersetzungen in Variablenprofilen ergänzt.  
+- Neue Statusvariable `Master` welche anzeigt ob ein Player ein Master einer Gruppe ist.  
+- Neue Statusvariable um Sync-Members auszuwählen, oder Sync zu beenden.  
+- Statusvariable `Player wählen` im Splitter ermöglicht die Auswahl von mehreren Playern für eine Sync-Gruppierung.  
+- Splitter hat bei Verbindungsaufbau nicht zuverlässig die Playlisten geladen.  
+  
+
+Version 3.60:  
 - Discovery kommt auch mit Hostnamen zurecht.  
 - Schreibfehler korrigiert.  
 
@@ -175,13 +189,13 @@ Version 2.0:
 Version 1.0:  
  - Erstes offizielles Release  
 
-### 4. Spenden  
+## 6. Spenden  
   
   Die Library ist für die nicht kommerzielle Nutzung kostenlos, Schenkungen als Unterstützung für den Autor werden hier akzeptiert:  
 
 <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=G2SLW2MEMQZH2" target="_blank"><img src="https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_LG.gif" border="0" /></a>
 
-## 6. Lizenz
+## 7. Lizenz
 
   IPS-Modul:  
   [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)  

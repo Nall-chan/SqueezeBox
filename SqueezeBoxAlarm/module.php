@@ -10,7 +10,7 @@ declare(strict_types=1);
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2020 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.51
+ * @version       3.60
  *
  */
 
@@ -351,7 +351,7 @@ class LSA_AlarmList
  * @copyright     2020 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.51
+ * @version       3.60
  *
  * @example <b>Ohne</b>
  *
@@ -475,7 +475,7 @@ class SqueezeboxAlarm extends IPSModule
         $this->RegisterProfileInteger('LSA.Timeout', 'Clock', '', $this->Translate(' sec'), 0, 600, 1);
         $this->RegisterProfileInteger('LSA.Snooze', 'Clock', '', $this->Translate(' sec'), 0, 1800, 1);
         $this->RegisterProfileIntegerEx('LSA.Shuffle', 'Shuffle', '', '', [
-            [0, 'off', '', -1],
+            [0, $this->Translate('Off'), '', -1],
             [1, $this->Translate('Title'), '', -1],
             [2, 'Album', '', -1]
         ]);

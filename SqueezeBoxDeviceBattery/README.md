@@ -1,9 +1,10 @@
 [![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20Version-3.51-blue.svg)]()
-[![Version](https://img.shields.io/badge/Symcon%20Version-5.1%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857-IP-Symcon-5-1-%28Stable%29-Changelog)  
-[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)[![Check Style](https://github.com/Nall-chan/SqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/SqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions)  
-
-# Squeezebox Battery
+[![Version](https://img.shields.io/badge/Modul%20Version-3.60-blue.svg)]()
+[![Version](https://img.shields.io/badge/Symcon%20Version-5.3%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857)  
+[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![Check Style](https://github.com/Nall-chan/SqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/SqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions)  
+[![Spenden](https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_SM.gif)](../README.md#6-spenden)  
+# Squeezebox Battery  <!-- omit in toc -->
 Daten zur Stromversorgung und des Akkus in IPS einbinden.  
 
 ## Dokumentation  <!-- omit in toc -->
@@ -25,7 +26,7 @@ Daten zur Stromversorgung und des Akkus in IPS einbinden.
 
 ## 2. Voraussetzungen
 
- - IPS 5.0 oder höher
+ - IPS 5.3 oder höher
  - kompatibler Player mit aktivierten SSH-Zugang  
 
 ## 3. Software-Installation
@@ -34,7 +35,7 @@ Daten zur Stromversorgung und des Akkus in IPS einbinden.
 
 ## 4. Einrichten der Instanzen in IP-Symcon
 
-Das Modul ist im Dialog 'Instanz hinzufügen' unter dem Hersteller 'Logitech' zu finden.  
+Das Modul ist im Dialog `Instanz hinzufügen` unter dem Hersteller `Logitech` zu finden.  
 ![Instanz hinzufügen](imgs/add.png)  
 
 **Konfigurationsseite:**  

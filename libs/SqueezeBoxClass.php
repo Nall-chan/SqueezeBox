@@ -14,7 +14,7 @@ require_once __DIR__ . '/TimeConvert.php';  // diverse Klassen
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2020 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.51
+ * @version       3.60
  *
  */
 
@@ -29,25 +29,26 @@ trait LSQProfile
     private function CreateProfile()
     {
         $this->RegisterProfileIntegerEx('LSQ.Status', 'Information', '', '', [
-            [0, 'Prev', '', -1],
+            [0, $this->Translate('Prev'), '', -1],
             [1, 'Stop', '', -1],
             [2, 'Play', '', -1],
             [3, 'Pause', '', -1],
-            [4, 'Next', '', -1]
+            [4, $this->Translate('Next'), '', -1]
         ]);
         $this->RegisterProfileInteger('LSQ.Intensity', 'Intensity', '', ' %', 0, 100, 1);
+        $this->RegisterProfileInteger('LSQ.Volume', 'Speaker', '', ' %', 0, 100, 1);        
         $this->RegisterProfileInteger('LSQ.Pitch', 'Intensity', '', ' %', 80, 120, 1);
         $this->RegisterProfileIntegerEx('LSQ.Shuffle', 'Shuffle', '', '', [
-            [0, 'off', '', -1],
+            [0, $this->Translate('Off'), '', -1],
             [1, $this->Translate('Title'), '', -1],
             [2, 'Album', '', -1]
         ]);
         $this->RegisterProfileIntegerEx('LSQ.Repeat', 'Repeat', '', '', [
-            [0, 'off', '', -1],
+            [0, $this->Translate('Off'), '', -1],
             [1, $this->Translate('Title'), '', -1],
             [2, 'Playlist', '', -1]
         ]);
-        $this->RegisterProfileIntegerEx('LSQ.Preset', 'Speaker', '', '', [
+        $this->RegisterProfileIntegerEx('LSQ.Preset', 'Execute', '', '', [
             [1, '1', '', -1],
             [2, '2', '', -1],
             [3, '3', '', -1],
@@ -64,7 +65,7 @@ trait LSQProfile
             [5400, '5400', '', -1]
         ]);
         $this->RegisterProfileIntegerEx('LSQ.Randomplay', 'Shuffle', '', '', [
-            [0, $this->Translate('off'), '', -1],
+            [0, $this->Translate('Off'), '', -1],
             [1, 'Track', '', -1],
             [2, 'Album', '', -1],
             [3, $this->Translate('Artist'), '', -1],

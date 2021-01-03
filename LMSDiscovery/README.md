@@ -1,9 +1,10 @@
 [![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20Version-3.40-blue.svg)]()
-[![Version](https://img.shields.io/badge/Symcon%20Version-5.1%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857-IP-Symcon-5-1-%28Stable%29-Changelog)  
-[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)[![Check Style](https://github.com/Nall-chan/SqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/SqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions)  
-
-# Logitech Media Server Discovery  
+[![Version](https://img.shields.io/badge/Modul%20Version-3.60-blue.svg)]()
+[![Version](https://img.shields.io/badge/Symcon%20Version-5.3%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857)  
+[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![Check Style](https://github.com/Nall-chan/SqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/SqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions)  
+[![Spenden](https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_SM.gif)](../README.md#6-spenden) 
+# Logitech Media Server Discovery  <!-- omit in toc -->
 Sucht Logitech Media Server im Netzwerk  
 
 ## Dokumentation  <!-- omit in toc -->
@@ -26,7 +27,7 @@ Sucht Logitech Media Server im Netzwerk
 
 ## 2. Voraussetzungen
 
- - IPS 5.0 oder höher
+ - IPS 5.3 oder höher
  - Logitech Media Server (getestet ab 7.9.x)
 
 ## 3. Software-Installation
@@ -35,9 +36,9 @@ Sucht Logitech Media Server im Netzwerk
 
 ## 4. Verwendung
 
-Nach der installation des Moduls, ist im Objektbaum unter 'Discovery Instanzen' eine Instanz [Logitech Media Server Discovery](../../LMSDiscovery/readme.md) vorhanden.  
-Beim dem Öffnen der Instanz, werden alle im Netzwerk gefundenen 'Logitech Media Server' aufgelistet.  
-Über das selektieren eines Servers in der Tabelle und betätigen des dazugehörigen 'Erstellen' Button, wird ein entsprechender Konfigurator in IPS angelegt.  
+Nach der installation des Moduls, ist im Objektbaum unter `Discovery Instanzen` eine Instanz [Logitech Media Server Discovery](../../LMSDiscovery/readme.md) vorhanden.  
+Beim dem Öffnen der Instanz, werden alle im Netzwerk gefundenen `Logitech Media Server` aufgelistet.  
+Über das selektieren eines Servers in der Tabelle und betätigen des dazugehörigen `Erstellen` Button, wird ein entsprechender Konfigurator in IPS angelegt.  
 Mit diesem Konfigurator können dann die einzelnen Player in IPS erzeugt werden.   
 
 ## 5. Statusvariablen und Profile

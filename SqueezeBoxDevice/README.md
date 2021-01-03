@@ -1,9 +1,10 @@
 [![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20Version-3.40-blue.svg)]()
-[![Version](https://img.shields.io/badge/Symcon%20Version-5.1%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857-IP-Symcon-5-1-%28Stable%29-Changelog)  
-[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)[![Check Style](https://github.com/Nall-chan/SqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/SqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions)  
-
-# SqueezeBox Player (SqueezeBoxDevice)  
+[![Version](https://img.shields.io/badge/Modul%20Version-3.60-blue.svg)]()
+[![Version](https://img.shields.io/badge/Symcon%20Version-5.3%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857)  
+[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![Check Style](https://github.com/Nall-chan/SqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/SqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions)  
+[![Spenden](https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_SM.gif)](../README.md#6-spenden)  
+# SqueezeBox Player (SqueezeBoxDevice)  <!-- omit in toc -->  
 
 Ermöglicht die Steuerung sowie die Darstellung der Zustände
 von SqueezeBox Geräten in IPS, in Verbindung mit dem
@@ -23,8 +24,8 @@ Logitech Media Server.
   - [1. Allgemein](#1-allgemein)
   - [2. Steuerung](#2-steuerung)
   - [3. Playlist](#3-playlist)
-- [Liefert den Pfad der Playlist.](#liefert-den-pfad-der-playlist)
   - [4. Zufallswiedergabe](#4-zufallswiedergabe)
+  - [5. Synchronisieren](#5-synchronisieren)
 - [8. Lizenz](#8-lizenz)
 
 ## 1. Funktionsumfang
@@ -33,17 +34,17 @@ Logitech Media Server.
  - Abfragen, Laden, bearbeiten und speichern von der internen  des Gerätes.  
  - Synchronisierung steuern.  
  - Fähigkeiten über das WebFront:  
-    *  Modus: Play,Pause, Stop
+    *  Modus: Play,Pause, Stop, Gruppierung 
     *  Audio: Lautstärke mit Stummschaltung, und wenn vom Gerät unterstützt, auch Tonhöhe sowie Höhen und Bass.
-    *  Bedienung der 6 Preset-Tasten vom Gerät
+    *  Bedienung der 6 Preset-Tasten vom Gerät.
     *  Sleeptimer: Setzen und löschen des Timer.
-    *  Playlist: Trackwahl, nächster, vorheriger Track, Wiederholung und Zufallsmodus
+    *  Playlist: Trackanwahl, nächster, vorheriger Track, Wiederholung und Zufallsmodus
     *  Darstellung der Daten zum aktuellen Track: Titel, Album, Interpret, Stilrichtung, Cover etc..
-    *  Darstellen der Server-Playlisten sowie laden derselben auf Player.
+    *  Darstellen der aktuellen Playlist als Tabelle sowie auswahl eines Tracks.  
 
 ## 2. Voraussetzungen
 
- - IPS 5.0 oder höher
+ - IPS 5.3 oder höher
  - Logitech Media Server (getestet ab 7.9.x)
  - kompatibler Player
 
@@ -54,7 +55,7 @@ Logitech Media Server.
 ## 4. Einrichten der Instanzen in IP-Symcon
 
 Eine einfache Einrichtung ist über den Konfigurator [Logitech Media Server Konfigurator](../../LMSConfigurator/readme.md) möglich.  
-Bei der manuellen Einrichtung ist die Instanz im Dialog 'Instanz hinzufügen' unter dem Hersteller 'Logitech' zu finden.  
+Bei der manuellen Einrichtung ist die Instanz im Dialog `Instanz hinzufügen` unter dem Hersteller `Logitech` zu finden.  
 ![Instanz hinzufügen](imgs/add.png)  
 
 **Konfigurationsseite:**  
@@ -68,6 +69,8 @@ Bei der manuellen Einrichtung ist die Instanz im Dialog 'Instanz hinzufügen' un
 | Aktiviere Hochtonregler                | enableTreble      | boolean | true         | Statusvariablen für Hochtonregler anlegen.                            |
 | Aktiviere Tonhöhenregler               | enablePitch       | boolean | true         | Statusvariablen für Tonhöhenregler anlegen.                           |
 | Aktiviere Zufallswiedergabe            | enableRandomplay  | boolean | true         | Statusvariablen für Zufallswiedergabe anlegen.                        |
+| Zeige Sync-Master an                   | showSyncMaster    | boolean | true         | Statusvariablen für Master einer Gruppe anlegen.                      |
+| Zeige Steuerung für Sync an            | showSyncControl   | boolean | true         | Statusvariablen für Synchronisierung anlegen.                         |
 | Größe Cover                            | CoverSize         | string  | cover        | Größe vom Cover:  cover  cover150x150  cover300x300                   |
 | Update Interval bei Wiedergabe         | Interval          | integer | 2            | Abstand in welchen der LMS aktuelle Daten bei der Wiedergabe liefert. |
 | Playlist als HTML-Box anlegen          | showPlaylist      | boolean | true         | Aktiviert die Darstellung der Playlist als HTML-Box.                  |
@@ -81,48 +84,49 @@ Bei der manuellen Einrichtung ist die Instanz im Dialog 'Instanz hinzufügen' un
 Folgende Statusvariablen werden automatisch angelegt.  
 **Statusvariablen allgemein:**  
 
-| Name                   | Typ     | Ident          | Beschreibung                                              |
-| :--------------------: | :-----: | :------------: | :-------------------------------------------------------: |
-| Player verbunden       | boolean | Connected      | True wenn der Player mit dem Server verbunden ist         |
-| Power                  | boolean | Power          | Player ein- oder ausgeschaltet                            |
-| Status                 | integer | Status         | Wiedergabemodus: Play, Pause, Stop                        |
-| Preset                 | integer | Preset         | Aktionsbutton für das WebFront um einen Preset auszurufen |
+| Name                   | Typ     | Ident          | Beschreibung                                               |
+| :--------------------: | :-----: | :------------: | :--------------------------------------------------------: |
+| Power                  | boolean | Power          | Player ein- oder ausgeschaltet                             |
+| Status                 | integer | Status         | Wiedergabemodus: Play, Pause, Stop                         |
+| Preset                 | integer | Preset         | Aktionsbutton für das WebFront um einen Preset auszurufen  |
 | Mute                   | boolean | Mute           | Stummschaltung aktiv / desaktiv                            |
-| Volume                 | integer | Volume         | Lautstärke                                                |
-| Bass                   | integer | Bass           | Regler für Bass                                           |
-| Hochtonregler          | integer | Treble         | Regler für Hochton                                        |
-| Pitch                  | integer | Pitch          | Regler für Tonhöhen                                       |
-| Zufallswiedergabe      | integer | Randomplay     | Modus der Zufallswiedergabe                               |
-| Mischen                | integer | Shuffle        | Aktuelle Playlist mischen                                 |
-| Wiederholen            | integer | Repeat         | Aktuelle Playlist wiederholen                             |
-| Playlist Anzahl Tracks | integer | Tracks         | Aktuelle Anzahl der Tracks in der Playlist                |
-| Playlist               | string  | Playlistname   | Name der Playlist oder Remote-Stream, sofern vorhanden    |
-| Album                  | string  | Album          | Album des Tracks der aktuellen Wiedergabe                 |
-| Titel                  | string  | Title          | Titel des Tracks der aktuellen Wiedergabe                 |
-| Interpret              | string  | Artist         | Interpret des Tracks der aktuellen Wiedergabe             |
-| Stilrichtung           | string  | Genre          | Stilrichtung des Tracks der aktuellen Wiedergabe          |
-| Dauer                  | string  | Duration       | Spielzeit des Tracks der aktuellen Wiedergabe             |
-| Spielzeit              | string  | Position       | Aktuelle Postion im Track als Klartext                    |
-| Position               | integer | Position2      | Aktuelle Postion im Track in Prozent                      |
-| Signalstärke           | integer | Signalstrength | WLAN-Signalstärke des Players, sofern vorhanden           |
-| Einschlaftimer         | integer | SleepTimer     | Gewählter Zeitraum für Einschlaftimer                     |
+| Volume                 | integer | Volume         | Lautstärke                                                 |
+| Bass                   | integer | Bass           | Regler für Bass                                            |
+| Hochtonregler          | integer | Treble         | Regler für Hochton                                         |
+| Pitch                  | integer | Pitch          | Regler für Tonhöhen                                        |
+| Zufallswiedergabe      | integer | Randomplay     | Modus der Zufallswiedergabe                                |
+| Master                 | boolean | Master         | true wenn der Player der Master einer Synchronisierung ist |
+| Synchronisieren        | integer | Sync           | Bedienung für die Synchronisierung aus dem WebFront        |
+| Mischen                | integer | Shuffle        | Aktuelle Playlist mischen                                  |
+| Wiederholen            | integer | Repeat         | Aktuelle Playlist wiederholen                              |
+| Playlist Anzahl Tracks | integer | Tracks         | Aktuelle Anzahl der Tracks in der Playlist                 |
+| Playlist               | string  | Playlistname   | Name der Playlist oder Remote-Stream, sofern vorhanden     |
+| Album                  | string  | Album          | Album des Tracks der aktuellen Wiedergabe                  |
+| Titel                  | string  | Title          | Titel des Tracks der aktuellen Wiedergabe                  |
+| Interpret              | string  | Artist         | Interpret des Tracks der aktuellen Wiedergabe              |
+| Stilrichtung           | string  | Genre          | Stilrichtung des Tracks der aktuellen Wiedergabe           |
+| Dauer                  | string  | Duration       | Spielzeit des Tracks der aktuellen Wiedergabe              |
+| Spielzeit              | string  | Position       | Aktuelle Postion im Track als Klartext                     |
+| Position               | integer | Position2      | Aktuelle Postion im Track in Prozent                       |
+| Signalstärke           | integer | Signalstrength | WLAN-Signalstärke des Players, sofern vorhanden            |
+| Einschlaftimer         | integer | SleepTimer     | Gewählter Zeitraum für Einschlaftimer                      |
 | Ausschalten in         | string  | SleepTimeout   | Zeit bis zum Ausschalten                                   |
-| Playlist               | string  | Playlist       | HTML-Box mit der Playlist des Players                     |
+| Playlist               | string  | Playlist       | HTML-Box mit der Playlist des Players                      |
 
 **Profile**:
 
-| Name            | Typ     | verwendet von Statusvariablen |
-| :-------------: | :-----: | :---------------------------: |
-| LSQ.Status      | integer | Status                        |
-| LSQ.Intensity   | integer | Alle 0-100 Slider             |
-| LSQ.Pitch       | integer | Pitch                         |
-| LSQ.Shuffle     | integer | Shuffle                       |
-| LSQ.Repeat      | integer | Repeat                        |
-| LSQ.Preset      | integer | Preset                        |
-| LSQ.SleepTimer  | integer | SleepTimer                    |
-| LSQ.Randomplay  | integer | Randomplay                    |
-| LSQ.Tracklist.* | integer | Tracks                        |
-
+| Name                          | Typ     | verwendet von Statusvariablen |
+| :---------------------------: | :-----: | :---------------------------: |
+| LSQ.Status                    | integer | Status                        |
+| LSQ.Intensity                 | integer | Alle 0-100 Slider             |
+| LSQ.Pitch                     | integer | Pitch                         |
+| LSQ.Shuffle                   | integer | Shuffle                       |
+| LSQ.Repeat                    | integer | Repeat                        |
+| LSQ.Preset                    | integer | Preset                        |
+| LSQ.SleepTimer                | integer | SleepTimer                    |
+| LSQ.Sync.\<InstanzeID\>       | integer | Sync                          |
+| LSQ.Randomplay                | integer | Randomplay                    |
+| LSQ.Tracklist.\<InstanzeID\>  | integer | Tracks                        |
 
 ## 6. WebFront
 
@@ -355,7 +359,7 @@ Liefert `true` bei Erfolg, sonst `false`.
 ```php
 string LSQ_LoadPlaylist(int $InstanzID, string $Name)
 ```
-Lädt die unter `$Name`übergebene Playlist.  
+Lädt die unter `$Name` übergebene Playlist.  
 Die Wiedergabe wird nicht automatisch gestartet.  
 Liefert den Pfad der Playlist.  
 
@@ -364,14 +368,16 @@ Liefert den Pfad der Playlist.
 ```php
 string LSQ_ResumePlaylist(int $InstanzID, string $Name)
 ```
-Lädt die unter `$Name`übergebene Playlist, und springt auf den zuletzt wiedergegeben Track.  
+Lädt die unter `$Name` übergebene Playlist, und springt auf den zuletzt wiedergegeben Track.  
 Die Wiedergabe wird nicht automatisch gestartet.  
 Liefert den Pfad der Playlist.  
+
 ---
 
 ```php
 LSQ_LoadPlaylistBySearch(int $InstanzID, string $Genre, string $Artist, string $Album)
 ```
+TODO  
 
 ---
 
@@ -380,6 +386,7 @@ LSQ_LoadPlaylistByTrackTitel(int $InstanzID, string $Titel)
 LSQ_LoadPlaylistByAlbumTitel(int $InstanzID, string $Titel)
 LSQ_LoadPlaylistByArtistName(int $InstanzID, string $Name)
 ```
+TODO  
 
 ---
 
@@ -399,6 +406,7 @@ Liefert `true` bei Erfolg, sonst `false`.
 ```php
 LSQ_LoadPlaylistBySongIDs(int $InstanzID, string $SongIDs)
 ```
+TODO  
 
 ---
 
@@ -432,12 +440,14 @@ Liefert `true` bei Erfolg, sonst `false`.
 LSQ_AddToPlaylistByUrl(int $InstanzID, string $URL)
 LSQ_AddToPlaylistByUrlEx(int $InstanzID, string $URL, string $DisplayTitle)
 ```
+TODO  
 
 ---
 
 ```php
 LSQ_AddToPlaylistBySearch(int $InstanzID, string $Genre, string $Artist, string $Album)
 ```
+TODO  
 
 ---
 
@@ -446,6 +456,7 @@ LSQ_AddToPlaylistByTrackTitel(int $InstanzID, string $Titel)
 LSQ_AddToPlaylistByAlbumTitel(int $InstanzID, string $Titel)
 LSQ_AddToPlaylistByArtistName(int $InstanzID, string $Name)
 ```
+TODO  
 
 ---
 
@@ -457,30 +468,35 @@ LSQ_AddToPlaylistByArtistID(int $InstanzID, int $ArtistID)
 LSQ_AddToPlaylistByPlaylistID(int $InstanzID, int $PlaylistID)
 LSQ_AddToPlaylistByFolderID(int $InstanzID, int $FolderID)
 ```
+TODO  
 
 ---
 
 ```php
 LSQ_AddToPlaylistBySongIDs(int $InstanzID, string $SongIDs)
 ```
+TODO  
 
 ---
 
 ```php
 LSQ_DeleteFromPlaylistBySearch(int $InstanzID, string $Genre, string $Artist, string $Album)
 ```
+TODO  
 
 ---
 
 ```php
 LSQ_DeleteFromPlaylistByIndex(int $InstanzID, int $Position)
 ```
+TODO  
 
 ---
 
 ```php
 LSQ_DeleteFromPlaylistByUrl(int $InstanzID, string $URL)
 ```
+TODO  
 
 ---
 
@@ -491,18 +507,21 @@ LSQ_DeleteFromPlaylistByArtistID(int $InstanzID, int $ArtistID)
 LSQ_DeleteFromPlaylistByPlaylistID(int $InstanzID, int $PlaylistID)
 LSQ_DeleteFromPlaylistBySongIDs(int $InstanzID, string $SongIDs)
 ```
+TODO  
 
 ---
 
 ```php
 LSQ_MoveSongInPlaylist(int $InstanzID, int $Position, int $NewPosition)
 ```
+TODO  
 
 ---
 
 ```php
 LSQ_InsertInPlaylistBySearch(int $InstanzID, string $Genre, string $Artist, string $Album)
 ```
+TODO  
 
 ---
 
@@ -514,12 +533,14 @@ LSQ_InsertInPlaylistByPlaylistID(int $InstanzID, int $PlaylistID)
 LSQ_InsertInPlaylistByFolderID(int $InstanzID, int $FolderID)
 LSQ_InsertInPlaylistByFavoriteID(int $InstanzID, string $FavoriteID)
 ```
+TODO  
 
 ---
 
 ```php
 LSQ_InsertInPlaylistBySongIDs(int $InstanzID, string $SongIDs)
 ```
+TODO  
 
 ---
 
@@ -527,30 +548,35 @@ LSQ_InsertInPlaylistBySongIDs(int $InstanzID, string $SongIDs)
 LSQ_PreviewPlaylistStart(int $InstanzID, string $Name)
 LSQ_PreviewPlaylistStop(int $InstanzID)
 ```
+TODO  
 
 ---
 
 ```php
 LSQ_ClearPlaylist(int $InstanzID)
 ```
+TODO  
 
 ---
 
 ```php
 LSQ_GetPlaylistURL(int $InstanzID)
 ```
+TODO  
 
 ---
 
 ```php
 LSQ_IsPlaylistModified(int $InstanzID)
 ```
+TODO  
 
 ---
 
 ```php
 LSQ_AddPlaylistIndexToZappedList(int $InstanzID, int $Position)
 ```
+TODO  
 
 ---
 
@@ -642,24 +668,53 @@ LSQ_StartRandomplayOfAlbums(int $InstanzID)
 LSQ_StartRandomplayOfArtist(int $InstanzID)
 LSQ_StartRandomplayOfYear(int $InstanzID)
 ```
+TODO  
 
 ---
 
 ```php
 LSQ_StopRandomplay(int $InstanzID)
 ```
+TODO  
 
 ---
 
 ```php
 LSQ_RandomplaySelectAllGenre(int $InstanzID, bool $Active)
 ```
+TODO  
 
 ---
 
 ```php
 LSQ_RandomplaySelectGenre(int $InstanzID, string $Genre, bool $Active)
 ```
+TODO  
+
+### 5. Synchronisieren  
+
+```php
+bool LSQ_SetSync(int $InstanzID, int $InstanzIDofMaster)
+```
+Synchronisiert die `$InstanzeID` mit der Playerintanz welche in `InstanzIDofMaster` übergeben wurde.  
+Liefert `true` bei Erfolg, sonst `false`.  
+
+---  
+
+```php
+bool LSQ_SetUnSync(int $InstanzID)
+```
+Beendet eine Synchronisierung der `$InstanzeID`.  
+Liefert `true` bei Erfolg, sonst `false`.  
+
+---  
+
+```php
+array LSQ_GetSync(int $InstanzID)
+```
+Liefert ein Array über alle InstanzIDs welche mit dieser `$InstanzID` synchronisiert sind.  
+
+---  
 
 ## 8. Lizenz
 
