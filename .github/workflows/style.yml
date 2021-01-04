@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
  
     steps:
-    - uses: actions/checkout@$GITHUB_REF
+    - uses: actions/checkout@master
 
     - name: Only fetch Style PHP submodule
       run: git submodule update --init -- .style
