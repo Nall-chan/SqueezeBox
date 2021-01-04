@@ -8,21 +8,27 @@
                 {
                     "name": "Address",
                     "type": "ValidationTextBox",
-                    "caption": "IP Address"
+                    "caption": "Host"
                 },
                 {
                     "type": "Label",
                     "caption": "Default SSH password: 1234"
-                },
-                {
-                    "name": "Password",
-                    "type": "PasswordTextBox",
-                    "caption": "Password"
-                },
-                {
-                    "name": "Interval",
-                    "type": "NumberSpinner",
-                    "caption": "Interval"
+                },{ 
+                    "type": "RowLayout",
+                    "items": [
+                                {
+                                    "name": "Password",
+                                    "type": "PasswordTextBox",
+                                    "caption": "Password"
+                                },
+                                {
+                                    "name": "Interval",
+                                    "type": "NumberSpinner",
+                                    "caption": "Interval",
+                                    "minimum":"0",
+                                    "suffix": "seconds"                                    
+                                }
+                            ]
                 }
             ],
     "actions":

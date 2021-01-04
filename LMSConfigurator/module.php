@@ -11,7 +11,7 @@ declare(strict_types=1);
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2020 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.60
+ * @version       3.61
  *
  */
 require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
@@ -27,7 +27,7 @@ eval('declare(strict_types=1);namespace LMSConfigurator {?>' . file_get_contents
  * @copyright     2020 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.60
+ * @version       3.61
  *
  * @example <b>Ohne</b>
  */
@@ -220,7 +220,7 @@ class LMSConfigurator extends IPSModule
             $AddValue['create'] = array_merge([$Create], $ParentCreate);
             $AlarmValues[] = $AddValue;
         }
-        foreach ($InstanceIDListPlayers as $InstanceID => $Address) {
+        foreach ($InstanceIDListAlarms as $InstanceID => $Address) {
             $AlarmValues[] = [
                 'instanceID' => $InstanceID,
                 'name'       => IPS_GetName($InstanceID),
@@ -229,13 +229,13 @@ class LMSConfigurator extends IPSModule
             ];
         }
         $BatteryValues = [];
-        foreach ($FoundBattery as $Address => $Device) {
-            $InstanceID = array_search($Address, $InstanceIDListBattery);
+        foreach ($FoundBattery as $Device) {
+            $InstanceID = array_search($Device['ip'], $InstanceIDListBattery);
             if ($InstanceID !== false) {
                 $AddValue = [
                     'instanceID' => $InstanceID,
                     'name'       => IPS_GetName($InstanceID),
-                    'address'    => $Address,
+                    'address'    => $Device['ip'],
                     'location'   => IPS_GetLocation($InstanceID)
                 ];
                 unset($InstanceIDListBattery[$InstanceID]);
@@ -243,19 +243,19 @@ class LMSConfigurator extends IPSModule
                 $AddValue = [
                     'instanceID' => 0,
                     'name'       => $this->Translate('Battery') . ' ' . $Device['name'],
-                    'address'    => $Address,
+                    'address'    => $Device['ip'],
                     'location'   => ''
                 ];
             }
             $Create = [
                 'moduleID'      => '{718158BB-B247-4A71-9440-9C2FF1378752}',
-                'configuration' => ['Address' => $Address]
+                'configuration' => ['Address' => $Device['ip']]
             ];
 
             $AddValue['create'] = array_merge([$Create], $ParentCreate);
             $BatteryValues[] = $AddValue;
         }
-        foreach ($InstanceIDListPlayers as $InstanceID => $Address) {
+        foreach ($InstanceIDListBattery as $InstanceID => $Address) {
             $BatteryValues[] = [
                 'instanceID' => $InstanceID,
                 'name'       => IPS_GetName($InstanceID),

@@ -2,12 +2,12 @@
     "actions": [
         {
             "type": "ExpansionPanel",
+            "expanded":true,
             "caption": "Players",
             "items": [{
                     "type": "Configurator",
                     "name": "Players",
                     "caption": "Players",
-                    "add": false,
                     "delete": true,
                     "rowCount": 2,
                     "sort": {
@@ -37,13 +37,13 @@
         },
         {
             "type": "ExpansionPanel",
+            "expanded":true,            
             "caption": "Alarms",
             "items": [
                 {
                     "type": "Configurator",
                     "name": "Alarms",
                     "caption": "Alarms",
-                    "add": false,
                     "delete": true,
                     "rowCount": 2,                    
                     "sort": {
@@ -69,13 +69,13 @@
         },
         {
             "type": "ExpansionPanel",
+            "expanded":true,
             "caption": "Battery",
             "items": [
                 {
                     "type": "Configurator",
                     "name": "Battery",
                     "caption": "Battery",
-                    "add": false,
                     "delete": true,
                     "rowCount": 2,                    
                     "sort": {

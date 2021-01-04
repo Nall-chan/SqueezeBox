@@ -1,5 +1,5 @@
 [![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20Version-3.60-blue.svg)]()
+[![Version](https://img.shields.io/badge/Modul%20Version-3.61-blue.svg)]()
 [![Version](https://img.shields.io/badge/Symcon%20Version-5.3%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857)  
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Check Style](https://github.com/Nall-chan/SqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/SqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions)  
@@ -54,12 +54,13 @@ Logitech Media Server.
 
 ## 4. Einrichten der Instanzen in IP-Symcon
 
-Eine einfache Einrichtung ist über den Konfigurator [Logitech Media Server Konfigurator](../../LMSConfigurator/readme.md) möglich.  
+Eine einfache Einrichtung ist über den Konfigurator [Logitech Media Server Konfigurator](../LMSConfigurator/README.md) möglich.  
 Bei der manuellen Einrichtung ist die Instanz im Dialog `Instanz hinzufügen` unter dem Hersteller `Logitech` zu finden.  
-![Instanz hinzufügen](imgs/add.png)  
+![Instanz hinzufügen](imgs/add1.png)  
 
 **Konfigurationsseite:**  
-![Instanz hinzufügen](imgs/conf.png)  
+![Instanz hinzufügen](imgs/conf1.png)  
+![Instanz hinzufügen](imgs/conf2.png)  
 
 | Name                                   | Eigenschaft       | Typ     | Standardwert | Funktion                                                              |
 | :------------------------------------: | :---------------: | :-----: | :----------: | :-------------------------------------------------------------------: |

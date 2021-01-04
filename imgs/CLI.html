@@ -1,57 +1,7 @@
 <!DOCTYPE html>
 <html>
     <body>
-        <!--#########################################################################-->
-        <!-- SYNC COMMANDS                                                         -->
-        <!--#########################################################################-->
-
-
-        <br>
-        <p id="sync">
-            <strong>
-                <code>
-                    &lt;playerid&gt;
-                    sync 
-                    &lt;playerindex|playerid|-|?&gt;
-                </code>
-            </strong>
-        </p>
-        <p>
-            The "sync" command specifies the player to synchronise with the 
-            given playerid. The command accepts only one playerindex or playerid. 
-            To unsync the player, use the "-" parameter.
-            <br>
-            Note that in both cases the first <code>&lt;playerid&gt;</code> is the player which
-            is already a member of a sync group. When adding a player to a sync group,
-            the second specified player will be added to the group which includes the first player,
-            if necessary first removing the second player from its existing sync-group.
-            <br>
-            You may query which players are already synced with this player by passing 
-            in a "?" parameter.  Multiple playerids are separated by a comma. 
-            If the player is not synced, "-" is returned.
-        </p>
-        <p>
-            Examples:
-        </p>
-        <blockquote>
-            <p>
-                Request: "04:20:00:12:23:45 sync 1&lt;LF&gt;"
-                <br>
-                Response: "04:20:00:12:23:45 sync 1&lt;LF&gt;"
-            </p>
-            <p>
-                Request: "04:20:00:12:23:45 sync ?&lt;LF&gt;"
-                <br>
-                Response: "04:20:00:12:23:45 sync 04:20:00:12:23:21&lt;LF&gt;"
-            </p>
-            <p>
-                Request: "04:20:00:12:23:45 sync -&lt;LF&gt;"
-                <br>
-                Response: "04:20:00:12:23:45 sync -&lt;LF&gt;"
-            </p>
-        </blockquote>
-
-        <br>
+        <!--// LMS TODO
         <p id="syncgroups">
             <strong>
                 <code>
@@ -73,14 +23,6 @@
                 Response: "syncgroups sync_members:04:20:00:12:23:45,04:20:00:12:34:56 sync_member_names:Living%20Room,Kitchen&lt;LF&gt;"
             </p>
         </blockquote>
-
-
-        <!--#########################################################################-->
-        <!-- COMPOUND QUERIES                                                        -->
-        <!--#########################################################################-->
-
-
-        <!--// LMS TODO
         <p id="readdirectory">
             <strong>
                 <code>

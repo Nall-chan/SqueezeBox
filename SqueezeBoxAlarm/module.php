@@ -10,7 +10,7 @@ declare(strict_types=1);
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2020 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.60
+ * @version       3.61
  *
  */
 
@@ -351,7 +351,7 @@ class LSA_AlarmList
  * @copyright     2020 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.60
+ * @version       3.61
  *
  * @example <b>Ohne</b>
  *
@@ -704,10 +704,14 @@ class SqueezeboxAlarm extends IPSModule
             case 'AlarmState7':
             case 'AlarmState8':
             case 'AlarmState9':
+                set_error_handler([$this, 'ModulErrorHandler']);
                 trigger_error($this->Translate('Sorry this request is unsupported by LMS.'), E_USER_NOTICE);
+                restore_error_handler();
                 return false;
             default:
+                set_error_handler([$this, 'ModulErrorHandler']);
                 trigger_error($this->Translate('Ident not valid'), E_USER_NOTICE);
+                restore_error_handler();
                 return false;
         }
         $LMSResponse = $this->SendDirect($LMSResponse);
@@ -716,8 +720,10 @@ class SqueezeboxAlarm extends IPSModule
         }
         $LMSResponse->SliceData();
         if ((count($LMSResponse->Data) == 0) || ($LMSResponse->Data[0] == '?')) {
+            set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($this->Translate('Player not connected'), E_USER_NOTICE);
-            return false;
+            restore_error_handler();
+        return false;
         }
         return $this->DecodeLMSResponse($LMSResponse);
     }
@@ -731,10 +737,6 @@ class SqueezeboxAlarm extends IPSModule
      */
     public function SetAllActive(bool $Value)
     {
-        if (!is_bool($Value)) {
-            trigger_error(sprintf($this->Translate('%s must be bool.'), 'Value'), E_USER_NOTICE);
-            return false;
-        }
         $LMSData = $this->SendDirect(new LMSData(['alarm', ($Value ? 'enableall' : 'disableall')]));
         if ($LMSData === null) {
             return false;
@@ -751,12 +753,10 @@ class SqueezeboxAlarm extends IPSModule
      */
     public function SetDefaultVolume(int $Value)
     {
-        if (!is_int($Value)) {
-            trigger_error(sprintf($this->Translate('%s must be integer.'), 'Value'), E_USER_NOTICE);
-            return false;
-        }
         if (($Value < 0) || ($Value > 100)) {
+            set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
+            restore_error_handler();
             return false;
         }
         $LMSData = $this->SendDirect(new LMSData(['playerpref', 'alarmDefaultVolume'], (int) $Value));
@@ -775,10 +775,6 @@ class SqueezeboxAlarm extends IPSModule
      */
     public function SetFadeIn(bool $Value)
     {
-        if (!is_bool($Value)) {
-            trigger_error(sprintf($this->Translate('%s must be bool.'), 'Value'), E_USER_NOTICE);
-            return false;
-        }
         $LMSData = $this->SendDirect(new LMSData(['playerpref', 'alarmfadeseconds'], (int) $Value));
         if ($LMSData === null) {
             return false;
@@ -795,12 +791,10 @@ class SqueezeboxAlarm extends IPSModule
      */
     public function SetTimeout(int $Value)
     {
-        if (!is_int($Value)) {
-            trigger_error(sprintf($this->Translate('%s must be integer.'), 'Value'), E_USER_NOTICE);
-            return false;
-        }
         if ($Value < 0) {
+            set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
+            restore_error_handler();
             return false;
         }
         $LMSData = $this->SendDirect(new LMSData(['playerpref', 'alarmTimeoutSeconds'], (int) $Value));
@@ -819,12 +813,10 @@ class SqueezeboxAlarm extends IPSModule
      */
     public function SetSnoozeSeconds(int $Value)
     {
-        if (!is_int($Value)) {
-            trigger_error(sprintf($this->Translate('%s must be integer.'), 'Value'), E_USER_NOTICE);
-            return false;
-        }
         if ($Value < 0) {
+            set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
+            restore_error_handler();
             return false;
         }
         $LMSData = $this->SendDirect(new LMSData(['playerpref', 'alarmSnoozeSeconds'], (int) $Value));
@@ -896,14 +888,12 @@ class SqueezeboxAlarm extends IPSModule
      */
     public function DelAlarm(int $AlarmIndex)
     {
-        if (!is_int($AlarmIndex)) {
-            trigger_error(sprintf($this->Translate('%s must be integer.'), 'AlarmIndex'), E_USER_NOTICE);
-            return false;
-        }
         $Alarms = $this->Alarms;
         $Alarm = $Alarms->GetByIndex($AlarmIndex);
         if ($Alarm === false) {
+            set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error(sprintf($this->Translate('%s out of range.'), 'AlarmIndex'), E_USER_NOTICE);
+            restore_error_handler();
             return false;
         }
 
@@ -925,18 +915,12 @@ class SqueezeboxAlarm extends IPSModule
      */
     public function SetPlaylist(int $AlarmIndex, string $Url)
     {
-        if (!is_string($Url)) {
-            trigger_error(sprintf($this->Translate('%s must be string.'), 'Url'), E_USER_NOTICE);
-            return false;
-        }
-        if (!is_int($AlarmIndex)) {
-            trigger_error(sprintf($this->Translate('%s must be integer.'), 'AlarmIndex'), E_USER_NOTICE);
-            return false;
-        }
         $Alarms = $this->Alarms;
         $Alarm = $Alarms->GetByIndex($AlarmIndex);
         if ($Alarm === false) {
+            set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error(sprintf($this->Translate('%s out of range.'), 'AlarmIndex'), E_USER_NOTICE);
+            restore_error_handler();
             return false;
         }
         if (($Url == '0') || ($Url == '')) {
@@ -961,22 +945,18 @@ class SqueezeboxAlarm extends IPSModule
      */
     public function SetShuffle(int $AlarmIndex, int $Value)
     {
-        if (!is_int($Value)) {
-            trigger_error(sprintf($this->Translate('%s must be integer.'), 'Value'), E_USER_NOTICE);
-            return false;
-        }
         if (($Value < 0) || ($Value > 2)) {
+            set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error(sprintf($this->Translate('%s must be 0, 1 or 2.'), 'Value'), E_USER_NOTICE);
-            return false;
-        }
-        if (!is_int($AlarmIndex)) {
-            trigger_error(sprintf($this->Translate('%s must be integer.'), 'AlarmIndex'), E_USER_NOTICE);
+            restore_error_handler();
             return false;
         }
         $Alarms = $this->Alarms;
         $Alarm = $Alarms->GetByIndex($AlarmIndex);
         if ($Alarm === false) {
+            set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error(sprintf($this->Translate('%s out of range.'), 'AlarmIndex'), E_USER_NOTICE);
+            restore_error_handler();
             return false;
         }
         $LMSData = $this->SendDirect(new LMSData(['alarm', 'update'], ['id:' . $Alarm->Id, 'shufflemode:' . (int) $Value]));
@@ -997,18 +977,12 @@ class SqueezeboxAlarm extends IPSModule
      */
     public function SetRepeat(int $AlarmIndex, bool $Value)
     {
-        if (!is_bool($Value)) {
-            trigger_error(sprintf($this->Translate('%s must be bool.'), 'Value'), E_USER_NOTICE);
-            return false;
-        }
-        if (!is_int($AlarmIndex)) {
-            trigger_error(sprintf($this->Translate('%s must be integer.'), 'AlarmIndex'), E_USER_NOTICE);
-            return false;
-        }
         $Alarms = $this->Alarms;
         $Alarm = $Alarms->GetByIndex($AlarmIndex);
         if ($Alarm === false) {
+            set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error(sprintf($this->Translate('%s out of range.'), 'AlarmIndex'), E_USER_NOTICE);
+            restore_error_handler();            
             return false;
         }
         $LMSData = $this->SendDirect(new LMSData(['alarm', 'update'], ['id:' . $Alarm->Id, 'repeat:' . (int) $Value]));
@@ -1029,22 +1003,18 @@ class SqueezeboxAlarm extends IPSModule
      */
     public function SetVolume(int $AlarmIndex, int $Value)
     {
-        if (!is_int($Value)) {
-            trigger_error(sprintf($this->Translate('%s must be integer.'), 'Value'), E_USER_NOTICE);
-            return false;
-        }
         if (($Value < 0) || ($Value > 100)) {
+            set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
-            return false;
-        }
-        if (!is_int($AlarmIndex)) {
-            trigger_error(sprintf($this->Translate('%s must be integer.'), 'AlarmIndex'), E_USER_NOTICE);
+            restore_error_handler();            
             return false;
         }
         $Alarms = $this->Alarms;
         $Alarm = $Alarms->GetByIndex($AlarmIndex);
         if ($Alarm === false) {
+            set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error(sprintf($this->Translate('%s out of range.'), 'AlarmIndex'), E_USER_NOTICE);
+            restore_error_handler();            
             return false;
         }
         $LMSData = $this->SendDirect(new LMSData(['alarm', 'update'], ['id:' . $Alarm->Id, 'volume:' . (int) $Value]));
@@ -1147,11 +1117,15 @@ class SqueezeboxAlarm extends IPSModule
                 }
                 break;
             default:
+                set_error_handler([$this, 'ModulErrorHandler']);
                 trigger_error($this->Translate('Invalid ident'), E_USER_NOTICE);
+                restore_error_handler();            
                 return;
         }
         if ($result == false) {
+            set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($this->Translate('Error on Execute Action'), E_USER_NOTICE);
+            restore_error_handler();            
         }
     }
 
@@ -1307,7 +1281,9 @@ class SqueezeboxAlarm extends IPSModule
             return $LMSData;
         } catch (Exception $ex) {
             $this->SendDebug('Receive Direct', $ex->getMessage(), 0);
+            set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($ex->getMessage(), $ex->getCode());
+            restore_error_handler();            
         }
         return null;
     }
@@ -1924,10 +1900,22 @@ class SqueezeboxAlarm extends IPSModule
             $this->SendDebug('Response', $LMSData, 0);
             return $LMSData;
         } catch (Exception $exc) {
-            trigger_error($exc->getMessage() . PHP_EOL . print_r(debug_backtrace(), true), E_USER_NOTICE);
+            set_error_handler([$this, 'ModulErrorHandler']);
+            trigger_error($exc->getMessage(), E_USER_NOTICE);
+            restore_error_handler();            
             return null;
         }
     }
+
+    protected function ModulErrorHandler($errno, $errstr)
+    {
+        if (!(error_reporting() & $errno)) {
+            // Dieser Fehlercode ist nicht in error_reporting enthalten
+            return true;
+        }
+        $this->SendDebug('ERROR', utf8_decode($errstr), 0);
+        echo $errstr . "\r\n";
+    }    
 }
 
 /* @} */

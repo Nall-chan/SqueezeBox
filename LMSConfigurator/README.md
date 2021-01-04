@@ -1,5 +1,5 @@
 [![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20Version-3.60-blue.svg)]()
+[![Version](https://img.shields.io/badge/Modul%20Version-3.61-blue.svg)]()
 [![Version](https://img.shields.io/badge/Symcon%20Version-5.3%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857)  
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Check Style](https://github.com/Nall-chan/SqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/SqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions)  
@@ -37,13 +37,10 @@ Vereinfacht das Anlegen von verschiedenen SqueezeBox-Instanzen.
 
 ## 4. Einrichten der Instanzen in IP-Symcon
 
-Eine einfache Einrichtung ist über die im Objektbaum unter `Discovery Instanzen` zu findende Instanz [Logitech Media Server Discovery](../../LMSDiscovery/readme.md) möglich.  
+Eine einfache Einrichtung ist über die im Objektbaum unter `Discovery Instanzen` zu findende Instanz [Logitech Media Server Discovery](../LMSDiscovery/readme.md) möglich.  
 
 Bei der manuellen Einrichtung ist das Modul ist im Dialog `Instanz hinzufügen` unter dem Hersteller `Logitech` zu finden.  
 ![Instanz hinzufügen](imgs/add1.png)  
-
-Alternativ ist es auch in der Liste alle Konfiguratoren aufgeführt.  
-![Instanz hinzufügen](imgs/add2.png)  
 
 Es wird automatisch eine LMSSplitter Instanz erzeugt, wenn noch keine vorhanden ist.  
 Werden in dem sich öffnenden Konfigurationsformular keine Geräte angezeigt, so ist zuerst der Splitter korrekt zu konfigurieren.  
@@ -51,7 +48,7 @@ Dieser kann über die Schaltfläche `Gateway konfigurieren` erreicht werden.
 Details dazu sind der Dokumentation des Splitters zu entnehmen.
 
 Ist der Splitter korrekt verbunden, wird beim öffnen des Konfigurator folgendender Dialog angezeigt.  
-![Konfigurator](imgs/conf.png)  
+![Konfigurator](imgs/conf1.png)  
 
 Über das selektieren eines Eintrages in der Tabelle und betätigen des dazugehörigen `Erstellen` Button,  
 können alle Instanzen in IPS angelegt werden.  

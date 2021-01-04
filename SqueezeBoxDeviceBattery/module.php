@@ -10,7 +10,7 @@ declare(strict_types=1);
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2020 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.60
+ * @version       3.61
  *
  */
 eval('declare(strict_types=1);namespace SqueezeboxBattery {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableHelper.php') . '}');
@@ -51,7 +51,7 @@ class AutoLoaderSqueezeboxBatteryPHPSecLib
  * @copyright     2020 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.60
+ * @version       3.61
  *
  * @example <b>Ohne</b>
  */
@@ -163,7 +163,8 @@ class SqueezeboxBattery extends IPSModule
         $ssh = new \phpseclib\Net\SSH2($this->ReadPropertyString('Address'));
         $login = @$ssh->login('root', $this->ReadPropertyString('Password'));
         if ($login == false) {
-            echo $this->Translate('Login failed.');
+            set_error_handler([$this, 'ModulErrorHandler']);
+            trigger_error($this->Translate('Login failed.'), E_USER_NOTICE);
             $this->SendDebug('Login', 'ERROR', 0);
             return false;
         }
@@ -217,6 +218,16 @@ class SqueezeboxBattery extends IPSModule
         $this->SendDebug('Disconnect', '', 0);
         return true;
     }
+    
+    protected function ModulErrorHandler($errno, $errstr)
+    {
+        if (!(error_reporting() & $errno)) {
+            // Dieser Fehlercode ist nicht in error_reporting enthalten
+            return true;
+        }
+        $this->SendDebug('ERROR', utf8_decode($errstr), 0);
+        echo $errstr . "\r\n";
+    }    
 }
 
 /* @} */

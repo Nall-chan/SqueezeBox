@@ -1,5 +1,5 @@
 [![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20Version-3.60-blue.svg)]()
+[![Version](https://img.shields.io/badge/Modul%20Version-3.61-blue.svg)]()
 [![Version](https://img.shields.io/badge/Symcon%20Version-5.3%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857)  
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Check Style](https://github.com/Nall-chan/SqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/SqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions)  
@@ -125,6 +125,13 @@ Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:
 
 ### 3. Changelog
 
+Version 3.61:  
+- Konfigurator hat teilweise falsche Einträge angezeigt.  
+- Konfigurator für Battery-Devices war ohne Funktion.  
+- Alle abgekündigten Funktionen entfernt.  
+- Dokumentation aktualisiert.  
+
+
 Version 3.60:  
 - Unter bestimmten Umständen wurde nicht erkannt das ein Player die Wiedergabe gestartet hat.  
 - Bei aktuell nicht verbundenen Playern wird kein falsches Coverbild geladen.  
@@ -139,7 +146,7 @@ Version 3.60:
 - Splitter hat bei Verbindungsaufbau nicht zuverlässig die Playlisten geladen.  
   
 
-Version 3.60:  
+Version 3.51:  
 - Discovery kommt auch mit Hostnamen zurecht.  
 - Schreibfehler korrigiert.  
 

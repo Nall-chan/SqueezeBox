@@ -976,7 +976,7 @@ class SqueezeboxDevice extends IPSModule
     {
         if (($Value < 1) || ($Value > 6)) {
             set_error_handler([$this, 'ModulErrorHandler']);
-            trigger_error(sprintf($this->Translate('%s out of Range.'), 'Value'), E_USER_NOTICE);
+            trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
             restore_error_handler();
             return false;
         }
@@ -1798,7 +1798,7 @@ class SqueezeboxDevice extends IPSModule
     {
         if (($Index < 1) || ($Index > $this->GetValue('Tracks'))) {
             set_error_handler([$this, 'ModulErrorHandler']);
-            trigger_error(sprintf($this->Translate('%s out of Range.'), 'Index'), E_USER_NOTICE);
+            trigger_error(sprintf($this->Translate('%s out of range.'), 'Index'), E_USER_NOTICE);
             restore_error_handler();            
             return false;
         }
