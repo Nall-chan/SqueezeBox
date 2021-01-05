@@ -1879,23 +1879,23 @@ class LMSSplitter extends IPSModule
         }
         $LMSData->SliceData();
         $Playlists = (new LMSTaggingArray($LMSData->Data))->DataArray();
-        foreach ($Playlists as $Key => $Playlist) {
-            $Playlists[$Key]['Id'] = $Key;
-            $Playlists[$Key]['Tracks'] = 0;
-            $Playlists[$Key]['Duration'] = 0;
+        foreach ($Playlists as $Key => &$Playlist) {
+            $Playlist['Id'] = $Key;
+            $Playlist['Tracks'] = 0;
+            $Playlist['Duration'] = 0;
             $LMSSongData = $this->SendDirect(new LMSData(['playlists', 'tracks'], [0, 100000, 'playlist_id:' . $Key, 'tags:d'], true));
             if ($LMSSongData === null) {
                 set_error_handler([$this, 'ModulErrorHandler']);
                 trigger_error(sprintf($this->Translate('Error read Playlist %d .'), $Key), E_USER_NOTICE);
                 restore_error_handler();            
-                $Playlists[$Key]['Playlist'] = $Playlists[$Key]['Playlist'];
+                $Playlist['Playlist'] = $Playlists['Playlist'];
                 continue;
             }
             $LMSSongData->SliceData();
             if (count($LMSSongData->Data) > 0) {
                 $SongInfo = new LMSSongInfo($LMSSongData->Data);
-                $Playlists[$Key]['Tracks'] = $SongInfo->CountAllSongs();
-                $Playlists[$Key]['Duration'] = $SongInfo->GetTotalDuration();
+                $Playlist['Tracks'] = $SongInfo->CountAllSongs();
+                $Playlist['Duration'] = $SongInfo->GetTotalDuration();
             }
         }
 
