@@ -8,9 +8,9 @@ declare(strict_types=1);
  * @package       Squeezebox
  * @file          module.php
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2020 Michael Tröger
+ * @copyright     2021 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.61
+ * @version       3.62
  *
  */
 eval('declare(strict_types=1);namespace SqueezeboxBattery {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableHelper.php') . '}');
@@ -48,10 +48,10 @@ class AutoLoaderSqueezeboxBatteryPHPSecLib
  * Erweitert IPSModule.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2020 Michael Tröger
+ * @copyright     2021 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.61
+ * @version       3.62
  *
  * @example <b>Ohne</b>
  */
@@ -218,7 +218,7 @@ class SqueezeboxBattery extends IPSModule
         $this->SendDebug('Disconnect', '', 0);
         return true;
     }
-    
+
     protected function ModulErrorHandler($errno, $errstr)
     {
         if (!(error_reporting() & $errno)) {
@@ -227,7 +227,7 @@ class SqueezeboxBattery extends IPSModule
         }
         $this->SendDebug('ERROR', utf8_decode($errstr), 0);
         echo $errstr . "\r\n";
-    }    
+    }
 }
 
 /* @} */

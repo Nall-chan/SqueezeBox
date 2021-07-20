@@ -8,9 +8,9 @@ declare(strict_types=1);
  * @package       Squeezebox
  * @file          module.php
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2020 Michael Tröger
+ * @copyright     2021 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.4
+ * @version       3.62
  *
  */
 require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
@@ -19,9 +19,9 @@ require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
  * LMSDiscovery Klasse implementiert.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2020 Michael Tröger
+ * @copyright     2021 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.4
+ * @version       3.62
  *
  * @example <b>Ohne</b>
  *

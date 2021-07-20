@@ -1,5 +1,5 @@
 [![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20Version-3.61-blue.svg)]()
+[![Version](https://img.shields.io/badge/Modul%20Version-3.62-blue.svg)]()
 [![Version](https://img.shields.io/badge/Symcon%20Version-5.3%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857)  
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Check Style](https://github.com/Nall-chan/SqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/SqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions)  
@@ -62,22 +62,22 @@ Bei der manuellen Einrichtung ist die Instanz im Dialog `Instanz hinzufügen` un
 ![Instanz hinzufügen](imgs/conf1.png)  
 ![Instanz hinzufügen](imgs/conf2.png)  
 
-| Name                                   | Eigenschaft       | Typ     | Standardwert | Funktion                                                              |
-| :------------------------------------: | :---------------: | :-----: | :----------: | :-------------------------------------------------------------------: |
-| IP/MAC-Adresse                         | Address           | string  |              | MAC Adresse der Squeezebox [Format xx:xx:xx:xx:xx:xx ]                |
-| Namen der Instanz automatisch anpassen | changeName        | boolean | false        | Instanz automatisch umbenennen wenn der Name vom Gerät sich ändert.   |
-| Aktiviere Tiefenregler                 | enableBass        | boolean | true         | Statusvariablen für Tiefenregler anlegen.                             |
-| Aktiviere Hochtonregler                | enableTreble      | boolean | true         | Statusvariablen für Hochtonregler anlegen.                            |
-| Aktiviere Tonhöhenregler               | enablePitch       | boolean | true         | Statusvariablen für Tonhöhenregler anlegen.                           |
-| Aktiviere Zufallswiedergabe            | enableRandomplay  | boolean | true         | Statusvariablen für Zufallswiedergabe anlegen.                        |
-| Zeige Sync-Master an                   | showSyncMaster    | boolean | true         | Statusvariablen für Master einer Gruppe anlegen.                      |
-| Zeige Steuerung für Sync an            | showSyncControl   | boolean | true         | Statusvariablen für Synchronisierung anlegen.                         |
-| Größe Cover                            | CoverSize         | string  | cover        | Größe vom Cover:  cover  cover150x150  cover300x300                   |
-| Update Interval bei Wiedergabe         | Interval          | integer | 2            | Abstand in welchen der LMS aktuelle Daten bei der Wiedergabe liefert. |
-| Playlist als HTML-Box anlegen          | showPlaylist      | boolean | true         | Aktiviert die Darstellung der Playlist als HTML-Box.                  |
-| Playlist Darstellung                   | Table             | string  | Tabelle      | Style Eigenschaften der Playlist HTML-Tabelle.                        |
-| Playlist Spalten                       | Columns           | string  | Tabelle      | Style Eigenschaften der Playlist Spalten.                             |
-| Playlist Zeilen                        | Rows              | string  | Tabelle      | Style Eigenschaften der Playlist Zeilen.                              |
+|                  Name                  |   Eigenschaft    |   Typ   | Standardwert |                               Funktion                                |
+| :------------------------------------: | :--------------: | :-----: | :----------: | :-------------------------------------------------------------------: |
+|             IP/MAC-Adresse             |     Address      | string  |              |        MAC Adresse der Squeezebox [Format xx:xx:xx:xx:xx:xx ]         |
+| Namen der Instanz automatisch anpassen |    changeName    | boolean |    false     |  Instanz automatisch umbenennen wenn der Name vom Gerät sich ändert.  |
+|         Aktiviere Tiefenregler         |    enableBass    | boolean |     true     |               Statusvariablen für Tiefenregler anlegen.               |
+|        Aktiviere Hochtonregler         |   enableTreble   | boolean |     true     |              Statusvariablen für Hochtonregler anlegen.               |
+|        Aktiviere Tonhöhenregler        |   enablePitch    | boolean |     true     |              Statusvariablen für Tonhöhenregler anlegen.              |
+|      Aktiviere Zufallswiedergabe       | enableRandomplay | boolean |     true     |            Statusvariablen für Zufallswiedergabe anlegen.             |
+|          Zeige Sync-Master an          |  showSyncMaster  | boolean |     true     |           Statusvariablen für Master einer Gruppe anlegen.            |
+|      Zeige Steuerung für Sync an       | showSyncControl  | boolean |     true     |             Statusvariablen für Synchronisierung anlegen.             |
+|              Größe Cover               |    CoverSize     | string  |    cover     |          Größe vom Cover:  cover  cover150x150  cover300x300          |
+|     Update Interval bei Wiedergabe     |     Interval     | integer |      2       | Abstand in welchen der LMS aktuelle Daten bei der Wiedergabe liefert. |
+|     Playlist als HTML-Box anlegen      |   showPlaylist   | boolean |     true     |         Aktiviert die Darstellung der Playlist als HTML-Box.          |
+|          Playlist Darstellung          |      Table       | string  |   Tabelle    |            Style Eigenschaften der Playlist HTML-Tabelle.             |
+|            Playlist Spalten            |     Columns      | string  |   Tabelle    |               Style Eigenschaften der Playlist Spalten.               |
+|            Playlist Zeilen             |       Rows       | string  |   Tabelle    |               Style Eigenschaften der Playlist Zeilen.                |
 
 
 ## 5. Statusvariablen und Profile
@@ -85,49 +85,49 @@ Bei der manuellen Einrichtung ist die Instanz im Dialog `Instanz hinzufügen` un
 Folgende Statusvariablen werden automatisch angelegt.  
 **Statusvariablen allgemein:**  
 
-| Name                   | Typ     | Ident          | Beschreibung                                               |
+|          Name          |   Typ   |     Ident      |                        Beschreibung                        |
 | :--------------------: | :-----: | :------------: | :--------------------------------------------------------: |
-| Power                  | boolean | Power          | Player ein- oder ausgeschaltet                             |
-| Status                 | integer | Status         | Wiedergabemodus: Play, Pause, Stop                         |
-| Preset                 | integer | Preset         | Aktionsbutton für das WebFront um einen Preset auszurufen  |
-| Mute                   | boolean | Mute           | Stummschaltung aktiv / desaktiv                            |
-| Volume                 | integer | Volume         | Lautstärke                                                 |
-| Bass                   | integer | Bass           | Regler für Bass                                            |
-| Hochtonregler          | integer | Treble         | Regler für Hochton                                         |
-| Pitch                  | integer | Pitch          | Regler für Tonhöhen                                        |
-| Zufallswiedergabe      | integer | Randomplay     | Modus der Zufallswiedergabe                                |
-| Master                 | boolean | Master         | true wenn der Player der Master einer Synchronisierung ist |
-| Synchronisieren        | integer | Sync           | Bedienung für die Synchronisierung aus dem WebFront        |
-| Mischen                | integer | Shuffle        | Aktuelle Playlist mischen                                  |
-| Wiederholen            | integer | Repeat         | Aktuelle Playlist wiederholen                              |
-| Playlist Anzahl Tracks | integer | Tracks         | Aktuelle Anzahl der Tracks in der Playlist                 |
-| Playlist               | string  | Playlistname   | Name der Playlist oder Remote-Stream, sofern vorhanden     |
-| Album                  | string  | Album          | Album des Tracks der aktuellen Wiedergabe                  |
-| Titel                  | string  | Title          | Titel des Tracks der aktuellen Wiedergabe                  |
-| Interpret              | string  | Artist         | Interpret des Tracks der aktuellen Wiedergabe              |
-| Stilrichtung           | string  | Genre          | Stilrichtung des Tracks der aktuellen Wiedergabe           |
-| Dauer                  | string  | Duration       | Spielzeit des Tracks der aktuellen Wiedergabe              |
-| Spielzeit              | string  | Position       | Aktuelle Postion im Track als Klartext                     |
-| Position               | integer | Position2      | Aktuelle Postion im Track in Prozent                       |
-| Signalstärke           | integer | Signalstrength | WLAN-Signalstärke des Players, sofern vorhanden            |
-| Einschlaftimer         | integer | SleepTimer     | Gewählter Zeitraum für Einschlaftimer                      |
-| Ausschalten in         | string  | SleepTimeout   | Zeit bis zum Ausschalten                                   |
-| Playlist               | string  | Playlist       | HTML-Box mit der Playlist des Players                      |
+|         Power          | boolean |     Power      |               Player ein- oder ausgeschaltet               |
+|         Status         | integer |     Status     |             Wiedergabemodus: Play, Pause, Stop             |
+|         Preset         | integer |     Preset     | Aktionsbutton für das WebFront um einen Preset auszurufen  |
+|          Mute          | boolean |      Mute      |              Stummschaltung aktiv / desaktiv               |
+|         Volume         | integer |     Volume     |                         Lautstärke                         |
+|          Bass          | integer |      Bass      |                      Regler für Bass                       |
+|     Hochtonregler      | integer |     Treble     |                     Regler für Hochton                     |
+|         Pitch          | integer |     Pitch      |                    Regler für Tonhöhen                     |
+|   Zufallswiedergabe    | integer |   Randomplay   |                Modus der Zufallswiedergabe                 |
+|         Master         | boolean |     Master     | true wenn der Player der Master einer Synchronisierung ist |
+|    Synchronisieren     | integer |      Sync      |    Bedienung für die Synchronisierung aus dem WebFront     |
+|        Mischen         | integer |    Shuffle     |                 Aktuelle Playlist mischen                  |
+|      Wiederholen       | integer |     Repeat     |               Aktuelle Playlist wiederholen                |
+| Playlist Anzahl Tracks | integer |     Tracks     |         Aktuelle Anzahl der Tracks in der Playlist         |
+|        Playlist        | string  |  Playlistname  |   Name der Playlist oder Remote-Stream, sofern vorhanden   |
+|         Album          | string  |     Album      |         Album des Tracks der aktuellen Wiedergabe          |
+|         Titel          | string  |     Title      |         Titel des Tracks der aktuellen Wiedergabe          |
+|       Interpret        | string  |     Artist     |       Interpret des Tracks der aktuellen Wiedergabe        |
+|      Stilrichtung      | string  |     Genre      |      Stilrichtung des Tracks der aktuellen Wiedergabe      |
+|         Dauer          | string  |    Duration    |       Spielzeit des Tracks der aktuellen Wiedergabe        |
+|       Spielzeit        | string  |    Position    |           Aktuelle Postion im Track als Klartext           |
+|        Position        | integer |   Position2    |            Aktuelle Postion im Track in Prozent            |
+|      Signalstärke      | integer | Signalstrength |      WLAN-Signalstärke des Players, sofern vorhanden       |
+|     Einschlaftimer     | integer |   SleepTimer   |           Gewählter Zeitraum für Einschlaftimer            |
+|     Ausschalten in     | string  |  SleepTimeout  |                  Zeit bis zum Ausschalten                  |
+|        Playlist        | string  |    Playlist    |           HTML-Box mit der Playlist des Players            |
 
 **Profile**:
 
-| Name                          | Typ     | verwendet von Statusvariablen |
-| :---------------------------: | :-----: | :---------------------------: |
-| LSQ.Status                    | integer | Status                        |
-| LSQ.Intensity                 | integer | Alle 0-100 Slider             |
-| LSQ.Pitch                     | integer | Pitch                         |
-| LSQ.Shuffle                   | integer | Shuffle                       |
-| LSQ.Repeat                    | integer | Repeat                        |
-| LSQ.Preset                    | integer | Preset                        |
-| LSQ.SleepTimer                | integer | SleepTimer                    |
-| LSQ.Sync.\<InstanzeID\>       | integer | Sync                          |
-| LSQ.Randomplay                | integer | Randomplay                    |
-| LSQ.Tracklist.\<InstanzeID\>  | integer | Tracks                        |
+|             Name             |   Typ   | verwendet von Statusvariablen |
+| :--------------------------: | :-----: | :---------------------------: |
+|          LSQ.Status          | integer |            Status             |
+|        LSQ.Intensity         | integer |       Alle 0-100 Slider       |
+|          LSQ.Pitch           | integer |             Pitch             |
+|         LSQ.Shuffle          | integer |            Shuffle            |
+|          LSQ.Repeat          | integer |            Repeat             |
+|          LSQ.Preset          | integer |            Preset             |
+|        LSQ.SleepTimer        | integer |          SleepTimer           |
+|   LSQ.Sync.\<InstanzeID\>    | integer |             Sync              |
+|        LSQ.Randomplay        | integer |          Randomplay           |
+| LSQ.Tracklist.\<InstanzeID\> | integer |            Tracks             |
 
 ## 6. WebFront
 
@@ -311,6 +311,8 @@ TODO
 ```php
 LSQ_PlayUrl(int $InstanzID, string $URL)
 LSQ_PlayUrlEx(int $InstanzID, string $URL, string $DisplayTitle)
+LSQ_PlayUrlSpecial(int $InstanzID, string $URL)
+LSQ_PlayUrlSpecialEx(int $InstanzID, string $URL, string $DisplayTitle)
 ```
 
 ---
@@ -592,12 +594,12 @@ Playlisten welche mit ihrem Namen über `LSQ_LoadPlaylist` geladen wurden, liefe
 
 **Array:**  
 
-| Index     | Typ     | Beschreibung                          |
-| :-------: | :-----: | :-----------------------------------: |
-| Id        | integer | UID der Playlist in der LMS-Datenbank |
-| Name      | string  | Name der Playlist                     |
-| Modified  | boolean | `true` wenn Playlist verändert wurde  |
-| Url       | string  | Pfad der Playlist                     |
+|  Index   |   Typ   |             Beschreibung              |
+| :------: | :-----: | :-----------------------------------: |
+|    Id    | integer | UID der Playlist in der LMS-Datenbank |
+|   Name   | string  |           Name der Playlist           |
+| Modified | boolean | `true` wenn Playlist verändert wurde  |
+|   Url    | string  |           Pfad der Playlist           |
 
 
 ---
@@ -610,25 +612,25 @@ Wird als `$Index` 0 übergeben, so wird der aktuelle Song genutzt.
 
 **Array:**  
 
-| Index            | Typ     | Beschreibung                        |
+|      Index       |   Typ   |            Beschreibung             |
 | :--------------: | :-----: | :---------------------------------: |
-| Id               | integer | UID der Datei in der LMS-Datenbank  |
-| Title            | string  | Titel                               |
-| Genre            | string  | Genre                               |
-| Album            | string  | Album                               |
-| Artist           | string  | Interpret                           |
-| Duration         | integer | Länge in Sekunden                   |
-| Disc             | integer | Aktuelles Medium                    |
-| Disccount        | integer | Anzahl aller Medien dieses Albums   |
-| Bitrate          | string  | Bitrate in Klartext                 |
-| Tracknum         | integer | Tracknummer im Album                |
-| Url              | string  | Pfad der Playlist                   |
-| Album_id         | integer | UID des Album in der LMS-Datenbank  |
+|        Id        | integer | UID der Datei in der LMS-Datenbank  |
+|      Title       | string  |                Titel                |
+|      Genre       | string  |                Genre                |
+|      Album       | string  |                Album                |
+|      Artist      | string  |              Interpret              |
+|     Duration     | integer |          Länge in Sekunden          |
+|       Disc       | integer |          Aktuelles Medium           |
+|    Disccount     | integer |  Anzahl aller Medien dieses Albums  |
+|     Bitrate      | string  |         Bitrate in Klartext         |
+|     Tracknum     | integer |        Tracknummer im Album         |
+|       Url        | string  |          Pfad der Playlist          |
+|     Album_id     | integer | UID des Album in der LMS-Datenbank  |
 | Artwork_track_id | string  | UID des Cover in der LMS-Datenbank  |
-| Genre_id         | integer | UID des Genre in der LMS-Datenbank  |
-| Artist_id        | integer | UID des Artist in der LMS-Datenbank |
-| Year             | integer | Jahr des Song, soweit hinterlegt    |
-| Remote_title     | string  | Titel des Stream                    |
+|     Genre_id     | integer | UID des Genre in der LMS-Datenbank  |
+|    Artist_id     | integer | UID des Artist in der LMS-Datenbank |
+|       Year       | integer |  Jahr des Song, soweit hinterlegt   |
+|   Remote_title   | string  |          Titel des Stream           |
 
 ---
 
@@ -640,25 +642,25 @@ Mehrdimensionales Array, wobei der erste Index der Position in der Playlist ents
 
 **Array:**  
 
-| Index            | Typ     | Beschreibung                        |
+|      Index       |   Typ   |            Beschreibung             |
 | :--------------: | :-----: | :---------------------------------: |
-| Id               | integer | UID der Datei in der LMS-Datenbank  |
-| Title            | string  | Titel                               |
-| Genre            | string  | Genre                               |
-| Album            | string  | Album                               |
-| Artist           | string  | Interpret                           |
-| Duration         | integer | Länge in Sekunden                   |
-| Disc             | integer | Aktuelles Medium                    |
-| Disccount        | integer | Anzahl aller Medien dieses Albums   |
-| Bitrate          | string  | Bitrate in Klartext                 |
-| Tracknum         | integer | Tracknummer im Album                |
-| Url              | string  | Pfad der Playlist                   |
-| Album_id         | integer | UID des Album in der LMS-Datenbank  |
+|        Id        | integer | UID der Datei in der LMS-Datenbank  |
+|      Title       | string  |                Titel                |
+|      Genre       | string  |                Genre                |
+|      Album       | string  |                Album                |
+|      Artist      | string  |              Interpret              |
+|     Duration     | integer |          Länge in Sekunden          |
+|       Disc       | integer |          Aktuelles Medium           |
+|    Disccount     | integer |  Anzahl aller Medien dieses Albums  |
+|     Bitrate      | string  |         Bitrate in Klartext         |
+|     Tracknum     | integer |        Tracknummer im Album         |
+|       Url        | string  |          Pfad der Playlist          |
+|     Album_id     | integer | UID des Album in der LMS-Datenbank  |
 | Artwork_track_id | string  | UID des Cover in der LMS-Datenbank  |
-| Genre_id         | integer | UID des Genre in der LMS-Datenbank  |
-| Artist_id        | integer | UID des Artist in der LMS-Datenbank |
-| Year             | integer | Jahr des Song, soweit hinterlegt    |
-| Remote_title     | string  | Titel des Stream                    |
+|     Genre_id     | integer | UID des Genre in der LMS-Datenbank  |
+|    Artist_id     | integer | UID des Artist in der LMS-Datenbank |
+|       Year       | integer |  Jahr des Song, soweit hinterlegt   |
+|   Remote_title   | string  |          Titel des Stream           |
 
 
 ### 4. Zufallswiedergabe
