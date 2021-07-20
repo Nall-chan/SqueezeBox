@@ -1,363 +1,392 @@
 {
-    "elements":
-            [{
-                    "type": "Label",
-                    "caption": "MAC-Address for SqueezeBox, IP-Address for other devices."
-                }, { 
+    "elements": [
+        {
+            "type": "Label",
+            "caption": "MAC-Address for SqueezeBox, IP-Address for other devices."
+        },
+        {
+            "type": "RowLayout",
+            "items": [
+                {
+                    "name": "Address",
+                    "type": "ValidationTextBox",
+                    "caption": "IP/MAC Address",
+                    "validate": "(?:^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$|^(?:[0-9a-f]{2}:){5}(?:[0-9a-f]{2})$)"
+                },
+                {
+                    "name": "changeName",
+                    "type": "CheckBox",
+                    "caption": "Change name of instance automatically"
+                }
+            ]
+        },
+        {
+            "type": "ExpansionPanel",
+            "caption": "Optional status variables",
+            "items": [
+                {
                     "type": "RowLayout",
                     "items": [
                         {
-                            "name": "Address",
-                            "type": "ValidationTextBox",
-                            "caption": "IP/MAC Address",
-                            "validate":"(?:^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$|^(?:[0-9a-f]{2}:){5}(?:[0-9a-f]{2})$)"
-                        }, {
-                            "name": "changeName",
+                            "name": "enableBass",
                             "type": "CheckBox",
-                            "caption": "Change name of instance automatically"
-                        }]
-                }, {
-                    "type": "ExpansionPanel",
-                    "caption": "Optional status variables",
-                    "items": [{
-                                "type": "RowLayout",
-                                "items":[
-                                    {
-                                        "name": "enableBass",
-                                        "type": "CheckBox",
-                                        "caption": "Enable bass control",
-                                        "width":"250px"
-                                    }, {
-                                        "name": "enableTreble",
-                                        "type": "CheckBox",
-                                        "caption": "Enable treble control",
-                                        "width":"250px"
-                                    }, {
-                                        "name": "enablePitch",
-                                        "type": "CheckBox",
-                                        "caption": "Enable pitch control",
-                                        "width":"250px"
-                                    }
-                                ]
-                            }, {
-                                "name": "enableRandomplay",
-                                "type": "CheckBox",
-                                "caption": "Enable randomplay"
-                            },
-                            {
-                                "type": "RowLayout",
-                                "items":[
-                                    {
-                                        "name": "showSyncMaster",
-                                        "type": "CheckBox",
-                                        "caption": "Show is Sync-Master",
-                                        "width":"250px"
-                                    }, {
-                                        "name": "showSyncControl",
-                                        "type": "CheckBox",
-                                        "caption": "Show Controls for sync",
-                                        "width":"250px"
-                                    }
-                                ]
-                            }
-                        ]
-                },  { 
-                    "type": "ExpansionPanel",
-                    "caption": "Refresh interval on play",
-                    "items": [
+                            "caption": "Enable bass control",
+                            "width": "250px"
+                        },
                         {
-                            "name": "Interval",
-                            "type": "NumberSpinner",
-                            "caption": "Interval",
-                            "minimum":"0",
-                            "suffix": "seconds"
+                            "name": "enableTreble",
+                            "type": "CheckBox",
+                            "caption": "Enable treble control",
+                            "width": "250px"
+                        },
+                        {
+                            "name": "enablePitch",
+                            "type": "CheckBox",
+                            "caption": "Enable pitch control",
+                            "width": "250px"
                         }
-                        ]
-                }, { 
-                    "type": "ExpansionPanel",
-                    "caption": "Size of Cover",
+                    ]
+                },
+                {
+                    "name": "enableRandomplay",
+                    "type": "CheckBox",
+                    "caption": "Enable randomplay"
+                },
+                {
+                    "type": "RowLayout",
                     "items": [
                         {
-                            "name": "CoverSize",
-                            "type": "Select",
-                            "caption": "Cover size",
-                            "options": [
-                                {
-                                    "caption": "Original",
-                                    "value": "cover"
-                                },
-                                {
-                                    "caption": "96x96px",
-                                    "value": "cover96x96"
-                                },
-                                {
-                                    "caption": "100x100px",
-                                    "value": "cover100x100"
-                                },
-                                {
-                                    "caption": "125x125px",
-                                    "value": "cover125x125"
-                                },
-                                {
-                                    "caption": "150x150px",
-                                    "value": "cover150x150"
-                                },
-                                {
-                                    "caption": "175x175px",
-                                    "value": "cover175x175"
-                                },
-                                {
-                                    "caption": "200x200px",
-                                    "value": "cover200x200"
-                                },
-                                {
-                                    "caption": "225x225px",
-                                    "value": "cover225x225"
-                                },
-                                {
-                                    "caption": "250x250px",
-                                    "value": "cover250x250"
-                                },
-                                {
-                                    "caption": "275x275px",
-                                    "value": "cover275x275"
-                                },
-                                {
-                                    "caption": "300x300px",
-                                    "value": "cover300x300"
-                                },
-                                {
-                                    "caption": "325x325px",
-                                    "value": "cover325x325"
-                                },
-                                {
-                                    "caption": "350x350px",
-                                    "value": "cover350x350"
-                                },
-                                {
-                                    "caption": "375x375px",
-                                    "value": "cover375x375"
-                                },
-                                {
-                                    "caption": "400x400px",
-                                    "value": "cover400x400"
-                                },
-                                {
-                                    "caption": "425x425px",
-                                    "value": "cover425x425"
-                                },
-                                {
-                                    "caption": "450x450px",
-                                    "value": "cover450x450"
-                                },
-                                {
-                                    "caption": "475x475px",
-                                    "value": "cover475x475"
-                                },
-                                {
-                                    "caption": "500x500px",
-                                    "value": "cover500x500"
-                                }
-                            ]
-                        }]
-                }, {
-                    "name": "showPlaylist",
-                    "type": "CheckBox",
-                    "caption": "Show playlist as HTML-Box"
-                },{
-                    "type": "ExpansionPanel",
-                    "caption": "Playlist design",
-                    "items": [
-                         {
-                            "type": "List",
-                            "name": "Table",
-                            "caption": "Table design",
-                            "rowCount": 4,
-                            "add": false,
-                            "delete": false,
-                            "columns": [{
-                                    "name": "tag", 
-                                    "caption": "HTML-Tag",
-                                    "width": "75px",
-                                    "save": true
-                                }, {
-                                    "caption": "CSS",
-                                    "name": "style", 
-                                    "width": "auto",
-                                    "edit": {
-                                        "caption": "CSS:",                        
-                                        "type": "ValidationTextBox"
-                                    }
-                                }
-                            ]
-                        }, {
-                            "type": "List",
-                            "name": "Columns",
-                            "caption": "Playlist columns",
-                            "rowCount": 13,
-                            "add": false,
-                            "delete": false,
-                            "sort": {
-                                "column": "index",
-                                "direction": "ascending"
-                            },
-                            "columns": [{
-                                    "name": "key", 
-                                    "caption": "Data",
-                                    "width": "75px",
-                                    "save": true
-                                }, {
-                                    "caption": "Visible",
-                                    "name": "show",
-                                    "width": "75px",
-                                    "edit": {
-                                        "caption": "Visible as column ?",                        
-                                        "type": "CheckBox"
-                                    }
-                                }, {
-                                    "caption": "No.",
-                                    "name": "index", 
-                                    "width": "50px",
-                                    "edit": {
-                                        "caption": "Index of this column:",                        
-                                        "type": "NumberSpinner"
-                                    }
-                                }, {
-                                    "caption": "Display-Name",
-                                    "name": "name", 
-                                    "width": "150px",
-                                    "edit": {
-                                        "caption": "Display-Name:",                        
-                                        "type": "ValidationTextBox"
-                                    }
-                                }, {
-                                    "caption": "Width",
-                                    "name": "width", 
-                                    "width": "50px",
-                                    "edit": {
-                                        "caption": "Width of this column:",                        
-                                        "type": "NumberSpinner"
-                                    }
-                                }, {
-                                    "caption": "Alignment",
-                                    "name": "align", 
-                                    "width": "100px",
-                                    "edit": {
-                                        "type": "Select",
-                                        "caption": "Text alignment",
-                                        "options": [
-                                            {
-                                                "caption": "Left",
-                                                "value": "left"
-                                            },
-                                            {
-                                                "caption": "Center",
-                                                "value": "center"
-                                            },
-                                            {
-                                                "caption": "Right",
-                                                "value": "right"
-                                            }
-                                        ]
-                                    }
-                                }, {
-                                    "caption": "Color",
-                                    "name": "color", 
-                                    "width": "100px",
-                                    "edit": {
-                                        "caption": "Color of Text:",                        
-                                        "type": "SelectColor"
-                                    }
-                                }, {
-                                    "caption": "CSS",
-                                    "name": "style", 
-                                    "width": "auto",
-                                    "edit": {
-                                        "caption": "CSS:",                        
-                                        "type": "ValidationTextBox"
-                                    }
-                                }
-                            ]
-                        }, {
-                            "type": "List",
-                            "name": "Rows",
-                            "caption": "Playlist rows",
-                            "rowCount": 4,
-                            "add": false,
-                            "delete": false,
-                            "columns": [{
-                                    "name": "row", 
-                                    "caption": "",
-                                    "width": "50px",
-                                    "save": true,
-                                    "visible": false
-                                }, {
-                                    "name": "name", 
-                                    "caption": "Row",
-                                    "save": true,
-                                    "width": "150px"
-                                }, {
-                                    "caption": "Backgroundcolor",
-                                    "name": "bgcolor", 
-                                    "width": "150px",
-                                    "edit": {
-                                        "caption": "Color of background:",                        
-                                        "type": "SelectColor"
-                                    }
-                                }, {
-                                    "caption": "Color",
-                                    "name": "color", 
-                                    "width": "100px",
-                                    "edit": {
-                                        "caption": "Color of Text:",                        
-                                        "type": "SelectColor"
-                                    }
-                                }, {
-                                    "caption": "CSS",
-                                    "name": "style", 
-                                    "width": "auto",
-                                    "edit": {
-                                        "caption": "CSS:",                        
-                                        "type": "ValidationTextBox"
-                                    }
-                                }
-                            ]
+                            "name": "showSyncMaster",
+                            "type": "CheckBox",
+                            "caption": "Show is Sync-Master",
+                            "width": "250px"
+                        },
+                        {
+                            "name": "showSyncControl",
+                            "type": "CheckBox",
+                            "caption": "Show Controls for sync",
+                            "width": "250px"
                         }
                     ]
                 }
-            ],
-    "actions":
-            [
+            ]
+        },
+        {
+            "type": "ExpansionPanel",
+            "caption": "Refresh interval on play",
+            "items": [
                 {
-                    "type": "TestCenter"
-                }, {
-                    "type": "Button",
-                    "caption": "Request state",
-                    "onClick": "LSQ_RequestAllState($id);"
-                }
-
-            ],
-    "status":
-            [
-                {
-                    "code": 102,
-                    "icon": "active",
-                    "caption": "Configuration valid."
-                },
-                {
-                    "code": 104,
-                    "icon": "inactive",
-                    "caption": "Instance is inactive."
-                },
-                {
-                    "code": 202,
-                    "icon": "error",
-                    "caption": "MAC/IP address invalid."
-                },
-                {
-                    "code": 203,
-                    "icon": "error",
-                    "caption": "Not connected to LMS."
+                    "name": "Interval",
+                    "type": "NumberSpinner",
+                    "caption": "Interval",
+                    "minimum": "0",
+                    "suffix": "seconds"
                 }
             ]
+        },
+        {
+            "type": "ExpansionPanel",
+            "caption": "Size of Cover",
+            "items": [
+                {
+                    "name": "CoverSize",
+                    "type": "Select",
+                    "caption": "Cover size",
+                    "options": [
+                        {
+                            "caption": "Original",
+                            "value": "cover"
+                        },
+                        {
+                            "caption": "96x96px",
+                            "value": "cover96x96"
+                        },
+                        {
+                            "caption": "100x100px",
+                            "value": "cover100x100"
+                        },
+                        {
+                            "caption": "125x125px",
+                            "value": "cover125x125"
+                        },
+                        {
+                            "caption": "150x150px",
+                            "value": "cover150x150"
+                        },
+                        {
+                            "caption": "175x175px",
+                            "value": "cover175x175"
+                        },
+                        {
+                            "caption": "200x200px",
+                            "value": "cover200x200"
+                        },
+                        {
+                            "caption": "225x225px",
+                            "value": "cover225x225"
+                        },
+                        {
+                            "caption": "250x250px",
+                            "value": "cover250x250"
+                        },
+                        {
+                            "caption": "275x275px",
+                            "value": "cover275x275"
+                        },
+                        {
+                            "caption": "300x300px",
+                            "value": "cover300x300"
+                        },
+                        {
+                            "caption": "325x325px",
+                            "value": "cover325x325"
+                        },
+                        {
+                            "caption": "350x350px",
+                            "value": "cover350x350"
+                        },
+                        {
+                            "caption": "375x375px",
+                            "value": "cover375x375"
+                        },
+                        {
+                            "caption": "400x400px",
+                            "value": "cover400x400"
+                        },
+                        {
+                            "caption": "425x425px",
+                            "value": "cover425x425"
+                        },
+                        {
+                            "caption": "450x450px",
+                            "value": "cover450x450"
+                        },
+                        {
+                            "caption": "475x475px",
+                            "value": "cover475x475"
+                        },
+                        {
+                            "caption": "500x500px",
+                            "value": "cover500x500"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "showPlaylist",
+            "type": "CheckBox",
+            "caption": "Show playlist as HTML-Box"
+        },
+        {
+            "type": "ExpansionPanel",
+            "caption": "Playlist design",
+            "items": [
+                {
+                    "type": "List",
+                    "name": "Table",
+                    "caption": "Table design",
+                    "rowCount": 4,
+                    "add": false,
+                    "delete": false,
+                    "columns": [
+                        {
+                            "name": "tag",
+                            "caption": "HTML-Tag",
+                            "width": "75px",
+                            "save": true
+                        },
+                        {
+                            "caption": "CSS",
+                            "name": "style",
+                            "width": "auto",
+                            "edit": {
+                                "caption": "CSS:",
+                                "type": "ValidationTextBox"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "List",
+                    "name": "Columns",
+                    "caption": "Playlist columns",
+                    "rowCount": 13,
+                    "add": false,
+                    "delete": false,
+                    "sort": {
+                        "column": "index",
+                        "direction": "ascending"
+                    },
+                    "columns": [
+                        {
+                            "name": "key",
+                            "caption": "Data",
+                            "width": "75px",
+                            "save": true
+                        },
+                        {
+                            "caption": "Visible",
+                            "name": "show",
+                            "width": "75px",
+                            "edit": {
+                                "caption": "Visible as column ?",
+                                "type": "CheckBox"
+                            }
+                        },
+                        {
+                            "caption": "No.",
+                            "name": "index",
+                            "width": "50px",
+                            "edit": {
+                                "caption": "Index of this column:",
+                                "type": "NumberSpinner"
+                            }
+                        },
+                        {
+                            "caption": "Display-Name",
+                            "name": "name",
+                            "width": "150px",
+                            "edit": {
+                                "caption": "Display-Name:",
+                                "type": "ValidationTextBox"
+                            }
+                        },
+                        {
+                            "caption": "Width",
+                            "name": "width",
+                            "width": "50px",
+                            "edit": {
+                                "caption": "Width of this column:",
+                                "type": "NumberSpinner"
+                            }
+                        },
+                        {
+                            "caption": "Alignment",
+                            "name": "align",
+                            "width": "100px",
+                            "edit": {
+                                "type": "Select",
+                                "caption": "Text alignment",
+                                "options": [
+                                    {
+                                        "caption": "Left",
+                                        "value": "left"
+                                    },
+                                    {
+                                        "caption": "Center",
+                                        "value": "center"
+                                    },
+                                    {
+                                        "caption": "Right",
+                                        "value": "right"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "caption": "Color",
+                            "name": "color",
+                            "width": "100px",
+                            "edit": {
+                                "caption": "Color of Text:",
+                                "type": "SelectColor"
+                            }
+                        },
+                        {
+                            "caption": "CSS",
+                            "name": "style",
+                            "width": "auto",
+                            "edit": {
+                                "caption": "CSS:",
+                                "type": "ValidationTextBox"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "List",
+                    "name": "Rows",
+                    "caption": "Playlist rows",
+                    "rowCount": 4,
+                    "add": false,
+                    "delete": false,
+                    "columns": [
+                        {
+                            "name": "row",
+                            "caption": "",
+                            "width": "50px",
+                            "save": true,
+                            "visible": false
+                        },
+                        {
+                            "name": "name",
+                            "caption": "Row",
+                            "save": true,
+                            "width": "150px"
+                        },
+                        {
+                            "caption": "Backgroundcolor",
+                            "name": "bgcolor",
+                            "width": "150px",
+                            "edit": {
+                                "caption": "Color of background:",
+                                "type": "SelectColor"
+                            }
+                        },
+                        {
+                            "caption": "Color",
+                            "name": "color",
+                            "width": "100px",
+                            "edit": {
+                                "caption": "Color of Text:",
+                                "type": "SelectColor"
+                            }
+                        },
+                        {
+                            "caption": "CSS",
+                            "name": "style",
+                            "width": "auto",
+                            "edit": {
+                                "caption": "CSS:",
+                                "type": "ValidationTextBox"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "actions": [
+        {
+            "type": "TestCenter"
+        },
+        {
+            "type": "Button",
+            "caption": "Request state",
+            "onClick": "LSQ_RequestAllState($id);"
+        }
+    ],
+    "status": [
+        {
+            "code": 102,
+            "icon": "active",
+            "caption": "Configuration valid."
+        },
+        {
+            "code": 104,
+            "icon": "inactive",
+            "caption": "Instance is inactive."
+        },
+        {
+            "code": 202,
+            "icon": "error",
+            "caption": "MAC/IP address invalid."
+        },
+        {
+            "code": 203,
+            "icon": "error",
+            "caption": "Not connected to LMS."
+        }
+    ]
 }
