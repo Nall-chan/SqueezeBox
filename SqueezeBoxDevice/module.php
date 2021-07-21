@@ -229,6 +229,7 @@ class SqueezeboxDevice extends IPSModule
         }
         if ($this->ReadPropertyBoolean('enableRawPosition')) {
             $this->RegisterVariableInteger('PositionRaw', $this->Translate('Position in seconds'), '', 29);
+            $this->EnableAction('PositionRaw');
         } else {
             $this->UnregisterVariable('PositionRaw');
         }
@@ -2261,6 +2262,9 @@ class SqueezeboxDevice extends IPSModule
             case 'Position2':
                 $Time = ($this->DurationRAW / 100) * (int) $Value;
                 $result = $this->SetPosition(intval($Time));
+                break;
+            case 'PositionRaw':
+                $result = $this->SetPosition((int) $Value);
                 break;
             case 'Index':
                 $result = $this->GoToTrack((int) $Value);
