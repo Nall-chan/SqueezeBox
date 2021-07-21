@@ -10,7 +10,7 @@ declare(strict_types=1);
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2021 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.62
+ * @version       3.63
  *
  */
 require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
@@ -21,7 +21,7 @@ require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2021 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.62
+ * @version       3.63
  *
  * @example <b>Ohne</b>
  *

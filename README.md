@@ -1,5 +1,5 @@
 [![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20Version-3.62-blue.svg)]()
+[![Version](https://img.shields.io/badge/Modul%20Version-3.63-blue.svg)]()
 [![Version](https://img.shields.io/badge/Symcon%20Version-5.3%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857)  
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Check Style](https://github.com/Nall-chan/SqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/SqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions)  
@@ -97,19 +97,19 @@ Es wird empfohlen die Einrichtung mit dem Squeezebox Konfigurator zu starten (LM
 ###  1. GUID der Module
 
  
-| Modul             | Typ          |Prefix  | GUID                                   |
+|       Modul       |     Typ      | Prefix |                  GUID                  |
 | :---------------: | :----------: | :----: | :------------------------------------: |
-| LMSDiscovery      | Discovery    | LMS    | {28AC8A6C-4E03-43BE-9C3E-B8FEF78D374C} |
-| LMSSplitter       | Splitter     | LMS    | {96A9AB3A-2538-42C5-A130-FC34205A706A} |
-| LMSConfigurator   | Configurator | LMC    | {35028918-3F9C-4524-9FB4-DBAF429C6E18} |
-| SqueezeboxDevice  | Device       | LSQ    | {118189F9-DC7E-4DF4-80E1-9A4DF0882DD7} |
-| SqueezeboxAlarm   | Device       | LSA    | {E7423083-3502-42C8-B244-2852D0BE41D4} |
-| SqueezeboxBattery | Device       | LSQB   | {718158BB-B247-4A71-9440-9C2FF1378752} |
+|   LMSDiscovery    |  Discovery   |  LMS   | {28AC8A6C-4E03-43BE-9C3E-B8FEF78D374C} |
+|    LMSSplitter    |   Splitter   |  LMS   | {96A9AB3A-2538-42C5-A130-FC34205A706A} |
+|  LMSConfigurator  | Configurator |  LMC   | {35028918-3F9C-4524-9FB4-DBAF429C6E18} |
+| SqueezeboxDevice  |    Device    |  LSQ   | {118189F9-DC7E-4DF4-80E1-9A4DF0882DD7} |
+|  SqueezeboxAlarm  |    Device    |  LSA   | {E7423083-3502-42C8-B244-2852D0BE41D4} |
+| SqueezeboxBattery |    Device    |  LSQB  | {718158BB-B247-4A71-9440-9C2FF1378752} |
 
 
 ### 2. Datenaustausch
 
-| Funktion                | GUID                                   |
+|        Funktion         |                  GUID                  |
 | :---------------------: | :------------------------------------: |
 | von Splitter zu Devices | {EDDCCB34-E194-434D-93AD-FFDF1B56EF38} |
 | von Devices zu Splitter | {CB5950B3-593C-4126-9F0F-8655A3944419} |
@@ -117,23 +117,25 @@ Es wird empfohlen die Einrichtung mit dem Squeezebox Konfigurator zu starten (LM
 
 Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:  
 
-| Eigenschaft | Typ     | Funktion                      |
-| :---------: | :-----: | :---------------------------: |
-| Address     | string  | MAC / IP-Adresse oder leer    |
-| Command     | array   | CLI Kommandos als Array       |
-| Data        | array   | Daten des Kommandos als Array |
+| Eigenschaft |  Typ   |           Funktion            |
+| :---------: | :----: | :---------------------------: |
+|   Address   | string |  MAC / IP-Adresse oder leer   |
+|   Command   | array  |    CLI Kommandos als Array    |
+|    Data     | array  | Daten des Kommandos als Array |
 
 ### 3. Changelog
 
+Version 3.63:  
+ - Neue Statusvariablen in den Player-Instanzen für `Dauer in Sekunden` und `Spielzeit in Sekunden`.  
+
 Version 3.62:  
-- LSQ_PlayUrlSpecial & LSQ_PlayUrlSpecialEX für besondere Streams wie `spotify:playlist:...`  
+- LSQ_PlayUrlSpecial & LSQ_PlayUrlSpecialEX für besondere Streams wie `spotify:playlist:...`.  
 
 Version 3.61:  
 - Konfigurator hat teilweise falsche Einträge angezeigt.  
 - Konfigurator für Battery-Devices war ohne Funktion.  
 - Alle abgekündigten Funktionen entfernt.  
 - Dokumentation aktualisiert.  
-
 
 Version 3.60:  
 - Unter bestimmten Umständen wurde nicht erkannt das ein Player die Wiedergabe gestartet hat.  

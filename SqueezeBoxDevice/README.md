@@ -1,5 +1,5 @@
 [![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20Version-3.62-blue.svg)]()
+[![Version](https://img.shields.io/badge/Modul%20Version-3.63-blue.svg)]()
 [![Version](https://img.shields.io/badge/Symcon%20Version-5.3%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857)  
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Check Style](https://github.com/Nall-chan/SqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/SqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions)  
@@ -62,22 +62,24 @@ Bei der manuellen Einrichtung ist die Instanz im Dialog `Instanz hinzufügen` un
 ![Instanz hinzufügen](imgs/conf1.png)  
 ![Instanz hinzufügen](imgs/conf2.png)  
 
-|                  Name                  |   Eigenschaft    |   Typ   | Standardwert |                               Funktion                                |
-| :------------------------------------: | :--------------: | :-----: | :----------: | :-------------------------------------------------------------------: |
-|             IP/MAC-Adresse             |     Address      | string  |              |        MAC Adresse der Squeezebox [Format xx:xx:xx:xx:xx:xx ]         |
-| Namen der Instanz automatisch anpassen |    changeName    | boolean |    false     |  Instanz automatisch umbenennen wenn der Name vom Gerät sich ändert.  |
-|         Aktiviere Tiefenregler         |    enableBass    | boolean |     true     |               Statusvariablen für Tiefenregler anlegen.               |
-|        Aktiviere Hochtonregler         |   enableTreble   | boolean |     true     |              Statusvariablen für Hochtonregler anlegen.               |
-|        Aktiviere Tonhöhenregler        |   enablePitch    | boolean |     true     |              Statusvariablen für Tonhöhenregler anlegen.              |
-|      Aktiviere Zufallswiedergabe       | enableRandomplay | boolean |     true     |            Statusvariablen für Zufallswiedergabe anlegen.             |
-|          Zeige Sync-Master an          |  showSyncMaster  | boolean |     true     |           Statusvariablen für Master einer Gruppe anlegen.            |
-|      Zeige Steuerung für Sync an       | showSyncControl  | boolean |     true     |             Statusvariablen für Synchronisierung anlegen.             |
-|              Größe Cover               |    CoverSize     | string  |    cover     |          Größe vom Cover:  cover  cover150x150  cover300x300          |
-|     Update Interval bei Wiedergabe     |     Interval     | integer |      2       | Abstand in welchen der LMS aktuelle Daten bei der Wiedergabe liefert. |
-|     Playlist als HTML-Box anlegen      |   showPlaylist   | boolean |     true     |         Aktiviert die Darstellung der Playlist als HTML-Box.          |
-|          Playlist Darstellung          |      Table       | string  |   Tabelle    |            Style Eigenschaften der Playlist HTML-Tabelle.             |
-|            Playlist Spalten            |     Columns      | string  |   Tabelle    |               Style Eigenschaften der Playlist Spalten.               |
-|            Playlist Zeilen             |       Rows       | string  |   Tabelle    |               Style Eigenschaften der Playlist Zeilen.                |
+|                  Name                  |    Eigenschaft    |   Typ   | Standardwert |                               Funktion                                |
+| :------------------------------------: | :---------------: | :-----: | :----------: | :-------------------------------------------------------------------: |
+|             IP/MAC-Adresse             |      Address      | string  |              |        MAC Adresse der Squeezebox [Format xx:xx:xx:xx:xx:xx ]         |
+| Namen der Instanz automatisch anpassen |    changeName     | boolean |    false     |  Instanz automatisch umbenennen wenn der Name vom Gerät sich ändert.  |
+|         Aktiviere Tiefenregler         |    enableBass     | boolean |     true     |               Statusvariablen für Tiefenregler anlegen.               |
+|        Aktiviere Hochtonregler         |   enableTreble    | boolean |     true     |              Statusvariablen für Hochtonregler anlegen.               |
+|        Aktiviere Tonhöhenregler        |    enablePitch    | boolean |     true     |              Statusvariablen für Tonhöhenregler anlegen.              |
+|      Aktiviere Zufallswiedergabe       | enableRandomplay  | boolean |     true     |            Statusvariablen für Zufallswiedergabe anlegen.             |
+|      Aktiviere Dauer in Sekunden       | enableRawDuration | boolean |    false     |             Statusvariable für Dauer in Sekunden anlegen.             |
+|    Aktiviere Spielzeit in Sekunden     | enableRawPosition | integer |    false     |  Statusvariable für aktuelle Position im Track in Sekunden anlegen.   |
+|          Zeige Sync-Master an          |  showSyncMaster   | boolean |     true     |           Statusvariablen für Master einer Gruppe anlegen.            |
+|      Zeige Steuerung für Sync an       |  showSyncControl  | boolean |     true     |             Statusvariablen für Synchronisierung anlegen.             |
+|              Größe Cover               |     CoverSize     | string  |    cover     |          Größe vom Cover:  cover  cover150x150  cover300x300          |
+|     Update Interval bei Wiedergabe     |     Interval      | integer |      2       | Abstand in welchen der LMS aktuelle Daten bei der Wiedergabe liefert. |
+|     Playlist als HTML-Box anlegen      |   showPlaylist    | boolean |     true     |         Aktiviert die Darstellung der Playlist als HTML-Box.          |
+|          Playlist Darstellung          |       Table       | string  |   Tabelle    |            Style Eigenschaften der Playlist HTML-Tabelle.             |
+|            Playlist Spalten            |      Columns      | string  |   Tabelle    |               Style Eigenschaften der Playlist Spalten.               |
+|            Playlist Zeilen             |       Rows        | string  |   Tabelle    |               Style Eigenschaften der Playlist Zeilen.                |
 
 
 ## 5. Statusvariablen und Profile
@@ -107,8 +109,10 @@ Folgende Statusvariablen werden automatisch angelegt.
 |       Interpret        | string  |     Artist     |       Interpret des Tracks der aktuellen Wiedergabe        |
 |      Stilrichtung      | string  |     Genre      |      Stilrichtung des Tracks der aktuellen Wiedergabe      |
 |         Dauer          | string  |    Duration    |       Spielzeit des Tracks der aktuellen Wiedergabe        |
+|   Dauer in Sekunden    | integer |  DurationRaw   | Spielzeit des Tracks der aktuellen Wiedergabe in Sekunden  |
 |       Spielzeit        | string  |    Position    |           Aktuelle Postion im Track als Klartext           |
 |        Position        | integer |   Position2    |            Aktuelle Postion im Track in Prozent            |
+| Spielzeit in Sekunden  | integer |  PositionRaw   |           Aktuelle Position im Track in Sekunden           |
 |      Signalstärke      | integer | Signalstrength |      WLAN-Signalstärke des Players, sofern vorhanden       |
 |     Einschlaftimer     | integer |   SleepTimer   |           Gewählter Zeitraum für Einschlaftimer            |
 |     Ausschalten in     | string  |  SleepTimeout  |                  Zeit bis zum Ausschalten                  |

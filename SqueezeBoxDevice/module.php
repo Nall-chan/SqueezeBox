@@ -11,7 +11,7 @@ declare(strict_types=1);
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2021 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.62
+ * @version       3.63
  *
  */
 require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
@@ -30,7 +30,7 @@ eval('declare(strict_types=1);namespace SqueezeboxDevice {?>' . file_get_content
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2021 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.62
+ * @version       3.63
  *
  * @example <b>Ohne</b>
  *
@@ -79,6 +79,8 @@ class SqueezeboxDevice extends IPSModule
         $this->RegisterPropertyBoolean('enableTreble', true);
         $this->RegisterPropertyBoolean('enablePitch', true);
         $this->RegisterPropertyBoolean('enableRandomplay', true);
+        $this->RegisterPropertyBoolean('enableRawDuration', false);
+        $this->RegisterPropertyBoolean('enableRawPosition', false);
         $this->RegisterPropertyBoolean('showSyncMaster', true);
         $this->RegisterPropertyBoolean('showSyncControl', true);
         $this->RegisterPropertyBoolean('showPlaylist', true);
@@ -197,7 +199,7 @@ class SqueezeboxDevice extends IPSModule
                 $this->UnregisterVariable('Sync');
             }
 
-            $this->RegisterVariableInteger('Signalstrength', $this->Translate('Signalstrength'), 'LSQ.Intensity', 30);
+            $this->RegisterVariableInteger('Signalstrength', $this->Translate('Signalstrength'), 'LSQ.Intensity', 31);
         } else {
             $this->UnregisterVariable('Power');
             $this->UnregisterVariable('Preset');
@@ -215,12 +217,21 @@ class SqueezeboxDevice extends IPSModule
         $this->EnableAction('Status');
 
         if ($this->ReadPropertyBoolean('enableRandomplay')) {
-            $vid = $this->RegisterVariableInteger('Randomplay', $this->Translate('Randomplay'), 'LSQ.Randomplay', 13);
+            $this->RegisterVariableInteger('Randomplay', $this->Translate('Randomplay'), 'LSQ.Randomplay', 13);
             $this->EnableAction('Randomplay');
         } else {
             $this->UnregisterVariable('Randomplay');
         }
-
+        if ($this->ReadPropertyBoolean('enableRawDuration')) {
+            $this->RegisterVariableInteger('DurationRaw', $this->Translate('Duration in seconds'), '', 28);
+        } else {
+            $this->UnregisterVariable('DurationRaw');
+        }
+        if ($this->ReadPropertyBoolean('enableRawPosition')) {
+            $this->RegisterVariableInteger('PositionRaw', $this->Translate('Position in seconds'), '', 29);
+        } else {
+            $this->UnregisterVariable('PositionRaw');
+        }
         $this->PlayerShuffle = $this->RegisterVariableInteger('Shuffle', $this->Translate('Shuffle'), 'LSQ.Shuffle', 9);
         $this->EnableAction('Shuffle');
         $this->RegisterMessage($this->PlayerShuffle, VM_UPDATE);
@@ -241,13 +252,13 @@ class SqueezeboxDevice extends IPSModule
         $this->RegisterVariableString('Position', $this->Translate('Position'), '', 25);
         $this->RegisterVariableInteger('Position2', 'Position', 'LSQ.Intensity', 26);
         $this->DisableAction('Position2');
-        $this->RegisterVariableInteger('SleepTimer', $this->Translate('Sleeptimer'), 'LSQ.SleepTimer', 31);
+        $this->RegisterVariableInteger('SleepTimer', $this->Translate('Sleeptimer'), 'LSQ.SleepTimer', 32);
         $this->EnableAction('SleepTimer');
-        $this->RegisterVariableString('SleepTimeout', $this->Translate('Switch off in'), '', 32);
+        $this->RegisterVariableString('SleepTimeout', $this->Translate('Switch off in'), '', 33);
 
         // Playlist
         if ($this->ReadPropertyBoolean('showPlaylist')) {
-            $this->RegisterVariableString('Playlist', 'Playlist', '~HTMLBox', 29);
+            $this->RegisterVariableString('Playlist', 'Playlist', '~HTMLBox', 30);
         } else {
             $this->UnregisterVariable('Playlist');
         }
@@ -2834,6 +2845,9 @@ class SqueezeboxDevice extends IPSModule
         }
 
         $this->PositionRAW = $Time;
+        if ($this->ReadPropertyBoolean('enableRawPosition')) {
+            $this->SetValueInteger('PositionRaw', $Time);
+        }
         $this->SetValueString('Position', $this->ConvertSeconds($Time));
         if ($this->isSeekable) {
             $Value = (100 / $this->DurationRAW) * $Time;
@@ -2844,6 +2858,9 @@ class SqueezeboxDevice extends IPSModule
     private function _SetNewDuration(int $Duration)
     {
         $this->DurationRAW = $Duration;
+        if ($this->ReadPropertyBoolean('enableRawDuration')) {
+            $this->SetValueInteger('DurationRaw', $Duration);
+        }
         if ($Duration == 0) {
             $this->SetValueString('Duration', '');
             $this->SetValueInteger('Position2', 0);
@@ -3098,6 +3115,9 @@ class SqueezeboxDevice extends IPSModule
                             $this->SetValueString('Genre', '');
                             $this->SetValueString('Duration', '0:00');
                             $this->DurationRAW = 0;
+                            if ($this->ReadPropertyBoolean('enableRawDuration')) {
+                                $this->SetValueInteger('DurationRaw', 0);
+                            }
                             $this->SetValueInteger('Position2', 0);
                             $this->SetValueString('Position', '0:00');
                             $this->SetValueInteger('Index', 0);
@@ -3176,6 +3196,9 @@ class SqueezeboxDevice extends IPSModule
                 break;
             case 'time':
                 $this->PositionRAW = (int) $LMSData->Data[0];
+                if ($this->ReadPropertyBoolean('enableRawPosition')) {
+                    $this->SetValueInteger('PositionRaw', (int) $LMSData->Data[0]);
+                }
                 $this->SetValueString('Position', $this->ConvertSeconds((int) $LMSData->Data[0]));
                 break;
             case 'signalstrength':

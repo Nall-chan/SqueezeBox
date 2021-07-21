@@ -48,9 +48,24 @@
                     ]
                 },
                 {
-                    "name": "enableRandomplay",
-                    "type": "CheckBox",
-                    "caption": "Enable randomplay"
+                    "type": "RowLayout",
+                    "items": [
+                        {
+                            "name": "enableRandomplay",
+                            "type": "CheckBox",
+                            "caption": "Enable randomplay"
+                        },
+                        {
+                            "name": "enableRawDuration",
+                            "type": "CheckBox",
+                            "caption": "Enable duration in seconds"
+                        },
+                        {
+                            "name": "enableRawPosition",
+                            "type": "CheckBox",
+                            "caption": "Enable position in seconds"
+                        }
+                    ]
                 },
                 {
                     "type": "RowLayout",
