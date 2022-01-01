@@ -127,6 +127,11 @@ class SqueezeboxBattery extends IPSModule
             return;
         }
         $this->SetSummary($Address);
+
+        if (IPS_GetKernelRunlevel() != KR_READY) {
+            $this->RegisterMessage(0, IPS_KERNELSTARTED);
+            return;
+        }
         if ($this->ReadPropertyInteger('Interval') >= 30) {
             $this->SetStatus(IS_ACTIVE);
             $this->SetTimerInterval('RequestState', $this->ReadPropertyInteger('Interval') * 1000);
@@ -139,13 +144,21 @@ class SqueezeboxBattery extends IPSModule
 
             $this->SetTimerInterval('RequestState', 0);
         }
-
-        if (IPS_GetKernelRunlevel() != KR_READY) {
-            return;
-        }
         $this->RequestState();
     }
 
+    /**
+     * Interne Funktion des SDK.
+     */
+    public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
+    {
+        switch ($Message) {
+            case IPS_KERNELSTARTED:
+                $this->UnregisterMessage(0, IPS_KERNELSTARTED);
+                $this->ApplyChanges();
+                break;
+        }
+    }
     //################# PUBLIC
 
     /**
