@@ -1,6 +1,6 @@
 [![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20Version-3.63-blue.svg)]()
-[![Version](https://img.shields.io/badge/Symcon%20Version-5.3%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857)  
+[![Version](https://img.shields.io/badge/Modul%20Version-3.70-blue.svg)](https://community.symcon.de/t/modul-squeezebox-release/46937)
+[![Version](https://img.shields.io/badge/Symcon%20Version-5.3%20%3E-green.svg)](https://www.symcon.de/service/dokumentation/installation/migrationen/v60-v61-q1-2022/)  
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Check Style](https://github.com/Nall-chan/SqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/SqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions)  
 [![Spenden](https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_SM.gif)](#6-spenden)  
@@ -75,16 +75,15 @@ Logitech Media Server.
 
 ## 2. Voraussetzungen
 
- - IPS 5.1 oder höher
+ - IP-Symcon ab Version 6.1
  - Logitech Media Server (getestet ab 7.9.x)
  - kompatible Player
 
 ## 3. Software-Installation
 
-**IPS 5.1:**  
-   Bei privater Nutzung:
-     Über den `Module-Store` in IPS.  
+ Über den 'Module-Store' in IPS das Modul 'SqueezeBox' hinzufügen.  
    **Bei kommerzieller Nutzung (z.B. als Errichter oder Integrator) wenden Sie sich bitte an den Autor.**  
+![Module-Store](imgs/install.png) 
 
 ## 4. Einrichten der Instanzen in IP-Symcon
 
@@ -125,7 +124,11 @@ Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:
 
 ### 3. Changelog
 
-Version 3.63:  
+Version 3.70:  
+ - Battery-Instanzen können deaktiviert werden.  
+ - RegEx Fehler in Alarm/Wecker Instanzen führe zu Fehler.  
+
+Version 3.63: 
  - Neue Statusvariablen in den Player-Instanzen für `Dauer in Sekunden` und `Spielzeit in Sekunden`.  
 
 Version 3.62:  

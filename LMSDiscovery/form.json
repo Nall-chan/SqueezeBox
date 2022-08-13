@@ -9,7 +9,7 @@
             "name": "Discovery",
             "add": false,
             "delete": true,
-            "rowCount": 5,
+            "rowCount": 3,
             "sort": {
                 "column": "IPAddress",
                 "direction": "ascending"

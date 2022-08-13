@@ -8,9 +8,9 @@ declare(strict_types=1);
  * @package       Squeezebox
  * @file          module.php
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2021 Michael Tröger
+ * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.63
+ * @version       3.70
  *
  */
 eval('declare(strict_types=1);namespace SqueezeboxBattery {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableHelper.php') . '}');
@@ -48,10 +48,10 @@ class AutoLoaderSqueezeboxBatteryPHPSecLib
  * Erweitert IPSModule.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2021 Michael Tröger
+ * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.63
+ * @version       3.70
  *
  * @example <b>Ohne</b>
  */
@@ -129,6 +129,7 @@ class SqueezeboxBattery extends IPSModule
         }
         $this->SetSummary($Address);
         if (!$this->ReadPropertyBoolean('Active')) {
+            $this->SetStatus(IS_INACTIVE);
             $this->SetTimerInterval('RequestState', 0);
             return;
         }
@@ -173,6 +174,9 @@ class SqueezeboxBattery extends IPSModule
      */
     public function RequestState()
     {
+        if (!$this->ReadPropertyBoolean('Active')) {
+            return;
+        }
         $Address = trim($this->ReadPropertyString('Address'));
         if ($Address == '') {
             return false;

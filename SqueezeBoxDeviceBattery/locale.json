@@ -7,6 +7,7 @@
             "Default SSH password: 1234": "Standard SSH Passwort: 1234",
             "Password": "Passwort",
             "Interval": "Intervall",
+            "seconds": "Sekunden",
             "Request state": "Zustandsabfrage",
             "Configuration valid.": "Konfiguration gültig.",
             "Instance is inactive.": "Instanz ist inaktiv.",

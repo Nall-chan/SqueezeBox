@@ -9,9 +9,9 @@ declare(strict_types=1);
  * @package       Squeezebox
  * @file          module.php
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2021 Michael Tröger
+ * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.63
+ * @version       3.70
  *
  */
 require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
@@ -24,10 +24,10 @@ eval('declare(strict_types=1);namespace LMSConfigurator {?>' . file_get_contents
  * Erweitert IPSModule.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2021 Michael Tröger
+ * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.63
+ * @version       3.70
  *
  * @example <b>Ohne</b>
  */
@@ -265,11 +265,11 @@ class LMSConfigurator extends IPSModule
         }
 
         $Form['actions'][0]['items'][0]['values'] = $PlayerValues;
-        $Form['actions'][0]['items'][0]['rowCount'] = count($PlayerValues) + 1;
+        $Form['actions'][0]['items'][0]['rowCount'] = count($PlayerValues)-2;
         $Form['actions'][1]['items'][0]['values'] = $AlarmValues;
-        $Form['actions'][1]['items'][0]['rowCount'] = count($AlarmValues) + 1;
+        $Form['actions'][1]['items'][0]['rowCount'] = count($AlarmValues)-2;
         $Form['actions'][2]['items'][0]['values'] = $BatteryValues;
-        $Form['actions'][2]['items'][0]['rowCount'] = count($BatteryValues) + 1;
+        $Form['actions'][2]['items'][0]['rowCount'] = count($BatteryValues)-2;
         $this->SendDebug('FORM', json_encode($Form), 0);
         $this->SendDebug('FORM', json_last_error_msg(), 0);
         return json_encode($Form);

@@ -215,9 +215,6 @@
     ],
     "actions": [
         {
-            "type": "TestCenter"
-        },
-        {
             "type": "Button",
             "caption": "Request state",
             "onClick": "LSA_RequestAllState($id);"
