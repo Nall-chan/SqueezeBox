@@ -69,7 +69,8 @@ class SqueezeboxBattery extends IPSModule
         //Never delete this line!
         parent::Create();
         $this->ConnectParent('{96A9AB3A-2538-42C5-A130-FC34205A706A}');
-        $this->SetReceiveDataFilter('.*"Address":"".*');
+        $this->SetReceiveDataFilter('.*"Address":"NOTHING".*');
+        $this->RegisterPropertyBoolean('Active', true);
         $this->RegisterPropertyString('Address', '');
         $this->RegisterPropertyInteger('Interval', 30);
         $this->RegisterPropertyString('Password', '1234');
@@ -81,7 +82,7 @@ class SqueezeboxBattery extends IPSModule
      */
     public function ApplyChanges()
     {
-        $this->SetReceiveDataFilter('.*"Address":"".*');
+        $this->SetReceiveDataFilter('.*"Address":"NOTHING".*');
 
         //Never delete this line!
         parent::ApplyChanges();
@@ -127,7 +128,10 @@ class SqueezeboxBattery extends IPSModule
             return;
         }
         $this->SetSummary($Address);
-
+        if (!$this->ReadPropertyBoolean('Active')) {
+            $this->SetTimerInterval('RequestState', 0);
+            return;
+        }
         if (IPS_GetKernelRunlevel() != KR_READY) {
             $this->RegisterMessage(0, IPS_KERNELSTARTED);
             return;

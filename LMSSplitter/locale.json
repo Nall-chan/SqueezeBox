@@ -5,7 +5,7 @@
             "Version of LMS:": "Version des LMS:",
             "Connected Players to LMS:": "Mit LMS verbundene Player:",
             "Enter Adress of LMS in the parent Client-Socket.": "Adresse des LMS im übergeordneten Client-Socket einstellen.",
-            "Open Client-Socket":"Öffne Client-Socket",
+            "Open Client-Socket": "Öffne Client-Socket",
             "CLI Port": "CLI Port",
             "Webserver Port": "Webserver Port",
             "Optional Authentification:": "Optionale Authentifizierung:",
@@ -14,7 +14,7 @@
             "Optional LMS playlists:": "Optionale LMS Playlisten",
             "Show playlist as HTML-Box": "Playlist als HTML-Box anlegen",
             "Playlist design": "Playlist Darstellung",
-            "Table design":"Darstellung Tabelle",
+            "Table design": "Darstellung Tabelle",
             "HTML-Tag": "HTML-Tag",
             "CSS": "CSS",
             "CSS:": "CSS:",
@@ -83,8 +83,9 @@
             "scan": "Scan",
             "only playlists": "Nur Playlists",
             "completely": "Vollständig",
-            "None":"Keiner",
-            "All":"Alle"
+            "None": "Keiner",
+            "All": "Alle",
+            "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"
         }
     }
 }

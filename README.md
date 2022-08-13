@@ -27,8 +27,8 @@ Logitech Media Server.
   - [1. GUID der Module](#1-guid-der-module)
   - [2. Datenaustausch](#2-datenaustausch)
   - [3. Changelog](#3-changelog)
-- [6. Spenden](#6-spenden)
-- [7. Lizenz](#7-lizenz)
+  - [4. Spenden](#4-spenden)
+- [6. Lizenz](#6-lizenz)
 
 ## 1. Funktionsumfang
 
@@ -201,13 +201,19 @@ Version 2.0:
 Version 1.0:  
  - Erstes offizielles Release  
 
-## 6. Spenden  
+### 4. Spenden  
   
   Die Library ist für die nicht kommerzielle Nutzung kostenlos, Schenkungen als Unterstützung für den Autor werden hier akzeptiert:  
 
-<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=G2SLW2MEMQZH2" target="_blank"><img src="https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_LG.gif" border="0" /></a>
+  PayPal:  
+<a href="https://www.paypal.com/donate?hosted_button_id=G2SLW2MEMQZH2" target="_blank"><img src="https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_LG.gif" border="0" /></a>  
 
-## 7. Lizenz
+  Wunschliste:  
+<a href="https://www.amazon.de/hz/wishlist/ls/YU4AI9AQT9F?ref_=wl_share" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/4/4a/Amazon_icon.svg" border="0" width="100"/></a>  
+
+## 6. Lizenz
 
   IPS-Modul:  
   [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
+ 
+

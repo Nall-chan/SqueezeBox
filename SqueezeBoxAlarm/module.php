@@ -397,7 +397,7 @@ class SqueezeboxAlarm extends IPSModule
     {
         parent::Create();
         $this->ConnectParent('{96A9AB3A-2538-42C5-A130-FC34205A706A}');
-        $this->SetReceiveDataFilter('.*(?=.*"Address":"".*)(?=(.*"Command":\["alarm.*)|(.*"Command":\["client".*)|(.*"Command":\["playerpref","alarm.*)|(.*"Command":\["prefset","server","alarm.*)).*');
+        $this->SetReceiveDataFilter('.*"Address":"","Command":\["(alarm.*|client".*|playerpref","alarm.*|prefset","server","alarm.*)');
         $this->RegisterPropertyString('Address', '');
         $this->RegisterPropertyBoolean('dynamicDisplay', false);
         $this->RegisterPropertyBoolean('showAdd', true);
@@ -430,7 +430,8 @@ class SqueezeboxAlarm extends IPSModule
      */
     public function ApplyChanges()
     {
-        $this->SetReceiveDataFilter('.*(?=.*"Address":"".*)(?=(.*"Command":\["alarm.*)|(.*"Command":\["client".*)|(.*"Command":\["playerpref","alarm.*)|(.*"Command":\["prefset","server","alarm.*)).*');
+        $this->SetReceiveDataFilter('.*"Address":"","Command":\["(alarm.*|client".*|playerpref","alarm.*|prefset","server","alarm.*)');
+
         $this->RegisterMessage(0, IPS_KERNELSTARTED);
         $this->RegisterMessage($this->InstanceID, FM_CONNECT);
         $this->RegisterMessage($this->InstanceID, FM_DISCONNECT);
@@ -467,7 +468,8 @@ class SqueezeboxAlarm extends IPSModule
         }
 
         // Adresse als Filter setzen
-        $this->SetReceiveDataFilter('.*(?=.*"Address":"' . $Address . '".*)(?=(.*"Command":\["alarm.*)|(.*"Command":\["client".*)|(.*"Command":\["playerpref","alarm.*)|(.*"Command":\["prefset","server","alarm.*)).*');
+        $this->SetReceiveDataFilter('.*"Address":"' . $Address . '","Command":\["(alarm.*|client".*|playerpref","alarm.*|prefset","server","alarm.*)');
+
         $this->SetSummary($Address);
 
         // Profile anlegen

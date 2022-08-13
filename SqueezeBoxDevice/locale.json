@@ -19,7 +19,7 @@
             "Enable randomplay": "Aktiviere Zufallswiedergabe",
             "Randomplay": "Zufallswiedergabe",
             "Enable duration in seconds": "Aktiviere Dauer in Sekunden",
-            "Enable position in seconds":"Aktiviere Spielzeit in Sekunden",
+            "Enable position in seconds": "Aktiviere Spielzeit in Sekunden",
             "Treble": "Hochtonregler",
             "Pitch": "Tonhöhenregler",
             "Shuffle": "Mischen",
@@ -102,7 +102,8 @@
             "Position in seconds": "Spielzeit in Sekunden",
             "Signalstrength": "Signalstärke",
             "Sleeptimer": "Einschlaftimer",
-            "Switch off in": "Ausschalten in"
+            "Switch off in": "Ausschalten in",
+            "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"
         }
     }
 }

@@ -8,7 +8,7 @@
             "Delete unused objects.": "Nicht benutzte Objekte l\u00f6schen.",
             "Show alarm playlists as HTML-Box": "Alarm Playlist als HTML-Box anlegen",
             "Playlist design": "Playlist Darstellung",
-            "Table design":"Darstellung Tabelle",            
+            "Table design": "Darstellung Tabelle",
             "HTML-Tag": "HTML-Tag",
             "CSS": "CSS",
             "CSS:": "CSS:",
@@ -72,8 +72,9 @@
             "Access denied": "Zugriff verweigert",
             "Instance has no active parent.": "Instanz hat keinen aktiven Parent.",
             "No answer from LMS": "Keine Antwort vom LMS",
-            "Off":"Aus",
-            "\/*\r\nDon't change the action and target of this event!\r\nPut your code after this comment.\r\nBeware, that this event can be deleted when\r\n'Delete unused objects' is set.\r\n*\/": "\/*\r\nNicht die Aktion und das Ziel dieses Events \u00e4ndern!\r\nEigener Code unter diesem Kommentar platzieren.\r\nAchtung, dieses Event kann gel\u00f6scht werden, wenn\r\n'Nicht benutzte Objekte l\u00f6schen.' aktiviert ist.\r\n*\/"
+            "Off": "Aus",
+            "\/*\r\nDon't change the action and target of this event!\r\nPut your code after this comment.\r\nBeware, that this event can be deleted when\r\n'Delete unused objects' is set.\r\n*\/": "\/*\r\nNicht die Aktion und das Ziel dieses Events \u00e4ndern!\r\nEigener Code unter diesem Kommentar platzieren.\r\nAchtung, dieses Event kann gel\u00f6scht werden, wenn\r\n'Nicht benutzte Objekte l\u00f6schen.' aktiviert ist.\r\n*\/",
+            "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"
         }
     }
 }

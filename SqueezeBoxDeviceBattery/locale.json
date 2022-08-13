@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "Open": "Aktiv",
             "IP-Address of Squeezebox Radio": "IP-Adresse der Squeezebox Radio",
             "IP Address": "IP Adresse",
             "Default SSH password: 1234": "Standard SSH Passwort: 1234",
@@ -31,7 +32,8 @@
             "discharging": "wird entladen",
             "charging": "wird geladen",
             "load cycle wait state": "Ladezyklus pausiert",
-            "warning": "Warnung"
+            "warning": "Warnung",
+            "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"
         }
     }
 }
