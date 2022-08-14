@@ -128,7 +128,7 @@ Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:
 ### 3. Changelog
 
 Version 3.70:  
- - Battery-Instanzen können deaktiviert werden.  
+ - Batterie-Instanzen können deaktiviert werden.  
  - RegEx Fehler in Alarm/Wecker Instanzen führe zu Fehler.  
  - Discovery Instanz meldet wenn bei aktiven NAT kein Server gefunden wurde.  
 

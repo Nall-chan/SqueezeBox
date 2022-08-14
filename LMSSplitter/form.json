@@ -238,7 +238,6 @@
             "caption": "DB Rescan",
             "onClick": "LMS_Rescan($id);"
         },
-        ,
         {
             "type": "Label",
             "caption": "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:"
