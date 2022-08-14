@@ -264,7 +264,7 @@ oder `false` im Fehlerfall.
 
 ### 1. Changelog
 
-[Changelog der Library](../README.md#4-changelog)
+[Changelog der Library](../README.md#3-changelog)
 
 ### 2. Spenden
 

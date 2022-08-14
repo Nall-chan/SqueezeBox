@@ -4,6 +4,7 @@
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Check Style](https://github.com/Nall-chan/SqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/SqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions)  
 [![Spenden](https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_SM.gif)](#2-spenden)  
+
 # Logitech Media Server Splitter (LMSSplitter) <!-- omit in toc -->  
 Ermöglicht die Kommunikation von IPS mit dem CLI des Logitech Media Servers.  
 
@@ -690,7 +691,7 @@ LMS_GetRadioOrAppDataEx($id,"search",``,`Anime`);
 
 ### 1. Changelog
 
-[Changelog der Library](../README.md#4-changelog)
+[Changelog der Library](../README.md#3-changelog)
 
 ### 2. Spenden
 

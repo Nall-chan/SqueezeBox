@@ -55,6 +55,13 @@ class LMSDiscovery extends ipsmodule
     {
         $Devices = $this->DiscoverDevices();
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+        if ((count($Devices) == 0) && IPS_GetOption('NATSupport')) {
+            $Form['actions'][2]['visible'] = true;
+            $this->SendDebug('FORM', json_encode($Form), 0);
+            $this->SendDebug('FORM', json_last_error_msg(), 0);
+            return json_encode($Form);
+        }
+
         $IPSDevices = $this->GetIPSInstances();
 
         $Values = [];
@@ -136,7 +143,7 @@ class LMSDiscovery extends ipsmodule
 
     private function DiscoverDevices(): array
     {
-        $this->LogMessage($this->Translate('Background discovery of Logitech Media Servers'), KL_NOTIFY);
+        $this->SendDebug('Discover', $this->Translate('Background discovery of Logitech Media Servers'), 0);
         $socket = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
         if (!$socket) {
             return [];
@@ -146,7 +153,7 @@ class LMSDiscovery extends ipsmodule
         socket_set_option($socket, SOL_SOCKET, SO_RCVTIMEO, ['sec' => 1, 'usec' => 100000]);
         socket_bind($socket, '0.0.0.0', 0);
         $message = "\x65\x49\x50\x41\x44\x00\x4e\x41\x4d\x45\x00\x4a\x53\x4f\x4e\x00\x56\x45\x52\x53\x00\x55\x55\x49\x44\x00\x4a\x56\x49\x44\x06\x12\x34\x56\x78\x12\x34";
-        $this->SendDebug('Serach', $message, 1);
+        $this->SendDebug('Search', $message, 1);
         if (@socket_sendto($socket, $message, strlen($message), 0, '255.255.255.255', 3483) === false) {
             return [];
         }

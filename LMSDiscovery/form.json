@@ -39,6 +39,25 @@
             "values": []
         },
         {
+            "name": "ErrorPopup",
+            "type": "PopupAlert",
+            "visible": false,
+            "popup": {
+                "items": [
+                    {
+                        "name": "ErrorTitle",
+                        "type": "Label",
+                        "caption": "No Logitech Media Server was found!"
+                    },
+                    {
+                        "name": "ErrorText",
+                        "type": "Label",
+                        "caption": "This can be due to the network environment,\r\nsince Symcon is operated behind a NAT."
+                    }
+                ]
+            }
+        },
+        {
             "type": "Label",
             "caption": "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:"
         },

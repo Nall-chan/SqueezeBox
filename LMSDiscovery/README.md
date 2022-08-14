@@ -40,13 +40,23 @@ Sucht Logitech Media Server im Netzwerk
 
 ## 4. Verwendung
 
+<span style="color:red">**Hinweis**</span>  
+~~~~
+Über einen Netzwerk Broadcast wird versucht alle im Netzwerk vorhandenen `Logitech Media Server` aufzufinden.  
+
+Werden Symcon und der `Logitech Media Server` allerdings in verschiedenen (gerouteten) Netzwerkren betrieben, oder z.B. Symcon hinter einer NAT, so wird in der Regel kein `Logitech Media Server` gefunden.  
+
+Der [Squeezebox Konfigurator](LMSConfigurator/) muss in dieser Konstellation per Hand angelegt und sein dazugehöriger [LMS Splitter](LMSSplitter/) manuell konfiguriert werden.  
+~~~~  
+
 Nach der installation des Moduls, erfolgt eine Aufforderung von der Konsole diese `Discovery Instanz` zu erstellen.  
 Bei der manuellen Einrichtung ist die Instanz im Dialog `Instanz hinzufügen` unter dem Hersteller `Logitech` zu finden.  
 ![Instanz hinzufügen](imgs/add1.png)  
 Die Instanz `Logitech Media Server Discovery` wird im Objektbaum unter `Discovery Instanzen` einsortiert.  
 Beim dem Öffnen der Instanz, werden alle im Netzwerk gefundenen `Logitech Media Server` aufgelistet.  
 ![Instanz hinzufügen](imgs/conf1.png)  
-Über das selektieren eines Servers in der Tabelle und betätigen des dazugehörigen `Erstellen` Button, wird ein entsprechender [Logitech Media Server Konfigurator](../LMSConfigurator/README.md) inklusive `Client Socket` in IPS angelegt.  
+
+Über das selektieren eines Servers in der Tabelle und betätigen des dazugehörigen `Erstellen` Button, wird ein entsprechender [Logitech Media Server Konfigurator](../LMSConfigurator/README.md) inklusive `LMS Splitter` und `Client Socket` in IPS angelegt.  
 Mit dieser `Konfigurator Instanz` können dann die einzelnen `Geräte Instanzen` in IPS erzeugt werden.   
 
 ## 5. Statusvariablen und Profile
@@ -69,7 +79,7 @@ Die Discovery Instanz unterstützt keine Aktionen.
 
 ### 1. Changelog
 
-[Changelog der Library](../README.md#4-changelog)
+[Changelog der Library](../README.md#3-changelog)
 
 ### 2. Spenden
 

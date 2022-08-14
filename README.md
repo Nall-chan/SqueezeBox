@@ -4,6 +4,7 @@
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Check Style](https://github.com/Nall-chan/SqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/SqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions)  
 [![Spenden](https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_SM.gif)](#6-spenden)  
+
 # Symcon-Modul: SqueezeBox  <!-- omit in toc -->  
 Ermöglicht die Steuerung sowie die Darstellung der Zustände
 von SqueezeBox Geräten in IPS, in Verbindung mit dem
@@ -87,9 +88,11 @@ Logitech Media Server.
 
 ## 4. Einrichten der Instanzen in IP-Symcon
 
-Ist direkt in der Dokumentation der jeweiligen Module beschrieben.  
-Es wird empfohlen die Einrichtung mit dem Squeezebox Konfigurator zu starten (LMSConfigurator).  
+Nach der Installation über den 'Modul-Store' fragt Symcon ob die enthaltende [Discovery Instanz](LMSDiscovery/) erstellt werden soll.  
+Werden Symcon und der `Logitech Media Server` allerdings nicht im gleichen physikalischen Netzwerk betrieben, wie z.B. Symcon hinter einer NAT, so kann diese Frage verneint werden.  
+Der [Squeezebox Konfigurator](LMSConfigurator/) muss in dieser Konstellation per Hand angelegt und sein dazugehöriger [LMS Splitter](LMSSplitter/) manuell konfiguriert werden.  
 
+Die Einrichtung der Instanzen ist direkt in der Dokumentation der jeweiligen Module beschrieben.  
 
 ## 5. Anhang
 
@@ -127,6 +130,7 @@ Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:
 Version 3.70:  
  - Battery-Instanzen können deaktiviert werden.  
  - RegEx Fehler in Alarm/Wecker Instanzen führe zu Fehler.  
+ - Discovery Instanz meldet wenn bei aktiven NAT kein Server gefunden wurde.  
 
 Version 3.63: 
  - Neue Statusvariablen in den Player-Instanzen für `Dauer in Sekunden` und `Spielzeit in Sekunden`.  

@@ -7,6 +7,8 @@
             "Name": "Name",
             "Non-standard CLI-Port or active user authentication must be set up manually in the 'LMSSplitter'.": "Nicht standard CLI-Port oder aktive Benutzer Authentifizierung muss manuell im LMS-Splitter eingerichtet werden.",
             "Background discovery of Logitech Media Servers": "Hintergrundsuche nach Logitech Media Servern",
+            "No Logitech Media Server was found!": "Es wurde kein Logitech Media Server gefunden!",
+            "This can be due to the network environment,\r\nsince Symcon is operated behind a NAT.": "Dies kann an der Netzwerkumgebung liegen,\r\nda Symcon hinter einem NAT betrieben wird.",
             "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"
         }
     }
