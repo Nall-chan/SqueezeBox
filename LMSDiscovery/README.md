@@ -1,6 +1,6 @@
-[![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
+[![SDK](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Version](https://img.shields.io/badge/Modul%20Version-3.70-blue.svg)](https://community.symcon.de/t/modul-squeezebox-release/46937)
-[![Version](https://img.shields.io/badge/Symcon%20Version-5.3%20%3E-green.svg)](https://www.symcon.de/service/dokumentation/installation/migrationen/v60-v61-q1-2022/)  
+[![Version](https://img.shields.io/badge/Symcon%20Version-6.1%20%3E-green.svg)](https://www.symcon.de/service/dokumentation/installation/migrationen/v60-v61-q1-2022/)  
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Check Style](https://github.com/Nall-chan/SqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/SqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions)  
 [![Spenden](https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_SM.gif)](#2-spenden) 
@@ -51,19 +51,19 @@ Mit dieser `Konfigurator Instanz` können dann die einzelnen `Geräte Instanzen`
 
 ## 5. Statusvariablen und Profile
 
-Der Konfigurator besitzt keine Statusvariablen und Variablenprofile.  
+Die Discovery Instanz besitzt keine Statusvariablen und Variablenprofile.  
 
 ## 6. WebFront
 
-Der Konfigurator besitzt keine im WebFront darstellbaren Elemente.  
+Die Discovery Instanz besitzt keine im WebFront darstellbaren Elemente.  
 
 ## 7. PHP-Befehlsreferenz
 
-Der Konfigurator besitzt keine Instanz-Funktionen.  
+Die Discovery Instanz besitzt keine Instanz-Funktionen.  
 
 ## 8. Aktionen
 
-// TODO
+Die Discovery Instanz unterstützt keine Aktionen.  
 
 ## 9. Anhang
 
