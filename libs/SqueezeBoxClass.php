@@ -487,11 +487,6 @@ class LMSTaggingData extends stdClass
         } else {
             $this->Value = array_shift($Part);
         }
-        if (is_numeric($this->Value)) {
-            $this->Value = (int) $this->Value;
-        } else {
-            $this->Value = (string) $this->Value;
-        }
     }
 }
 
@@ -602,7 +597,7 @@ class LMSTaggingArray extends stdClass
             $Part = new LMSTaggingData($Line);
             if ($UseIDs) {
                 if ($Part->Name == 'id') {
-                    if (is_numeric($Part->Value)) {
+                    if (strpos($Part->Value, '.') === false) {
                         $id = (int) $Part->Value;
                     } else {
                         $id = rawurldecode($Part->Value);

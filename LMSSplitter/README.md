@@ -19,16 +19,16 @@ Ermöglicht die Kommunikation von IPS mit dem CLI des Logitech Media Servers.
 - [5. Statusvariablen und Profile](#5-statusvariablen-und-profile)
 - [6. WebFront](#6-webfront)
 - [7. PHP-Befehlsreferenz](#7-php-befehlsreferenz)
-    - [1. Server:](#1-server)
-    - [2. Datenbank-Scanner:](#2-datenbank-scanner)
-    - [3. Datenbank:](#3-datenbank)
-    - [4. Dateien:](#4-dateien)
-    - [5. Playlisten:](#5-playlisten)
-    - [6. Alarm Playlisten:](#6-alarm-playlisten)
-    - [7. Favoriten:](#7-favoriten)
-    - [8. Radio & Apps:](#8-radio--apps)
-- [8. Lizenz](#8-lizenz)
-- [9. Aktionen](#9-aktionen)
+  - [1. Server](#1-server)
+  - [2. Datenbank-Scanner](#2-datenbank-scanner)
+  - [3. Datenbank](#3-datenbank)
+  - [4. Dateien](#4-dateien)
+  - [5. Playlisten](#5-playlisten)
+  - [6. Alarm Playlisten](#6-alarm-playlisten)
+  - [7. Favoriten](#7-favoriten)
+  - [8. Radio & Apps](#8-radio--apps)
+- [8. Aktionen](#8-aktionen)
+- [9. Anhang](#9-anhang)
   - [1. Changelog](#1-changelog)
   - [2. Spenden](#2-spenden)
 - [10. Lizenz](#10-lizenz)
@@ -65,16 +65,16 @@ Ermöglicht die Kommunikation von IPS mit dem CLI des Logitech Media Servers.
 **Konfigurationsseite:**  
 ![Instanz hinzufügen](imgs/conf2.png)  
 
-| Name                          | Eigenschaft  | Typ     | Standardwert | Funktion                                                  |
+|             Name              | Eigenschaft  |   Typ   | Standardwert |                         Funktion                          |
 | :---------------------------: | :----------: | :-----: | :----------: | :-------------------------------------------------------: |
-| CLI Port                      | Port         | integer | 9090         | CLI-Port des LMS                                          |
-| Webserver Port                | Webport      | integer | 9000         | Port des LMS-Webserver                                    |
-| Benutzername                  | User         | string  |              | Benutzername wenn im LMS die Authentifizierung aktiv ist. |
-| Passwort                      | Password     | string  |              | Passwort wenn im LMS die Authentifizierung aktiv ist.     |
-| Playlist als HTML-Box anlegen | showPlaylist | boolean | true         | de/aktiviert die Anzeige der Playlist als HTML-Box.       |
-| Playlist Darstellung          | Table        | string  | Tabelle      | Style Eigenschaften der Playlist HTML-Tabelle.            |
-| Playlist Spalten              | Columns      | string  | Tabelle      | Style Eigenschaften der Playlist Spalten.                 |
-| Playlist Zeilen               | Rows         | string  | Tabelle      | Style Eigenschaften der Playlist Zeilen.                  |
+|           CLI Port            |     Port     | integer |     9090     |                     CLI-Port des LMS                      |
+|        Webserver Port         |   Webport    | integer |     9000     |                  Port des LMS-Webserver                   |
+|         Benutzername          |     User     | string  |              | Benutzername wenn im LMS die Authentifizierung aktiv ist. |
+|           Passwort            |   Password   | string  |              |   Passwort wenn im LMS die Authentifizierung aktiv ist.   |
+| Playlist als HTML-Box anlegen | showPlaylist | boolean |     true     |    de/aktiviert die Anzeige der Playlist als HTML-Box.    |
+|     Playlist Darstellung      |    Table     | string  |   Tabelle    |      Style Eigenschaften der Playlist HTML-Tabelle.       |
+|       Playlist Spalten        |   Columns    | string  |   Tabelle    |         Style Eigenschaften der Playlist Spalten.         |
+|        Playlist Zeilen        |     Rows     | string  |   Tabelle    |         Style Eigenschaften der Playlist Zeilen.          |
 
 
 ## 5. Statusvariablen und Profile
@@ -82,24 +82,24 @@ Ermöglicht die Kommunikation von IPS mit dem CLI des Logitech Media Servers.
 Folgende Statusvariablen werden automatisch angelegt.
 **Statusvariablen allgemein:**  
 
-| Name                        | Typ     | Ident          | Beschreibung                                                   |
-| :-------------------------: | :-----: | :------------: | :------------------------------------------------------------: |
-| Version                     | string  | Version        | Software-Version des Logitech Media Server.                    |
-| Scanner                     | integer | RescanState    | Aktueller Zustand vom Datenbank Scanner.                       |
-| Rescan Status               | string  | RescanInfo     | Aktueller Status bei aktivem scan.                             |
-| Rescan Fortschritt          | string  | RescanProgress | Aktueller Fortschritt bei aktivem scan.                        |
-| Anzahl Player               | integer | Players        | Anzahl der des Server bekannten Player.                        |
-| Player wählen               | integer | PlayerSelect   | Spezialvariable für das Laden von Playlisten aus dem WebFront. |
-| Playlisten                  | string  | Playlists      | HTML-Box mit allen dem Server bekannten Playlisten.            |
+|        Name        |   Typ   |     Ident      |                          Beschreibung                          |
+| :----------------: | :-----: | :------------: | :------------------------------------------------------------: |
+|      Version       | string  |    Version     |          Software-Version des Logitech Media Server.           |
+|      Scanner       | integer |  RescanState   |            Aktueller Zustand vom Datenbank Scanner.            |
+|   Rescan Status    | string  |   RescanInfo   |               Aktueller Status bei aktivem scan.               |
+| Rescan Fortschritt | string  | RescanProgress |            Aktueller Fortschritt bei aktivem scan.             |
+|   Anzahl Player    | integer |    Players     |            Anzahl der des Server bekannten Player.             |
+|   Player wählen    | integer |  PlayerSelect  | Spezialvariable für das Laden von Playlisten aus dem WebFront. |
+|     Playlisten     | string  |   Playlists    |      HTML-Box mit allen dem Server bekannten Playlisten.       |
 
 ![WebFront Beispiel](imgs/log1.png)  
 
 **Profile**:
 
-| Name                            | Typ     | verwendet von Statusvariablen |
+|              Name               |   Typ   | verwendet von Statusvariablen |
 | :-----------------------------: | :-----: | :---------------------------: |
-| LMS.Scanner                     | integer | Scanner                       |
-| LMS.PlayerSelect.\<InstanzeID\> | integer | PlayerSelect                  |
+|           LMS.Scanner           | integer |            Scanner            |
+| LMS.PlayerSelect.\<InstanzeID\> | integer |         PlayerSelect          |
 
 
 ## 6. WebFront
@@ -118,7 +118,7 @@ Für alle Befehle gilt:
 Tritt ein Fehler auf, wird eine Warnung erzeugt.  
 Dies gilt auch wenn ein übergebender Wert für einen Parameter nicht gültig ist, oder außerhalb seines zulässigen Bereiches liegt.  
 
-#### 1. Server:
+### 1. Server
 
 ```php
 bool LMS_KeepAlive(int $InstanzID)`  
@@ -182,20 +182,20 @@ Im Fehlerfall wird `false` zurückgegeben.
 
 **Array:**  
 
-| Index       | Typ     | Beschreibung                    |
+|    Index    |   Typ   |          Beschreibung           |
 | :---------: | :-----: | :-----------------------------: |
-| Playerindex | integer | Index des Players im Server     |
-| Playerid    | string  | IP oder MAC-Adresse des Players |
-| Uuid        | string  | interne ID des Players          |
-| Ip          | string  | IP-Adresse des Players          |
-| Name        | string  | Name des Players                |
-| Model       | string  | Typ vom Player                  |
-| Modelname   | string  | Modelname vom Player            |
-| Displaytype | string  | Typ des Display                 |
-| Connected   | bool    | Verbunden mit dem Server        |
+| Playerindex | integer |   Index des Players im Server   |
+|  Playerid   | string  | IP oder MAC-Adresse des Players |
+|    Uuid     | string  |     interne ID des Players      |
+|     Ip      | string  |     IP-Adresse des Players      |
+|    Name     | string  |        Name des Players         |
+|    Model    | string  |         Typ vom Player          |
+|  Modelname  | string  |      Modelname vom Player       |
+| Displaytype | string  |         Typ des Display         |
+|  Connected  |  bool   |    Verbunden mit dem Server     |
 | Instanceid  | integer | InstanzeID wenn in IPS angelegt |
   
-#### 2. Datenbank-Scanner:
+### 2. Datenbank-Scanner
 
 ```php
 bool LMS_Rescan(int $InstanzID)
@@ -226,7 +226,7 @@ Bricht einen Scan der Datenbank ab.
 Liefert `true` bei Erfolg, sonst `false`.  
 
 
-#### 3. Datenbank:
+### 3. Datenbank
 
 ```php
 array LMS_GetLibraryInfo (int $InstanzID)  
@@ -235,12 +235,12 @@ Liefert Informationen über die Datenbank des LMS.
 
 **Array:**  
 
-| Index   | Typ     | Beschreibung                |
+|  Index  |   Typ   |        Beschreibung         |
 | :-----: | :-----: | :-------------------------: |
 | Genres  | integer | Anzahl verschiedener Genres |
-| Artists | integer | Anzahl der Interpreten      |
-| Albums  | integer | Anzahl der Alben            |
-| Songs   | integer | Anzahl aller Titel          |
+| Artists | integer |   Anzahl der Interpreten    |
+| Albums  | integer |      Anzahl der Alben       |
+|  Songs  | integer |     Anzahl aller Titel      |
 
 ---
 
@@ -292,70 +292,6 @@ Im Fehlerfall wird `false` zurückgegeben.
   [4236] => "Bert Russell"  
   [3736] => "The Beu Sisters"  
 ```  
-
-#### 4. Dateien:
-
-```php
-array LMS_GetDirectoryByID (int $InstanzID, int $FolderID)  
-array LMS_GetDirectoryByIDRecursive (int $InstanzID, int $FolderID)
-array LMS_GetDirectoryByURL (int $InstanzID, string $Directory)  
-array LMS_GetDirectoryByURLRecursive (int $InstanzID, string $Directory)
-```
-Liefert Informationen über ein Verzeichnis des LMS.  
-Es wird ein mehrdimensionales Array zurückgeben mit allen Medien, wobei der erste Index die DateiID der Mediadatei darstellt.  
-Im Fehlerfall wird `false` zurückgegeben.  
-
-**Array:**  
-
-| Index    | Typ     | Beschreibung                               |
-| :------: | :-----: | :----------------------------------------: |
-| Filename | string  | Datei-/Ordnername                          |
-| Type     | string  | track oder folder                          |
-| Coverid  | integer | CoverID der Datei. 0 wenn nicht vorhanden  |
-| Url      | string  | Kompletter Dateiname                       |
-
-**Beispiel:**  
-```
-  [28525]=>
-  array(4) {
-    ["Filename"] => "01-03- 80 Millionen.mp3"
-    ["Type"]     => "track"
-    ["Coverid"]  => 8
-    ["Url"]      => "file:///......../Der Junge, der rennt/01-03- 80 Millionen.mp3"
-  }
-```
-
----
-
-```php
-array LMS_GetSongInfoByFileID (int $InstanzID, int $SongID)
-array LMS_GetSongInfoByFileURL (int $InstanzID, string $SongURL)
-```
-Liefert Details zu einem Song anhand der `$SongID` oder `$SongURL`.  
-Es wird ein assoziiertes Array zurückgeben.  
-Im Fehlerfall wird `false` zurückgegeben.  
-
-**Array:**  
-
-| Index            | Typ     | Beschreibung                        |
-| :--------------: | :-----: | :---------------------------------: |
-| Id               | integer | ID des Song in der LMS-Datenbank    |
-| Title            | string  | Titel                               |
-| Genre            | string  | Genre                               |
-| Album            | string  | Album                               |
-| Artist           | string  | Interpret                           |
-| Duration         | integer | Länge in Sekunden                   |
-| Disc             | integer | Aktuelles Medium                    |
-| Disccount        | integer | Anzahl aller Medien dieses Albums   |
-| Bitrate          | string  | Bitrate in Klartext                 |
-| Tracknum         | integer | Tracknummer im Album                |
-| Url              | string  | Pfad der Playlist                   |
-| Album_id         | integer | UID des Album in der LMS-Datenbank  |
-| Artwork_track_id | string  | UID des Cover in der LMS-Datenbank  |
-| Genre_id         | integer | UID des Genre in der LMS-Datenbank  |
-| Artist_id        | integer | UID des Artist in der LMS-Datenbank |
-| Year             | integer | Jahr des Song, soweit hinterlegt    |
-
 ---
 
 ```php
@@ -427,9 +363,72 @@ Array
                 )
         )
 )
+```  
+
+### 4. Dateien
+
+```php
+array LMS_GetDirectoryByID (int $InstanzID, int $FolderID)  
+array LMS_GetDirectoryByIDRecursive (int $InstanzID, int $FolderID)
+array LMS_GetDirectoryByURL (int $InstanzID, string $Directory)  
+array LMS_GetDirectoryByURLRecursive (int $InstanzID, string $Directory)
+```
+Liefert Informationen über ein Verzeichnis des LMS.  
+Es wird ein mehrdimensionales Array zurückgeben mit allen Medien, wobei der erste Index die DateiID der Mediadatei darstellt.  
+Im Fehlerfall wird `false` zurückgegeben.  
+
+**Array:**  
+
+|  Index   |   Typ   |               Beschreibung                |
+| :------: | :-----: | :---------------------------------------: |
+| Filename | string  |             Datei-/Ordnername             |
+|   Type   | string  |             track oder folder             |
+| Coverid  | integer | CoverID der Datei. 0 wenn nicht vorhanden |
+|   Url    | string  |           Kompletter Dateiname            |
+
+**Beispiel:**  
+```
+  [28525]=>
+  array(4) {
+    ["Filename"] => "01-03- 80 Millionen.mp3"
+    ["Type"]     => "track"
+    ["Coverid"]  => 8
+    ["Url"]      => "file:///......../Der Junge, der rennt/01-03- 80 Millionen.mp3"
+  }
 ```
 
-#### 5. Playlisten:
+---
+
+```php
+array LMS_GetSongInfoByFileID (int $InstanzID, int $SongID)
+array LMS_GetSongInfoByFileURL (int $InstanzID, string $SongURL)
+```
+Liefert Details zu einem Song anhand der `$SongID` oder `$SongURL`.  
+Es wird ein assoziiertes Array zurückgeben.  
+Im Fehlerfall wird `false` zurückgegeben.  
+
+**Array:**  
+
+|      Index       |   Typ   |            Beschreibung             |
+| :--------------: | :-----: | :---------------------------------: |
+|        Id        | integer |  ID des Song in der LMS-Datenbank   |
+|      Title       | string  |                Titel                |
+|      Genre       | string  |                Genre                |
+|      Album       | string  |                Album                |
+|      Artist      | string  |              Interpret              |
+|     Duration     | integer |          Länge in Sekunden          |
+|       Disc       | integer |          Aktuelles Medium           |
+|    Disccount     | integer |  Anzahl aller Medien dieses Albums  |
+|     Bitrate      | string  |         Bitrate in Klartext         |
+|     Tracknum     | integer |        Tracknummer im Album         |
+|       Url        | string  |          Pfad der Playlist          |
+|     Album_id     | integer | UID des Album in der LMS-Datenbank  |
+| Artwork_track_id | string  | UID des Cover in der LMS-Datenbank  |
+|     Genre_id     | integer | UID des Genre in der LMS-Datenbank  |
+|    Artist_id     | integer | UID des Artist in der LMS-Datenbank |
+|       Year       | integer |  Jahr des Song, soweit hinterlegt   |
+
+### 5. Playlisten
 
 ```php
 array LMS_GetPlaylists (int $InstanzID)
@@ -441,13 +440,13 @@ Im Fehlerfall wird `false` zurückgegeben.
 
 **Array:**  
 
-| Index    | Typ     | Beschreibung                       |
-| :------: | :-----: | :--------------------------------: |
-| Playlist | string  | Name der Playlist                  |
-| Url      | string  | Kompletter Dateiname               |
-| Id       | string  | PlaylistID der Playlist            |
-| Tracks   | integer | Anzahl der Tracks in der Playlist  |
-| Duration | integer | Laufzeit der Playlist in Sekunden  |
+|  Index   |   Typ   |           Beschreibung            |
+| :------: | :-----: | :-------------------------------: |
+| Playlist | string  |         Name der Playlist         |
+|   Url    | string  |       Kompletter Dateiname        |
+|    Id    | string  |      PlaylistID der Playlist      |
+|  Tracks  | integer | Anzahl der Tracks in der Playlist |
+| Duration | integer | Laufzeit der Playlist in Sekunden |
 
 
 **Beispiel:**  
@@ -516,7 +515,7 @@ Entfernt einen Song aus einer Playlist.
 Es ist die PlaylistID in `$PlaylistId`, und der zu entfernende Index in `$Position` zu übergeben.  
 Liefert `true` bei Erfolg, sonst `false`.  
 
-#### 6. Alarm Playlisten:
+### 6. Alarm Playlisten
 
 ```php
 array LMS_GetAlarmPlaylists (int $InstanzID)
@@ -527,13 +526,13 @@ Im Fehlerfall wird `false` zurückgegeben.
 
 **Array:**  
 
-| Index    | Typ     | Beschreibung               |
-| :------: | :-----: | :------------------------: |
-| Category | string  | Kategorie der Playlist     |
-| Title    | string  | Name der Playlist          |
-| Url      | string  | komplette URL der Playlist |
+|  Index   |  Typ   |        Beschreibung        |
+| :------: | :----: | :------------------------: |
+| Category | string |   Kategorie der Playlist   |
+|  Title   | string |     Name der Playlist      |
+|   Url    | string | komplette URL der Playlist |
 
-#### 7. Favoriten:
+### 7. Favoriten
 
 ```php
 array LMS_GetFavorites (int $InstanzID, string $FavoriteID)
@@ -546,13 +545,13 @@ Im Fehlerfall wird `false` zurückgegeben.
 
 **Array:**  
 
-| Index    | Typ     | Beschreibung                                                  |
-| :------: | :-----: | :-----------------------------------------------------------: |
-| Name     | string  | Name des Eintrags                                             |
-| Type     | string  | Typ des Eintrags                                              |
-| Url      | string  | komplette URL                                                 |
-| Isaudio  | bool    | true wenn es ein Audiofile ist                                |
-| Hasitems | bool    | true wenn unterhalb des Eintrages noch Element vorhanden sind |
+|  Index   |  Typ   |                         Beschreibung                          |
+| :------: | :----: | :-----------------------------------------------------------: |
+|   Name   | string |                       Name des Eintrags                       |
+|   Type   | string |                       Typ des Eintrags                        |
+|   Url    | string |                         komplette URL                         |
+| Isaudio  |  bool  |                true wenn es ein Audiofile ist                 |
+| Hasitems |  bool  | true wenn unterhalb des Eintrages noch Element vorhanden sind |
 
 **Beispiel:**  
 ```php
@@ -626,13 +625,13 @@ Im Fehlerfall wird `false` zurückgegeben.
 
 **Array:**  
 
-| Index    | Typ     | Beschreibung                                       |
-| :------: | :-----: | :------------------------------------------------: |
-| Exists   | bool    | True wenn die Datei in den Favoriten existiert     |
-| Index    | string  | Der Index der Datei in den Favoriten (FavoritenID) |
+| Index  |  Typ   |                    Beschreibung                    |
+| :----: | :----: | :------------------------------------------------: |
+| Exists |  bool  |   True wenn die Datei in den Favoriten existiert   |
+| Index  | string | Der Index der Datei in den Favoriten (FavoritenID) |
 
 
-#### 8. Radio & Apps:
+### 8. Radio & Apps
 
 ```php
 array LMS_GetRadios (int $InstanzID)
@@ -644,13 +643,13 @@ Im Fehlerfall wird `false` zurückgegeben.
 
 **Array:**  
 
-| Index  | Typ     | Beschreibung                                            |
-| :----: | :-----: | :-----------------------------------------------------: |
-| Icon   | string  | URL zum Icon des Eintrags                               |
-| Cmd    | string  | Das zu verwendende Kommando für den Player             |
-| Weight | string  | Sortierreihenfolge                                      |
-| Name   | string  | Der Names des Eintrags                                  |
-| Type   | string  | Der Typ des Eintrags, xmlbrowser oder xmlbrowser_search |
+| Index  |  Typ   |                      Beschreibung                       |
+| :----: | :----: | :-----------------------------------------------------: |
+|  Icon  | string |                URL zum Icon des Eintrags                |
+|  Cmd   | string |       Das zu verwendende Kommando für den Player        |
+| Weight | string |                   Sortierreihenfolge                    |
+|  Name  | string |                 Der Names des Eintrags                  |
+|  Type  | string | Der Typ des Eintrags, xmlbrowser oder xmlbrowser_search |
 
 ---
 
@@ -674,20 +673,21 @@ LMS_GetRadioOrAppDataEx($id,"search",``,`Anime`);
 
 **Array:**  
 
-| Index    | Typ     | Beschreibung                                                  |
-| :------: | :-----: | :-----------------------------------------------------------: |
-| Id       | string  | Die ID des Eintrags im Format x.x.x                           |
-| Name     | string  | Name des Eintrags                                             |
-| Type     | string  | Typ des Eintrags                                              |
-| Url      | string  | komplette URL                                                 |
-| Isaudio  | bool    | true wenn es ein Audiofile ist                                |
-| Hasitems | bool    | true wenn unterhalb des Eintrages noch Element vorhanden sind |
+|  Index   |  Typ   |                         Beschreibung                          |
+| :------: | :----: | :-----------------------------------------------------------: |
+|    Id    | string |              Die ID des Eintrags im Format x.x.x              |
+|   Name   | string |                       Name des Eintrags                       |
+|   Type   | string |                       Typ des Eintrags                        |
+|   Url    | string |                         komplette URL                         |
+| Isaudio  |  bool  |                true wenn es ein Audiofile ist                 |
+| Hasitems |  bool  | true wenn unterhalb des Eintrages noch Element vorhanden sind |
 
-## 8. Lizenz
+## 8. Aktionen
 
-## 9. Aktionen
+// TODO  
 
-// TODO
+
+## 9. Anhang
 
 ### 1. Changelog
 
