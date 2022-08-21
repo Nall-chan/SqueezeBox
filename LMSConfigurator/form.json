@@ -10,7 +10,7 @@
                     "name": "Players",
                     "caption": "Players",
                     "delete": true,
-                    "rowCount": 2,
+                    "rowCount": 5,
                     "sort": {
                         "column": "address",
                         "direction": "ascending"
@@ -51,7 +51,7 @@
                     "name": "Alarms",
                     "caption": "Alarms",
                     "delete": true,
-                    "rowCount": 2,
+                    "rowCount": 5,
                     "sort": {
                         "column": "address",
                         "direction": "ascending"
@@ -87,7 +87,7 @@
                     "name": "Battery",
                     "caption": "Battery",
                     "delete": true,
-                    "rowCount": 2,
+                    "rowCount": 5,
                     "sort": {
                         "column": "address",
                         "direction": "ascending"

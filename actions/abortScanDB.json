@@ -1,0 +1,27 @@
+{
+    "id": "{1ECD7225-0564-4133-8614-556D2C63BE73}",
+    "caption": "Abort database scan",
+    "form": [],
+    "action": "LMS_AbortScan($_IPS['TARGET']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{96A9AB3A-2538-42C5-A130-FC34205A706A}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Abort database scan": "Datenbankscan abbrechen",
+            "Cancel ongoing updating of the database.": "Laufende Aktualisierung der Datenbank abbrechen."
+        }
+    },
+    "format": "Abort database scan",
+    "description": "Cancel ongoing updating of the database."
+}

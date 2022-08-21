@@ -1,0 +1,27 @@
+{
+    "id": "{1D2ADF84-6C2E-41C9-AF07-96A96B19ADF7}",
+    "caption": "Stop alarm",
+    "form": [],
+    "action": "LSA_AlarmStop($_IPS['TARGET']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{E7423083-3502-42C8-B244-2852D0BE41D4}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Stop alarm": "Alarm beenden",
+            "Stops the running alarm.": "Stoppt den laufenden Alarm."
+        }
+    },
+    "format": "Stop alarm",
+    "description": "Stops the running alarm."
+}

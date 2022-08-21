@@ -275,14 +275,13 @@ class SqueezeboxDevice extends IPSModule
         } else {
             $this->UnregisterHook('/hook/SqueezeBoxPlaylist' . $this->InstanceID);
         }
-        $this->_SetNewSyncProfil();
-
         //$this->SetStatus(IS_ACTIVE);
         // Wenn Parent aktiv, dann Anmeldung an der Hardware bzw. Datenabgleich starten
         $this->RegisterParent();
         if ($this->HasActiveParent()) {
             $this->IOChangeState(IS_ACTIVE);
         }
+        $this->_SetNewSyncProfil();
     }
 
     /**
@@ -3309,7 +3308,7 @@ class SqueezeboxDevice extends IPSModule
                             $this->_SetSeekable((int) $Data->Value == 1);
                             break;
                         case 'remote':
-                            $this->_SetSeekable((int) $Data->Value != 1);
+                            //$this->_SetSeekable((int) $Data->Value != 1);
                             break;
                         case 'sleep':
                             $this->SetValueInteger('SleepTimer', (int) $Data->Value);

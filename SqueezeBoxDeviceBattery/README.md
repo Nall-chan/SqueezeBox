@@ -83,7 +83,7 @@ Folgende Statusvariablen werden automatisch angelegt.
 ## 6. WebFront
 
 Die direkte Darstellung der Instanz im WebFront:  
-![WebFront Beispiel](imgs/wf.png)  
+![WebFront Beispiel](imgs/wf1.png)  
 
 ## 7. PHP-Befehlsreferenz
 
@@ -99,7 +99,7 @@ oder `false` im Fehlerfall.
 
 Wenn eine 'Squeezebox Battery' Instanz als Ziel einer [`Aktion`](https://www.symcon.de/service/dokumentation/konzepte/automationen/ablaufplaene/aktionen/) ausgewählt wurde, steht folgende Aktion zur Verfügung:  
 
-![Aktionen](imgs/Actions.png)  
+![Aktionen](imgs/actions.png)  
 
 * Status aus dem Gerät auslesen
 

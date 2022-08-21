@@ -260,6 +260,15 @@ oder `false` im Fehlerfall.
 
 ## 8. Aktionen
 
+__Grundsätzlich können alle bedienbaren Statusvariablen als Ziel einer [`Aktion`](https://www.symcon.de/service/dokumentation/konzepte/automationen/ablaufplaene/aktionen/) mit `Auf Wert schalten` angesteuert werden, so das hier keine speziellen Aktionen benutzt werden müssen.__
+
+Dennoch gibt es diverse Aktionen für die `Squeezebox Alarm` Instanz.  
+Wenn so eine Instanz als Ziel einer Aktion ausgewählt wurde, stehen folgende Aktionen zur Verfügung:  
+![Aktionen](imgs/Actions.png)  
+
+// Todo
+
+
 ## 9. Anhang
 
 ### 1. Changelog

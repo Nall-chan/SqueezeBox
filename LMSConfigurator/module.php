@@ -265,11 +265,11 @@ class LMSConfigurator extends IPSModule
         }
 
         $Form['actions'][0]['items'][0]['values'] = $PlayerValues;
-        $Form['actions'][0]['items'][0]['rowCount'] = count($PlayerValues)-2;
+        $Form['actions'][0]['items'][0]['rowCount'] = count($PlayerValues)-1;
         $Form['actions'][1]['items'][0]['values'] = $AlarmValues;
-        $Form['actions'][1]['items'][0]['rowCount'] = count($AlarmValues)-2;
+        $Form['actions'][1]['items'][0]['rowCount'] = count($AlarmValues)-1;
         $Form['actions'][2]['items'][0]['values'] = $BatteryValues;
-        $Form['actions'][2]['items'][0]['rowCount'] = count($BatteryValues)-2;
+        $Form['actions'][2]['items'][0]['rowCount'] = count($BatteryValues)-1;
         $this->SendDebug('FORM', json_encode($Form), 0);
         $this->SendDebug('FORM', json_last_error_msg(), 0);
         return json_encode($Form);

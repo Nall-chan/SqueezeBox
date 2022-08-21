@@ -208,7 +208,7 @@ Liefert `true` bei Erfolg, sonst `false`.
 ```php
 bool LMS_RescanPlaylists(int $InstanzID)
 ```
-Startet einen rescan der Datenbank für die Playlists.  
+Startet einen rescan der Datenbank nach Playlists.  
 Liefert `true` bei Erfolg, sonst `false`.  
 
 ```php
@@ -682,9 +682,26 @@ LMS_GetRadioOrAppDataEx($id,"search",``,`Anime`);
 | Isaudio  |  bool  |                true wenn es ein Audiofile ist                 |
 | Hasitems |  bool  | true wenn unterhalb des Eintrages noch Element vorhanden sind |
 
-## 8. Aktionen
+## 8. Aktionen  
 
-// TODO  
+__Grundsätzlich können alle bedienbaren Statusvariablen als Ziel einer [`Aktion`](https://www.symcon.de/service/dokumentation/konzepte/automationen/ablaufplaene/aktionen/) mit `Auf Wert schalten` angesteuert werden, so das hier keine speziellen Aktionen benutzt werden müssen.__
+
+Dennoch gibt es diverse Aktionen für die `LMS Splitter` Instanz.  
+Wenn so eine Instanz als Ziel einer Aktion ausgewählt wurde, stehen folgende Aktionen zur Verfügung:  
+![Aktionen](imgs/Actions.png)  
+
+- Server neu starten
+  - Der `Logitech Media Server` wird neu gestartet
+- Starte Aktualisierung der Datenbank
+  - Es wird ein nach veränderten Mediendateien gesucht und die Datenbank aktualisiert.
+- Starte Aktualisierung der Wiedergabelisten
+  - Es wird nach neuen / geänderten Wiedergabelisten gesucht und die Datenbank aktualisiert.  
+- Stop Scan
+  - Eine laufende Aktualisierung der Datenbank wird abgebrochen.
+- Lösche Cache
+  - Der Cache der Datenbank wird gelöscht.  
+
+
 
 
 ## 9. Anhang

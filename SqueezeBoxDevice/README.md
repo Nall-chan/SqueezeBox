@@ -707,7 +707,7 @@ TODO
 ```php
 bool LSQ_SetSync(int $InstanzID, int $InstanzIDofMaster)
 ```
-Synchronisiert die `$InstanzeID` mit der Playerintanz welche in `InstanzIDofMaster` übergeben wurde.  
+Synchronisiert die `$InstanzeID` mit der Player-Instanz welche in `InstanzIDofMaster` übergeben wurde.  
 Liefert `true` bei Erfolg, sonst `false`.  
 
 ---  
@@ -729,7 +729,15 @@ Liefert ein Array über alle InstanzIDs welche mit dieser `$InstanzID` synchroni
 
 ## 8. Aktionen
 
-// TODO
+__Grundsätzlich können alle bedienbaren Statusvariablen als Ziel einer [`Aktion`](https://www.symcon.de/service/dokumentation/konzepte/automationen/ablaufplaene/aktionen/) mit `Auf Wert schalten` angesteuert werden, so das hier keine speziellen Aktionen benutzt werden müssen.__
+
+Dennoch gibt es diverse Aktionen für die `Squeezebox Player` Instanz.  
+Wenn so eine Instanz als Ziel einer Aktion ausgewählt wurde, stehen folgende Aktionen zur Verfügung:  
+![Aktionen](imgs/Actions.png)  
+
+ - Synchronisierung starten  
+ - Synchronisierung beenden  
+ // TODO  
 
 ## 9. Anhang
 

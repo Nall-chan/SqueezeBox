@@ -1,0 +1,27 @@
+{
+    "id": "{3FA7FC76-2756-4CEF-B108-7873169AFA74}",
+    "caption": "Stops syncing",
+    "form": [],
+    "action": "LSQ_SetUnSync($_IPS['TARGET']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Stops syncing": "Synchronisierung beenden",
+            "Stops syncing the player.": "Beendet die Synchronisierung des Players."
+        }
+    },
+    "format": "Stops syncing",
+    "description": "Stops syncing the player."
+}

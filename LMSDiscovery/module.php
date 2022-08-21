@@ -146,6 +146,7 @@ class LMSDiscovery extends ipsmodule
         $this->SendDebug('Discover', $this->Translate('Background discovery of Logitech Media Servers'), 0);
         $socket = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
         if (!$socket) {
+            $this->SendDebug('Discover', $this->Translate('Error on create socket'), 0);
             return [];
         }
         socket_set_option($socket, SOL_SOCKET, SO_BROADCAST, 1);

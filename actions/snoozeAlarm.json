@@ -1,0 +1,27 @@
+{
+    "id": "{AAF7048C-A275-47A1-A2A5-7750231D8F20}",
+    "caption": "Snooze alarm",
+    "form": [],
+    "action": "LSA_AlarmSnooze($_IPS['TARGET']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{E7423083-3502-42C8-B244-2852D0BE41D4}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Snooze alarm": "Alarm schlummern.",
+            "Snooze the ongoing alarm.": "Laufenden Wecker schlummern."
+        }
+    },
+    "format": "Snooze alarm",
+    "description": "Snooze the ongoing alarm."
+}
