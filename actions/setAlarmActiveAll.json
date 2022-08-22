@@ -1,0 +1,30 @@
+{
+    "id": "{20F4081F-9FD8-4F38-BD8A-D8741ED383CA}",
+    "caption": "Enable or disable all alarms",
+    "form": [
+        "$Form[]=['type' => 'CheckBox','name'=>'VALUE','caption'=>'Enable ?'];",
+        "return $Form;"
+    ],
+    "action": "LSA_SetAllActive($_IPS['TARGET'], $_IPS['VALUE']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{E7423083-3502-42C8-B244-2852D0BE41D4}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Enable or disable all alarms": "Aktiviere oder deaktiviere alle Alarme",
+            "{VALUE, select, 0 {Deactivate} other {Activate}} all alarms on {TARGET, object}": "{VALUE, select, 0 {Deaktiviere} other {Aktiviere}} alle Alarme von {TARGET, object}"
+        }
+    },
+    "format": "{VALUE, select, 0 {Deactivate} other {Activate}} all alarms on {TARGET, object}",
+    "description": "Enable or disable all alarms"
+}

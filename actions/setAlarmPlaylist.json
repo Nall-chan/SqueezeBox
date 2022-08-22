@@ -1,0 +1,38 @@
+{
+    "id": "{E45798CE-D4B2-486B-85A7-2C2B40F7AC80}",
+    "caption": "Set URL for alarm",
+    "form": [
+        "for ($i=0; $i=<9; $i++) {",
+        "   $Options[] = [",
+        "       'caption'   =>  'Alarm '.$Id,",
+        "       'value'     =>  $Id",
+        "   ];",
+        "}",
+        "$Form[]=['type' => 'Select','name'=>'INDEX','caption'=>'Alarm','options'=>$Options];",
+        "$Form[]=['type' => 'ValidationTextBox','name'=>'URL','caption'=>'URL'];",
+        "return $Form;"
+    ],
+    "action": "LSA_SetPlaylist($_IPS['TARGET'], $_IPS['INDEX'], $_IPS['URL']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{E7423083-3502-42C8-B244-2852D0BE41D4}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Set URL for alarm": "Setzt die URL für den Alarme",
+            "Sets an URL (e.g. playlist, stream, file) for alarm.": "Setzt die URL (z.B. Playlist, Stream, Datei) für einen Alarm.",
+            "Set alarm URL for alarm {INDEX} on {TARGET, object}": "Setzte die URL für den alarm {INDEX} von {TARGET, object}"
+        }
+    },
+    "format": "Set alarm URL for alarm {INDEX} on {TARGET, object}",
+    "description": "Sets an URL (e.g. playlist, stream, file) for alarm."
+}

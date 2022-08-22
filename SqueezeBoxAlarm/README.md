@@ -225,7 +225,7 @@ oder `false` im Fehlerfall.
 bool LSA_SetPlaylist(int $InstanzID, int $AlarmIndex, string $Url)
 ```
 Setzt die Playlist bzw. die Wiedergabe für den Wecker.  
-Die wiederzugebene URL muss in $Url übergeben werden.  
+Die Wiederzugebene URL muss in $Url übergeben werden.  
 Es wird `true` zurückgeben wenn der Befehl vom Server bestätigt wurde,  
 oder `false` im Fehlerfall.  
 

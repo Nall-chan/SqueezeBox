@@ -1,0 +1,31 @@
+{
+    "id": "{498F1D0B-7084-446E-A7AB-F2E33CECBA63}",
+    "caption": "Enable or disable fade",
+    "form": [
+        "$Form[]=['type' => 'CheckBox','name'=>'VALUE','caption'=>'Enable ?'];",
+        "return $Form;"
+    ],
+    "action": "LSA_SetFadeIn($_IPS['TARGET'], $_IPS['VALUE']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{E7423083-3502-42C8-B244-2852D0BE41D4}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Enable or disable fade": "Einblenden aktivieren oder deaktivieren",
+            "Enable or disable fading on alarms.": "Einblenden bei allen Alarmen aktivieren oder deaktivieren.",
+            "{VALUE, select, 0 {Deactivate} other {Activate}} fading of alarms on {TARGET, object}": "Einblenden {VALUE, select, 0 {deaktivieren} other {aktivieren}} bei allen Alarmen von {TARGET, object}"
+        }
+    },
+    "format": "{VALUE, select, 0 {Deactivate} other {Activate}} fading of alarms on {TARGET, object}",
+    "description": "Enable or disable fading on alarms."
+}

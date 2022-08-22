@@ -1,0 +1,44 @@
+{
+    "id": "{1B492DA6-CC23-42EF-9DC1-5004AF449FEC}",
+    "caption": "Enable or disable alarm",
+    "form": [
+        "$Ids = IPS_GetChildrenIDs($_IPS['TARGET']);",
+        "$Options=[];",
+        "for ($i=0; $i=<9; $i++) {",
+        "   $Id = @IPS_GetObjectByIdent($_IPS['TARGET'],'AlarmTime'.$i);",
+        "   if ($Id === false) continue;",
+        "   $Options[] = [",
+        "       'caption'   =>  IPS_GetName($Id),",
+        "       'value'     =>  $Id",
+        "   ];",
+        "}",
+        "sort($Options);",
+        "$Form[]=['type' => 'Select','name'=>'EVENT','caption'=>'Alarm','options'=>$Options];",
+        "$Form[]=['type' => 'CheckBox','name'=>'VALUE','caption'=>'Enable ?'];",
+        "return $Form;"
+    ],
+    "action": "IPS_SetEventActive($_IPS['EVENT'], $_IPS['VALUE']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{E7423083-3502-42C8-B244-2852D0BE41D4}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Activate or deactivate alarm": "Aktiviere oder deaktiviere Alarm",
+            "Activates or deactivates an alarm.": "Aktiviert oder deaktiviert einen Alarm.",
+            "Starts syncing with another player.": "Startet die Synchronisierung mit einem anderen Player.",
+            "{VALUE, select, 0 {Deactivate} other {Activate}} {EVENT, object} on {TARGET, object}": "{VALUE, select, 0 {Deaktiviere} other {Aktiviere}} {EVENT, object} von {TARGET, object}"
+        }
+    },
+    "format": "{VALUE, select, 0 {Deactivate} other {Activate}} {EVENT, object} on {TARGET, object}",
+    "description": "Activates or deactivates an alarm."
+}
