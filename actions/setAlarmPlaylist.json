@@ -28,9 +28,10 @@
     },
     "locale": {
         "de": {
-            "Set URL for alarm": "Setzt die URL für den Alarme",
-            "Sets an URL (e.g. playlist, stream, file) for alarm.": "Setzt die URL (z.B. Playlist, Stream, Datei) für einen Alarm.",
-            "Set alarm URL for alarm {INDEX} on {TARGET, object}": "Setzte die URL für den alarm {INDEX} von {TARGET, object}"
+            "Set URL for alarm": "Setzt die URL für den Wecker",
+            "Alarm": "Wecker",
+            "Sets an URL (e.g. playlist, stream, file) for alarm.": "Setzt die URL (z.B. Playlist, Stream, Datei) für einen Wecker.",
+            "Set alarm URL for alarm {INDEX} on {TARGET, object}": "Setzte die URL für den Wecker {INDEX} von {TARGET, object}"
         }
     },
     "format": "Set alarm URL for alarm {INDEX} on {TARGET, object}",

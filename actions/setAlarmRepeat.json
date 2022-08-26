@@ -1,0 +1,40 @@
+{
+    "id": "{03EDA6F9-8671-4BCD-8D1B-7884EE1C502B}",
+    "caption": "Enable or disable all repeats",
+    "form": [
+        "for ($i=0; $i=<9; $i++) {",
+        "   $Options[] = [",
+        "       'caption'   =>  'Alarm '.$Id,",
+        "       'value'     =>  $Id",
+        "   ];",
+        "}",
+        "$Form[]=['type' => 'Select','name'=>'INDEX','caption'=>'Alarm','options'=>$Options];",
+        "$Form[]=['type' => 'CheckBox','name'=>'VALUE','caption'=>'Enable ?'];",
+        "return $Form;"
+    ],
+    "action": "LSA_SetRepeat($_IPS['TARGET'], $_IPS['INDEX'], $_IPS['VALUE']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{E7423083-3502-42C8-B244-2852D0BE41D4}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Enable or disable repeats": "Wiederholung aktivieren oder deaktiviere",
+            "Alarm": "Wecker",
+            "Enable ?": "Aktivieren ?",
+            "Enable or disable repeats for an alarm": "Wiederholung für einen Wecker aktivieren oder deaktiviere",
+            "{VALUE, select, 0 {Deactivate} other {Activate}} repeat alarm {INDEX} on {TARGET, object}": "{VALUE, select, 0 {Deaktiviere} other {Aktiviere}} Wiederholung des Wecker {INDEX} von {TARGET, object}"
+        }
+    },
+    "format": "{VALUE, select, 0 {Deactivate} other {Activate}} repeat alarm {INDEX} on {TARGET, object}",
+    "description": "Enable or disable repeats for an alarm"
+}

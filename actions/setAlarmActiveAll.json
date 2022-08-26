@@ -21,8 +21,9 @@
     },
     "locale": {
         "de": {
-            "Enable or disable all alarms": "Aktiviere oder deaktiviere alle Alarme",
-            "{VALUE, select, 0 {Deactivate} other {Activate}} all alarms on {TARGET, object}": "{VALUE, select, 0 {Deaktiviere} other {Aktiviere}} alle Alarme von {TARGET, object}"
+            "Enable or disable all alarms": "Aktiviere oder deaktiviere alle Wecker",
+            "Enable ?": "Aktivieren ?",
+            "{VALUE, select, 0 {Deactivate} other {Activate}} all alarms on {TARGET, object}": "{VALUE, select, 0 {Deaktiviere} other {Aktiviere}} aller Wecker von {TARGET, object}"
         }
     },
     "format": "{VALUE, select, 0 {Deactivate} other {Activate}} all alarms on {TARGET, object}",

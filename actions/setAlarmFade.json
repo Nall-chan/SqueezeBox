@@ -22,8 +22,9 @@
     "locale": {
         "de": {
             "Enable or disable fade": "Einblenden aktivieren oder deaktivieren",
-            "Enable or disable fading on alarms.": "Einblenden bei allen Alarmen aktivieren oder deaktivieren.",
-            "{VALUE, select, 0 {Deactivate} other {Activate}} fading of alarms on {TARGET, object}": "Einblenden {VALUE, select, 0 {deaktivieren} other {aktivieren}} bei allen Alarmen von {TARGET, object}"
+            "Enable ?": "Aktivieren ?",
+            "Enable or disable fading on alarms.": "Einblenden bei allen Weckern aktivieren oder deaktivieren.",
+            "{VALUE, select, 0 {Deactivate} other {Activate}} fading of alarms on {TARGET, object}": "Einblenden {VALUE, select, 0 {deaktivieren} other {aktivieren}} bei allen Weckern von {TARGET, object}"
         }
     },
     "format": "{VALUE, select, 0 {Deactivate} other {Activate}} fading of alarms on {TARGET, object}",

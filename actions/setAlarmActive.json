@@ -33,9 +33,10 @@
     },
     "locale": {
         "de": {
-            "Activate or deactivate alarm": "Aktiviere oder deaktiviere Alarm",
-            "Activates or deactivates an alarm.": "Aktiviert oder deaktiviert einen Alarm.",
-            "Starts syncing with another player.": "Startet die Synchronisierung mit einem anderen Player.",
+            "Activate or deactivate alarm": "Aktiviere oder deaktiviere Wecker",
+            "Alarm": "Wecker",
+            "Enable ?": "Aktivieren ?",
+            "Activates or deactivates an alarm.": "Aktiviert oder deaktiviert einen Wecker.",
             "{VALUE, select, 0 {Deactivate} other {Activate}} {EVENT, object} on {TARGET, object}": "{VALUE, select, 0 {Deaktiviere} other {Aktiviere}} {EVENT, object} von {TARGET, object}"
         }
     },
