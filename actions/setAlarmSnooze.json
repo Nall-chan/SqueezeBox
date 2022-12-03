@@ -1,0 +1,32 @@
+{
+    "id": "{04213F9B-0B23-493D-92CB-BA389A29A857}",
+    "caption": "Sets snooze time for all alarms",
+    "form": [
+        "$Form[]=['type' => 'NumberSpinner','name'=>'SECONDS','caption'=>'Seconds','suffix'=>' seconds','minimum'=>0];",
+        "return $Form;"
+    ],
+    "action": "LSA_SetSnoozeSeconds($_IPS['TARGET'], $_IPS['SECONDS']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{E7423083-3502-42C8-B244-2852D0BE41D4}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Sets snooze time for all alarms": "Setzt Schlummerzeit für alle Wecker",
+            "Seconds": "Sekunden",
+            " seconds": " Sekunden",
+            "{SECONDS, select, 0 {Deactivate snooze time} other {Sets snooze time to {SECONDS}}} {SECONDS, select, 1 {second} other {seconds}} for all alarms on {TARGET, object}": "{SECONDS, select, 0 {Deaktiviere Schlummerzeit} other {Setzte Schlummerzeit für alle Wecker auf {SECONDS}}} {SECONDS, select, 1 {Sekunde} other {Sekunden}} von {TARGET, object}"
+        }
+    },
+    "format": "{SECONDS, select, 0 {Deactivate snooze time} other {Sets snooze time to {SECONDS}}} {SECONDS, select, 1 {second} other {seconds}} for all alarms on {TARGET, object}",
+    "description": "Sets snooze time for all alarms"
+}

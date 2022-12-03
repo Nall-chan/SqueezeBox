@@ -8,9 +8,9 @@ declare(strict_types=1);
  * @package       Squeezebox
  * @file          module.php
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2020 Michael Tröger
+ * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.61
+ * @version       3.70
  *
  */
 eval('declare(strict_types=1);namespace SqueezeboxBattery {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableHelper.php') . '}');
@@ -48,10 +48,10 @@ class AutoLoaderSqueezeboxBatteryPHPSecLib
  * Erweitert IPSModule.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2020 Michael Tröger
+ * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.61
+ * @version       3.70
  *
  * @example <b>Ohne</b>
  */
@@ -69,7 +69,8 @@ class SqueezeboxBattery extends IPSModule
         //Never delete this line!
         parent::Create();
         $this->ConnectParent('{96A9AB3A-2538-42C5-A130-FC34205A706A}');
-        $this->SetReceiveDataFilter('.*"Address":"".*');
+        $this->SetReceiveDataFilter('.*"Address":"NOTHING".*');
+        $this->RegisterPropertyBoolean('Active', true);
         $this->RegisterPropertyString('Address', '');
         $this->RegisterPropertyInteger('Interval', 30);
         $this->RegisterPropertyString('Password', '1234');
@@ -81,7 +82,7 @@ class SqueezeboxBattery extends IPSModule
      */
     public function ApplyChanges()
     {
-        $this->SetReceiveDataFilter('.*"Address":"".*');
+        $this->SetReceiveDataFilter('.*"Address":"NOTHING".*');
 
         //Never delete this line!
         parent::ApplyChanges();
@@ -127,6 +128,15 @@ class SqueezeboxBattery extends IPSModule
             return;
         }
         $this->SetSummary($Address);
+        if (!$this->ReadPropertyBoolean('Active')) {
+            $this->SetStatus(IS_INACTIVE);
+            $this->SetTimerInterval('RequestState', 0);
+            return;
+        }
+        if (IPS_GetKernelRunlevel() != KR_READY) {
+            $this->RegisterMessage(0, IPS_KERNELSTARTED);
+            return;
+        }
         if ($this->ReadPropertyInteger('Interval') >= 30) {
             $this->SetStatus(IS_ACTIVE);
             $this->SetTimerInterval('RequestState', $this->ReadPropertyInteger('Interval') * 1000);
@@ -139,13 +149,21 @@ class SqueezeboxBattery extends IPSModule
 
             $this->SetTimerInterval('RequestState', 0);
         }
-
-        if (IPS_GetKernelRunlevel() != KR_READY) {
-            return;
-        }
         $this->RequestState();
     }
 
+    /**
+     * Interne Funktion des SDK.
+     */
+    public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
+    {
+        switch ($Message) {
+            case IPS_KERNELSTARTED:
+                $this->UnregisterMessage(0, IPS_KERNELSTARTED);
+                $this->ApplyChanges();
+                break;
+        }
+    }
     //################# PUBLIC
 
     /**
@@ -156,6 +174,9 @@ class SqueezeboxBattery extends IPSModule
      */
     public function RequestState()
     {
+        if (!$this->ReadPropertyBoolean('Active')) {
+            return;
+        }
         $Address = trim($this->ReadPropertyString('Address'));
         if ($Address == '') {
             return false;
@@ -218,7 +239,7 @@ class SqueezeboxBattery extends IPSModule
         $this->SendDebug('Disconnect', '', 0);
         return true;
     }
-    
+
     protected function ModulErrorHandler($errno, $errstr)
     {
         if (!(error_reporting() & $errno)) {
@@ -227,7 +248,7 @@ class SqueezeboxBattery extends IPSModule
         }
         $this->SendDebug('ERROR', utf8_decode($errstr), 0);
         echo $errstr . "\r\n";
-    }    
+    }
 }
 
 /* @} */

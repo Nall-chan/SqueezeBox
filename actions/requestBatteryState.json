@@ -1,0 +1,27 @@
+{
+    "id": "{9B562095-F33E-449A-9C39-02228AB2C90F}",
+    "caption": "Request state",
+    "form": [],
+    "action": "LSQB_RequestState($_IPS['TARGET']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{718158BB-B247-4A71-9440-9C2FF1378752}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Request state": "Status auslesen",
+            "Request the state from device.": "Status aus dem Gerät auslesen."
+        }
+    },
+    "format": "Request the state from device.",
+    "description": "Request the state from device."
+}

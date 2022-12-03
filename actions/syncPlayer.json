@@ -1,0 +1,44 @@
+{
+    "id": "{40A4FEE4-CCC6-478A-93C8-0D146E01BEEC}",
+    "caption": "Start syncing",
+    "form": [
+        "$parentId = IPS_GetInstance($_IPS['TARGET'])['ConnectionID'];",
+        "$Ids = IPS_GetInstanceListByModuleID('{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}');",
+        "$Options=[];",
+        "foreach ($Ids as $Id) {",
+        "   if ($Id == $_IPS['TARGET']) continue;",
+        "   if (IPS_GetInstance($Id)['ConnectionID'] != $parentId) continue;",
+        "   $Options[] = [",
+        "       'caption'   =>  IPS_GetName($Id),",
+        "       'value'     =>  $Id",
+        "   ];",
+        "}",
+        "sort($Options);",
+        "$Form[]=['type' => 'Select','name'=>'PLAYER','caption'=>'Sync with','options'=>$Options];",
+        "return $Form;"
+    ],
+    "action": "LSQ_SetSync($_IPS['TARGET'], $_IPS['PLAYER']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Start syncing": "Synchronisierung starten",
+            "Sync with": "Synchronisiere mit",
+            "Starts syncing with another player.": "Startet die Synchronisierung mit einem anderen Player.",
+            "{TARGET, object} will starts syncing with {PLAYER, object}": "{TARGET, object} startet die Synchronisierung mit {PLAYER, object}"
+        }
+    },
+    "format": "{TARGET, object} will starts syncing with {PLAYER, object}",
+    "description": "Starts syncing with another player."
+}

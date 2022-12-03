@@ -8,9 +8,9 @@ declare(strict_types=1);
  * @package       Squeezebox
  * @file          module.php
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2020 Michael Tröger
+ * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.61
+ * @version       3.70
  *
  */
 
@@ -348,10 +348,10 @@ class LSA_AlarmList
  * Erweitert IPSModule.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2020 Michael Tröger
+ * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.61
+ * @version       3.70
  *
  * @example <b>Ohne</b>
  *
@@ -397,7 +397,7 @@ class SqueezeboxAlarm extends IPSModule
     {
         parent::Create();
         $this->ConnectParent('{96A9AB3A-2538-42C5-A130-FC34205A706A}');
-        $this->SetReceiveDataFilter('.*(?=.*"Address":"".*)(?=(.*"Command":\["alarm.*)|(.*"Command":\["client".*)|(.*"Command":\["playerpref","alarm.*)|(.*"Command":\["prefset","server","alarm.*)).*');
+        $this->SetReceiveDataFilter('.*"Address":"","Command":\["(alarm.*|client".*|playerpref","alarm.*|prefset","server","alarm.*)');
         $this->RegisterPropertyString('Address', '');
         $this->RegisterPropertyBoolean('dynamicDisplay', false);
         $this->RegisterPropertyBoolean('showAdd', true);
@@ -430,7 +430,8 @@ class SqueezeboxAlarm extends IPSModule
      */
     public function ApplyChanges()
     {
-        $this->SetReceiveDataFilter('.*(?=.*"Address":"".*)(?=(.*"Command":\["alarm.*)|(.*"Command":\["client".*)|(.*"Command":\["playerpref","alarm.*)|(.*"Command":\["prefset","server","alarm.*)).*');
+        $this->SetReceiveDataFilter('.*"Address":"","Command":\["(alarm.*|client".*|playerpref","alarm.*|prefset","server","alarm.*)');
+
         $this->RegisterMessage(0, IPS_KERNELSTARTED);
         $this->RegisterMessage($this->InstanceID, FM_CONNECT);
         $this->RegisterMessage($this->InstanceID, FM_DISCONNECT);
@@ -467,7 +468,8 @@ class SqueezeboxAlarm extends IPSModule
         }
 
         // Adresse als Filter setzen
-        $this->SetReceiveDataFilter('.*(?=.*"Address":"' . $Address . '".*)(?=(.*"Command":\["alarm.*)|(.*"Command":\["client".*)|(.*"Command":\["playerpref","alarm.*)|(.*"Command":\["prefset","server","alarm.*)).*');
+        $this->SetReceiveDataFilter('.*"Address":"' . $Address . '","Command":\["(alarm.*|client".*|playerpref","alarm.*|prefset","server","alarm.*)');
+
         $this->SetSummary($Address);
 
         // Profile anlegen
@@ -723,7 +725,7 @@ class SqueezeboxAlarm extends IPSModule
             set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($this->Translate('Player not connected'), E_USER_NOTICE);
             restore_error_handler();
-        return false;
+            return false;
         }
         return $this->DecodeLMSResponse($LMSResponse);
     }
@@ -982,7 +984,7 @@ class SqueezeboxAlarm extends IPSModule
         if ($Alarm === false) {
             set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error(sprintf($this->Translate('%s out of range.'), 'AlarmIndex'), E_USER_NOTICE);
-            restore_error_handler();            
+            restore_error_handler();
             return false;
         }
         $LMSData = $this->SendDirect(new LMSData(['alarm', 'update'], ['id:' . $Alarm->Id, 'repeat:' . (int) $Value]));
@@ -1006,7 +1008,7 @@ class SqueezeboxAlarm extends IPSModule
         if (($Value < 0) || ($Value > 100)) {
             set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
-            restore_error_handler();            
+            restore_error_handler();
             return false;
         }
         $Alarms = $this->Alarms;
@@ -1014,7 +1016,7 @@ class SqueezeboxAlarm extends IPSModule
         if ($Alarm === false) {
             set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error(sprintf($this->Translate('%s out of range.'), 'AlarmIndex'), E_USER_NOTICE);
-            restore_error_handler();            
+            restore_error_handler();
             return false;
         }
         $LMSData = $this->SendDirect(new LMSData(['alarm', 'update'], ['id:' . $Alarm->Id, 'volume:' . (int) $Value]));
@@ -1119,13 +1121,13 @@ class SqueezeboxAlarm extends IPSModule
             default:
                 set_error_handler([$this, 'ModulErrorHandler']);
                 trigger_error($this->Translate('Invalid ident'), E_USER_NOTICE);
-                restore_error_handler();            
+                restore_error_handler();
                 return;
         }
         if ($result == false) {
             set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($this->Translate('Error on Execute Action'), E_USER_NOTICE);
-            restore_error_handler();            
+            restore_error_handler();
         }
     }
 
@@ -1153,6 +1155,7 @@ class SqueezeboxAlarm extends IPSModule
      */
     protected function KernelReady()
     {
+        $this->UnregisterMessage(0, IPS_KERNELSTARTED);
         $this->ApplyChanges();
     }
 
@@ -1283,9 +1286,19 @@ class SqueezeboxAlarm extends IPSModule
             $this->SendDebug('Receive Direct', $ex->getMessage(), 0);
             set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($ex->getMessage(), $ex->getCode());
-            restore_error_handler();            
+            restore_error_handler();
         }
         return null;
+    }
+
+    protected function ModulErrorHandler($errno, $errstr)
+    {
+        if (!(error_reporting() & $errno)) {
+            // Dieser Fehlercode ist nicht in error_reporting enthalten
+            return true;
+        }
+        $this->SendDebug('ERROR', utf8_decode($errstr), 0);
+        echo $errstr . "\r\n";
     }
 
     //################# PRIVATE
@@ -1772,7 +1785,9 @@ class SqueezeboxAlarm extends IPSModule
                         if (array_key_exists('Dow', $Data)) {
                             $Alarm->Dow = $Data['Dow'];
                         }
-
+                        if (array_key_exists('Volume', $Data)) {
+                            $Alarm->Volume = $Data['Volume'];
+                        }
                         if (array_key_exists('Time', $Data)) {
                             $Alarm->Time = $Data['Time'];
                         }
@@ -1902,20 +1917,10 @@ class SqueezeboxAlarm extends IPSModule
         } catch (Exception $exc) {
             set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($exc->getMessage(), E_USER_NOTICE);
-            restore_error_handler();            
+            restore_error_handler();
             return null;
         }
     }
-
-    protected function ModulErrorHandler($errno, $errstr)
-    {
-        if (!(error_reporting() & $errno)) {
-            // Dieser Fehlercode ist nicht in error_reporting enthalten
-            return true;
-        }
-        $this->SendDebug('ERROR', utf8_decode($errstr), 0);
-        echo $errstr . "\r\n";
-    }    
 }
 
 /* @} */

@@ -1,0 +1,27 @@
+{
+    "id": "{6AECA3CF-DB89-4054-B7F6-D7E8D874C187}",
+    "caption": "Start database update",
+    "form": [],
+    "action": "LMS_Rescan($_IPS['TARGET']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{96A9AB3A-2538-42C5-A130-FC34205A706A}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Start database update": "Datenbank Aktualisierung starten",
+            "Start updating the database.": "Aktualisierung der Datenbank starten."
+        }
+    },
+    "format": "Start database update",
+    "description": "Start updating the database."
+}

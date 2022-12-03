@@ -4,9 +4,9 @@
     "name": "Squeezebox Library",
     "url": "https://github.com/Nall-chan/Squeezebox",
     "compatibility": {
-        "version": "5.3"
+        "version": "6.1"
     },
-    "version": "3.61",
-    "build": 362,
-    "date": 1609865888 
+    "version": "3.70",
+    "build": 370,
+    "date": 1669997933
 }

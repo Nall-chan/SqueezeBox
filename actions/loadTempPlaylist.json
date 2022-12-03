@@ -1,0 +1,28 @@
+{
+    "id": "{BA3F953E-F3B1-47DE-A51C-C21128A5DC7F}",
+    "caption": "Load temporary playlist",
+    "form": [],
+    "action": "LSQ_LoadTempPlaylist($_IPS['TARGET']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Load temporary playlist": "Lade temporäre Playlist",
+            "Load a temporary saved playlist": "Lade eine temporär gespeicherte Playlist",
+            "Load a temporary saved playlist from {TARGET, object} and continue playing.": "Lade eine temporär gespeicherte Playlist von {TARGET, object} und setze die wiedergabe fort."
+        }
+    },
+    "format": "Load a temporary saved playlist from {TARGET, object} and continue playing.",
+    "description": "Load a temporary saved playlist"
+}

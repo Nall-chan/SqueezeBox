@@ -1,0 +1,27 @@
+{
+    "id": "{87380B1D-1E97-4E08-8D18-770F56E33665}",
+    "caption": "Restart LMS",
+    "form": [],
+    "action": "LMS_RestartServer($_IPS['TARGET']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{96A9AB3A-2538-42C5-A130-FC34205A706A}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Restart LMS": "LMS neustarten",
+            "Restart the Logitech Media Server.": "Neustart des Logitech Media Servers."
+        }
+    },
+    "format": "Restart LMS",
+    "description": "Restart the Logitech Media Server."
+}

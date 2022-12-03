@@ -12,9 +12,9 @@ require_once __DIR__ . '/TimeConvert.php';  // diverse Klassen
  * @package       Squeezebox
  * @file          SqueezeBoxClass.php
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2020 Michael Tröger
+ * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.61
+ * @version       3.70
  *
  */
 
@@ -36,7 +36,7 @@ trait LSQProfile
             [4, $this->Translate('Next'), '', -1]
         ]);
         $this->RegisterProfileInteger('LSQ.Intensity', 'Intensity', '', ' %', 0, 100, 1);
-        $this->RegisterProfileInteger('LSQ.Volume', 'Speaker', '', ' %', 0, 100, 1);        
+        $this->RegisterProfileInteger('LSQ.Volume', 'Speaker', '', ' %', 0, 100, 1);
         $this->RegisterProfileInteger('LSQ.Pitch', 'Intensity', '', ' %', 80, 120, 1);
         $this->RegisterProfileIntegerEx('LSQ.Shuffle', 'Shuffle', '', '', [
             [0, $this->Translate('Off'), '', -1],
@@ -123,10 +123,10 @@ trait LMSProfile
  * Definiert eine Datensatz zum Versenden an des LMS.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2016 Michael Tröger
+ * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       1.0
+ * @version       3.70
  *
  * @example <b>Ohne</b>
  */
@@ -282,10 +282,10 @@ class LMSData extends stdClass
  * Klasse mit den Empfangenen Daten vom LMS.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2016 Michael Tröger
+ * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       1.0
+ * @version       3.70
  *
  * @example <b>Ohne</b>
  */
@@ -454,10 +454,10 @@ class LMSResponse extends LMSData
  * Zerlegt einen getaggten Datensatz in Name und Wert.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2016 Michael Tröger
+ * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       1.0
+ * @version       3.70
  *
  * @example <b>Ohne</b>
  */
@@ -487,11 +487,6 @@ class LMSTaggingData extends stdClass
         } else {
             $this->Value = array_shift($Part);
         }
-        if (is_numeric($this->Value)) {
-            $this->Value = (int) $this->Value;
-        } else {
-            $this->Value = (string) $this->Value;
-        }
     }
 }
 
@@ -499,10 +494,10 @@ class LMSTaggingData extends stdClass
  * Zerlegt einen Array aus getaggten Datensätzen.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2016 Michael Tröger
+ * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       1.0
+ * @version       3.70
  *
  * @example <b>Ohne</b>
  */
@@ -602,7 +597,7 @@ class LMSTaggingArray extends stdClass
             $Part = new LMSTaggingData($Line);
             if ($UseIDs) {
                 if ($Part->Name == 'id') {
-                    if (is_numeric($Part->Value)) {
+                    if (strpos($Part->Value, '.') === false) {
                         $id = (int) $Part->Value;
                     } else {
                         $id = rawurldecode($Part->Value);
@@ -697,10 +692,10 @@ class LMSTaggingArray extends stdClass
  * Zerlegt einen Array aus getaggten Datensätzen zu SongInfos.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2016 Michael Tröger
+ * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       1.0
+ * @version       3.70
  *
  * @example <b>Ohne</b>
  */

@@ -1,0 +1,32 @@
+{
+    "id": "{A93B3683-170B-41F2-9820-B699CB03EB16}",
+    "caption": "Switch mute",
+    "form": [
+        "$Form[]=['type' => 'CheckBox','name'=>'VALUE','caption'=>'Enable ?'];",
+        "return $Form;"
+    ],
+    "action": "LSQ_SetMute($_IPS['TARGET'], $_IPS['VALUE']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Switch mute": "Schalte Stummschaltung",
+            "Mute or unmute device.": "Gerät stummschalten oder Stummschaltung aufheben.",
+            "Enable ?": "Aktivieren ?",
+            "Switch {TARGET, object} mute {VALUE, select, 0 {off} other {on}}": "Stummschaltung {TARGET, object} {VALUE, select, 0 {aufheben} other {aktivieren}}"
+        }
+    },
+    "format": "Switch {TARGET, object} mute {VALUE, select, 0 {off} other {on}}",
+    "description": "Mute or unmute device."
+}

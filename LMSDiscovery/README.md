@@ -1,9 +1,9 @@
-[![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20Version-3.61-blue.svg)]()
-[![Version](https://img.shields.io/badge/Symcon%20Version-5.3%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857)  
+[![SDK](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
+[![Version](https://img.shields.io/badge/Modul%20Version-3.70-blue.svg)](https://community.symcon.de/t/modul-squeezebox-release/46937)
+[![Version](https://img.shields.io/badge/Symcon%20Version-6.1%20%3E-green.svg)](https://www.symcon.de/service/dokumentation/installation/migrationen/v60-v61-q1-2022/)  
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Check Style](https://github.com/Nall-chan/SqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/SqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions)  
-[![Spenden](https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_SM.gif)](../README.md#6-spenden) 
+[![Spenden](https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_SM.gif)](#2-spenden) 
 # Logitech Media Server Discovery  <!-- omit in toc -->
 Sucht Logitech Media Server im Netzwerk  
 
@@ -18,7 +18,11 @@ Sucht Logitech Media Server im Netzwerk
 - [5. Statusvariablen und Profile](#5-statusvariablen-und-profile)
 - [6. WebFront](#6-webfront)
 - [7. PHP-Befehlsreferenz](#7-php-befehlsreferenz)
-- [8. Lizenz](#8-lizenz)
+- [8. Aktionen](#8-aktionen)
+- [9. Anhang](#9-anhang)
+  - [1. Changelog](#1-changelog)
+  - [2. Spenden](#2-spenden)
+- [10. Lizenz](#10-lizenz)
 
 ## 1. Funktionsumfang
 
@@ -27,7 +31,7 @@ Sucht Logitech Media Server im Netzwerk
 
 ## 2. Voraussetzungen
 
- - IPS 5.3 oder höher
+ - IP-Symcon ab Version 6.1
  - Logitech Media Server (getestet ab 7.9.x)
 
 ## 3. Software-Installation
@@ -36,28 +40,58 @@ Sucht Logitech Media Server im Netzwerk
 
 ## 4. Verwendung
 
+<span style="color:red">**Hinweis**</span>  
+~~~~
+Über einen Netzwerk Broadcast wird versucht alle im Netzwerk vorhandenen `Logitech Media Server` aufzufinden.  
+
+Werden Symcon und der `Logitech Media Server` allerdings in verschiedenen (gerouteten) Netzwerkren betrieben, oder z.B. Symcon hinter einer NAT, so wird in der Regel kein `Logitech Media Server` gefunden.  
+
+Der [Squeezebox Konfigurator](LMSConfigurator/) muss in dieser Konstellation per Hand angelegt und sein dazugehöriger [LMS Splitter](LMSSplitter/) manuell konfiguriert werden.  
+~~~~  
+
 Nach der installation des Moduls, erfolgt eine Aufforderung von der Konsole diese `Discovery Instanz` zu erstellen.  
 Bei der manuellen Einrichtung ist die Instanz im Dialog `Instanz hinzufügen` unter dem Hersteller `Logitech` zu finden.  
 ![Instanz hinzufügen](imgs/add1.png)  
 Die Instanz `Logitech Media Server Discovery` wird im Objektbaum unter `Discovery Instanzen` einsortiert.  
 Beim dem Öffnen der Instanz, werden alle im Netzwerk gefundenen `Logitech Media Server` aufgelistet.  
 ![Instanz hinzufügen](imgs/conf1.png)  
-Über das selektieren eines Servers in der Tabelle und betätigen des dazugehörigen `Erstellen` Button, wird ein entsprechender [Logitech Media Server Konfigurator](../LMSConfigurator/README.md) inklusive `Client Socket` in IPS angelegt.  
+
+Über das selektieren eines Servers in der Tabelle und betätigen des dazugehörigen `Erstellen` Button, wird ein entsprechender [Logitech Media Server Konfigurator](../LMSConfigurator/README.md) inklusive `LMS Splitter` und `Client Socket` in IPS angelegt.  
 Mit dieser `Konfigurator Instanz` können dann die einzelnen `Geräte Instanzen` in IPS erzeugt werden.   
 
 ## 5. Statusvariablen und Profile
 
-Der Konfigurator besitzt keine Statusvariablen und Variablenprofile.  
+Die Discovery Instanz besitzt keine Statusvariablen und Variablenprofile.  
 
 ## 6. WebFront
 
-Der Konfigurator besitzt keine im WebFront darstellbaren Elemente.  
+Die Discovery Instanz besitzt keine im WebFront darstellbaren Elemente.  
 
 ## 7. PHP-Befehlsreferenz
 
-Der Konfigurator besitzt keine Instanz-Funktionen.  
+Die Discovery Instanz besitzt keine Instanz-Funktionen.  
 
-## 8. Lizenz
+## 8. Aktionen
+
+Die Discovery Instanz unterstützt keine Aktionen.  
+
+## 9. Anhang
+
+### 1. Changelog
+
+[Changelog der Library](../README.md#3-changelog)
+
+### 2. Spenden
+
+Die Library ist für die nicht kommerzielle Nutzung kostenlos, Schenkungen als Unterstützung für den Autor werden hier akzeptiert:  
+
+  PayPal:  
+<a href="https://www.paypal.com/donate?hosted_button_id=G2SLW2MEMQZH2" target="_blank"><img src="https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_LG.gif" border="0" /></a>  
+
+  Wunschliste:  
+<a href="https://www.amazon.de/hz/wishlist/ls/YU4AI9AQT9F?ref_=wl_share" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/4/4a/Amazon_icon.svg" border="0" width="100"/></a>  
+
+## 10. Lizenz
 
   IPS-Modul:  
   [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)  

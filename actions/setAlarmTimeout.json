@@ -1,0 +1,32 @@
+{
+    "id": "{02201234-F9DC-4349-8E18-672BA2BCCAF7}",
+    "caption": "Set time for automatically stop alarm",
+    "form": [
+        "$Form[]=['type' => 'NumberSpinner','name'=>'SECONDS','caption'=>'Seconds','suffix'=>' seconds','minimum'=>0];",
+        "return $Form;"
+    ],
+    "action": "LSA_SetTimeout($_IPS['TARGET'], $_IPS['SECONDS']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{E7423083-3502-42C8-B244-2852D0BE41D4}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Set time for automatically stop alarm": "Zeit setzen um Wecker automatisch zu beenden",
+            "Seconds": "Sekunden",
+            " seconds": " Sekunden",
+            "{SECONDS, select, 0 {Deactivate automatically stop} other {Sets automatically stop time to {SECONDS}}} {SECONDS, select, 1 {second} other {seconds}} for all alarms on {TARGET, object}": "{SECONDS, select, 0 {Deaktiviere automatisches beenden aller Wecker} other {Setzte automatisches beenden für alle Wecker auf {SECONDS}}} {SECONDS, select, 1 {Sekunde} other {Sekunden}} von {TARGET, object}"
+        }
+    },
+    "format": "{SECONDS, select, 0 {Deactivate automatically stop} other {Sets automatically stop time to {SECONDS}}} {SECONDS, select, 1 {second} other {seconds}} for all alarms on {TARGET, object}",
+    "description": "Set time for automatically stop alarm"
+}

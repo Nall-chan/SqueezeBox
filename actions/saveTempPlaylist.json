@@ -1,0 +1,27 @@
+{
+    "id": "{DC1DC2B1-53A1-4947-AF86-923778193173}",
+    "caption": "Save temporary playlist",
+    "form": [],
+    "action": "LSQ_SaveTempPlaylist($_IPS['TARGET']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Save temporary playlist": "Speicher temporäre Playlist",
+            "Save current playlist of {TARGET, object} temporary.": "Speicher aktuelle Playlist von {TARGET, object} temporär."
+        }
+    },
+    "format": "Save current playlist of {TARGET, object} temporary.",
+    "description": "Save temporary playlist"
+}
