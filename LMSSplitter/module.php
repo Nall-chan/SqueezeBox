@@ -173,7 +173,7 @@ class LMSSplitter extends IPSModule
 
         // Wenn Parent aktiv, dann Anmeldung an der Hardware bzw. Datenabgleich starten
         if ($this->ParentID > 0) {
-            IPS_ApplyChanges($this->ParentID);
+            $this->IOChangeState(IS_ACTIVE);
         }
     }
 
@@ -182,6 +182,7 @@ class LMSSplitter extends IPSModule
      */
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
     {
+        //$this->LogMessage('MessageSink(' . $SenderID . '):' . $Message, KL_DEBUG);
         $this->IOMessageSink($TimeStamp, $SenderID, $Message, $Data);
 
         switch ($Message) {
@@ -1529,6 +1530,7 @@ class LMSSplitter extends IPSModule
      */
     protected function KernelReady()
     {
+        $this->UnregisterMessage(0, IPS_KERNELSTARTED);
         $this->ApplyChanges();
     }
 
@@ -1578,7 +1580,7 @@ class LMSSplitter extends IPSModule
                 return;
             }
         }
-        $this->SetStatus(IS_INACTIVE); // Setzen wir uns auf active, weil wir vorher eventuell im Fehlerzustand waren.
+        $this->SetStatus(IS_INACTIVE); // Setzen wir uns auf inactive, weil wir vorher eventuell im Fehlerzustand waren.
         $this->SetTimerInterval('KeepAlive', 0);
         $this->ReloadForm();
     }

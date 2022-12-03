@@ -1155,6 +1155,7 @@ class SqueezeboxAlarm extends IPSModule
      */
     protected function KernelReady()
     {
+        $this->UnregisterMessage(0, IPS_KERNELSTARTED);
         $this->ApplyChanges();
     }
 
@@ -1784,7 +1785,9 @@ class SqueezeboxAlarm extends IPSModule
                         if (array_key_exists('Dow', $Data)) {
                             $Alarm->Dow = $Data['Dow'];
                         }
-
+                        if (array_key_exists('Volume', $Data)) {
+                            $Alarm->Volume = $Data['Volume'];
+                        }
                         if (array_key_exists('Time', $Data)) {
                             $Alarm->Time = $Data['Time'];
                         }

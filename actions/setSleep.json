@@ -1,0 +1,32 @@
+{
+    "id": "{BE80D8FA-06C1-4C55-A5B9-74D85D42D02C}",
+    "caption": "Set sleep timer",
+    "form": [
+        "$Form[]=['type' => 'NumberSpinner','name'=>'SECONDS','caption'=>'Seconds','suffix'=>' seconds','minimum'=>0,'maximum'=>5400];",
+        "return $Form;"
+    ],
+    "action": "LSQ_SetSleep($_IPS['TARGET'], $_IPS['SECONDS']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Set sleep timer": "Sleep-Timer einstellen",
+            "Seconds": "Sekunden",
+            " seconds": " Sekunden",
+            "{SECONDS, select, 0 {Deactivate sleep timer on {TARGET, object}} other {Sets sleep timer on {TARGET, object} to {SECONDS}}}": "{SECONDS, select, 0 {Deaktiviere Einschlaftimer für {TARGET, object}} other {Setzte Einschlaftimer für {TARGET, object} auf {SECONDS}}}"
+        }
+    },
+    "format": "{SECONDS, select, 0 {Deactivate sleep timer on {TARGET, object}} other {Sets sleep timer on {TARGET, object} to {SECONDS}}}",
+    "description": "Set sleep timer"
+}

@@ -1,0 +1,39 @@
+{
+    "id": "{8B0FACE5-6F9B-442C-A555-FC262C01F433}",
+    "caption": "Set alarm volume",
+    "form": [
+        "for ($i=0; $i<10; $i++) {",
+        "   $Options[] = [",
+        "       'caption'   =>  'Alarm '.($i+1),",
+        "       'value'     =>  $i",
+        "   ];",
+        "}",
+        "$Form[]=['type' => 'Select','name'=>'INDEX','caption'=>'Alarm','options'=>$Options];",
+        "$Form[]=['type' => 'NumberSpinner','name'=>'VALUE','caption'=>'Volume','suffix'=>' %','minimum'=>0,'maximum'=>100];",
+        "return $Form;"
+    ],
+    "action": "LSA_SetVolume($_IPS['TARGET'], $_IPS['INDEX'], $_IPS['VALUE']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{E7423083-3502-42C8-B244-2852D0BE41D4}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Set alarm volume": "Setze Lautstärke des Wecker",
+            "Alarm": "Wecker",
+            "Volume": "Lautstärke",
+            "Set volume to {VALUE}% for alarm {INDEX} on {TARGET, object}": "Setze Lautstärke auf {VALUE}% für Wecker {INDEX} von {TARGET, object}"
+        }
+    },
+    "format": "Set volume to {VALUE}% for alarm {INDEX} on {TARGET, object}",
+    "description": "Set alarm volume"
+}

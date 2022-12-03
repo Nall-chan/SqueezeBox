@@ -1,0 +1,38 @@
+{
+    "id": "{5C33A96A-DD22-43F4-9F17-E6D61A4CB16F}",
+    "caption": "Sets shuffle",
+    "form": [
+        "$Options=[",
+        "   ['caption'=>'Off','value'=>0],",
+        "   ['caption'=>'Title','value'=>1],",
+        "   ['caption'=>'Album','value'=>2]",
+        "];",
+        "$Form[]=['type' => 'Select','name'=>'VALUE','caption'=>'Shuffle','options'=>$Options];",
+        "return $Form;"
+    ],
+    "action": "LSQ_SetShuffle($_IPS['TARGET'], $_IPS['VALUE']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Sets shuffle": "Setze Zufallsmodus",
+            "Off": "Aus",
+            "Title": "Titel",
+            "Shuffle": "Zufallsmodus",
+            "Set shuffle on {TARGET, object} to {VALUE, select, 0 {off} other {{VALUE, select, 1 {Title} other {Album}}}}.": "Setze Zufallsmodus von {TARGET, object} auf {VALUE, select, 0 {aus} other {{VALUE, select, 1 {Titel} other {Album}}}}."
+        }
+    },
+    "format": "Set shuffle on {TARGET, object} to {VALUE, select, 0 {off} other {{VALUE, select, 1 {Title} other {Album}}}}.",
+    "description": "Sets shuffle"
+}

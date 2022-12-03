@@ -129,12 +129,14 @@ Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:
 
 Version 3.70:  
  - Batterie-Instanzen können deaktiviert werden.  
- - RegEx Fehler in Alarm/Wecker Instanzen führe zu Fehler.  
+ - RegEx Fehler in Alarm/Wecker Instanzen führte zu Fehlermeldungen.  
+ - Änderungen der Alarmlautstärke von einem Alarm wurde in den Alarm/Wecker Instanzen nicht nachgeführt.  
  - Discovery Instanz meldet wenn bei aktiven NAT kein Server gefunden wurde.  
  - Bei der Wiedergabe von Remote-Quellen wurde die Positions-Variable nicht verändert, auch wenn die Remote-Quelle das Spulen/Suchen erlaubt hat.  
  - Konvertierungsfehler sorgte für falsche/unvollständige Ausgaben bei LMS_GetFavorites.  
  - Sync Variablen in den Player-Instanzen zeigte die verfügbaren Player nicht zuverlässig an.  
- - Aktionen für Batterie und Splitter-Instanzen.  
+ - Aktionen für Player, Batterie, Wecker/Alarm und Splitter-Instanzen.  
+ - Splitter hat sich beim starten von Symcon mehrfach verbunden.  
 
 Version 3.63: 
  - Neue Statusvariablen in den Player-Instanzen für `Dauer in Sekunden` und `Spielzeit in Sekunden`.  

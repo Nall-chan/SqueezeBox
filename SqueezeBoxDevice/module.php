@@ -303,7 +303,9 @@ class SqueezeboxDevice extends IPSModule
             case IM_CHANGESTATUS:
                 if ($SenderID == $this->InstanceID) {
                     if ($Data[0] == IS_ACTIVE) {
-                        $this->RequestAllState();
+                        if ($this->HasActiveParent()) {
+                            $this->RequestAllState();
+                        }
                     } else {
                         $this->_SetNewPower(false);
                         $this->SetCover();
@@ -1437,11 +1439,12 @@ class SqueezeboxDevice extends IPSModule
      */
     public function LoadTempPlaylist()
     {
-        $LMSData = $this->SendDirect(new LMSData(['playlist', 'resume'], ['tempplaylist_' . str_replace(':', '', $this->ReadPropertyString('Address')), 'wipePlaylist:1', 'noplay:1']));
+        $Playlist = 'tempplaylist_' . str_replace(':', '', $this->ReadPropertyString('Address'));
+        $LMSData = $this->SendDirect(new LMSData(['playlist', 'resume'], [$Playlist, 'wipePlaylist:1', 'noplay:0']));
         if ($LMSData === null) {
             return false;
         }
-        if ($LMSData->Data[0] != (string) $this->InstanceID) {
+        if ($LMSData->Data[0] != $Playlist) {
             set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($this->Translate('TempPlaylist not found.'), E_USER_NOTICE);
             restore_error_handler();
@@ -2337,6 +2340,7 @@ class SqueezeboxDevice extends IPSModule
      */
     protected function KernelReady()
     {
+        $this->UnregisterMessage(0, IPS_KERNELSTARTED);
         $this->ApplyChanges();
     }
 
@@ -2359,6 +2363,9 @@ class SqueezeboxDevice extends IPSModule
      */
     protected function IOChangeState($State)
     {
+        if (IPS_GetKernelRunlevel() != KR_READY) {
+            return;
+        }
         $Value = IS_INACTIVE;
         if ($State == IS_ACTIVE) {
             $LMSResponse = $this->SendDirect(new LMSData('connected', '?'));

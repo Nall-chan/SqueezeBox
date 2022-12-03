@@ -26,7 +26,7 @@ Ermöglicht die Kommunikation von IPS mit dem CLI des Logitech Media Servers.
   - [5. Playlisten](#5-playlisten)
   - [6. Alarm Playlisten](#6-alarm-playlisten)
   - [7. Favoriten](#7-favoriten)
-  - [8. Radio & Apps](#8-radio--apps)
+  - [8. Radio \& Apps](#8-radio--apps)
 - [8. Aktionen](#8-aktionen)
 - [9. Anhang](#9-anhang)
   - [1. Changelog](#1-changelog)
@@ -688,21 +688,7 @@ __Grundsätzlich können alle bedienbaren Statusvariablen als Ziel einer [`Aktio
 
 Dennoch gibt es diverse Aktionen für die `LMS Splitter` Instanz.  
 Wenn so eine Instanz als Ziel einer Aktion ausgewählt wurde, stehen folgende Aktionen zur Verfügung:  
-![Aktionen](imgs/Actions.png)  
-
-- Server neu starten
-  - Der `Logitech Media Server` wird neu gestartet
-- Starte Aktualisierung der Datenbank
-  - Es wird ein nach veränderten Mediendateien gesucht und die Datenbank aktualisiert.
-- Starte Aktualisierung der Wiedergabelisten
-  - Es wird nach neuen / geänderten Wiedergabelisten gesucht und die Datenbank aktualisiert.  
-- Stop Scan
-  - Eine laufende Aktualisierung der Datenbank wird abgebrochen.
-- Lösche Cache
-  - Der Cache der Datenbank wird gelöscht.  
-
-
-
+![Aktionen](imgs/actions.png)  
 
 ## 9. Anhang
 

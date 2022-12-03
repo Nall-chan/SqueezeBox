@@ -1,0 +1,38 @@
+{
+    "id": "{7874963F-A8E1-4395-88EA-1AFCC5F1B2C5}",
+    "caption": "Sets repeat",
+    "form": [
+        "$Options=[",
+        "   ['caption'=>'Off','value'=>0],",
+        "   ['caption'=>'Title','value'=>1],",
+        "   ['caption'=>'Playlist','value'=>2]",
+        "];",
+        "$Form[]=['type' => 'Select','name'=>'VALUE','caption'=>'Repeat','options'=>$Options];",
+        "return $Form;"
+    ],
+    "action": "LSQ_SetRepeat($_IPS['TARGET'], $_IPS['VALUE']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Sets repeat": "Setze Wiederholung",
+            "Off": "Aus",
+            "Title": "Titel",
+            "Repeat": "Wiederholung",
+            "Set repeat on {TARGET, object} to {VALUE, select, 0 {off} other {{VALUE, select, 1 {Title} other {Playlist}}}}.": "Setze Wiederholung von {TARGET, object} auf {VALUE, select, 0 {aus} other {{VALUE, select, 1 {Titel} other {Playlist}}}}."
+        }
+    },
+    "format": "Set repeat on {TARGET, object} to {VALUE, select, 0 {off} other {{VALUE, select, 1 {Title} other {Playlist}}}}.",
+    "description": "Sets repeat"
+}

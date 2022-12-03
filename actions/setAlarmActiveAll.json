@@ -1,6 +1,6 @@
 {
     "id": "{20F4081F-9FD8-4F38-BD8A-D8741ED383CA}",
-    "caption": "Enable or disable all alarms",
+    "caption": "Activate or deactivate all alarms",
     "form": [
         "$Form[]=['type' => 'CheckBox','name'=>'VALUE','caption'=>'Enable ?'];",
         "return $Form;"
@@ -21,7 +21,7 @@
     },
     "locale": {
         "de": {
-            "Enable or disable all alarms": "Aktiviere oder deaktiviere alle Wecker",
+            "Activate or deactivate all alarms": "Aktiviere oder deaktiviere alle Wecker",
             "Enable ?": "Aktivieren ?",
             "{VALUE, select, 0 {Deactivate} other {Activate}} all alarms on {TARGET, object}": "{VALUE, select, 0 {Deaktiviere} other {Aktiviere}} aller Wecker von {TARGET, object}"
         }
