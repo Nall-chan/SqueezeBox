@@ -2,10 +2,10 @@
     "id": "{E45798CE-D4B2-486B-85A7-2C2B40F7AC80}",
     "caption": "Set URL for alarm",
     "form": [
-        "for ($i=0; $i=<9; $i++) {",
+        "for ($i=0; $i<10; $i++) {",
         "   $Options[] = [",
-        "       'caption'   =>  'Alarm '.$Id,",
-        "       'value'     =>  $Id",
+        "       'caption'   =>  'Alarm '.($i+1),",
+        "       'value'     =>  $i",
         "   ];",
         "}",
         "$Form[]=['type' => 'Select','name'=>'INDEX','caption'=>'Alarm','options'=>$Options];",

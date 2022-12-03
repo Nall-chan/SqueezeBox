@@ -1,0 +1,31 @@
+{
+    "id": "{C7950F4E-70EA-4BF7-8FE4-4B6C82523BDD}",
+    "caption": "Set volume",
+    "form": [
+        "$Form[]=['type' => 'NumberSpinner','name'=>'VALUE','caption'=>'Volume','suffix'=>' %','minimum'=>0,'maximum'=>100];",
+        "return $Form;"
+    ],
+    "action": "LSQ_SetVolume($_IPS['TARGET'], $_IPS['VALUE']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Set volume": "Setze Lautstärke",
+            "Volume": "Lautstärke",
+            "Set volume to {VALUE}% on {TARGET, object}": "Setze Lautstärke auf {VALUE}% von {TARGET, object}"
+        }
+    },
+    "format": "Set volume to {VALUE}% on {TARGET, object}",
+    "description": "Set volume"
+}

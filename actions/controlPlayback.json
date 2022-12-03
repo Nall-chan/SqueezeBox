@@ -1,0 +1,48 @@
+{
+    "id": "{AF5C08CB-AE62-4648-8C93-389379965AD6}",
+    "caption": "Playback control",
+    "form": [
+        "$Options=[",
+        "   ['caption'=>'Play','value'=>0],",
+        "   ['caption'=>'Pause','value'=>1],",
+        "   ['caption'=>'Stop','value'=>2]",
+        "];",
+        "$Form[]=['type' => 'Select','name'=>'VALUE','caption'=>'Playback','options'=>$Options];",
+        "return $Form;"
+    ],
+    "action": [
+        "switch ($_IPS['VALUE']){",
+        "   case 0:",
+        "      LSQ_Play($_IPS['TARGET']);",
+        "      break;",
+        "   case 1:",
+        "      LSQ_Pause($_IPS['TARGET']);",
+        "      break;",
+        "   case 2:",
+        "      LSQ_Stop($_IPS['TARGET']);",
+        "      break;",
+        "}"
+    ],
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Playback control": "Wiedergabesteuerung",
+            "Playback": "Wiedergabe",
+            "{VALUE, select, 0 {Start playback} other {{VALUE, select, 1 {Pause playback} other {Stop playback}}}} of {TARGET, object}.": "Wiedergabe von {TARGET, object} {VALUE, select, 0 {starten} other {{VALUE, select, 1 {pausieren} other {stoppen}}}}."
+        }
+    },
+    "format": "{VALUE, select, 0 {Start playback} other {{VALUE, select, 1 {Pause playback} other {Stop playback}}}} of {TARGET, object}.",
+    "description": "Playback control"
+}

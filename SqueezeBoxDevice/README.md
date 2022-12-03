@@ -442,7 +442,7 @@ Liefert `true` bei Erfolg, sonst `false`.
 bool LSQ_LoadTempPlaylist(int $InstanzID)
 ```
 Lädt eine zuvor mit LSQ_SaveTempPlaylist gespeicherte Playlist, und springt auf den zuletzt wiedergegeben Track.  
-Die Wiedergabe wird nicht automatisch gestartet.  
+Die Wiedergabe wird automatisch gestartet.  
 Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
@@ -733,11 +733,7 @@ __Grundsätzlich können alle bedienbaren Statusvariablen als Ziel einer [`Aktio
 
 Dennoch gibt es diverse Aktionen für die `Squeezebox Player` Instanz.  
 Wenn so eine Instanz als Ziel einer Aktion ausgewählt wurde, stehen folgende Aktionen zur Verfügung:  
-![Aktionen](imgs/Actions.png)  
-
- - Synchronisierung starten  
- - Synchronisierung beenden  
- // TODO  
+![Aktionen](imgs/actions.png)  
 
 ## 9. Anhang
 

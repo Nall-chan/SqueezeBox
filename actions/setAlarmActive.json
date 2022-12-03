@@ -1,11 +1,11 @@
 {
     "id": "{1B492DA6-CC23-42EF-9DC1-5004AF449FEC}",
-    "caption": "Enable or disable alarm",
+    "caption": "Activate or deactivate alarm",
     "form": [
         "$Ids = IPS_GetChildrenIDs($_IPS['TARGET']);",
         "$Options=[];",
-        "for ($i=0; $i=<9; $i++) {",
-        "   $Id = @IPS_GetObjectByIdent($_IPS['TARGET'],'AlarmTime'.$i);",
+        "for ($i=0; $i<10; $i++) {",
+        "   $Id = @IPS_GetObjectIDByIdent('AlarmTime'.$i), $_IPS['TARGET']);",
         "   if ($Id === false) continue;",
         "   $Options[] = [",
         "       'caption'   =>  IPS_GetName($Id),",

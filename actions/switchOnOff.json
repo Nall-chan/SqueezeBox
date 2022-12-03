@@ -1,0 +1,32 @@
+{
+    "id": "{D5B2D89D-B4B9-4044-87BC-8EB632A527FD}",
+    "caption": "Switch on/off",
+    "form": [
+        "$Form[]=['type' => 'CheckBox','name'=>'VALUE','caption'=>'Enable ?'];",
+        "return $Form;"
+    ],
+    "action": "LSQ_Power($_IPS['TARGET'], $_IPS['VALUE']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Switch on/off": "Schalte ein/aus",
+            "Switch device on or off.": "Schalte Gerät ein oder aus.",
+            "Enable ?": "Aktivieren ?",
+            "Switch {TARGET, object} {VALUE, select, 0 {off} other {on}}": "Schalte {TARGET, object} {VALUE, select, 0 {aus} other {ein}}"
+        }
+    },
+    "format": "Switch {TARGET, object} {VALUE, select, 0 {off} other {on}}",
+    "description": "Switch device on or off."
+}

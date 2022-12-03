@@ -1,11 +1,11 @@
 {
     "id": "{03EDA6F9-8671-4BCD-8D1B-7884EE1C502B}",
-    "caption": "Enable or disable all repeats",
+    "caption": "Enable or disable repeat",
     "form": [
-        "for ($i=0; $i=<9; $i++) {",
+        "for ($i=0; $i<10; $i++) {",
         "   $Options[] = [",
-        "       'caption'   =>  'Alarm '.$Id,",
-        "       'value'     =>  $Id",
+        "       'caption'   =>  'Alarm '.($i+1),",
+        "       'value'     =>  $i",
         "   ];",
         "}",
         "$Form[]=['type' => 'Select','name'=>'INDEX','caption'=>'Alarm','options'=>$Options];",
@@ -28,13 +28,13 @@
     },
     "locale": {
         "de": {
-            "Enable or disable repeats": "Wiederholung aktivieren oder deaktiviere",
+            "Enable or disable repeat": "Wiederholung aktivieren oder deaktiviere",
             "Alarm": "Wecker",
             "Enable ?": "Aktivieren ?",
-            "Enable or disable repeats for an alarm": "Wiederholung für einen Wecker aktivieren oder deaktiviere",
+            "Enable or disable repeats for an alarm.": "Wiederholung für einen Wecker aktivieren oder deaktiviere.",
             "{VALUE, select, 0 {Deactivate} other {Activate}} repeat alarm {INDEX} on {TARGET, object}": "{VALUE, select, 0 {Deaktiviere} other {Aktiviere}} Wiederholung des Wecker {INDEX} von {TARGET, object}"
         }
     },
     "format": "{VALUE, select, 0 {Deactivate} other {Activate}} repeat alarm {INDEX} on {TARGET, object}",
-    "description": "Enable or disable repeats for an alarm"
+    "description": "Enable or disable repeats for an alarm."
 }

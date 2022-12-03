@@ -264,10 +264,7 @@ __Grundsätzlich können alle bedienbaren Statusvariablen als Ziel einer [`Aktio
 
 Dennoch gibt es diverse Aktionen für die `Squeezebox Alarm` Instanz.  
 Wenn so eine Instanz als Ziel einer Aktion ausgewählt wurde, stehen folgende Aktionen zur Verfügung:  
-![Aktionen](imgs/Actions.png)  
-
-// Todo
-
+![Aktionen](imgs/actions.png)  
 
 ## 9. Anhang
 

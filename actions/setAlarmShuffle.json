@@ -1,0 +1,47 @@
+{
+    "id": "{2D2A43D0-EAAA-4FD5-B357-768CD34BC10A}",
+    "caption": "Enable or disable shuffle",
+    "form": [
+        "for ($i=0; $i<10; $i++) {",
+        "   $Options[] = [",
+        "       'caption'   =>  'Alarm '.($i+1),",
+        "       'value'     =>  $i",
+        "   ];",
+        "}",
+        "$Form[]=['type' => 'Select','name'=>'INDEX','caption'=>'Alarm','options'=>$Options];",
+        "$Options=[",
+        "   ['caption'=>'Off','value'=>0],",
+        "   ['caption'=>'Title','value'=>1],",
+        "   ['caption'=>'Album','value'=>2]",
+        "];",
+        "$Form[]=['type' => 'Select','name'=>'VALUE','caption'=>'Shuffle','options'=>$Options];",
+        "return $Form;"
+    ],
+    "action": "LSA_SetShuffle($_IPS['TARGET'], $_IPS['INDEX'], $_IPS['VALUE']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{E7423083-3502-42C8-B244-2852D0BE41D4}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Enable or disable shuffle": "Mischen aktivieren oder deaktivieren",
+            "Alarm": "Wecker",
+            "Off": "Aus",
+            "Title": "Titel",
+            "Shuffle": "Zufallsmodus",
+            "{VALUE, select, 0 {Deactivate} other {Activate}} shuffle from alarm {INDEX} on {TARGET, object}": "{VALUE, select, 0 {Deaktiviere} other {Aktiviere}} mischen des Wecker {INDEX} von {TARGET, object}",
+            "Enable or disable shuffle for an alarm.":"Mischen für einen Wecker aktivieren oder deaktiviere."
+        }
+    },
+    "format": "{VALUE, select, 0 {Deactivate} other {Activate}} shuffle from alarm {INDEX} on {TARGET, object}",
+    "description": "Enable or disable shuffle for an alarm."
+}

@@ -1,0 +1,31 @@
+{
+    "id": "{4DE7245C-7A90-4C3E-BC42-DF45A3A1CE7D}",
+    "caption": "Set volume for all alarms",
+    "form": [
+        "$Form[]=['type' => 'NumberSpinner','name'=>'VALUE','caption'=>'Volume','suffix'=>' %','minimum'=>0,'maximum'=>100];",
+        "return $Form;"
+    ],
+    "action": "LSA_SetDefaultVolume($_IPS['TARGET'], $_IPS['VALUE']);",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{E7423083-3502-42C8-B244-2852D0BE41D4}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Set volume for all alarms": "Setze die Lautstärke für alle Wecker",
+            "Volume": "Lautstärke",
+            "Set volume to {VALUE}% for all alarms on {TARGET, object}": "Setze Lautstärke auf {VALUE}% für alle Wecker von {TARGET, object}"
+        }
+    },
+    "format": "Set volume to {VALUE}% for all alarms on {TARGET, object}",
+    "description": "Set volume for all alarms"
+}
