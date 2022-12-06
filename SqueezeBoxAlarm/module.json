@@ -3,10 +3,16 @@
     "name": "SqueezeboxAlarm",
     "type": 3,
     "vendor": "Logitech",
-    "aliases": ["Squeezebox Alarm"],
-    "parentRequirements": ["{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}"],
+    "aliases": [
+        "Squeezebox Alarm"
+    ],
+    "parentRequirements": [
+        "{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}"
+    ],
     "childRequirements": [],
-    "implemented": ["{CB5950B3-593C-4126-9F0F-8655A3944419}"],
+    "implemented": [
+        "{CB5950B3-593C-4126-9F0F-8655A3944419}"
+    ],
     "prefix": "LSA",
     "url": "https://github.com/Nall-chan/SqueezeBox/blob/master/SqueezeBoxAlarm/README.md"
 }

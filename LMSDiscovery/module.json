@@ -3,7 +3,9 @@
     "name": "LMS Discovery",
     "type": 5,
     "vendor": "Logitech",
-    "aliases": ["Logitech Media Server Discovery"],
+    "aliases": [
+        "Logitech Media Server Discovery"
+    ],
     "parentRequirements": [],
     "childRequirements": [],
     "implemented": [],
