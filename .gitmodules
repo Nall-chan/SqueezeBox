@@ -9,4 +9,4 @@
 url=https://github.com/Nall-chan/StylePHP
 [submodule ".vscode"]
 	path = .vscode
-	url = https://git.nall-chan.net/SymconVSCtasks.git
+url=https://github.com/Nall-chan/SymconVSCTasks.git
