@@ -1813,11 +1813,13 @@ class SqueezeboxAlarm extends IPSModule
                     case 'snooze_end':
                         $State = 2;
                         // FIXME: No break. Please add proper comment if intentional
+                        // No break. Add additional comment above this line if intentional
                     case 'end':
                         if (!isset($State)) {
                             $State = 0;
                         }
                         // FIXME: No break. Please add proper comment if intentional
+                        // No break. Add additional comment above this line if intentional
                     case 'snooze':
                         if (!isset($State)) {
                             $State = 1;
@@ -1841,6 +1843,7 @@ class SqueezeboxAlarm extends IPSModule
                 $LMSData->Command[1] = $LMSData->Command[2];
                 unset($LMSData->Command[2]);
                 // FIXME: No break. Please add proper comment if intentional
+                // No break. Add additional comment above this line if intentional
             case 'playerpref':
                 switch ($LMSData->Command[1]) {
                     case 'alarmfadeseconds':

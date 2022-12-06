@@ -7,3 +7,6 @@
 [submodule ".style"]
 	path = .style
 url=https://github.com/Nall-chan/StylePHP
+[submodule ".vscode"]
+	path = .vscode
+	url = https://git.nall-chan.net/SymconVSCtasks.git

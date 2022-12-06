@@ -2092,6 +2092,7 @@ class LMSSplitter extends IPSModule
                     }
                 }
                 // FIXME: No break. Please add proper comment if intentional
+                // No break. Add additional comment above this line if intentional
             case 'songinfo':
                 //TODO ???
                 break;
