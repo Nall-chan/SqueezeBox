@@ -39,7 +39,7 @@
             "Title": "Titel",
             "Shuffle": "Zufallsmodus",
             "{VALUE, select, 0 {Deactivate} other {Activate}} shuffle from alarm {INDEX} on {TARGET, object}": "{VALUE, select, 0 {Deaktiviere} other {Aktiviere}} mischen des Wecker {INDEX} von {TARGET, object}",
-            "Enable or disable shuffle for an alarm.":"Mischen für einen Wecker aktivieren oder deaktiviere."
+            "Enable or disable shuffle for an alarm.": "Mischen für einen Wecker aktivieren oder deaktiviere."
         }
     },
     "format": "{VALUE, select, 0 {Deactivate} other {Activate}} shuffle from alarm {INDEX} on {TARGET, object}",
