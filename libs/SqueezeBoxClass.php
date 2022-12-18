@@ -14,7 +14,7 @@ require_once __DIR__ . '/TimeConvert.php';  // diverse Klassen
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.70
+ * @version       3.71
  *
  */
 
@@ -126,7 +126,7 @@ trait LMSProfile
  * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.70
+ * @version       3.71
  *
  * @example <b>Ohne</b>
  */
@@ -285,7 +285,7 @@ class LMSData extends stdClass
  * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.70
+ * @version       3.71
  *
  * @example <b>Ohne</b>
  */
@@ -457,7 +457,7 @@ class LMSResponse extends LMSData
  * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.70
+ * @version       3.71
  *
  * @example <b>Ohne</b>
  */
@@ -497,7 +497,7 @@ class LMSTaggingData extends stdClass
  * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.70
+ * @version       3.71
  *
  * @example <b>Ohne</b>
  */
@@ -695,7 +695,7 @@ class LMSTaggingArray extends stdClass
  * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.70
+ * @version       3.71
  *
  * @example <b>Ohne</b>
  */

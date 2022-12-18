@@ -11,7 +11,7 @@ declare(strict_types=1);
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.70
+ * @version       3.71
  *
  */
 require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
@@ -30,7 +30,7 @@ eval('declare(strict_types=1);namespace SqueezeboxDevice {?>' . file_get_content
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2021 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.70
+ * @version       3.71
  *
  * @example <b>Ohne</b>
  *
@@ -1197,16 +1197,7 @@ class SqueezeboxDevice extends IPSModule
         if ($LMSData === null) {
             return false;
         }
-        //TODO
-        return $LMSData;
-//
-//        $ret = $LMSData->Data[0];
-//        if (($ret == '/' . $Name) or ( $ret == '\\' . $Name))
-//        {
-//            trigger_error($this->Translate('Playlist not found.'), E_USER_NOTICE);
-//            return false;
-//        }
-//        return $ret;
+        return strpos($URL, str_replace('\\', '/', $LMSData->Data[0])) !== false;
     }
     public function PlayUrlSpecial(string $URL)
     {
@@ -1219,16 +1210,7 @@ class SqueezeboxDevice extends IPSModule
         if ($LMSData === null) {
             return false;
         }
-        //TODO
-        return $LMSData;
-//
-//        $ret = $LMSData->Data[0];
-//        if (($ret == '/' . $Name) or ( $ret == '\\' . $Name))
-//        {
-//            trigger_error($this->Translate('Playlist not found.'), E_USER_NOTICE);
-//            return false;
-//        }
-//        return $ret;
+        return strpos($URL, str_replace('\\', '/', $LMSData->Data[0])) !== false;
     }
     public function PlayFavorite(string $FavoriteID)
     {
@@ -1254,7 +1236,7 @@ class SqueezeboxDevice extends IPSModule
      */
     public function AddToPlaylistByUrl(string $URL)
     {
-        return $this->AddUrlToPlaylistEx($URL, -1);
+        return $this->AddToPlaylistByUrlEx($URL, '');
     }
 
     public function AddToPlaylistByUrlEx(string $URL, string $DisplayTitle)
@@ -1266,8 +1248,8 @@ class SqueezeboxDevice extends IPSModule
         if ($LMSData === null) {
             return false;
         }
-        //TODO
-        return $LMSData;
+
+        return strpos($URL, str_replace('\\', '/', $LMSData->Data[0])) !== false;
         // todo für neue funktion InsertAt
         //neue Tracks holen
         // alt = 5
@@ -1288,8 +1270,7 @@ class SqueezeboxDevice extends IPSModule
         if ($LMSData === null) {
             return false;
         }
-        //TODO
-        return $LMSData;
+        return strpos($URL, str_replace('\\', '/', $LMSData->Data[0])) !== false;
         // todo für neue funktion InsertAt
         //neue Tracks holen
         // alt = 5
@@ -1722,12 +1703,15 @@ class SqueezeboxDevice extends IPSModule
 
     public function GetPlaylistURL()
     {
-        $LMSData = $this->SendDirect(new LMSData(['playlist', 'url'], '?'));
+        $LMSData = $this->SendDirect(new LMSData(['playlist', 'playlistsinfo'], ''));
         if ($LMSData === null) {
             return false;
         }
-        //TODO
-        return $LMSData;
+        if (count($LMSData->Data) == 1) {
+            return [];
+        }
+        $SongInfo = new LMSSongInfo($LMSData->Data);
+        return $SongInfo->GetSong()['Url'];
     }
 
     public function IsPlaylistModified()
@@ -1736,7 +1720,6 @@ class SqueezeboxDevice extends IPSModule
         if ($LMSData === null) {
             return false;
         }
-        //TODO
         return $LMSData->Data[0] == '1';
     }
 
