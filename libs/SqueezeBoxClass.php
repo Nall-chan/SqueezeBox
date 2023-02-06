@@ -14,7 +14,7 @@ require_once __DIR__ . '/TimeConvert.php';  // diverse Klassen
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.71
+ * @version       3.80
  *
  */
 
@@ -28,26 +28,28 @@ trait LSQProfile
      */
     private function CreateProfile()
     {
-        $this->RegisterProfileIntegerEx('LSQ.Status', 'Information', '', '', [
+       /* $this->RegisterProfileIntegerEx('LSQ.Status', 'Information', '', '', [
             [0, $this->Translate('Prev'), '', -1],
             [1, 'Stop', '', -1],
             [2, 'Play', '', -1],
             [3, 'Pause', '', -1],
             [4, $this->Translate('Next'), '', -1]
-        ]);
-        $this->RegisterProfileInteger('LSQ.Intensity', 'Intensity', '', ' %', 0, 100, 1);
-        $this->RegisterProfileInteger('LSQ.Volume', 'Speaker', '', ' %', 0, 100, 1);
+        ]);*/
+        $this->UnregisterProfile('LSQ.Status');
+        $this->UnregisterProfile('LSQ.Volume');
+        $this->UnregisterProfile('LSQ.Intensity');
+        $this->UnregisterProfile('LSQ.Repeat');
         $this->RegisterProfileInteger('LSQ.Pitch', 'Intensity', '', ' %', 80, 120, 1);
         $this->RegisterProfileIntegerEx('LSQ.Shuffle', 'Shuffle', '', '', [
             [0, $this->Translate('Off'), '', -1],
             [1, $this->Translate('Title'), '', -1],
             [2, 'Album', '', -1]
         ]);
-        $this->RegisterProfileIntegerEx('LSQ.Repeat', 'Repeat', '', '', [
+        /*$this->RegisterProfileIntegerEx('LSQ.Repeat', 'Repeat', '', '', [
             [0, $this->Translate('Off'), '', -1],
             [1, $this->Translate('Title'), '', -1],
             [2, 'Playlist', '', -1]
-        ]);
+        ]);*/
         $this->RegisterProfileIntegerEx('LSQ.Preset', 'Execute', '', '', [
             [1, '1', '', -1],
             [2, '2', '', -1],
@@ -57,12 +59,12 @@ trait LSQProfile
             [6, '6', '', -1]
         ]);
         $this->RegisterProfileIntegerEx('LSQ.SleepTimer', 'Gear', '', '', [
-            [0, '0', '', -1],
-            [900, '900', '', -1],
-            [1800, '1800', '', -1],
-            [2700, '2700', '', -1],
-            [3600, '3600', '', -1],
-            [5400, '5400', '', -1]
+            [0, '%d', '', -1],
+            [900, '%d', '', -1],
+            [1800, '%d', '', -1],
+            [2700, '%d', '', -1],
+            [3600, '%d', '', -1],
+            [5400, '%d', '', -1]
         ]);
         $this->RegisterProfileIntegerEx('LSQ.Randomplay', 'Shuffle', '', '', [
             [0, $this->Translate('Off'), '', -1],
@@ -79,11 +81,8 @@ trait LSQProfile
     private function DeleteProfile()
     {
         $this->UnregisterProfile('LSQ.Tracklist.' . $this->InstanceID);
-        $this->UnregisterProfile('LSQ.Status');
-        $this->UnregisterProfile('LSQ.Intensity');
         $this->UnregisterProfile('LSQ.Pitch');
         $this->UnregisterProfile('LSQ.Shuffle');
-        $this->UnregisterProfile('LSQ.Repeat');
         $this->UnregisterProfile('LSQ.Preset');
         $this->UnregisterProfile('LSQ.SleepTimer');
     }
@@ -126,7 +125,7 @@ trait LMSProfile
  * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.71
+ * @version       3.80
  *
  * @example <b>Ohne</b>
  */
@@ -285,7 +284,7 @@ class LMSData extends stdClass
  * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.71
+ * @version       3.80
  *
  * @example <b>Ohne</b>
  */
@@ -457,7 +456,7 @@ class LMSResponse extends LMSData
  * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.71
+ * @version       3.80
  *
  * @example <b>Ohne</b>
  */
@@ -497,7 +496,7 @@ class LMSTaggingData extends stdClass
  * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.71
+ * @version       3.80
  *
  * @example <b>Ohne</b>
  */
@@ -695,7 +694,7 @@ class LMSTaggingArray extends stdClass
  * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.71
+ * @version       3.80
  *
  * @example <b>Ohne</b>
  */

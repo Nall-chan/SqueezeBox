@@ -28,59 +28,91 @@
                     "type": "RowLayout",
                     "items": [
                         {
-                            "name": "enableBass",
-                            "type": "CheckBox",
-                            "caption": "Enable bass control",
-                            "width": "250px"
+                            "type": "ColumnLayout",
+                            "items": [
+                                {
+                                    "name": "enableBass",
+                                    "type": "CheckBox",
+                                    "caption": "Enable bass control",
+                                    "width": "300px"
+                                },
+                                {
+                                    "name": "enableTreble",
+                                    "type": "CheckBox",
+                                    "caption": "Enable treble control"
+                                },
+                                {
+                                    "name": "enablePitch",
+                                    "type": "CheckBox",
+                                    "caption": "Enable pitch control"
+                                }
+                            ]
                         },
                         {
-                            "name": "enableTreble",
-                            "type": "CheckBox",
-                            "caption": "Enable treble control",
-                            "width": "250px"
+                            "type": "ColumnLayout",
+                            "width": "300px",
+                            "items": [
+                                {
+                                    "name": "enableRandomplay",
+                                    "type": "CheckBox",
+                                    "caption": "Enable randomplay",
+                                    "width": "300px"
+                                },
+                                {
+                                    "name": "enableRawDuration",
+                                    "type": "CheckBox",
+                                    "caption": "Enable duration in seconds"
+                                },
+                                {
+                                    "name": "enableRawPosition",
+                                    "type": "CheckBox",
+                                    "caption": "Enable position in seconds"
+                                }
+                            ]
                         },
                         {
-                            "name": "enablePitch",
-                            "type": "CheckBox",
-                            "caption": "Enable pitch control",
-                            "width": "250px"
-                        }
-                    ]
-                },
-                {
-                    "type": "RowLayout",
-                    "items": [
-                        {
-                            "name": "enableRandomplay",
-                            "type": "CheckBox",
-                            "caption": "Enable randomplay"
+                            "type": "ColumnLayout",
+                            "width": "300px",
+                            "items": [
+                                {
+                                    "name": "enablePreset",
+                                    "type": "CheckBox",
+                                    "caption": "Show preset buttons",
+                                    "width": "300px"
+                                },
+                                {
+                                    "name": "enableSleepTimer",
+                                    "type": "CheckBox",
+                                    "caption": "Enable sleep timer control"
+                                },
+                                {
+                                    "name": "showSleepTimeout",
+                                    "type": "CheckBox",
+                                    "caption": "Show sleep timer timeout"
+                                }
+                            ]
                         },
                         {
-                            "name": "enableRawDuration",
-                            "type": "CheckBox",
-                            "caption": "Enable duration in seconds"
-                        },
-                        {
-                            "name": "enableRawPosition",
-                            "type": "CheckBox",
-                            "caption": "Enable position in seconds"
-                        }
-                    ]
-                },
-                {
-                    "type": "RowLayout",
-                    "items": [
-                        {
-                            "name": "showSyncMaster",
-                            "type": "CheckBox",
-                            "caption": "Show is Sync-Master",
-                            "width": "250px"
-                        },
-                        {
-                            "name": "showSyncControl",
-                            "type": "CheckBox",
-                            "caption": "Show Controls for sync",
-                            "width": "250px"
+                            "type": "ColumnLayout",
+                            "width": "300px",
+                            "items": [
+                                {
+                                    "name": "showSyncMaster",
+                                    "type": "CheckBox",
+                                    "caption": "Show is Sync-Master",
+                                    "width": "300px"
+                                },
+                                {
+                                    "name": "showSyncControl",
+                                    "type": "CheckBox",
+                                    "caption": "Show Controls for sync"
+                                },
+                                {
+                                    "name": "showSignalstrength",
+                                    "type": "CheckBox",
+                                    "caption": "Show signal strength"
+                                }
+                            ]
                         }
                     ]
                 }
@@ -189,12 +221,14 @@
             ]
         },
         {
-            "name": "showPlaylist",
+            "name": "showHTMLPlaylist",
             "type": "CheckBox",
-            "caption": "Show playlist as HTML-Box"
+            "caption": "Show playlist as HTML-Box",
+            "onChange": "IPS_RequestAction($id,'showHTMLPlaylist',$showHTMLPlaylist);"
         },
         {
             "type": "ExpansionPanel",
+            "name": "HTMLExpansionPanel",
             "caption": "Playlist design",
             "items": [
                 {
