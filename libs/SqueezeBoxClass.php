@@ -2,7 +2,8 @@
 
 declare(strict_types=1);
 
-eval('declare(strict_types=1);namespace squeezebox {?>' . file_get_contents(__DIR__ . '/helper/UTF8Helper.php') . '}');
+namespace SqueezeBox;
+
 require_once __DIR__ . '/TimeConvert.php';  // diverse Klassen
 
 /*
@@ -20,6 +21,9 @@ require_once __DIR__ . '/TimeConvert.php';  // diverse Klassen
 
 /**
  * Trait mit allen Profilen der Instanz Squeezebox-Device.
+ * @method void UnregisterProfile(string $Name)
+ * @method void RegisterProfileIntegerEx(string $Name, string $Icon, string $Prefix, string $Suffix, array $Associations, int $MaxValue = -1, float $StepSize = 0)
+ * @method void RegisterProfileInteger(string $Name, string $Icon, string $Prefix, string $Suffix, int $MinValue, int $MaxValue, int $StepSize)
  */
 trait LSQProfile
 {
@@ -28,13 +32,13 @@ trait LSQProfile
      */
     private function CreateProfile()
     {
-       /* $this->RegisterProfileIntegerEx('LSQ.Status', 'Information', '', '', [
-            [0, $this->Translate('Prev'), '', -1],
-            [1, 'Stop', '', -1],
-            [2, 'Play', '', -1],
-            [3, 'Pause', '', -1],
-            [4, $this->Translate('Next'), '', -1]
-        ]);*/
+        /* $this->RegisterProfileIntegerEx('LSQ.Status', 'Information', '', '', [
+             [0, $this->Translate('Prev'), '', -1],
+             [1, 'Stop', '', -1],
+             [2, 'Play', '', -1],
+             [3, 'Pause', '', -1],
+             [4, $this->Translate('Next'), '', -1]
+         ]);*/
         $this->UnregisterProfile('LSQ.Status');
         $this->UnregisterProfile('LSQ.Volume');
         $this->UnregisterProfile('LSQ.Intensity');
@@ -129,9 +133,8 @@ trait LMSProfile
  *
  * @example <b>Ohne</b>
  */
-class LMSData extends stdClass
+class LMSData extends \stdClass
 {
-    use \squeezebox\UTF8Coder;
     /**
      * Adresse des Gerätes.
      *
@@ -193,13 +196,13 @@ class LMSData extends stdClass
     /**
      * Erzeugt einen String für den Datenaustausch mit einer IO-Instanz.
      *
-     * @param type $GUID Die TX-GUID
+     * @param string $GUID Die TX-GUID
      *
-     * @return type Der JSON-String für den Datenaustausch.
+     * @return string Der JSON-String für den Datenaustausch.
      */
     public function ToJSONStringForLMS($GUID)
     {
-        return json_encode(['DataID' => $GUID, 'Buffer' => utf8_encode($this->ToRawStringForLMS())]);
+        return json_encode(['DataID' => $GUID, 'Buffer' => bin2hex($this->ToRawStringForLMS())]);
     }
 
     /**
@@ -237,11 +240,11 @@ class LMSData extends stdClass
     /**
      * Befüllt das Objekt mit neuen Daten aus dem Datenaustausch.
      *
-     * @param stdClass $Data Das Objekt aus dem Datenaustausch.
+     * @param \stdClass $Data Das Objekt aus dem Datenaustausch.
      */
     public function CreateFromGenericObject($Data)
     {
-        $this->DecodeUTF8($Data);
+        //$this->DecodeUTF8($Data);
         $this->Address = $Data->Address;
         $this->Command = $Data->Command;
         $this->Data = $Data->Data;
@@ -267,7 +270,7 @@ class LMSData extends stdClass
      */
     public function ToJSONString($GUID)
     {
-        $this->EncodeUTF8($this);
+        //$this->EncodeUTF8($this);
         return json_encode(['DataID'       => $GUID,
             'Address'                      => $this->Address,
             'Command'                      => $this->Command,
@@ -295,21 +298,21 @@ class LMSResponse extends LMSData
      *
      * @static
      */
-    const isServer = 0;
+    public const isServer = 0;
 
     /**
      * Antwort ist von einer MAC-Adresse.
      *
      * @static
      */
-    const isMAC = 1;
+    public const isMAC = 1;
 
     /**
      * Antwort ist von einer IP-Adresse.
      *
      * @static
      */
-    const isIP = 2;
+    public const isIP = 2;
 
     /**
      * Enthält den Type des Versenders einer Antwort.
@@ -440,7 +443,7 @@ class LMSResponse extends LMSData
      */
     public function ToJSONStringForDevice(string $GUID)
     {
-        $this->EncodeUTF8($this);
+        //$this->EncodeUTF8($this);
         return json_encode(['DataID'  => $GUID,
             'Address'                 => $this->Address,
             'Command'                 => $this->Command,
@@ -460,7 +463,7 @@ class LMSResponse extends LMSData
  *
  * @example <b>Ohne</b>
  */
-class LMSTaggingData extends stdClass
+class LMSTaggingData extends \stdClass
 {
     /**
      * @var string Der Name des Datensatzes.
@@ -500,7 +503,7 @@ class LMSTaggingData extends stdClass
  *
  * @example <b>Ohne</b>
  */
-class LMSTaggingArray extends stdClass
+class LMSTaggingArray extends \stdClass
 {
     /**
      * @var array Enthält alle zu dekodierenden Index mit ihren Typenumwandlungen.
@@ -698,7 +701,7 @@ class LMSTaggingArray extends stdClass
  *
  * @example <b>Ohne</b>
  */
-class LMSSongInfo extends stdClass
+class LMSSongInfo extends \stdClass
 {
     /**
      * Enthält die Zuordnung zu den Datentypen.
@@ -868,7 +871,7 @@ trait LMSSongURL
  */
 trait LMSHTMLTable
 {
-    use \squeezebox\TimeConvert;
+    use TimeConvert;
 
     /**
      * Liefert den Header der HTML-Tabelle.

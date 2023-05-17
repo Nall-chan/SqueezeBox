@@ -1,7 +1,7 @@
 🟩Splitter Playlist: ~Playlist (fehlt noch)
 🟩Wecker Playlist: ~Playlist (fehlt noch)
 🟩Wecker: Andere Profile? Prüfen
-✅Player Wiedergabe: ~PlaybackPreviousNext (Erledigt, Offset +1)
+✅❗Player Wiedergabe: ~PlaybackPreviousNext (Erledigt, Offset +1)
 ✅Player Playlist: ~Playlist
 🟥Player Fortschritt: ~Progress (Ist Integer ~Intensity.100)
 ✅Player Künstler: ~Artist
@@ -9,5 +9,5 @@
 ✅Player Lautstärke: ~Volume
 ✅Player Stummschaltung: ~Mute
 🟥Player Zufall: ~Shuffle (geht nicht, ist integer > Off, Title, Album)
-✅Player Wiederholung: ~Repeat (Erledigt, Value 1 und 2 vertauscht)
+✅❗Player Wiederholung: ~Repeat (Erledigt, Value 1 und 2 vertauscht)
 ✅Player Cover: Beliebiges Image

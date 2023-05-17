@@ -42,7 +42,7 @@ Logitech Media Server.
     *  Audio: Lautstärke mit Stummschaltung, und wenn vom Gerät unterstützt, auch Tonhöhe sowie Höhen und Bass.
     *  Bedienung der 6 Preset-Tasten vom Gerät.
     *  Sleeptimer: Setzen und löschen des Timer.
-    *  Playlist: Trackanwahl, nächster, vorheriger Track, Wiederholung und Zufallsmodus
+    *  Playlist: Trackwahl, nächster, vorheriger Track, Wiederholung und Zufallsmodus
     *  Darstellung der Daten zum aktuellen Track: Titel, Album, Interpret, Stilrichtung, Cover etc..
     *  Darstellen der aktuellen Playlist als Tabelle sowie auswahl eines Tracks.  
 
@@ -127,7 +127,7 @@ Folgende Statusvariablen werden automatisch angelegt.
 |             Name             |   Typ   | verwendet von Statusvariablen |
 | :--------------------------: | :-----: | :---------------------------: |
 |    ~PlaybackPreviousNext     | integer |            Status             |
-|        ~Volumetensity        | integer |     Volume, Bass, Treble      |
+|           ~Volume            | integer |     Volume, Bass, Treble      |
 |        ~Intensity.100        | integer |        Signalstrength         |
 |          LSQ.Pitch           | integer |             Pitch             |
 |         LSQ.Shuffle          | integer |            Shuffle            |

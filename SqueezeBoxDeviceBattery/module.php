@@ -54,17 +54,25 @@ class AutoLoaderSqueezeboxBatteryPHPSecLib
  * @version       3.80
  *
  * @example <b>Ohne</b>
+ *
+ * @method bool SendDebug(string $Message, mixed $Data, int $Format)
+ * @method void RegisterProfileIntegerEx(string $Name, string $Icon, string $Prefix, string $Suffix, array $Associations, int $MaxValue = -1, float $StepSize = 0)
+ * @method void RegisterProfileInteger(string $Name, string $Icon, string $Prefix, string $Suffix, int $MinValue, int $MaxValue, int $StepSize)
+ * @method void UnregisterProfile(string $Name)
+ * @method void SetValueBoolean(string $Ident, bool $value)
+ * @method void SetValueFloat(string $Ident, float $value)
+ * @method void SetValueInteger(string $Ident, int $value)
+ * @method void SetValueString(string $Ident, string $value)
  */
-class SqueezeboxBattery extends IPSModule
+class SqueezeboxBattery extends IPSModuleStrict
 {
     use \SqueezeboxBattery\VariableProfileHelper;
-    use
-        \SqueezeboxBattery\VariableHelper;
+    use \SqueezeboxBattery\VariableHelper;
 
     /**
      * Interne Funktion des SDK.
      */
-    public function Create()
+    public function Create(): void
     {
         //Never delete this line!
         parent::Create();
@@ -80,7 +88,7 @@ class SqueezeboxBattery extends IPSModule
     /**
      * Interne Funktion des SDK.
      */
-    public function ApplyChanges()
+    public function ApplyChanges(): void
     {
         $this->SetReceiveDataFilter('.*"Address":"NOTHING".*');
 
@@ -155,7 +163,7 @@ class SqueezeboxBattery extends IPSModule
     /**
      * Interne Funktion des SDK.
      */
-    public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
+    public function MessageSink(int $TimeStamp, int $SenderID, int $Message, array $Data): void
     {
         switch ($Message) {
             case IPS_KERNELSTARTED:
@@ -172,10 +180,10 @@ class SqueezeboxBattery extends IPSModule
      *
      * @return bool True wenn erfolgreich.
      */
-    public function RequestState()
+    public function RequestState(): bool
     {
         if (!$this->ReadPropertyBoolean('Active')) {
-            return;
+            return false;
         }
         $Address = trim($this->ReadPropertyString('Address'));
         if ($Address == '') {
@@ -240,14 +248,15 @@ class SqueezeboxBattery extends IPSModule
         return true;
     }
 
-    protected function ModulErrorHandler($errno, $errstr)
+    protected function ModulErrorHandler(int $errno, string $errstr): bool
     {
         if (!(error_reporting() & $errno)) {
             // Dieser Fehlercode ist nicht in error_reporting enthalten
             return true;
         }
-        $this->SendDebug('ERROR', utf8_decode($errstr), 0);
+        $this->SendDebug('ERROR', $errstr, 0);
         echo $errstr . "\r\n";
+        return false;
     }
 }
 

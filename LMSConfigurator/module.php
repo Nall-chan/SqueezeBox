@@ -30,21 +30,23 @@ eval('declare(strict_types=1);namespace LMSConfigurator {?>' . file_get_contents
  * @version       3.80
  *
  * @example <b>Ohne</b>
+ *
+ * @property int $ParentID
  */
-class LMSConfigurator extends IPSModule
+class LMSConfigurator extends IPSModuleStrict
 {
-    use \squeezebox\DebugHelper,
+    use \SqueezeBox\DebugHelper,
         \LMSConfigurator\BufferHelper,
         \LMSConfigurator\InstanceStatus {
-        \LMSConfigurator\InstanceStatus::MessageSink as IOMessageSink;
-        \LMSConfigurator\InstanceStatus::RegisterParent as IORegisterParent;
-        \LMSConfigurator\InstanceStatus::RequestAction as IORequestAction;
-    }
+            \LMSConfigurator\InstanceStatus::MessageSink as IOMessageSink;
+            \LMSConfigurator\InstanceStatus::RegisterParent as IORegisterParent;
+            \LMSConfigurator\InstanceStatus::RequestAction as IORequestAction;
+        }
 
     /**
      * Interne Funktion des SDK.
      */
-    public function Create()
+    public function Create(): void
     {
         parent::Create();
         $this->ConnectParent('{96A9AB3A-2538-42C5-A130-FC34205A706A}');
@@ -55,7 +57,7 @@ class LMSConfigurator extends IPSModule
     /**
      * Interne Funktion des SDK.
      */
-    public function ApplyChanges()
+    public function ApplyChanges(): void
     {
         $this->ParentID = 0;
         $this->SetReceiveDataFilter('.*"nothingtoreceive":.*');
@@ -78,12 +80,12 @@ class LMSConfigurator extends IPSModule
      * Interne Funktion des SDK.
      *
      *
-     * @param type $TimeStamp
-     * @param type $SenderID
-     * @param type $Message
-     * @param type $Data
+     * @param int $TimeStamp
+     * @param int $SenderID
+     * @param int $Message
+     * @param array $Data
      */
-    public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
+    public function MessageSink(int $TimeStamp, int $SenderID, int $Message, array $Data): void
     {
         $this->IOMessageSink($TimeStamp, $SenderID, $Message, $Data);
 
@@ -94,18 +96,15 @@ class LMSConfigurator extends IPSModule
         }
     }
 
-    public function RequestAction($Ident, $Value)
+    public function RequestAction(string $Ident, mixed $Value): void
     {
-        if ($this->IORequestAction($Ident, $Value)) {
-            return true;
-        }
-        return false;
+        $this->IORequestAction($Ident, $Value);
     }
 
     /**
      * Interne Funktion des SDK.
      */
-    public function GetConfigurationForm()
+    public function GetConfigurationForm(): string
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
 
@@ -278,20 +277,19 @@ class LMSConfigurator extends IPSModule
     /**
      * Wird ausgeführt wenn der Kernel hochgefahren wurde.
      */
-    protected function KernelReady()
+    protected function KernelReady(): void
     {
         $this->UnregisterMessage(0, IPS_KERNELSTARTED);
         $this->ApplyChanges();
     }
 
-    protected function RegisterParent()
+    protected function RegisterParent(): void
     {
         $SplitterId = $this->IORegisterParent();
         if ($SplitterId > 0) {
             $IOId = @IPS_GetInstance($SplitterId)['ConnectionID'];
             if ($IOId > 0) {
                 $this->SetSummary(IPS_GetProperty($IOId, 'Host'));
-
                 return;
             }
         }
@@ -301,7 +299,7 @@ class LMSConfigurator extends IPSModule
     /**
      * Wird ausgeführt wenn sich der Status vom Parent ändert.
      */
-    protected function IOChangeState($State)
+    protected function IOChangeState(int $State): void
     {
         if ($State == IS_ACTIVE) {
             // Buffer aller Player laden
@@ -314,33 +312,33 @@ class LMSConfigurator extends IPSModule
      * IPS-Instanz-Funktion 'LMC_GetDeviceInfo'.
      * Lädt die bekannten Player vom LMS.
      *
-     * @result array|bool Assoziiertes Array,  false und Fehlermeldung.
+     * @return array|bool Assoziiertes Array,  false und Fehlermeldung.
      */
-    private function GetDeviceInfo()
+    private function GetDeviceInfo(): array
     {
-        $count = $this->Send(new LMSData(['player', 'count'], '?'));
+        $count = $this->Send(new \SqueezeBox\LMSData(['player', 'count'], '?'));
         if (($count === false) || ($count === null)) {
             return [];
         }
         $players = [];
         for ($i = 0; $i < $count->Data[0]; $i++) {
-            $playerid = $this->Send(new LMSData(['player', 'id'], [$i, '?']));
+            $playerid = $this->Send(new \SqueezeBox\LMSData(['player', 'id'], [$i, '?']));
             if ($playerid === false) {
                 continue;
             }
             $id = strtolower(rawurldecode($playerid->Data[1]));
 
-            $playerip = $this->Send(new LMSData(['player', 'ip'], [$i, '?']));
+            $playerip = $this->Send(new \SqueezeBox\LMSData(['player', 'ip'], [$i, '?']));
             if ($playerip === false) {
                 continue;
             }
             $players[$id]['ip'] = rawurldecode(explode(':', $playerip->Data[1])[0]);
-            $playername = $this->Send(new LMSData(['player', 'name'], [$i, '?']));
+            $playername = $this->Send(new \SqueezeBox\LMSData(['player', 'name'], [$i, '?']));
             if ($playername === false) {
                 continue;
             }
             $players[$id]['name'] = rawurldecode($playername->Data[1]);
-            $playermodel = $this->Send(new LMSData(['player', 'model'], [$i, '?']));
+            $playermodel = $this->Send(new \SqueezeBox\LMSData(['player', 'model'], [$i, '?']));
             if ($playermodel === false) {
                 continue;
             }
@@ -349,7 +347,7 @@ class LMSConfigurator extends IPSModule
         return $players;
     }
 
-    private function GetInstanceList(string $GUID, string $ConfigParam)
+    private function GetInstanceList(string $GUID, string $ConfigParam): array
     {
         $InstanceIDList = array_flip(array_values(array_filter(IPS_GetInstanceListByModuleID($GUID), [$this, 'FilterInstances'])));
         if ($ConfigParam != '') {
@@ -358,17 +356,17 @@ class LMSConfigurator extends IPSModule
         return $InstanceIDList;
     }
 
-    private function FilterInstances(int $InstanceID)
+    private function FilterInstances(int $InstanceID): bool
     {
         return IPS_GetInstance($InstanceID)['ConnectionID'] == $this->ParentID;
     }
 
-    private function FilterBattery($Values)
+    private function FilterBattery(array $Values): bool
     {
         return $Values['model'] == 'baby';
     }
 
-    private function GetConfigParam(&$item1, $InstanceID, $ConfigParam)
+    private function GetConfigParam(mixed &$item1, int $InstanceID, string $ConfigParam): void
     {
         $item1 = IPS_GetProperty($InstanceID, $ConfigParam);
     }
@@ -376,16 +374,16 @@ class LMSConfigurator extends IPSModule
     /**
      * Konvertiert $Data zu einem JSONString und versendet diese an den Splitter.
      *
-     * @param LMSData $LMSData Zu versendende Daten.
+     * @param \SqueezeBox\LMSData $LMSData Zu versendende Daten.
      *
-     * @return LMSData Objekt mit der Antwort. NULL im Fehlerfall.
+     * @return ?\SqueezeBox\LMSData Objekt mit der Antwort. NULL im Fehlerfall.
      */
-    private function Send(LMSData $LMSData)
+    private function Send(\SqueezeBox\LMSData $LMSData): ?\SqueezeBox\LMSData
     {
         try {
             $JSONData = $LMSData->ToJSONString('{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}');
             $answer = @$this->SendDataToParent($JSONData);
-            if ($answer === false) {
+            if ($answer == false) {
                 return null;
             }
             $result = @unserialize($answer);

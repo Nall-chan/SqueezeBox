@@ -27,14 +27,14 @@ require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
  *
  * @property array $Devices
  */
-class LMSDiscovery extends ipsmodule
+class LMSDiscovery extends IPSModuleStrict
 {
-    use \squeezebox\DebugHelper;
+    use \SqueezeBox\DebugHelper;
 
     /**
      * Interne Funktion des SDK.
      */
-    public function Create()
+    public function Create(): void
     {
         parent::Create();
     }
@@ -42,7 +42,7 @@ class LMSDiscovery extends ipsmodule
     /**
      * Interne Funktion des SDK.
      */
-    public function ApplyChanges()
+    public function ApplyChanges(): void
     {
         $this->RegisterMessage(0, IPS_KERNELSTARTED);
         parent::ApplyChanges();
@@ -51,7 +51,7 @@ class LMSDiscovery extends ipsmodule
     /**
      * Interne Funktion des SDK.
      */
-    public function GetConfigurationForm()
+    public function GetConfigurationForm(): string
     {
         $Devices = $this->DiscoverDevices();
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
