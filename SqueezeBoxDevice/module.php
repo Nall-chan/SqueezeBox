@@ -288,7 +288,7 @@ class SqueezeboxDevice extends IPSModuleStrict
         $this->RegisterVariableString('Genre', $this->Translate('Genre'), '', 23);
         $this->RegisterVariableString('Duration', $this->Translate('Duration'), '', 24);
         $this->RegisterVariableString('Position', $this->Translate('Position'), '', 25);
-        $this->RegisterVariableInteger('Position2', 'Position', '~Intensity.100', 26);
+        $this->RegisterVariableFloat('Position2', 'Position', '~Progress', 26);
         $this->DisableAction('Position2');
 
         if ($this->ReadPropertyBoolean('enableSleepTimer')) {
@@ -2297,7 +2297,7 @@ class SqueezeboxDevice extends IPSModuleStrict
                 $result = $this->SetShuffle((int) $Value);
                 break;
             case 'Position2':
-                $Time = ($this->DurationRAW / 100) * (int) $Value;
+                $Time = ($this->DurationRAW / 100) *  $Value;
                 $result = $this->SetPosition(intval($Time));
                 break;
             case 'PositionRaw':
@@ -2828,6 +2828,7 @@ class SqueezeboxDevice extends IPSModuleStrict
     {
         if ($this->GetValue('Status') != 1) {
             $this->SetValueInteger('Status', 1);
+            $this->_SetNewTime(0);
         }
     }
 
@@ -2906,7 +2907,7 @@ class SqueezeboxDevice extends IPSModuleStrict
         $this->SetValueString('Position', $this->ConvertSeconds($Time));
         if ($this->isSeekable) {
             $Value = (100 / $this->DurationRAW) * $Time;
-            $this->SetValueInteger('Position2', intval(round($Value)));
+            $this->SetValueFloat('Position2', $Value);
         }
     }
 
@@ -2918,7 +2919,7 @@ class SqueezeboxDevice extends IPSModuleStrict
         }
         if ($Duration == 0) {
             $this->SetValueString('Duration', '');
-            $this->SetValueInteger('Position2', 0);
+            $this->SetValueFloat('Position2', 0);
             $this->DisableAction('Position2');
         } else {
             $OldDuration = $this->GetValue('Duration');
@@ -3200,7 +3201,7 @@ class SqueezeboxDevice extends IPSModuleStrict
                             if ($this->ReadPropertyBoolean('enableRawDuration')) {
                                 $this->SetValueInteger('DurationRaw', 0);
                             }
-                            $this->SetValueInteger('Position2', 0);
+                            $this->SetValueFloat('Position2', 0);
                             $this->SetValueString('Position', '0:00');
                             $this->SetValueInteger('Index', 0);
                         }

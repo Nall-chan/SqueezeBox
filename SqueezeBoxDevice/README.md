@@ -115,7 +115,7 @@ Folgende Statusvariablen werden automatisch angelegt.
 |         Dauer          | string  |    Duration    |       Spielzeit des Tracks der aktuellen Wiedergabe        |
 |   Dauer in Sekunden    | integer |  DurationRaw   | Spielzeit des Tracks der aktuellen Wiedergabe in Sekunden  |
 |       Spielzeit        | string  |    Position    |           Aktuelle Postion im Track als Klartext           |
-|        Position        | integer |   Position2    |            Aktuelle Postion im Track in Prozent            |
+|        Position        | float   |   Position2    |            Aktuelle Postion im Track in Prozent            |
 | Spielzeit in Sekunden  | integer |  PositionRaw   |           Aktuelle Position im Track in Sekunden           |
 |      Signalstärke      | integer | Signalstrength |      WLAN-Signalstärke des Players, sofern vorhanden       |
 |     Einschlaftimer     | integer |   SleepTimer   |           Gewählter Zeitraum für Einschlaftimer            |

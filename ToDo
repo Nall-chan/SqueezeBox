@@ -3,7 +3,7 @@
 🟩Wecker: Andere Profile? Prüfen
 ✅❗Player Wiedergabe: ~PlaybackPreviousNext (Erledigt, Offset +1)
 ✅Player Playlist: ~Playlist
-🟥Player Fortschritt: ~Progress (Ist Integer ~Intensity.100)
+✅❗Player Fortschritt: ~Progress (Ist Integer ~Intensity.100)
 ✅Player Künstler: ~Artist
 ✅Player Lied: ~Song
 ✅Player Lautstärke: ~Volume
