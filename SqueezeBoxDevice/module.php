@@ -1165,13 +1165,13 @@ class SqueezeboxDevice extends IPSModuleStrict
         if ($Text1 == '') {
             $Values[] = ' ';
         } else {
-            $Values[] = utf8_decode($Text1);
+            $Values[] = $Text1;
         }
 
         if ($Text2 == '') {
             $Values[] = ' ';
         } else {
-            $Values[] = utf8_decode($Text2);
+            $Values[] = $Text2;
         }
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData('display', $Values));
         if ($LMSData === null) {
@@ -2713,10 +2713,10 @@ class SqueezeboxDevice extends IPSModuleStrict
         $Brightness = ($Brightness > 4 ? 4 : $Brightness);
         $Values = [];
         if ($Line1 != '') {
-            $Values[] = 'line1:' . utf8_decode($Line1);
+            $Values[] = 'line1:' . $Line1;
         }
         if ($Line2 != '') {
-            $Values[] = 'line2:' . utf8_decode($Line2);
+            $Values[] = 'line2:' . $Line2;
         }
         $Values[] = 'duration:' . $Duration;
         $Values[] = 'brightness:' . $Brightness;
