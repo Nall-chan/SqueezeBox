@@ -500,7 +500,7 @@ class SqueezeboxAlarm extends IPSModuleStrict
         //Status-Variablen anlegen
         $this->RegisterVariableBoolean('EnableAll', $this->Translate('All alarms active'), '~Switch', 1);
         $this->EnableAction('EnableAll');
-        $this->RegisterVariableInteger('DefaultVolume', $this->Translate('Default alarm volume'), 'LSA.Intensity', 2);
+        $this->RegisterVariableInteger('DefaultVolume', $this->Translate('Default alarm volume'), '~Volume', 2);
         $this->EnableAction('DefaultVolume');
         $this->RegisterVariableBoolean('FadeIn', $this->Translate('Fade alarm'), '~Switch', 3);
         $this->EnableAction('FadeIn');
@@ -1124,6 +1124,21 @@ class SqueezeboxAlarm extends IPSModuleStrict
                     $result = true;
                 }
                 break;
+            case 'AlarmPlaylists0':
+            case 'AlarmPlaylists1':
+            case 'AlarmPlaylists2':
+            case 'AlarmPlaylists3':
+            case 'AlarmPlaylists4':
+            case 'AlarmPlaylists5':
+            case 'AlarmPlaylists6':
+            case 'AlarmPlaylists7':
+            case 'AlarmPlaylists8':
+            case 'AlarmPlaylists9':
+                $Index = (int) substr($Ident, -1);
+                $List = json_decode($Value, true);
+                $Item = $List['entries'][$List['current']];
+                $this->SetPlaylist($Index, $Item['id']);
+                break;
             default:
                 set_error_handler([$this, 'ModulErrorHandler']);
                 trigger_error($this->Translate('Invalid ident'), E_USER_NOTICE);
@@ -1400,19 +1415,38 @@ class SqueezeboxAlarm extends IPSModuleStrict
      */
     private function RefreshPlaylist(int $AlarmIndex, int $PlaylistIndex): void
     {
-        if (!$this->ReadPropertyBoolean('showAlarmPlaylist')) {
-            return;
-        }
-        if ($this->RegisterVariableString('AlarmPlaylist' . $AlarmIndex, sprintf($this->Translate('Alarm %d playlist selection'), $AlarmIndex + 1), '~HTMLBox', (($AlarmIndex + 1) * 10) + 7)) {
-            IPS_SetIcon($this->FindIDForIdent('AlarmPlaylist' . $AlarmIndex), 'Database');
-        }
         $Data = $this->Multi_Playlist;
         if (!is_array($Data)) {
             $Data = [];
         }
+        if ($this->RegisterVariableString('AlarmPlaylists' . $AlarmIndex, sprintf($this->Translate('Alarm %d playlist selection'), $AlarmIndex + 1), '~Playlist', (($AlarmIndex + 1) * 10) + 8)) {
+            $this->EnableAction('AlarmPlaylists' . $AlarmIndex);
+        }
+        if (count($Data) == 0) {
+            $this->SetValueString('AlarmPlaylists' . $AlarmIndex, '');
+        } else {
+            $playlistEntries = [];
+            foreach ($Data as $Index => ['Category' => $Category, 'Title'=>$Title, 'Url'=>$Url]) {
+                $playlistEntries[] = [
+                    'artist'        => $Category,
+                    'id'            => $Url,
+                    'song'          => $Title
+                ];
+            }
+            $this->SetValueString('AlarmPlaylists' . $AlarmIndex, json_encode([
+                'current' => $PlaylistIndex + 1,
+                'entries' => $playlistEntries
+            ]));
+        }
 
-        $HTML = $this->GetTable($Data, 'LSAPlaylist', 'AlarmPlaylist' . $AlarmIndex, 'Url', $PlaylistIndex + 1);
-        $this->SetValueString('AlarmPlaylist' . $AlarmIndex, $HTML);
+        //HTML-Tabelle
+        if ($this->ReadPropertyBoolean('showAlarmPlaylist')) {
+            if ($this->RegisterVariableString('AlarmPlaylist' . $AlarmIndex, sprintf($this->Translate('Alarm %d playlist selection'), $AlarmIndex + 1), '~HTMLBox', (($AlarmIndex + 1) * 10) + 7)) {
+                IPS_SetIcon($this->FindIDForIdent('AlarmPlaylist' . $AlarmIndex), 'Database');
+            }
+            $HTML = $this->GetTable($Data, 'LSAPlaylist', 'AlarmPlaylist' . $AlarmIndex, 'Url', $PlaylistIndex + 1);
+            $this->SetValueString('AlarmPlaylist' . $AlarmIndex, $HTML);
+        }
     }
 
     /**
@@ -1536,13 +1570,13 @@ class SqueezeboxAlarm extends IPSModuleStrict
         }
         $this->SetValueInteger('AlarmShuffle' . $Alarm->Index, $Alarm->Shufflemode);
 
-        if ($this->RegisterVariableBoolean('AlarmRepeat' . $Alarm->Index, sprintf($this->Translate('Alarm %d repeat'), $Alarm->Index + 1), '~Switch', (($Alarm->Index + 1) * 10) + 4)) {
+        if ($this->RegisterVariableInteger('AlarmRepeat' . $Alarm->Index, sprintf($this->Translate('Alarm %d repeat'), $Alarm->Index + 1), '~Repeat', (($Alarm->Index + 1) * 10) + 4)) {
             $this->EnableAction('AlarmRepeat' . $Alarm->Index);
             IPS_SetIcon($this->FindIDForIdent('AlarmRepeat' . $Alarm->Index), 'Repeat');
         }
-        $this->SetValueBoolean('AlarmRepeat' . $Alarm->Index, $Alarm->Repeat);
+        $this->SetValueInteger('AlarmRepeat' . $Alarm->Index, (int) $Alarm->Repeat);
 
-        if ($this->RegisterVariableInteger('AlarmVolume' . $Alarm->Index, sprintf($this->Translate('Alarm %d volume'), $Alarm->Index + 1), 'LSA.Intensity', (($Alarm->Index + 1) * 10) + 3)) {
+        if ($this->RegisterVariableInteger('AlarmVolume' . $Alarm->Index, sprintf($this->Translate('Alarm %d volume'), $Alarm->Index + 1), '~Volume', (($Alarm->Index + 1) * 10) + 3)) {
             $this->EnableAction('AlarmVolume' . $Alarm->Index);
         }
         $this->SetValueInteger('AlarmVolume' . $Alarm->Index, $Alarm->Volume);
@@ -1758,7 +1792,14 @@ class SqueezeboxAlarm extends IPSModuleStrict
                                 IPS_DeleteVariable($vid);
                             }
                         }
-
+                        $vid = $this->FindIDForIdent('AlarmPlaylists' . $AlarmIndex);
+                        if ($vid > 0) {
+                            if ($delete) {
+                                IPS_DeleteVariable($vid);
+                            } else {
+                                $this->SetValueString('AlarmPlaylists' . $AlarmIndex, '');
+                            }
+                        }
                         $this->RefreshEvents($Alarms);
                         break;
                     case 'update':

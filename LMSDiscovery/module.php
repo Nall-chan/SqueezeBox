@@ -53,8 +53,11 @@ class LMSDiscovery extends IPSModuleStrict
      */
     public function GetConfigurationForm(): string
     {
-        $Devices = $this->DiscoverDevices();
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+        if ($this->GetStatus() == IS_CREATING) {
+            return json_encode($Form);
+        }
+        $Devices = $this->DiscoverDevices();
         if ((count($Devices) == 0) && IPS_GetOption('NATSupport')) {
             $Form['actions'][2]['visible'] = true;
             $this->SendDebug('FORM', json_encode($Form), 0);

@@ -1,6 +1,7 @@
-🟩Splitter Playlist: ~Playlist (fehlt noch)
-🟩Wecker Playlist: ~Playlist (fehlt noch)
-🟩Wecker: Andere Profile? Prüfen
+✅❗Splitter Playlist: ~Playlist (fehlt noch) (geht nicht, da nicht in Visu angezeigt wird)
+✅❗Wecker Playlist: ~Playlist (fehlt noch)  (geht nicht, da nicht in Visu angezeigt wird)
+✅Wecker Lautstärke: ~Volume
+✅❗Wecker Wiederholung: ~Repeat (Erledigt, ist jetzt Integer geworden, aber nur 0 und 1 gültig)
 ✅❗Player Wiedergabe: ~PlaybackPreviousNext (Erledigt, Offset +1)
 ✅Player Playlist: ~Playlist
 ✅❗Player Fortschritt: ~Progress (Ist Integer ~Intensity.100)

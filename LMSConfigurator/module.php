@@ -107,7 +107,9 @@ class LMSConfigurator extends IPSModuleStrict
     public function GetConfigurationForm(): string
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
-
+        if ($this->GetStatus() == IS_CREATING) {
+            return json_encode($Form);
+        }
         if (!$this->HasActiveParent()) {
             $Form['actions'][] = [
                 'type'  => 'PopupAlert',

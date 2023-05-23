@@ -2297,7 +2297,7 @@ class SqueezeboxDevice extends IPSModuleStrict
                 $result = $this->SetShuffle((int) $Value);
                 break;
             case 'Position2':
-                $Time = ($this->DurationRAW / 100) *  $Value;
+                $Time = ($this->DurationRAW / 100) * $Value;
                 $result = $this->SetPosition(intval($Time));
                 break;
             case 'PositionRaw':

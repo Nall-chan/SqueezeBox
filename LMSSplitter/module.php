@@ -155,16 +155,20 @@ class LMSSplitter extends IPSModuleStrict
 
         // ServerPlaylisten
         if ($this->ReadPropertyBoolean('showPlaylist')) {
-            $this->RegisterProfileIntegerEx('LMS.PlayerSelect' . $this->InstanceID, 'Speaker', '', '', []);
-            $this->RegisterVariableInteger('PlayerSelect', $this->Translate('select player'), 'LMS.PlayerSelect' . $this->InstanceID, 5);
+            $this->RegisterProfileIntegerEx('LMS.PlayerSelect.' . $this->InstanceID, 'Speaker', '', '', []);
+            $this->RegisterVariableInteger('PlayerSelect', $this->Translate('select player'), 'LMS.PlayerSelect.' . $this->InstanceID, 5);
             $this->EnableAction('PlayerSelect');
             $this->RegisterVariableString('Playlists', $this->Translate('Playlists'), '~HTMLBox', 6);
+            $this->RegisterVariableString('SelectPlaylist', 'Playlists', '~Playlist', 7);
+            $this->EnableAction('SelectPlaylist');
+
             $this->RegisterMessage($this->InstanceID, FM_CHILDADDED);
             $this->RegisterMessage($this->InstanceID, FM_CHILDREMOVED);
         } else {
             $this->UnregisterVariable('PlayerSelect');
             $this->UnregisterVariable('Playlists');
-            $this->UnregisterProfile('LMS.PlayerSelect' . $this->InstanceID);
+            $this->UnregisterVariable('SelectPlaylist');
+            $this->UnregisterProfile('LMS.PlayerSelect.' . $this->InstanceID);
             $this->UnregisterMessage($this->InstanceID, FM_CHILDADDED);
             $this->UnregisterMessage($this->InstanceID, FM_CHILDREMOVED);
         }
@@ -230,6 +234,9 @@ class LMSSplitter extends IPSModuleStrict
     public function GetConfigurationForm(): string
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+        if ($this->GetStatus() == IS_CREATING) {
+            return json_encode($Form);
+        }
         $Form['elements'][1]['objectID'] = $this->ParentID;
         $Form['elements'][1]['enabled'] = ($this->ParentID != 0);
         $this->SendDebug('FORM', json_encode($Form), 0);
@@ -250,8 +257,13 @@ class LMSSplitter extends IPSModuleStrict
             return;
         }
         switch ($Ident) {
+            case 'SelectPlaylist':
+                $Playlist = json_decode($Value, true);
+                $Item = $Playlist['entries'][$Playlist['current']];
+                $this->LoadPlaylistforPlayers('Playlist', $Item['id']);
+                break;
             case 'PlayerSelect':
-                $ProfilName = 'LMS.PlayerSelect' . $this->InstanceID;
+                $ProfilName = 'LMS.PlayerSelect.' . $this->InstanceID;
                 $Assoziations = IPS_GetVariableProfile($ProfilName)['Associations'];
                 switch ($Value) {
                     case 0: //keiner
@@ -1613,55 +1625,57 @@ class LMSSplitter extends IPSModuleStrict
             echo $this->Translate('Access denied');
             return;
         }
-        $Value = $this->GetValue('PlayerSelect');
-        $ProfilName = 'LMS.PlayerSelect' . $this->InstanceID;
-        $Assoziations = array_slice(IPS_GetVariableProfile($ProfilName)['Associations'], 2);
-        switch ($Value) {
-            case 0: //keiner
-                echo $this->Translate('No Player selected');
-                return;
-            case 100: //alle
-                $PlayerInstanceIds = array_column($Assoziations, 'Value');
-                break;
-            case -1: // multi
-                $PlayerInstanceIds = [];
-                foreach ($Assoziations as $Assoziation) {
-                    if ($Assoziation['Color'] != -1) {
-                        $PlayerInstanceIds[] = $Assoziation['Value'];
-                    }
-                }
-                break;
-            default:
-                echo $this->Translate('Unknown Player selected');
-                return;
-        }
-        $MasterId = 0;
-        foreach ($PlayerInstanceIds as $PlayerInstanceId) {
-            $OldActiveSync = LSQ_GetSync($PlayerInstanceId);
-            $this->SendDebug('OldActiveSync:' . $PlayerInstanceId, $OldActiveSync, 0);
-            foreach (array_diff($OldActiveSync, $PlayerInstanceIds) as $UnSyncId) {
-                $this->SendDebug('SetUnSync', $UnSyncId, 0);
-                LSQ_SetUnSync($UnSyncId);
-            }
-            if ($MasterId == 0) {
-                $MasterId = $PlayerInstanceId;
-                $this->SendDebug('MasterId', $MasterId, 0);
-                continue;
-            }
-            if (!in_array($MasterId, $OldActiveSync)) {
-                $this->SendDebug('SetSync', $MasterId . ' with ' . $PlayerInstanceId, 0);
-                LSQ_SetSync($MasterId, $PlayerInstanceId);
-            }
-        }
-        if ($_GET['Type'] == 'Playlist') {
-            LSQ_LoadPlaylistByPlaylistID($MasterId, (int) $_GET['ID']);
-        }
-        if ($_GET['Type'] == 'Favorite') {
-            LSQ_LoadPlaylistByFavoriteID($MasterId, (string) $_GET['ID']);
-        }
+        $this->LoadPlaylistforPlayers($_GET['Type'], $_GET['ID']);
         echo 'OK';
     }
-
+protected function LoadPlaylistforPlayers(string $Type, int|string $PlaylistId): void
+{
+    $Value = $this->GetValue('PlayerSelect');
+    $ProfilName = 'LMS.PlayerSelect.' . $this->InstanceID;
+    $Assoziations = array_slice(IPS_GetVariableProfile($ProfilName)['Associations'], 2);
+    switch ($Value) {
+        case 0: //keiner
+            echo $this->Translate('No Player selected');
+            return;
+        case 100: //alle
+            $PlayerInstanceIds = array_column($Assoziations, 'Value');
+            break;
+        case -1: // multi
+            foreach ($Assoziations as $Assoziation) {
+                if ($Assoziation['Color'] != -1) {
+                    $PlayerInstanceIds[] = $Assoziation['Value'];
+                }
+            }
+            break;
+        default:
+            echo $this->Translate('Unknown Player selected');
+            return;
+    }
+    $MasterId = 0;
+    foreach ($PlayerInstanceIds as $PlayerInstanceId) {
+        $OldActiveSync = LSQ_GetSync($PlayerInstanceId);
+        $this->SendDebug('OldActiveSync:' . $PlayerInstanceId, $OldActiveSync, 0);
+        foreach (array_diff($OldActiveSync, $PlayerInstanceIds) as $UnSyncId) {
+            $this->SendDebug('SetUnSync', $UnSyncId, 0);
+            LSQ_SetUnSync($UnSyncId);
+        }
+        if ($MasterId == 0) {
+            $MasterId = $PlayerInstanceId;
+            $this->SendDebug('MasterId', $MasterId, 0);
+            continue;
+        }
+        if (!in_array($MasterId, $OldActiveSync)) {
+            $this->SendDebug('SetSync', $MasterId . ' with ' . $PlayerInstanceId, 0);
+            LSQ_SetSync($MasterId, $PlayerInstanceId);
+        }
+    }
+    if ($Type == 'Playlist') {
+        LSQ_LoadPlaylistByPlaylistID($MasterId, (int) $PlaylistId);
+    }
+    if ($Type == 'Favorite') {
+        LSQ_LoadPlaylistByFavoriteID($MasterId, (string) $PlaylistId);
+    }
+}
     /**
      * Versendet ein \SqueezeBox\LMSData-Objekt und empfängt die Antwort.
      *
@@ -1860,7 +1874,7 @@ class LMSSplitter extends IPSModuleStrict
         foreach ($Players as $Player) {
             $Assoziation[] = [$Player, IPS_GetName($Player), '', -1];
         }
-        $this->RegisterProfileIntegerEx('LMS.PlayerSelect' . $this->InstanceID, 'Speaker', '', '', $Assoziation);
+        $this->RegisterProfileIntegerEx('LMS.PlayerSelect.' . $this->InstanceID, 'Speaker', '', '', $Assoziation);
         $this->SetValueInteger('PlayerSelect', 0);
         return true;
     }
@@ -1929,6 +1943,24 @@ class LMSSplitter extends IPSModuleStrict
         if (!is_array($Data)) {
             $Data = [];
         }
+        if (count($Data) == 0) {
+            $this->SetValueString('SelectPlaylist', '');
+        } else {
+            $playlistEntries = [];
+            foreach ($Data as $Index => ['Playlist' => $Playlist, 'Tracks'=>$Tracks, 'Duration'=>$Duration, 'Id' =>$Id]) {
+                $playlistEntries[] = [
+                    'artist'        => $Tracks,
+                    //'tracks'        => $Tracks,
+                    'id'            => $Id,
+                    'song'          => $Playlist,
+                    'duration'      => $Duration
+                ];
+            }
+            $this->SetValueString('SelectPlaylist', json_encode([
+                'entries' => $playlistEntries
+            ]));
+        }
+        //HTML-Playlist
         $HTML = $this->GetTable($Data, 'LMSPlaylist', 'Playlist', 'Id');
         $this->SetValueString('Playlists', $HTML);
     }

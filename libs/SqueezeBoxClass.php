@@ -117,7 +117,7 @@ trait LMSProfile
      */
     private function DeleteProfile()
     {
-        $this->UnregisterProfile('LMS.PlayerSelect' . $this->InstanceID);
+        $this->UnregisterProfile('LMS.PlayerSelect.' . $this->InstanceID);
         $this->UnregisterProfile('LMS.Scanner');
     }
 }
