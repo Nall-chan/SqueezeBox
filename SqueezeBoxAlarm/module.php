@@ -1419,7 +1419,7 @@ class SqueezeboxAlarm extends IPSModuleStrict
         if (!is_array($Data)) {
             $Data = [];
         }
-        if ($this->RegisterVariableString('AlarmPlaylists' . $AlarmIndex, sprintf($this->Translate('Alarm %d playlist selection'), $AlarmIndex + 1), '~Playlist', (($AlarmIndex + 1) * 10) + 8)) {
+        /*if ($this->RegisterVariableString('AlarmPlaylists' . $AlarmIndex, sprintf($this->Translate('Alarm %d playlist selection'), $AlarmIndex + 1), '~Playlist', (($AlarmIndex + 1) * 10) + 8)) {
             $this->EnableAction('AlarmPlaylists' . $AlarmIndex);
         }
         if (count($Data) == 0) {
@@ -1437,7 +1437,7 @@ class SqueezeboxAlarm extends IPSModuleStrict
                 'current' => $PlaylistIndex + 1,
                 'entries' => $playlistEntries
             ]));
-        }
+        }*/
 
         //HTML-Tabelle
         if ($this->ReadPropertyBoolean('showAlarmPlaylist')) {
@@ -1792,14 +1792,14 @@ class SqueezeboxAlarm extends IPSModuleStrict
                                 IPS_DeleteVariable($vid);
                             }
                         }
-                        $vid = $this->FindIDForIdent('AlarmPlaylists' . $AlarmIndex);
+                        /*$vid = $this->FindIDForIdent('AlarmPlaylists' . $AlarmIndex);
                         if ($vid > 0) {
                             if ($delete) {
                                 IPS_DeleteVariable($vid);
                             } else {
                                 $this->SetValueString('AlarmPlaylists' . $AlarmIndex, '');
                             }
-                        }
+                        }*/
                         $this->RefreshEvents($Alarms);
                         break;
                     case 'update':

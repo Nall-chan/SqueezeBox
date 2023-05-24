@@ -159,15 +159,15 @@ class LMSSplitter extends IPSModuleStrict
             $this->RegisterVariableInteger('PlayerSelect', $this->Translate('select player'), 'LMS.PlayerSelect.' . $this->InstanceID, 5);
             $this->EnableAction('PlayerSelect');
             $this->RegisterVariableString('Playlists', $this->Translate('Playlists'), '~HTMLBox', 6);
-            $this->RegisterVariableString('SelectPlaylist', 'Playlists', '~Playlist', 7);
-            $this->EnableAction('SelectPlaylist');
+            //$this->RegisterVariableString('SelectPlaylist', 'Playlists', '~Playlist', 7);
+            //$this->EnableAction('SelectPlaylist');
 
             $this->RegisterMessage($this->InstanceID, FM_CHILDADDED);
             $this->RegisterMessage($this->InstanceID, FM_CHILDREMOVED);
         } else {
             $this->UnregisterVariable('PlayerSelect');
             $this->UnregisterVariable('Playlists');
-            $this->UnregisterVariable('SelectPlaylist');
+            //$this->UnregisterVariable('SelectPlaylist');
             $this->UnregisterProfile('LMS.PlayerSelect.' . $this->InstanceID);
             $this->UnregisterMessage($this->InstanceID, FM_CHILDADDED);
             $this->UnregisterMessage($this->InstanceID, FM_CHILDREMOVED);
@@ -257,11 +257,12 @@ class LMSSplitter extends IPSModuleStrict
             return;
         }
         switch ($Ident) {
-            case 'SelectPlaylist':
+            /*case 'SelectPlaylist':
                 $Playlist = json_decode($Value, true);
                 $Item = $Playlist['entries'][$Playlist['current']];
                 $this->LoadPlaylistforPlayers('Playlist', $Item['id']);
                 break;
+            */
             case 'PlayerSelect':
                 $ProfilName = 'LMS.PlayerSelect.' . $this->InstanceID;
                 $Assoziations = IPS_GetVariableProfile($ProfilName)['Associations'];
@@ -1943,8 +1944,9 @@ protected function LoadPlaylistforPlayers(string $Type, int|string $PlaylistId):
         if (!is_array($Data)) {
             $Data = [];
         }
+        /*
         if (count($Data) == 0) {
-            $this->SetValueString('SelectPlaylist', '');
+           $this->SetValueString('SelectPlaylist', '');
         } else {
             $playlistEntries = [];
             foreach ($Data as $Index => ['Playlist' => $Playlist, 'Tracks'=>$Tracks, 'Duration'=>$Duration, 'Id' =>$Id]) {
@@ -1960,6 +1962,7 @@ protected function LoadPlaylistforPlayers(string $Type, int|string $PlaylistId):
                 'entries' => $playlistEntries
             ]));
         }
+        */
         //HTML-Playlist
         $HTML = $this->GetTable($Data, 'LMSPlaylist', 'Playlist', 'Id');
         $this->SetValueString('Playlists', $HTML);

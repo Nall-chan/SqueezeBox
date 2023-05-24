@@ -1,5 +1,5 @@
-✅❗Splitter Playlist: ~Playlist (fehlt noch) (geht nicht, da nicht in Visu angezeigt wird)
-✅❗Wecker Playlist: ~Playlist (fehlt noch)  (geht nicht, da nicht in Visu angezeigt wird)
+🟨 Splitter Playlist: ~Playlist (fehlt noch) (geht nicht, da nicht in Visu angezeigt wird)
+🟨 Wecker Playlist: ~Playlist (fehlt noch)  (geht nicht, da nicht in Visu angezeigt wird)
 ✅Wecker Lautstärke: ~Volume
 ✅❗Wecker Wiederholung: ~Repeat (Erledigt, ist jetzt Integer geworden, aber nur 0 und 1 gültig)
 ✅❗Player Wiedergabe: ~PlaybackPreviousNext (Erledigt, Offset +1)
@@ -12,3 +12,5 @@
 🟥Player Zufall: ~Shuffle (geht nicht, ist integer > Off, Title, Album)
 ✅❗Player Wiederholung: ~Repeat (Erledigt, Value 1 und 2 vertauscht)
 ✅Player Cover: Beliebiges Image
+❗Änderungen an Variablen
+🟨 Im Code abgeschaltet
