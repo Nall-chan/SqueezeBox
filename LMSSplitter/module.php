@@ -262,7 +262,7 @@ class LMSSplitter extends IPSModuleStrict
                 $Item = $Playlist['entries'][$Playlist['current']];
                 $this->LoadPlaylistforPlayers('Playlist', $Item['id']);
                 break;
-            */
+             */
             case 'PlayerSelect':
                 $ProfilName = 'LMS.PlayerSelect.' . $this->InstanceID;
                 $Assoziations = IPS_GetVariableProfile($ProfilName)['Associations'];
@@ -1962,7 +1962,7 @@ protected function LoadPlaylistforPlayers(string $Type, int|string $PlaylistId):
                 'entries' => $playlistEntries
             ]));
         }
-        */
+         */
         //HTML-Playlist
         $HTML = $this->GetTable($Data, 'LMSPlaylist', 'Playlist', 'Id');
         $this->SetValueString('Playlists', $HTML);

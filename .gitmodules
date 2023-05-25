@@ -3,7 +3,7 @@
 	url = https://github.com/Nall-chan/SymconModulHelper
 [submodule "tests/stubs"]
 	path = tests/stubs
-	url = https://github.com/symcon/SymconStubs
+url=https://github.com/Nall-chan/SymconStubs
 [submodule ".style"]
 	path = .style
 url=https://github.com/Nall-chan/StylePHP
