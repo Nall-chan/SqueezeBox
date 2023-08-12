@@ -38,7 +38,7 @@ eval('declare(strict_types=1);namespace LMSSplitter {?>' . file_get_contents(__D
  *
  * @example <b>Ohne</b>
  *
- * @property array $Reply \SqueezeBox\LMSData Enthält die versendeten Befehle und speichert die Antworten.
+ * @property array $ReplyLMSData \SqueezeBox\LMSData Enthält die versendeten Befehle und speichert die Antworten.
  * @property string $Buffer EmpfangsBuffer
  * @property string $Host Adresse des LMS (aus IO-Parent ausgelesen)
  * @property int $ParentID Die InstanzeID des IO-Parent
@@ -238,7 +238,7 @@ class LMSSplitter extends IPSModuleStrict
             return json_encode($Form);
         }
         $Form['elements'][1]['objectID'] = $this->ParentID;
-        $Form['elements'][1]['enabled'] = ($this->ParentID != 0);
+        $Form['elements'][1]['enabled'] = ($this->ParentID > 1);
         $this->SendDebug('FORM', json_encode($Form), 0);
         $this->SendDebug('FORM', json_last_error_msg(), 0);
         return json_encode($Form);
