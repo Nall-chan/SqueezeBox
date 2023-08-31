@@ -2843,10 +2843,10 @@ class SqueezeboxDevice extends IPSModuleStrict
         } else {
             $this->SetValueBoolean('Mute', false);
         }
-        $this->SetValueInteger('Volume', $Value);
+        $this->SetValueInteger('Volume', (int)$Value);
     }
 
-    private function _SetNewBass($Value): void
+    private function _SetNewBass(int|string $Value): void
     {
         if ($Value == '') {
             return;
@@ -2860,10 +2860,10 @@ class SqueezeboxDevice extends IPSModuleStrict
                 $Value = 100;
             }
         }
-        $this->SetValueInteger('Bass', $Value);
+        $this->SetValueInteger('Bass', (int)$Value);
     }
 
-    private function _SetNewTreble($Value): void
+    private function _SetNewTreble(int|string $Value): void
     {
         if ($Value == '') {
             return;
@@ -2877,10 +2877,10 @@ class SqueezeboxDevice extends IPSModuleStrict
                 $Value = 100;
             }
         }
-        $this->SetValueInteger('Treble', $Value);
+        $this->SetValueInteger('Treble', (int)$Value);
     }
 
-    private function _SetNewPitch($Value): void
+    private function _SetNewPitch(int|string $Value): void
     {
         if ($Value == '') {
             return;
@@ -2894,7 +2894,7 @@ class SqueezeboxDevice extends IPSModuleStrict
                 $Value = 120;
             }
         }
-        $this->SetValueInteger('Pitch', $Value);
+        $this->SetValueInteger('Pitch', (int)$Value);
     }
 
     private function _SetNewTime(int $Time): void
