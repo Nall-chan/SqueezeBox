@@ -148,16 +148,15 @@ class SqueezeboxBattery extends IPSModuleStrict
         if ($this->ReadPropertyInteger('Interval') >= 30) {
             $this->SetStatus(IS_ACTIVE);
             $this->SetTimerInterval('RequestState', $this->ReadPropertyInteger('Interval') * 1000);
+            $this->RequestState();
         } else {
             if ($this->ReadPropertyInteger('Interval') == 0) {
                 $this->SetStatus(IS_INACTIVE);
             } else {
                 $this->SetStatus(203);
             }
-
             $this->SetTimerInterval('RequestState', 0);
         }
-        $this->RequestState();
     }
 
     /**
@@ -190,15 +189,15 @@ class SqueezeboxBattery extends IPSModuleStrict
             return false;
         }
         $ssh = new \phpseclib\Net\SSH2($this->ReadPropertyString('Address'));
-        $login = @$ssh->login('root', $this->ReadPropertyString('Password'));
-        if ($login == false) {
+        try {
+            $this->SendDebug('Try to connect', '', 0);
+            $login = $ssh->login('root', $this->ReadPropertyString('Password'));
+        } catch (\Throwable $th) {
             set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($this->Translate('Login failed.'), E_USER_NOTICE);
             $this->SendDebug('Login', 'ERROR', 0);
             return false;
         }
-        $this->SendDebug('Login', $login, 0);
-
         $PowerMode = (int) $ssh->exec('cat /sys/class/i2c-adapter/i2c-1/1-0010/power_mode');
         $this->SendDebug('PowerMode', $PowerMode, 0);
         $this->SetValueInteger('State', $PowerMode);

@@ -1212,7 +1212,7 @@ class SqueezeboxAlarm extends IPSModuleStrict
      *
      * @global array $_GET
      */
-    protected function ProcessHookdata(): void
+    protected function ProcessHookData(): void
     {
         if ((!isset($_GET['ID'])) || (!isset($_GET['Type'])) || (!isset($_GET['Secret']))) {
             echo $this->Translate('Bad Request');

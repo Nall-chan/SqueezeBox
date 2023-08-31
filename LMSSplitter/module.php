@@ -1615,7 +1615,7 @@ class LMSSplitter extends IPSModuleStrict
      *
      * @param string $ID Die zu ladenden Playlist oder der zu ladende Favorit.
      */
-    protected function ProcessHookdata(): void
+    protected function ProcessHookData(): void
     {
         if ((!isset($_GET['ID'])) || (!isset($_GET['Type'])) || (!isset($_GET['Secret']))) {
             echo $this->Translate('Bad Request');
