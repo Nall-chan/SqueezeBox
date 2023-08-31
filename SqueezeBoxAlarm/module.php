@@ -1437,6 +1437,7 @@ class SqueezeboxAlarm extends IPSModule
                 return $Item;
             }
         }
+        return false;
     }
 
     /**
