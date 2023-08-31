@@ -1456,7 +1456,7 @@ class SqueezeboxAlarm extends IPSModuleStrict
      *
      * @return array Der gefundene Eintrag.
      */
-    private function GetPlaylistItemFromUrl(string $Url): array
+    private function GetPlaylistItemFromUrl(string $Url): ?array
     {
         $Playlist = $this->Multi_Playlist;
         if (count($Playlist) == 0) {
@@ -1464,7 +1464,7 @@ class SqueezeboxAlarm extends IPSModuleStrict
             $Playlist = $this->Multi_Playlist;
         }
         if (count($Playlist) == 0) {
-            return false;
+            return null;
         }
         if ($Url == 'CURRENT_PLAYLIST') {
             $Url = '';
@@ -1474,7 +1474,7 @@ class SqueezeboxAlarm extends IPSModuleStrict
                 return $Item;
             }
         }
-        return false;
+        return null;
     }
 
     /**
@@ -1558,7 +1558,7 @@ class SqueezeboxAlarm extends IPSModuleStrict
         $this->RegisterMessage($eid, EM_CHANGECYCLICTIMEFROM);
 
         $PlaylistItem = $this->GetPlaylistItemFromUrl($Alarm->Url);
-        if ($PlaylistItem !== false) {
+        if (!is_null($PlaylistItem)) {
             if ($this->RegisterVariableString('AlarmPlaylistName' . $Alarm->Index, sprintf($this->Translate('Alarm %d playlist'), $Alarm->Index + 1), '', (($Alarm->Index + 1) * 10) + 6)) {
                 IPS_SetIcon($this->FindIDForIdent('AlarmPlaylistName' . $Alarm->Index), 'Database');
             }
