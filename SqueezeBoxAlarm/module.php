@@ -30,9 +30,9 @@ class LSA_Alarm
     /**
      * Id des Alarm.
      *
-     * @var string
+     * @var int
      */
-    public string $Id;
+    public int $Id;
 
     /**
      * Index des Alarm.

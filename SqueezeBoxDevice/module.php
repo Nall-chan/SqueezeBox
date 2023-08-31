@@ -327,10 +327,10 @@ class SqueezeboxDevice extends IPSModuleStrict
         $this->RegisterParent();
         if ($this->HasActiveParent()) {
             $this->IOChangeState(IS_ACTIVE);
+            $this->_RefreshPlaylist();
+            // Erst nach 5 Sekunden, sonst sind beim ModuleReload InstanceInterface Fehler möglich
+            IPS_RunScriptText('IPS_Sleep(5000);IPS_RequestAction(' . $this->InstanceID . ', \'_SetNewSyncProfil\', true);');
         }
-        // beim Modul Reload gibt es Fehler bei InstanceInterface
-        IPS_RunScriptText('IPS_Sleep(5000);IPS_RequestAction(' . $this->InstanceID . ', \'_SetNewSyncProfil\', true);');
-        $this->_RefreshPlaylist();
     }
 
     /**
@@ -2802,7 +2802,7 @@ class SqueezeboxDevice extends IPSModuleStrict
             $this->_SetNewSyncMaster(false);
             $this->_SetNewSyncMembers('-');
             if ($this->ReadPropertyBoolean('showSleepTimeout')) {
-                $this->SetValueString('SleepTimeout', 0);
+                $this->SetValueString('SleepTimeout', '');
             }
             if ($this->ReadPropertyBoolean('enableSleepTimer')) {
                 $this->SetValueInteger('SleepTimer', 0);
