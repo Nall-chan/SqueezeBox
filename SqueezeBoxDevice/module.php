@@ -329,7 +329,7 @@ class SqueezeboxDevice extends IPSModuleStrict
             $this->IOChangeState(IS_ACTIVE);
         }
         // beim Modul Reload gibt es Fehler bei InstanceInterface
-        @$this->_SetNewSyncProfil();
+        IPS_RunScriptText('IPS_Sleep(5000);IPS_RequestAction(' . $this->InstanceID . ', \'_SetNewSyncProfil\', true);');
         $this->_RefreshPlaylist();
     }
 
@@ -2245,6 +2245,9 @@ class SqueezeboxDevice extends IPSModuleStrict
             return;
         }
         switch ($Ident) {
+            case '_SetNewSyncProfil':
+                $this->_SetNewSyncProfil();
+                return;            
             case 'Status':
                 switch ((int) $Value) {
                     case 0: //Prev
