@@ -2504,7 +2504,7 @@ class SqueezeboxDevice extends IPSModule
                 throw new Exception($this->Translate('No answer from LMS'), E_USER_NOTICE);
             }
 
-            $ReplyData = new \SqueezeBox\LMSData($answer);
+            $ReplyData = new \SqueezeBox\LMSResponse($answer);
             $LMSData->Data = $ReplyData->Data;
             $this->SendDebug('Response Direct', $LMSData, 0);
             return $LMSData;
@@ -2765,9 +2765,12 @@ class SqueezeboxDevice extends IPSModule
     private function _StopSubscribe()
     {
         if ($this->_isPlayerConnected()) {
-            if (($this->GetValue('SleepTimer')) == 0) {
-                @$this->Send(new \SqueezeBox\LMSData(['status', '-', '1'], 'subscribe:0'), false);
+            if ($this->ReadPropertyBoolean('enableSleepTimer')) {
+                if (($this->GetValue('SleepTimer')) != 0) {
+                    return;
+                }
             }
+            @$this->Send(new \SqueezeBox\LMSData(['status', '-', '1'], 'subscribe:0'), false);
         }
     }
 
@@ -2788,8 +2791,13 @@ class SqueezeboxDevice extends IPSModule
             $this->_SetModeToStop();
             $this->_SetNewSyncMaster(false);
             $this->_SetNewSyncMembers('-');
-            $this->SetValueString('SleepTimeout', 0);
-            $this->SetValueInteger('SleepTimer', 0);
+
+            if ($this->ReadPropertyBoolean('showSleepTimeout')) {
+                $this->SetValueString('SleepTimeout', '');
+            }
+            if ($this->ReadPropertyBoolean('enableSleepTimer')) {
+                $this->SetValueInteger('SleepTimer', 0);
+            }
         }
     }
 
@@ -2927,9 +2935,13 @@ class SqueezeboxDevice extends IPSModule
 
     private function _SetNewSleepTimeout(int $Value)
     {
-        $this->SetValueString('SleepTimeout', $this->ConvertSeconds($Value));
-        if ($Value == 0) {
-            $this->SetValueInteger('SleepTimer', 0);
+        if ($this->ReadPropertyBoolean('showSleepTimeout')) {
+            $this->SetValueString('SleepTimeout', $this->ConvertSeconds($Value));
+        }
+        if ($this->ReadPropertyBoolean('enableSleepTimer')) {
+            if ($Value == 0) {
+                $this->SetValueInteger('SleepTimer', 0);
+            }
         }
     }
 
@@ -3252,7 +3264,9 @@ class SqueezeboxDevice extends IPSModule
                 $this->SetValueString('Position', $this->ConvertSeconds((int) $LMSData->Data[0]));
                 break;
             case 'signalstrength':
-                $this->SetValueInteger('Signalstrength', (int) $LMSData->Data[0]);
+                if ($this->ReadPropertyBoolean('showSignalstrength')) {
+                    $this->SetValueInteger('Signalstrength', (int) $LMSData->Data[0]);
+                }
                 break;
             case 'sleep':
                 $this->_SetNewSleepTimeout((int) $LMSData->Data[0]);
@@ -3328,7 +3342,9 @@ class SqueezeboxDevice extends IPSModule
                             $this->_SetNewPower((int) $Data->Value == 1);
                             break;
                         case 'signalstrength':
-                            $this->SetValueInteger('Signalstrength', (int) $Data->Value);
+                            if ($this->ReadPropertyBoolean('showSignalstrength')) {
+                                $this->SetValueInteger('Signalstrength', (int) $Data->Value);
+                            }
                             break;
                         case 'mode':
                             switch ($Data->Value) {
@@ -3358,7 +3374,9 @@ class SqueezeboxDevice extends IPSModule
                             //$this->_SetSeekable((int) $Data->Value != 1);
                             break;
                         case 'sleep':
-                            $this->SetValueInteger('SleepTimer', (int) $Data->Value);
+                            if ($this->ReadPropertyBoolean('enableSleepTimer')) {
+                                $this->SetValueInteger('SleepTimer', (int) $Data->Value);
+                            }
                             break;
                         case 'sync_master':
                             /*

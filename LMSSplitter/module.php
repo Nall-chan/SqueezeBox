@@ -202,7 +202,6 @@ class LMSSplitter extends IPSModule
      */
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
     {
-        //$this->LogMessage('MessageSink(' . $SenderID . '):' . $Message, KL_DEBUG);
         $this->IOMessageSink($TimeStamp, $SenderID, $Message, $Data);
 
         switch ($Message) {
