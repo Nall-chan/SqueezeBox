@@ -11,7 +11,7 @@ declare(strict_types=1);
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.71
+ * @version       3.80
  *
  */
 require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
@@ -27,19 +27,21 @@ eval('declare(strict_types=1);namespace LMSConfigurator {?>' . file_get_contents
  * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.71
+ * @version       3.80
  *
  * @example <b>Ohne</b>
+ *
+ * @property int $ParentID
  */
 class LMSConfigurator extends IPSModule
 {
-    use \squeezebox\DebugHelper,
+    use \SqueezeBox\DebugHelper,
         \LMSConfigurator\BufferHelper,
         \LMSConfigurator\InstanceStatus {
-        \LMSConfigurator\InstanceStatus::MessageSink as IOMessageSink;
-        \LMSConfigurator\InstanceStatus::RegisterParent as IORegisterParent;
-        \LMSConfigurator\InstanceStatus::RequestAction as IORequestAction;
-    }
+            \LMSConfigurator\InstanceStatus::MessageSink as IOMessageSink;
+            \LMSConfigurator\InstanceStatus::RegisterParent as IORegisterParent;
+            \LMSConfigurator\InstanceStatus::RequestAction as IORequestAction;
+        }
 
     /**
      * Interne Funktion des SDK.
@@ -78,10 +80,10 @@ class LMSConfigurator extends IPSModule
      * Interne Funktion des SDK.
      *
      *
-     * @param type $TimeStamp
-     * @param type $SenderID
-     * @param type $Message
-     * @param type $Data
+     * @param int $TimeStamp
+     * @param int $SenderID
+     * @param int $Message
+     * @param array $Data
      */
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
     {
@@ -108,7 +110,9 @@ class LMSConfigurator extends IPSModule
     public function GetConfigurationForm()
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
-
+        if ($this->GetStatus() == IS_CREATING) {
+            return json_encode($Form);
+        }
         if (!$this->HasActiveParent()) {
             $Form['actions'][] = [
                 'type'  => 'PopupAlert',
@@ -314,33 +318,33 @@ class LMSConfigurator extends IPSModule
      * IPS-Instanz-Funktion 'LMC_GetDeviceInfo'.
      * Lädt die bekannten Player vom LMS.
      *
-     * @result array|bool Assoziiertes Array,  false und Fehlermeldung.
+     * @return array|bool Assoziiertes Array,  false und Fehlermeldung.
      */
     private function GetDeviceInfo()
     {
-        $count = $this->Send(new LMSData(['player', 'count'], '?'));
+        $count = $this->Send(new \SqueezeBox\LMSData(['player', 'count'], '?'));
         if (($count === false) || ($count === null)) {
             return [];
         }
         $players = [];
         for ($i = 0; $i < $count->Data[0]; $i++) {
-            $playerid = $this->Send(new LMSData(['player', 'id'], [$i, '?']));
+            $playerid = $this->Send(new \SqueezeBox\LMSData(['player', 'id'], [$i, '?']));
             if ($playerid === false) {
                 continue;
             }
             $id = strtolower(rawurldecode($playerid->Data[1]));
 
-            $playerip = $this->Send(new LMSData(['player', 'ip'], [$i, '?']));
+            $playerip = $this->Send(new \SqueezeBox\LMSData(['player', 'ip'], [$i, '?']));
             if ($playerip === false) {
                 continue;
             }
             $players[$id]['ip'] = rawurldecode(explode(':', $playerip->Data[1])[0]);
-            $playername = $this->Send(new LMSData(['player', 'name'], [$i, '?']));
+            $playername = $this->Send(new \SqueezeBox\LMSData(['player', 'name'], [$i, '?']));
             if ($playername === false) {
                 continue;
             }
             $players[$id]['name'] = rawurldecode($playername->Data[1]);
-            $playermodel = $this->Send(new LMSData(['player', 'model'], [$i, '?']));
+            $playermodel = $this->Send(new \SqueezeBox\LMSData(['player', 'model'], [$i, '?']));
             if ($playermodel === false) {
                 continue;
             }
@@ -376,16 +380,16 @@ class LMSConfigurator extends IPSModule
     /**
      * Konvertiert $Data zu einem JSONString und versendet diese an den Splitter.
      *
-     * @param LMSData $LMSData Zu versendende Daten.
+     * @param \SqueezeBox\LMSData $LMSData Zu versendende Daten.
      *
-     * @return LMSData Objekt mit der Antwort. NULL im Fehlerfall.
+     * @return \SqueezeBox\LMSData Objekt mit der Antwort. NULL im Fehlerfall.
      */
-    private function Send(LMSData $LMSData)
+    private function Send(\SqueezeBox\LMSData $LMSData)
     {
         try {
             $JSONData = $LMSData->ToJSONString('{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}');
             $answer = @$this->SendDataToParent($JSONData);
-            if ($answer === false) {
+            if ($answer == false) {
                 return null;
             }
             $result = @unserialize($answer);

@@ -11,10 +11,10 @@ declare(strict_types=1);
  * @copyright     2019 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.2
+ * @version       3.8
  */
 
-namespace squeezebox;
+namespace SqueezeBox;
 
 /**
  * DebugHelper ergänzt SendDebug um die Möglichkeit Array und Objekte auszugeben.
@@ -31,11 +31,11 @@ trait DebugHelper
      */
     protected function SendDebug($Message, $Data, $Format)
     {
-        if (is_a($Data, 'LMSResponse')) {
+        if (is_a($Data, '\\SqueezeBox\\LMSResponse')) {
             $this->SendDebug($Message . ' LMSResponse->Address', $Data->Address, 0);
             $this->SendDebug($Message . ' LMSResponse->Command', $Data->Command, 0);
             $this->SendDebug($Message . ' LMSResponse->Data', $Data->Data, 0);
-        } elseif (is_a($Data, 'LMSData')) {
+        } elseif (is_a($Data, '\\SqueezeBox\\LMSData')) {
             $this->SendDebug($Message . ' LMSData->Address', $Data->Address, 0);
             $this->SendDebug($Message . ' LMSData->Command', $Data->Command, 0);
             $this->SendDebug($Message . ' LMSData->Data', $Data->Data, 0);
@@ -65,6 +65,7 @@ trait DebugHelper
                 $this->LogMessage($Message . ':' . (string) $Data, KL_DEBUG);
             }
         }
+        return true;
     }
 }
 

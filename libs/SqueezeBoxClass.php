@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-eval('declare(strict_types=1);namespace squeezebox {?>' . file_get_contents(__DIR__ . '/helper/UTF8Helper.php') . '}');
+namespace SqueezeBox;
+
+eval('declare(strict_types=1);namespace SqueezeBox {?>' . file_get_contents(__DIR__ . '/helper/UTF8Helper.php') . '}');
 require_once __DIR__ . '/TimeConvert.php';  // diverse Klassen
 
 /*
@@ -14,12 +16,15 @@ require_once __DIR__ . '/TimeConvert.php';  // diverse Klassen
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.71
+ * @version       3.80
  *
  */
 
 /**
  * Trait mit allen Profilen der Instanz Squeezebox-Device.
+ * @method void UnregisterProfile(string $Name)
+ * @method void RegisterProfileIntegerEx(string $Name, string $Icon, string $Prefix, string $Suffix, array $Associations, int $MaxValue = -1, float $StepSize = 0)
+ * @method void RegisterProfileInteger(string $Name, string $Icon, string $Prefix, string $Suffix, int $MinValue, int $MaxValue, int $StepSize)
  */
 trait LSQProfile
 {
@@ -57,12 +62,12 @@ trait LSQProfile
             [6, '6', '', -1]
         ]);
         $this->RegisterProfileIntegerEx('LSQ.SleepTimer', 'Gear', '', '', [
-            [0, '0', '', -1],
-            [900, '900', '', -1],
-            [1800, '1800', '', -1],
-            [2700, '2700', '', -1],
-            [3600, '3600', '', -1],
-            [5400, '5400', '', -1]
+            [0, '%d', '', -1],
+            [900, '%d', '', -1],
+            [1800, '%d', '', -1],
+            [2700, '%d', '', -1],
+            [3600, '%d', '', -1],
+            [5400, '%d', '', -1]
         ]);
         $this->RegisterProfileIntegerEx('LSQ.Randomplay', 'Shuffle', '', '', [
             [0, $this->Translate('Off'), '', -1],
@@ -114,7 +119,7 @@ trait LMSProfile
      */
     private function DeleteProfile()
     {
-        $this->UnregisterProfile('LMS.PlayerSelect' . $this->InstanceID);
+        $this->UnregisterProfile('LMS.PlayerSelect.' . $this->InstanceID);
         $this->UnregisterProfile('LMS.Scanner');
     }
 }
@@ -126,13 +131,16 @@ trait LMSProfile
  * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.71
+ * @version       3.80
  *
+ * @method mixed EncodeUTF8(mixed &$item)
+ * @method mixed DecodeUTF8(mixed &$item)
  * @example <b>Ohne</b>
  */
-class LMSData extends stdClass
+class LMSData extends \stdClass
 {
-    use \squeezebox\UTF8Coder;
+    use \SqueezeBox\UTF8Coder;
+
     /**
      * Adresse des Gerätes.
      *
@@ -194,9 +202,9 @@ class LMSData extends stdClass
     /**
      * Erzeugt einen String für den Datenaustausch mit einer IO-Instanz.
      *
-     * @param type $GUID Die TX-GUID
+     * @param string $GUID Die TX-GUID
      *
-     * @return type Der JSON-String für den Datenaustausch.
+     * @return string Der JSON-String für den Datenaustausch.
      */
     public function ToJSONStringForLMS($GUID)
     {
@@ -238,7 +246,7 @@ class LMSData extends stdClass
     /**
      * Befüllt das Objekt mit neuen Daten aus dem Datenaustausch.
      *
-     * @param stdClass $Data Das Objekt aus dem Datenaustausch.
+     * @param \stdClass $Data Das Objekt aus dem Datenaustausch.
      */
     public function CreateFromGenericObject($Data)
     {
@@ -285,7 +293,7 @@ class LMSData extends stdClass
  * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.71
+ * @version       3.80
  *
  * @example <b>Ohne</b>
  */
@@ -457,11 +465,11 @@ class LMSResponse extends LMSData
  * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.71
+ * @version       3.80
  *
  * @example <b>Ohne</b>
  */
-class LMSTaggingData extends stdClass
+class LMSTaggingData extends \stdClass
 {
     /**
      * @var string Der Name des Datensatzes.
@@ -497,11 +505,11 @@ class LMSTaggingData extends stdClass
  * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.71
+ * @version       3.80
  *
  * @example <b>Ohne</b>
  */
-class LMSTaggingArray extends stdClass
+class LMSTaggingArray extends \stdClass
 {
     /**
      * @var array Enthält alle zu dekodierenden Index mit ihren Typenumwandlungen.
@@ -695,11 +703,11 @@ class LMSTaggingArray extends stdClass
  * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.71
+ * @version       3.80
  *
  * @example <b>Ohne</b>
  */
-class LMSSongInfo extends stdClass
+class LMSSongInfo extends \stdClass
 {
     /**
      * Enthält die Zuordnung zu den Datentypen.
@@ -869,7 +877,7 @@ trait LMSSongURL
  */
 trait LMSHTMLTable
 {
-    use \squeezebox\TimeConvert;
+    use TimeConvert;
 
     /**
      * Liefert den Header der HTML-Tabelle.

@@ -54,12 +54,20 @@ class AutoLoaderSqueezeboxBatteryPHPSecLib
  * @version       3.71
  *
  * @example <b>Ohne</b>
+ *
+ * @method bool SendDebug(string $Message, mixed $Data, int $Format)
+ * @method void RegisterProfileIntegerEx(string $Name, string $Icon, string $Prefix, string $Suffix, array $Associations, int $MaxValue = -1, float $StepSize = 0)
+ * @method void RegisterProfileInteger(string $Name, string $Icon, string $Prefix, string $Suffix, int $MinValue, int $MaxValue, int $StepSize)
+ * @method void UnregisterProfile(string $Name)
+ * @method void SetValueBoolean(string $Ident, bool $value)
+ * @method void SetValueFloat(string $Ident, float $value)
+ * @method void SetValueInteger(string $Ident, int $value)
+ * @method void SetValueString(string $Ident, string $value)
  */
 class SqueezeboxBattery extends IPSModule
 {
     use \SqueezeboxBattery\VariableProfileHelper;
-    use
-        \SqueezeboxBattery\VariableHelper;
+    use \SqueezeboxBattery\VariableHelper;
 
     /**
      * Interne Funktion des SDK.
@@ -140,7 +148,7 @@ class SqueezeboxBattery extends IPSModule
         if ($this->ReadPropertyInteger('Interval') >= 30) {
             $this->SetStatus(IS_ACTIVE);
             $this->SetTimerInterval('RequestState', $this->ReadPropertyInteger('Interval') * 1000);
-            $this->RequestState();            
+            $this->RequestState();
         } else {
             if ($this->ReadPropertyInteger('Interval') == 0) {
                 $this->SetStatus(IS_INACTIVE);
@@ -245,8 +253,9 @@ class SqueezeboxBattery extends IPSModule
             // Dieser Fehlercode ist nicht in error_reporting enthalten
             return true;
         }
-        $this->SendDebug('ERROR', utf8_decode($errstr), 0);
+        $this->SendDebug('ERROR', $errstr, 0);
         echo $errstr . "\r\n";
+        return false;
     }
 }
 

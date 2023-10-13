@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace squeezebox;
+namespace SqueezeBox;
 
 /**
  * Ein Trait welcher Sekunden in einen lesbare Zeit konvertiert.

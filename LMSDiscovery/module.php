@@ -10,7 +10,7 @@ declare(strict_types=1);
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.71
+ * @version       3.80
  *
  */
 require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
@@ -21,7 +21,7 @@ require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.71
+ * @version       3.80
  *
  * @example <b>Ohne</b>
  *
@@ -29,7 +29,7 @@ require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
  */
 class LMSDiscovery extends ipsmodule
 {
-    use \squeezebox\DebugHelper;
+    use \SqueezeBox\DebugHelper;
 
     /**
      * Interne Funktion des SDK.
@@ -53,8 +53,11 @@ class LMSDiscovery extends ipsmodule
      */
     public function GetConfigurationForm()
     {
-        $Devices = $this->DiscoverDevices();
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+        if ($this->GetStatus() == IS_CREATING) {
+            return json_encode($Form);
+        }
+        $Devices = $this->DiscoverDevices();
         if ((count($Devices) == 0) && IPS_GetOption('NATSupport')) {
             $Form['actions'][2]['visible'] = true;
             $this->SendDebug('FORM', json_encode($Form), 0);

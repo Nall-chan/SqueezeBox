@@ -30,7 +30,7 @@
                     "name": "Interval",
                     "type": "NumberSpinner",
                     "caption": "Interval",
-                    "minimum": "0",
+                    "minimum": 0,
                     "suffix": "seconds"
                 }
             ]
