@@ -100,7 +100,9 @@ class LMSSplitter extends IPSModuleStrict
         $this->RegisterPropertyString('Columns', json_encode($Style['Columns']));
         $this->RegisterPropertyString('Rows', json_encode($Style['Rows']));
         $this->RegisterTimer('KeepAlive', 0, 'LMS_KeepAlive($_IPS["TARGET"]);');
-
+        if (IPS_GetKernelRunlevel() != KR_READY) {
+            $this->RegisterMessage(0, IPS_KERNELSTARTED);
+        }
         $this->ReplyLMSData = [];
         $this->Buffer = '';
         $this->Multi_Playlists = [];
@@ -126,7 +128,6 @@ class LMSSplitter extends IPSModuleStrict
      */
     public function ApplyChanges(): void
     {
-        $this->RegisterMessage(0, IPS_KERNELSTARTED);
         $this->RegisterMessage($this->InstanceID, FM_CONNECT);
         $this->RegisterMessage($this->InstanceID, FM_DISCONNECT);
         $this->ReplyLMSData = [];
