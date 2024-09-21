@@ -1,5 +1,5 @@
 [![SDK](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20Version-3.80-blue.svg)](https://community.symcon.de/t/modul-squeezebox-release/46937)
+[![Version](https://img.shields.io/badge/Modul%20Version-3.81-blue.svg)](https://community.symcon.de/t/modul-squeezebox-release/46937)
 [![Version](https://img.shields.io/badge/Symcon%20Version-6.1%20%3E-green.svg)](https://www.symcon.de/service/dokumentation/installation/migrationen/v60-v61-q1-2022/)  
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Check Style](https://github.com/Nall-chan/SqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/SqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions)  
@@ -52,16 +52,16 @@ Bei der manuellen Einrichtung ist die Instanz im Dialog `Instanz hinzufügen` un
 **Konfigurationsseite:**  
 ![Instanz hinzufügen](imgs/conf1.png)  
 
-| Name                                | Eigenschaft       | Typ     | Standardwert | Funktion                                                      |
+|                Name                 |    Eigenschaft    |   Typ   | Standardwert |                           Funktion                            |
 | :---------------------------------: | :---------------: | :-----: | :----------: | :-----------------------------------------------------------: |
-| MAC-Adresse                         | Address           | string  |              | MAC Adresse der Squeezebox [Format xx:xx:xx:xx:xx:xx ]        |
-| Button anzeigen für Wecker anlegen. | showAdd           | boolean | true         | de/aktiviert einen Button im WebFront für Wecker hinzufügen.  |
-| Button anzeigen für Wecker löschen. | showDelete        | boolean | true         | de/aktiviert einen Button im WebFront für Wecker löschen.     |
-| Nicht benutzte Objekte löschen.     | dynamicDisplay    | boolean | true         | aktiviert das automatische entfernen von Statusvariablen.     |
-| Alarm Playlist als HTML-Box anlegen | showAlarmPlaylist | boolean | true         | de/aktiviert die Anzeige einer HTML-Box mit allen Playlisten. |
-| Playlist Darstellung                | Table             | string  | Tabelle      | Style Eigenschaften der Playlist HTML-Tabelle.                |
-| Playlist Spalten                    | Columns           | string  | Tabelle      | Style Eigenschaften der Playlist Spalten.                     |
-| Playlist Zeilen                     | Rows              | string  | Tabelle      | Style Eigenschaften der Playlist Zeilen.                      |
+|             MAC-Adresse             |      Address      | string  |              |    MAC Adresse der Squeezebox [Format xx:xx:xx:xx:xx:xx ]     |
+| Button anzeigen für Wecker anlegen. |      showAdd      | boolean |     true     | de/aktiviert einen Button im WebFront für Wecker hinzufügen.  |
+| Button anzeigen für Wecker löschen. |    showDelete     | boolean |     true     |   de/aktiviert einen Button im WebFront für Wecker löschen.   |
+|   Nicht benutzte Objekte löschen.   |  dynamicDisplay   | boolean |     true     |   aktiviert das automatische entfernen von Statusvariablen.   |
+| Alarm Playlist als HTML-Box anlegen | showAlarmPlaylist | boolean |     true     | de/aktiviert die Anzeige einer HTML-Box mit allen Playlisten. |
+|        Playlist Darstellung         |       Table       | string  |   Tabelle    |        Style Eigenschaften der Playlist HTML-Tabelle.         |
+|          Playlist Spalten           |      Columns      | string  |   Tabelle    |           Style Eigenschaften der Playlist Spalten.           |
+|           Playlist Zeilen           |       Rows        | string  |   Tabelle    |           Style Eigenschaften der Playlist Zeilen.            |
 
 
 ## 5. Statusvariablen und Profile
@@ -69,13 +69,13 @@ Bei der manuellen Einrichtung ist die Instanz im Dialog `Instanz hinzufügen` un
 Folgende Statusvariablen werden automatisch angelegt.
 **Statusvariablen allgemein:**  
 
-| Name                        | Typ     | Ident         | Beschreibung                                                  |
+|            Name             |   Typ   |     Ident     |                         Beschreibung                          |
 | :-------------------------: | :-----: | :-----------: | :-----------------------------------------------------------: |
-| Alle Wecker aktiv           | boolean | EnableAll     | Globaler ein/aus Schalter aller Wecker dieses Gerätes.        |
-| Weckerlautstärke            | integer | DefaultVolume | Standard Lautstärke beim erstellen eines neuen Weckers.       |
-| Weckerwiedergabe einblenden | boolean | FadeIn        | Einblenden der Wiedergabe aktivieren / deaktivieren.          |
-| Automatisch beenden         | integer | Timeout       | Zeit in Sekunden nach der ein Alarm automatisch beendet wird. |
-| Schlummerzeit               | integer | SnoozeSeconds | Zeit in Sekunden für den Schlummertimer.                      |
+|      Alle Wecker aktiv      | boolean |   EnableAll   |    Globaler ein/aus Schalter aller Wecker dieses Gerätes.     |
+|      Weckerlautstärke       | integer | DefaultVolume |    Standard Lautstärke beim erstellen eines neuen Weckers.    |
+| Weckerwiedergabe einblenden | boolean |    FadeIn     |     Einblenden der Wiedergabe aktivieren / deaktivieren.      |
+|     Automatisch beenden     | integer |    Timeout    | Zeit in Sekunden nach der ein Alarm automatisch beendet wird. |
+|        Schlummerzeit        | integer | SnoozeSeconds |           Zeit in Sekunden für den Schlummertimer.            |
 
 **Ereignisse und Statusvariablen pro Wecker:**  
 
@@ -83,29 +83,29 @@ Werden pro in der Squeezebox eingerichteten Wecker automatisch erzeugt.
 Wird ein Wecker in der SqueezeBox gelöscht, so werden bei konfigurierten Auto-Löschen die Variablen auch wieder entfernt.  
 (X = Nummer vom Wecker)  
 
-| Name                             | Typ     | Ident              | Beschreibung                                                               |
+|               Name               |   Typ   |       Ident        |                                Beschreibung                                |
 | :------------------------------: | :-----: | :----------------: | :------------------------------------------------------------------------: |
-| Wecker X Weckzeit                | event   | AlarmTimeX         | tägliches Ereignis welches die Wochentage und Weckzeit des Weckers enthält |
-| Wecker X Status                  | integer | AlarmStateX        | Der aktuelle Alarm-Status des Weckers                                      |
-| Wecker X Wiedergabeliste         | string  | AlarmPlaylistNameX | Der Name der gewählten Playlist des Weckers.                               |
-| Wecker X wiederholen             | boolean | AlarmRepeatX       | Alarmwiederholung ja / nein                                                |
-| Wecker X Lautstärke              | integer | AlarmVolumeX       | Lautstärke des Weckers                                                     |
-| Wecker X Wiedergabeliste mischen | integer | AlarmShuffleX      | Zufallsmodus des Weckers                                                   |
-| Wecker X Wiedergabeliste wählen  | string  | AlarmPlaylistX     | HTML-Box mit allen verfügbaren Alarm-Playlisten                            |
+|        Wecker X Weckzeit         |  event  |     AlarmTimeX     | tägliches Ereignis welches die Wochentage und Weckzeit des Weckers enthält |
+|         Wecker X Status          | integer |    AlarmStateX     |                   Der aktuelle Alarm-Status des Weckers                    |
+|     Wecker X Wiedergabeliste     | string  | AlarmPlaylistNameX |                Der Name der gewählten Playlist des Weckers.                |
+|       Wecker X wiederholen       | boolean |    AlarmRepeatX    |                        Alarmwiederholung ja / nein                         |
+|       Wecker X Lautstärke        | integer |    AlarmVolumeX    |                           Lautstärke des Weckers                           |
+| Wecker X Wiedergabeliste mischen | integer |   AlarmShuffleX    |                          Zufallsmodus des Weckers                          |
+| Wecker X Wiedergabeliste wählen  | string  |   AlarmPlaylistX   |              HTML-Box mit allen verfügbaren Alarm-Playlisten               |
 
 ![WebFront Beispiel](imgs/log1.png)  
 
 **Profile**:
 
-| Name                   | Typ     | verwendet von Statusvariablen |
+|          Name          |   Typ   | verwendet von Statusvariablen |
 | :--------------------: | :-----: | :---------------------------: |
-| LSA.Intensity          | integer | Lautstärke                    |
-| LSA.Timeout            | integer | Automatisch beenden           |
-| LSA.Snooze             | integer | Schlummerzeit                 |
-| LSA.Shuffle            | integer | Wiedergabeliste mischen       |
-| LSA.Add                | integer | Wecker hinzufügen             |
-| LSA.Del.\<InstanzeID\> | integer | Wecker löschen                |
-| LSA.State              | integer | Wecker Status                 |
+|     LSA.Intensity      | integer |          Lautstärke           |
+|      LSA.Timeout       | integer |      Automatisch beenden      |
+|       LSA.Snooze       | integer |         Schlummerzeit         |
+|      LSA.Shuffle       | integer |    Wiedergabeliste mischen    |
+|        LSA.Add         | integer |       Wecker hinzufügen       |
+| LSA.Del.\<InstanzeID\> | integer |        Wecker löschen         |
+|       LSA.State        | integer |         Wecker Status         |
 
 
 ## 6. WebFront
@@ -280,7 +280,7 @@ Die Library ist für die nicht kommerzielle Nutzung kostenlos, Schenkungen als U
 <a href="https://www.paypal.com/donate?hosted_button_id=G2SLW2MEMQZH2" target="_blank"><img src="https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_LG.gif" border="0" /></a>  
 
   Wunschliste:  
-<a href="https://www.amazon.de/hz/wishlist/ls/YU4AI9AQT9F?ref_=wl_share" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/4/4a/Amazon_icon.svg" border="0" width="100"/></a>  
+[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](https://www.amazon.de/hz/wishlist/ls/YU4AI9AQT9F?ref_=wl_share)  
 
 ## 10. Lizenz
 

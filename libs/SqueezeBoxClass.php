@@ -16,7 +16,7 @@ require_once __DIR__ . '/TimeConvert.php';  // diverse Klassen
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.80
+ * @version       3.81
  *
  */
 
@@ -59,7 +59,11 @@ trait LSQProfile
             [3, '3', '', -1],
             [4, '4', '', -1],
             [5, '5', '', -1],
-            [6, '6', '', -1]
+            [6, '6', '', -1],
+            [7, '7', '', -1],
+            [8, '8', '', -1],
+            [9, '9', '', -1],
+            [10, '10', '', -1]
         ]);
         $this->RegisterProfileIntegerEx('LSQ.SleepTimer', 'Gear', '', '', [
             [0, '%d', '', -1],
@@ -131,7 +135,7 @@ trait LMSProfile
  * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.80
+ * @version       3.81
  *
  * @method mixed EncodeUTF8(mixed &$item)
  * @method mixed DecodeUTF8(mixed &$item)
@@ -293,7 +297,7 @@ class LMSData extends \stdClass
  * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.80
+ * @version       3.81
  *
  * @example <b>Ohne</b>
  */
@@ -304,21 +308,21 @@ class LMSResponse extends LMSData
      *
      * @static
      */
-    const isServer = 0;
+    public const isServer = 0;
 
     /**
      * Antwort ist von einer MAC-Adresse.
      *
      * @static
      */
-    const isMAC = 1;
+    public const isMAC = 1;
 
     /**
      * Antwort ist von einer IP-Adresse.
      *
      * @static
      */
-    const isIP = 2;
+    public const isIP = 2;
 
     /**
      * Enthält den Type des Versenders einer Antwort.
@@ -465,7 +469,7 @@ class LMSResponse extends LMSData
  * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.80
+ * @version       3.81
  *
  * @example <b>Ohne</b>
  */
@@ -505,7 +509,7 @@ class LMSTaggingData extends \stdClass
  * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.80
+ * @version       3.81
  *
  * @example <b>Ohne</b>
  */
@@ -703,7 +707,7 @@ class LMSTaggingArray extends \stdClass
  * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.80
+ * @version       3.81
  *
  * @example <b>Ohne</b>
  */

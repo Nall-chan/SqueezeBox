@@ -11,7 +11,7 @@ declare(strict_types=1);
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2022 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.80
+ * @version       3.81
  *
  */
 require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
@@ -30,7 +30,7 @@ eval('declare(strict_types=1);namespace SqueezeboxDevice {?>' . file_get_content
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2021 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.80
+ * @version       3.81
  *
  * @example <b>Ohne</b>
  *
@@ -1024,18 +1024,15 @@ class SqueezeboxDevice extends IPSModule
     }
 
     /**
+     * SelectPreset
      * Simuliert einen Tastendruck auf einen der Preset-Tasten.
      *
-     * @param int $Value
-     *                   1 - 6 = Taste 1 bis 6
-     *
-     * @return bool
-     *              true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
+     * @param int $Value 1 - 10
+     * @return bool  true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function SelectPreset(int $Value)
     {
-        if (($Value < 1) || ($Value > 6)) {
+        if (($Value < 1) || ($Value > 10)) {
             set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
             restore_error_handler();
@@ -2828,7 +2825,7 @@ class SqueezeboxDevice extends IPSModule
     private function _SetNewVolume($Value)
     {
         if (is_string($Value) && (($Value[0] == '+') || $Value[0] == '-')) {
-            $Value = $this->GetValue('Volume') + (int) $Value;
+            $Value = (int) $this->GetValue('Volume') + (int) $Value;
             if ($Value < 0) {
                 $Value = 0;
             }
@@ -2851,7 +2848,7 @@ class SqueezeboxDevice extends IPSModule
             return;
         }
         if (is_string($Value) && (($Value[0] == '+') || $Value[0] == '-')) {
-            $Value = $this->GetValue('Bass') + (int) $Value;
+            $Value = (int) $this->GetValue('Bass') + (int) $Value;
             if ($Value < 0) {
                 $Value = 0;
             }
@@ -2868,7 +2865,7 @@ class SqueezeboxDevice extends IPSModule
             return;
         }
         if (is_string($Value) && (($Value[0] == '+') || $Value[0] == '-')) {
-            $Value = $this->GetValue('Treble') + (int) $Value;
+            $Value = (int) $this->GetValue('Treble') + (int) $Value;
             if ($Value < 0) {
                 $Value = 0;
             }
@@ -2885,7 +2882,7 @@ class SqueezeboxDevice extends IPSModule
             return;
         }
         if (is_string($Value) && (($Value[0] == '+') || $Value[0] == '-')) {
-            $Value = $this->GetValue('Pitch') + (int) $Value;
+            $Value = (int) $this->GetValue('Pitch') + (int) $Value;
             if ($Value < 80) {
                 $Value = 80;
             }
@@ -3212,7 +3209,7 @@ class SqueezeboxDevice extends IPSModule
                             break;
                         }
                         if (((string) $LMSData->Data[0][0] === '+') || ((string) $LMSData->Data[0][0] === '-')) {
-                            $this->SetValueInteger('Index', $this->GetValue('Index') + (int) $LMSData->Data[0]);
+                            $this->SetValueInteger('Index', (int) $this->GetValue('Index') + (int) $LMSData->Data[0]);
                         } else {
                             $this->SetValueInteger('Index', (int) $LMSData->Data[0] + 1);
                         }
@@ -3397,21 +3394,21 @@ class SqueezeboxDevice extends IPSModule
                             $this->_SetNewSleepTimeout((int) $Data->Value);
                             break;
                         case 'mixer volume':
-                            $this->_SetNewVolume($Data->Value);
+                            $this->_SetNewVolume((int) $Data->Value);
                             break;
                         case 'mixer bass':
                             if ($this->ReadPropertyBoolean('enableBass')) {
-                                $this->_SetNewBass($Data->Value);
+                                $this->_SetNewBass((int) $Data->Value);
                             }
                             break;
                         case 'mixer treble':
                             if ($this->ReadPropertyBoolean('enableTreble')) {
-                                $this->_SetNewTreble($Data->Value);
+                                $this->_SetNewTreble((int) $Data->Value);
                             }
                             break;
                         case 'mixer pitch':
                             if ($this->ReadPropertyBoolean('enablePitch')) {
-                                $this->_SetNewPitch($Data->Value);
+                                $this->_SetNewPitch((int) $Data->Value);
                             }
                             break;
                         case 'playlist repeat':
