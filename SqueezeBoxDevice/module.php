@@ -2842,7 +2842,6 @@ class SqueezeboxDevice extends IPSModuleStrict
         }
         if ($Value < 0) {
             $Value = $Value - (2 * $Value);
-            $this->SetValueBoolean('Mute', true);
         } else {
             $this->SetValueBoolean('Mute', false);
         }
@@ -3425,17 +3424,17 @@ class SqueezeboxDevice extends IPSModuleStrict
                             break;
                         case 'mixer bass':
                             if ($this->ReadPropertyBoolean('enableBass')) {
-                                $this->_SetNewBass($Data->Value);
+                                $this->_SetNewBass((int)$Data->Value);
                             }
                             break;
                         case 'mixer treble':
                             if ($this->ReadPropertyBoolean('enableTreble')) {
-                                $this->_SetNewTreble($Data->Value);
+                                $this->_SetNewTreble((int)$Data->Value);
                             }
                             break;
                         case 'mixer pitch':
                             if ($this->ReadPropertyBoolean('enablePitch')) {
-                                $this->_SetNewPitch($Data->Value);
+                                $this->_SetNewPitch((int)$Data->Value);
                             }
                             break;
                         case 'playlist repeat':
