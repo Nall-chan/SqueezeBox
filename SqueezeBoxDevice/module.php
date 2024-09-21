@@ -1023,18 +1023,15 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
+     * SelectPreset
      * Simuliert einen Tastendruck auf einen der Preset-Tasten.
      *
-     * @param int $Value
-     *                   1 - 6 = Taste 1 bis 6
-     *
-     * @return bool
-     *              true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
+     * @param int $Value 1 - 10
+     * @return bool  true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function SelectPreset(int $Value): bool
     {
-        if (($Value < 1) || ($Value > 6)) {
+        if (($Value < 1) || ($Value > 10)) {
             set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error(sprintf($this->Translate('%s out of range.'), 'Value'), E_USER_NOTICE);
             restore_error_handler();
@@ -2247,7 +2244,7 @@ class SqueezeboxDevice extends IPSModuleStrict
         switch ($Ident) {
             case '_SetNewSyncProfil':
                 $this->_SetNewSyncProfil();
-                return;            
+                return;
             case 'Status':
                 switch ((int) $Value) {
                     case 0: //Prev
@@ -2837,13 +2834,19 @@ class SqueezeboxDevice extends IPSModuleStrict
 
     private function _SetNewVolume(int|string $Value): void
     {
+        if (is_string($Value) && (($Value[0] == '+') || $Value[0] == '-')) {
+            $Value = (int) $this->GetValue('Volume') + (int) $Value;
+            if ($Value > 100) {
+                $Value = 100;
+            }
+        }
         if ($Value < 0) {
             $Value = $Value - (2 * $Value);
             $this->SetValueBoolean('Mute', true);
         } else {
             $this->SetValueBoolean('Mute', false);
         }
-        $this->SetValueInteger('Volume', (int)$Value);
+        $this->SetValueInteger('Volume', (int) $Value);
     }
 
     private function _SetNewBass(int|string $Value): void
@@ -2852,7 +2855,7 @@ class SqueezeboxDevice extends IPSModuleStrict
             return;
         }
         if (is_string($Value) && (($Value[0] == '+') || $Value[0] == '-')) {
-            $Value = $this->GetValue('Bass') + (int) $Value;
+            $Value = (int) $this->GetValue('Bass') + (int) $Value;
             if ($Value < 0) {
                 $Value = 0;
             }
@@ -2860,7 +2863,7 @@ class SqueezeboxDevice extends IPSModuleStrict
                 $Value = 100;
             }
         }
-        $this->SetValueInteger('Bass', (int)$Value);
+        $this->SetValueInteger('Bass', (int) $Value);
     }
 
     private function _SetNewTreble(int|string $Value): void
@@ -2869,7 +2872,7 @@ class SqueezeboxDevice extends IPSModuleStrict
             return;
         }
         if (is_string($Value) && (($Value[0] == '+') || $Value[0] == '-')) {
-            $Value = $this->GetValue('Treble') + (int) $Value;
+            $Value = (int) $this->GetValue('Treble') + (int) $Value;
             if ($Value < 0) {
                 $Value = 0;
             }
@@ -2877,7 +2880,7 @@ class SqueezeboxDevice extends IPSModuleStrict
                 $Value = 100;
             }
         }
-        $this->SetValueInteger('Treble', (int)$Value);
+        $this->SetValueInteger('Treble', (int) $Value);
     }
 
     private function _SetNewPitch(int|string $Value): void
@@ -2886,7 +2889,7 @@ class SqueezeboxDevice extends IPSModuleStrict
             return;
         }
         if (is_string($Value) && (($Value[0] == '+') || $Value[0] == '-')) {
-            $Value = $this->GetValue('Pitch') + (int) $Value;
+            $Value = (int) $this->GetValue('Pitch') + (int) $Value;
             if ($Value < 80) {
                 $Value = 80;
             }
@@ -2894,7 +2897,7 @@ class SqueezeboxDevice extends IPSModuleStrict
                 $Value = 120;
             }
         }
-        $this->SetValueInteger('Pitch', (int)$Value);
+        $this->SetValueInteger('Pitch', (int) $Value);
     }
 
     private function _SetNewTime(int $Time): void
@@ -3030,7 +3033,7 @@ class SqueezeboxDevice extends IPSModuleStrict
         if (!is_array($Data)) {
             $Data = [];
         }
-        $CurrentIndex = $this->GetValue('Index');
+        $CurrentIndex = (int) $this->GetValue('Index');
         if (count($Data) == 0) {
             $this->SetValueString('CurrentPlaylist', '');
         } else {
@@ -3061,6 +3064,7 @@ class SqueezeboxDevice extends IPSModuleStrict
             $this->Multi_Playlist = [];
         } else {
             $PlaylistDataArray = $this->GetSongInfoOfCurrentPlaylist();
+            $this->SendDebug('PlaylistDataArray', $PlaylistDataArray, 0);
             if ($PlaylistDataArray === false) {
                 $this->Multi_Playlist = [];
                 set_error_handler([$this, 'ModulErrorHandler']);
@@ -3142,17 +3146,7 @@ class SqueezeboxDevice extends IPSModuleStrict
             case 'mixer':
                 switch ($LMSData->Command[1]) {
                     case 'volume':
-                        $Value = $LMSData->Data[0];
-                        if (is_string($Value) && (($Value[0] == '+') || $Value[0] == '-')) {
-                            $Value = $this->GetValue('Volume') + (int) $Value;
-                            if ($Value < 0) {
-                                $Value = 0;
-                            }
-                            if ($Value > 100) {
-                                $Value = 100;
-                            }
-                        }
-                        $this->_SetNewVolume((int) $LMSData->Data[0]);
+                        $this->_SetNewVolume($LMSData->Data[0]);
                         break;
                     case 'muting':
                         $this->SetValueBoolean('Mute', (int) $LMSData->Data[0] == 1);

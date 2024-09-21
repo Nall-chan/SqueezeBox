@@ -200,7 +200,6 @@ class LMSSplitter extends IPSModuleStrict
      */
     public function MessageSink(int $TimeStamp, int $SenderID, int $Message, array $Data): void
     {
-        //$this->LogMessage('MessageSink(' . $SenderID . '):' . $Message, KL_DEBUG);
         $this->IOMessageSink($TimeStamp, $SenderID, $Message, $Data);
 
         switch ($Message) {
@@ -480,7 +479,7 @@ class LMSSplitter extends IPSModuleStrict
         $Data = array_chunk($LMSData->Data, 2);
         foreach ($Data as $Group) {
             $FoundInstanzIDs = [];
-            $Search = explode(',', (new  \SqueezeBox\LMSTaggingData($Group[0]))->Value);
+            $Search = explode(',', (new \SqueezeBox\LMSTaggingData($Group[0]))->Value);
             foreach ($Search as $Value) {
                 if (array_search($Value, $Addresses) !== false) {
                     $FoundInstanzIDs[] = array_search($Value, $Addresses);
@@ -1630,54 +1629,54 @@ class LMSSplitter extends IPSModuleStrict
         $this->LoadPlaylistforPlayers($_GET['Type'], $_GET['ID']);
         echo 'OK';
     }
-protected function LoadPlaylistforPlayers(string $Type, int|string $PlaylistId): void
-{
-    $Value = $this->GetValue('PlayerSelect');
-    $ProfilName = 'LMS.PlayerSelect.' . $this->InstanceID;
-    $Assoziations = array_slice(IPS_GetVariableProfile($ProfilName)['Associations'], 2);
-    switch ($Value) {
-        case 0: //keiner
-            echo $this->Translate('No Player selected');
-            return;
-        case 100: //alle
-            $PlayerInstanceIds = array_column($Assoziations, 'Value');
-            break;
-        case -1: // multi
-            foreach ($Assoziations as $Assoziation) {
-                if ($Assoziation['Color'] != -1) {
-                    $PlayerInstanceIds[] = $Assoziation['Value'];
+    protected function LoadPlaylistforPlayers(string $Type, int|string $PlaylistId): void
+    {
+        $Value = $this->GetValue('PlayerSelect');
+        $ProfilName = 'LMS.PlayerSelect.' . $this->InstanceID;
+        $Assoziations = array_slice(IPS_GetVariableProfile($ProfilName)['Associations'], 2);
+        switch ($Value) {
+            case 0: //keiner
+                echo $this->Translate('No Player selected');
+                return;
+            case 100: //alle
+                $PlayerInstanceIds = array_column($Assoziations, 'Value');
+                break;
+            case -1: // multi
+                foreach ($Assoziations as $Assoziation) {
+                    if ($Assoziation['Color'] != -1) {
+                        $PlayerInstanceIds[] = $Assoziation['Value'];
+                    }
                 }
+                break;
+            default:
+                echo $this->Translate('Unknown Player selected');
+                return;
+        }
+        $MasterId = 0;
+        foreach ($PlayerInstanceIds as $PlayerInstanceId) {
+            $OldActiveSync = LSQ_GetSync($PlayerInstanceId);
+            $this->SendDebug('OldActiveSync:' . $PlayerInstanceId, $OldActiveSync, 0);
+            foreach (array_diff($OldActiveSync, $PlayerInstanceIds) as $UnSyncId) {
+                $this->SendDebug('SetUnSync', $UnSyncId, 0);
+                LSQ_SetUnSync($UnSyncId);
             }
-            break;
-        default:
-            echo $this->Translate('Unknown Player selected');
-            return;
-    }
-    $MasterId = 0;
-    foreach ($PlayerInstanceIds as $PlayerInstanceId) {
-        $OldActiveSync = LSQ_GetSync($PlayerInstanceId);
-        $this->SendDebug('OldActiveSync:' . $PlayerInstanceId, $OldActiveSync, 0);
-        foreach (array_diff($OldActiveSync, $PlayerInstanceIds) as $UnSyncId) {
-            $this->SendDebug('SetUnSync', $UnSyncId, 0);
-            LSQ_SetUnSync($UnSyncId);
+            if ($MasterId == 0) {
+                $MasterId = $PlayerInstanceId;
+                $this->SendDebug('MasterId', $MasterId, 0);
+                continue;
+            }
+            if (!in_array($MasterId, $OldActiveSync)) {
+                $this->SendDebug('SetSync', $MasterId . ' with ' . $PlayerInstanceId, 0);
+                LSQ_SetSync($MasterId, $PlayerInstanceId);
+            }
         }
-        if ($MasterId == 0) {
-            $MasterId = $PlayerInstanceId;
-            $this->SendDebug('MasterId', $MasterId, 0);
-            continue;
+        if ($Type == 'Playlist') {
+            LSQ_LoadPlaylistByPlaylistID($MasterId, (int) $PlaylistId);
         }
-        if (!in_array($MasterId, $OldActiveSync)) {
-            $this->SendDebug('SetSync', $MasterId . ' with ' . $PlayerInstanceId, 0);
-            LSQ_SetSync($MasterId, $PlayerInstanceId);
+        if ($Type == 'Favorite') {
+            LSQ_LoadPlaylistByFavoriteID($MasterId, (string) $PlaylistId);
         }
     }
-    if ($Type == 'Playlist') {
-        LSQ_LoadPlaylistByPlaylistID($MasterId, (int) $PlaylistId);
-    }
-    if ($Type == 'Favorite') {
-        LSQ_LoadPlaylistByFavoriteID($MasterId, (string) $PlaylistId);
-    }
-}
     /**
      * Versendet ein \SqueezeBox\LMSData-Objekt und empfängt die Antwort.
      *

@@ -768,6 +768,9 @@ class LMSSongInfo extends \stdClass
             } else {
                 if ($Part->Name == 'id') {
                     $id++;
+                    $Songs[$id]['Artist'] = '';
+                    $Songs[$id]['Title'] = '';
+                    $Songs[$id]['Duration'] = 0;
                 }
             }
             $Index = ucfirst($Part->Name);
@@ -846,11 +849,11 @@ trait LMSSongURL
     /**
      * Prüft und korrigiert eine URL.
      *
-     * @param type $SongURL
+     * @param string $SongURL
      *
      * @return bool True wenn URL valid ist, sonst false
      */
-    protected function GetValidSongURL(&$SongURL)
+    protected function GetValidSongURL(string &$SongURL): bool
     {
         if (!is_string($SongURL)) {
             trigger_error(sprintf($this->Translate('%s must be string.'), 'URL'), E_USER_NOTICE);
