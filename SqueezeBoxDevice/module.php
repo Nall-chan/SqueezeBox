@@ -2824,6 +2824,8 @@ class SqueezeboxDevice extends IPSModule
 
     private function _SetNewVolume($Value)
     {
+        $this->SendDebug('type', gettype($Value), 0);
+        $this->SendDebug('Value', $Value, 0);
         if (is_string($Value) && (($Value[0] == '+') || $Value[0] == '-')) {
             $Value = (int) $this->GetValue('Volume') + (int) $Value;
             if ($Value < 0) {
@@ -2835,7 +2837,6 @@ class SqueezeboxDevice extends IPSModule
         }
         if ($Value < 0) {
             $Value = $Value - (2 * $Value);
-            $this->SetValueBoolean('Mute', true);
         } else {
             $this->SetValueBoolean('Mute', false);
         }
