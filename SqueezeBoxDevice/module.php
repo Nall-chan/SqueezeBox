@@ -9,9 +9,9 @@ declare(strict_types=1);
  * @package       Squeezebox
  * @file          module.php
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2022 Michael Tröger
+ * @copyright     2024 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.80
+ * @version       4.00
  *
  */
 require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
@@ -28,9 +28,9 @@ eval('declare(strict_types=1);namespace SqueezeboxDevice {?>' . file_get_content
  * Erweitert IPSModule.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2021 Michael Tröger
+ * @copyright     2024 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.80
+ * @version       4.00
  *
  * @example <b>Ohne</b>
  *
@@ -53,7 +53,6 @@ eval('declare(strict_types=1);namespace SqueezeboxDevice {?>' . file_get_content
  * @method void SetValueFloat(string $Ident, float $value)
  * @method void SetValueInteger(string $Ident, int $value)
  * @method void SetValueString(string $Ident, string $value)
- * @method void RegisterProfileIntegerEx(string $Name, string $Icon, string $Prefix, string $Suffix, array $Associations, int $MaxValue = -1, float $StepSize = 0)
  * @method void UnregisterProfile(string $Name)
  */
 class SqueezeboxDevice extends IPSModuleStrict
@@ -75,8 +74,10 @@ class SqueezeboxDevice extends IPSModuleStrict
     private $Socket = false;
 
     /**
-     * Destruktor
+     * __destruct
      * schließt bei Bedarf den noch offenen TCP-Socket.
+     *
+     * @return void
      */
     public function __destruct()
     {
@@ -86,7 +87,9 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
-     * Interne Funktion des SDK.
+     * Create
+     *
+     * @return void
      */
     public function Create(): void
     {
@@ -108,7 +111,8 @@ class SqueezeboxDevice extends IPSModuleStrict
         $this->RegisterPropertyBoolean('showSyncMaster', true);
         $this->RegisterPropertyBoolean('showSyncControl', true);
         $this->RegisterPropertyBoolean('showSignalstrength', true);
-        $this->RegisterPropertyBoolean('showHTMLPlaylist', true);
+        $this->RegisterPropertyBoolean('showTilePlaylist', true);
+        $this->RegisterPropertyBoolean('showHTMLPlaylist', false);
         $Style = $this->GenerateHTMLStyleProperty();
         $this->RegisterPropertyString('Table', json_encode($Style['Table']));
         $this->RegisterPropertyString('Columns', json_encode($Style['Columns']));
@@ -127,7 +131,36 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
-     * Interne Funktion des SDK.
+     * Migrate
+     * @param  string $JSONData
+     * @return string
+     */
+    public function Migrate(string $JSONData): string
+    {
+        $Data = json_decode($JSONData);
+        if (property_exists($Data->configuration, 'showPlaylist')) {
+            $Data->configuration->showHTMLPlaylist = $Data->configuration->showPlaylist;
+            /**
+             * @todo Migrate Statusvariables Types an Profiles?
+             */
+            $vid = $this->FindIDForIdent('Interpret');
+            if ($vid > 0) { //Migrate Statusvariable Interpret to Artist
+                @IPS_SetIdent($vid, 'Artist');
+            }
+            $vid = $this->FindIDForIdent('Playlist');
+            if ($vid > 0) { //Migrate Statusvariable Playlist to HTMLPlaylist
+                @IPS_SetIdent($vid, 'HTMLPlaylist');
+            }
+            $this->SendDebug('Migrate', json_encode($Data), 0);
+            $this->LogMessage('Migrated settings:' . json_encode($Data), KL_MESSAGE);
+        }
+        return json_encode($Data);
+    }
+
+    /**
+     * Destroy
+     *
+     * @return void
      */
     public function Destroy(): void
     {
@@ -147,7 +180,9 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
-     * Interne Funktion des SDK.
+     * ApplyChanges
+     *
+     * @return void
      */
     public function ApplyChanges(): void
     {
@@ -166,11 +201,6 @@ class SqueezeboxDevice extends IPSModuleStrict
         $this->SyncMaster = '';
         $this->SyncMembers = '';
         parent::ApplyChanges();
-        $vid = $this->FindIDForIdent('Interpret');
-        if ($vid > 0) { //Upgrade Statusvariable
-            @IPS_SetIdent($vid, 'Artist');
-        }
-
         $Address = $this->ReadPropertyString('Address');
         // Adresse als Filter setzen
         $this->SetReceiveDataFilter('.*"Address":"' . $Address . '".*');
@@ -241,7 +271,7 @@ class SqueezeboxDevice extends IPSModuleStrict
             $this->UnregisterVariable('Bass');
             $this->UnregisterVariable('Treble');
             $this->UnregisterVariable('Pitch');
-            $this->UnregisterVariable('Signal strength');
+            $this->UnregisterVariable('Signalstrength');
             $this->UnregisterVariable('Master');
             $this->UnregisterVariable('Sync');
         }
@@ -290,7 +320,6 @@ class SqueezeboxDevice extends IPSModuleStrict
         $this->RegisterVariableString('Position', $this->Translate('Position'), '', 25);
         $this->RegisterVariableFloat('Position2', 'Position', '~Progress', 26);
         $this->DisableAction('Position2');
-
         if ($this->ReadPropertyBoolean('enableSleepTimer')) {
             $this->RegisterVariableInteger('SleepTimer', $this->Translate('Sleep timer'), 'LSQ.SleepTimer', 32);
             $this->EnableAction('SleepTimer');
@@ -302,13 +331,18 @@ class SqueezeboxDevice extends IPSModuleStrict
         } else {
             $this->UnregisterVariable('SleepTimeout');
         }
-        $this->RegisterVariableString('CurrentPlaylist', 'Playlist', '~Playlist', 34);
-        $this->EnableAction('CurrentPlaylist');
+
         // Playlist
-        if ($this->ReadPropertyBoolean('showHTMLPlaylist')) {
-            $this->RegisterVariableString('Playlist', 'Playlist', '~HTMLBox', 30);
+        if ($this->ReadPropertyBoolean('showTilePlaylist')) {
+            $this->RegisterVariableString('TilePlaylist', 'Playlist', '~Playlist', 34);
+            $this->EnableAction('TilePlaylist');
         } else {
-            $this->UnregisterVariable('Playlist');
+            $this->UnregisterVariable('TilePlaylist');
+        }
+        if ($this->ReadPropertyBoolean('showHTMLPlaylist')) {
+            $this->RegisterVariableString('HTMLPlaylist', 'Playlist', '~HTMLBox', 30);
+        } else {
+            $this->UnregisterVariable('HTMLPlaylist');
         }
 
         // Wenn Kernel nicht bereit, dann warten... wenn unser IO Aktiv wird, holen wir unsere Daten :)
@@ -322,7 +356,6 @@ class SqueezeboxDevice extends IPSModuleStrict
         } else {
             $this->UnregisterHook('/hook/SqueezeBoxPlaylist' . $this->InstanceID);
         }
-        //$this->SetStatus(IS_ACTIVE);
         // Wenn Parent aktiv, dann Anmeldung an der Hardware bzw. Datenabgleich starten
         $this->RegisterParent();
         if ($this->HasActiveParent()) {
@@ -334,13 +367,13 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
-     * Interne Funktion des SDK.
+     * MessageSink
      *
-     *
-     * @param type $TimeStamp
-     * @param type $SenderID
-     * @param type $Message
-     * @param type $Data
+     * @param  int $TimeStamp
+     * @param  int $SenderID
+     * @param  int $Message
+     * @param  array $Data
+     * @return void
      */
     public function MessageSink(int $TimeStamp, int $SenderID, int $Message, array $Data): void
     {
@@ -391,8 +424,9 @@ class SqueezeboxDevice extends IPSModuleStrict
     //################# PUBLIC
 
     /**
-     * Aktuellen Status des Devices ermitteln und, wenn verbunden, abfragen..
+     * RequestAllState
      *
+     * Aktuellen Status des Devices ermitteln und, wenn verbunden, abfragen..
      * @return bool
      */
     public function RequestAllState(): bool
@@ -440,7 +474,6 @@ class SqueezeboxDevice extends IPSModuleStrict
         }
         $LMSData->SliceData();
         $this->DecodeLMSResponse($LMSData);
-        //$this->SetCover();
         if ($this->GetValue('Status') == 2) {
             $this->_StartSubscribe();
         }
@@ -448,6 +481,8 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
+     * RequestState
+     *
      * IPS-Instanz-Funktion 'LSQ_RequestState'.
      * Fragt einen Wert des Players ab. Es ist der Ident der Statusvariable zu übergeben.
      *
@@ -571,6 +606,13 @@ class SqueezeboxDevice extends IPSModuleStrict
         return $this->DecodeLMSResponse($LMSResponse);
     }
 
+    /**
+     * SetSync
+     *
+     * IPS-Instanz-Funktion 'LSQ_SetSync'.
+     * @param  int $SlaveInstanceID
+     * @return bool
+     */
     public function SetSync(int $SlaveInstanceID): bool
     {
         $id = @IPS_GetInstance($SlaveInstanceID);
@@ -604,10 +646,11 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
-     * Gibt alle mit diesem Gerät synchronisierte Instanzen zurück.
+     * GetSync
      *
+     * IPS-Instanz-Funktion 'LSQ_GetSync'.
+     * Gibt alle mit diesem Gerät synchronisierte Instanzen zurück.
      * @return array
-     * @exception
      */
     public function GetSync(): array
     {
@@ -624,10 +667,12 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
+     * SetUnSync
+     *
+     * IPS-Instanz-Funktion 'LSQ_SetUnSync'.
      * Sync dieses Gerätes aufheben.
      *
      * @return bool true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
      */
     public function SetUnSync(): bool
     {
@@ -639,10 +684,11 @@ class SqueezeboxDevice extends IPSModuleStrict
     ///////////////////////////////////////////////////////////////
 
     /**
+     * SetName
      * Setzten den Namen in dem Device.
      *
-     * @param string $Name
-     *
+     * IPS-Instanz-Funktion 'LSQ_SetName'.
+     * @param string $Name Neuer Name
      * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function SetName(string $Name): bool
@@ -662,9 +708,12 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
+     * GetName
+     *
+     * IPS-Instanz-Funktion 'LSQ_GetName'.
      * Liefert den Namen von dem Device.
      *
-     * @return false|string
+     * @return false|string Name vom Device
      */
     public function GetName(): false|string
     {
@@ -677,15 +726,16 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
+     * SetPower
+     *
+     * IPS-Instanz-Funktion 'LSQ_SetPower'.
      * Schaltet das Gerät ein oder aus.
      *
      * @param bool $Value
      *                    false  = ausschalten
      *                    true = einschalten
      *
-     * @return bool
-     *              true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
+     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function Power(bool $Value): bool
     {
@@ -697,10 +747,12 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
+     * SetSleep
+     *
      * Restzeit bis zum Sleep setzen.
      *
+     * @param int $Seconds Sekunden bis zum ausschalten
      * @return bool true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
      */
     public function SetSleep(int $Seconds): bool
     {
@@ -719,15 +771,15 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
+     * SetMute
+     *
      * Setzten der Stummschaltung.
      *
      * @param boolean $Value
      *                      true = Stumm an
      *                      false = Stumm aus
      *
-     * @return bool
-     *              true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
+     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function SetMute(bool $Value): bool
     {
@@ -739,13 +791,12 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
+     * SetVolume
      * Setzten der Lautstärke.
      *
      * @param int $Value
      *
-     * @return bool
-     *              true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
+     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function SetVolume(int $Value): bool
     {
@@ -763,13 +814,12 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
+     * SetVolumeEx
      * Setzten der Lautstärke.
      *
      * @param string $Value
      *
-     * @return bool
-     *              true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
+     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function SetVolumeEx(string $Value): bool
     {
@@ -793,13 +843,12 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
+     * SetBass
      * Setzt den Bass-Wert.
      *
      * @param int $Value
      *
-     * @return bool
-     *              true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
+     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function SetBass(int $Value): bool
     {
@@ -823,13 +872,12 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
+     * SetBassEx
      * Setzt den Bass-Wert.
      *
      * @param string $Value
      *
-     * @return bool
-     *              true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
+     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function SetBassEx(string $Value): bool
     {
@@ -859,13 +907,12 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
+     * SetTreble
      * Setzt den Treble-Wert.
      *
      * @param int $Value
      *
-     * @return bool
-     *              true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
+     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function SetTreble(int $Value): bool
     {
@@ -889,13 +936,12 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
+     * SetTrebleEx
      * Setzt den Treble-Wert.
      *
      * @param string $Value
      *
-     * @return bool
-     *              true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
+     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function SetTrebleEx(string $Value): bool
     {
@@ -925,13 +971,12 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
+     * SetPitch
      * Setzt den Pitch-Wert.
      *
      * @param int $Value
      *
-     * @return bool
-     *              true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
+     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function SetPitch(int $Value): bool
     {
@@ -955,13 +1000,12 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
+     * SetPitchEx
      * Setzt den Pitch-Wert.
      *
      * @param string $Value
      *
-     * @return bool
-     *              true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
+     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function SetPitchEx(string $Value): bool
     {
@@ -991,11 +1035,10 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
+     * PreviousButton
      * Simuliert einen Tastendruck.
      *
-     * @return bool
-     *              true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
+     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function PreviousButton(): bool
     {
@@ -1007,11 +1050,10 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
+     * NextButton
      * Simuliert einen Tastendruck.
      *
-     * @return bool
-     *              true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
+     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function NextButton(): bool
     {
@@ -1046,11 +1088,10 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
+     * Play
      * Startet die Wiedergabe.
      *
-     * @return bool
-     *              true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
+     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function Play(): bool
     {
@@ -1062,13 +1103,12 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
+     * PlayEx
      * Startet die Wiedergabe.
      *
-     * @param FadeIn Einblendezeit
+     * @param int $FadeIn Einblendezeit
      *
-     * @return bool
-     *              true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
+     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function PlayEx(int $FadeIn): bool
     {
@@ -1080,11 +1120,10 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
+     * Stop
      * Stoppt die Wiedergabe.
      *
-     * @return bool
-     *              true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
+     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function Stop(): bool
     {
@@ -1095,14 +1134,11 @@ class SqueezeboxDevice extends IPSModuleStrict
         return true;
     }
 
-    //fertig
-
     /**
+     * Pause
      * Pausiert die Wiedergabe.
      *
-     * @return bool
-     *              true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
+     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function Pause(): bool
     {
@@ -1114,12 +1150,12 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
+     * SetPosition
      * Setzt eine absolute Zeit-Position des aktuellen Titels.
      *
      * @param int $Value Zeit in Sekunden.
      *
      * @return bool true bei erfolgreicher Ausführung und Rückmeldung.
-     * @exception Wenn Befehl nicht ausgeführt werden konnte.
      */
     public function SetPosition(int $Value): bool
     {
@@ -1136,26 +1172,68 @@ class SqueezeboxDevice extends IPSModuleStrict
         return $Value == $LMSData->Data[0];
     }
 
+    /**
+     * DisplayLine
+     *
+     * @param  string $Text
+     * @param  int $Duration
+     * @return bool
+     */
     public function DisplayLine(string $Text, int $Duration): bool
     {
         return $this->DisplayLines('', $Text, true, $Duration);
     }
 
+    /**
+     * DisplayLineEx
+     *
+     * @param  string $Text
+     * @param  int $Duration
+     * @param  bool $Centered
+     * @param  int $Brightness
+     * @return bool
+     */
     public function DisplayLineEx(string $Text, int $Duration, bool $Centered, int $Brightness): bool
     {
         return $this->DisplayLines('', $Text, true, $Duration, $Centered, $Brightness);
     }
 
+    /**
+     * Display2Lines
+     *
+     * @param  string $Text1
+     * @param  string $Text2
+     * @param  int $Duration
+     * @return bool
+     */
     public function Display2Lines(string $Text1, string $Text2, int $Duration): bool
     {
         return $this->DisplayLines($Text1, $Text2, false, $Duration);
     }
 
+    /**
+     * Display2LinesEx
+     *
+     * @param  string $Text1
+     * @param  string $Text2
+     * @param  int $Duration
+     * @param  bool $Centered
+     * @param  int $Brightness
+     * @return bool
+     */
     public function Display2LinesEx(string $Text1, string $Text2, int $Duration, bool $Centered, int $Brightness): bool
     {
         return $this->DisplayLines($Text1, $Text2, false, $Duration, $Centered, $Brightness);
     }
 
+    /**
+     * DisplayText
+     *
+     * @param  string $Text1
+     * @param  string $Text2
+     * @param  int $Duration
+     * @return bool
+     */
     public function DisplayText(string $Text1, string $Text2, int $Duration): bool
     {
         $Duration = ($Duration < 3 ? 3 : $Duration);
@@ -1177,6 +1255,11 @@ class SqueezeboxDevice extends IPSModuleStrict
         return true;
     }
 
+    /**
+     * GetLinesPerScreen
+     *
+     * @return int
+     */
     public function GetLinesPerScreen(): int
     {
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData('linesperscreen', '?'));
@@ -1186,6 +1269,11 @@ class SqueezeboxDevice extends IPSModuleStrict
         return (int) $LMSData->Data[0];
     }
 
+    /**
+     * GetDisplayedText
+     *
+     * @return string|array
+     */
     public function GetDisplayedText(): string|array
     {
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData('display', ['?', '?']));
@@ -1195,6 +1283,11 @@ class SqueezeboxDevice extends IPSModuleStrict
         return $LMSData->Data;
     }
 
+    /**
+     * GetDisplayedNow
+     *
+     * @return string|array
+     */
     public function GetDisplayedNow(): string|array
     {
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData('displaynow', ['?', '?']));
@@ -1204,6 +1297,12 @@ class SqueezeboxDevice extends IPSModuleStrict
         return $LMSData->Data;
     }
 
+    /**
+     * PressButton
+     *
+     * @param  string $ButtonCode
+     * @return bool
+     */
     public function PressButton(string $ButtonCode): bool
     {
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData('button', $ButtonCode));
@@ -1221,17 +1320,25 @@ class SqueezeboxDevice extends IPSModuleStrict
     ///////////////////////////////////////////////////////////////
 
     /**
+     * PlayUrl
      * Lädt eine neue Playlist.
      *
      * @param string $URL SongURL, Verzeichnis oder Remote-Stream
      *
-     * @return type
+     * @return bool
      */
     public function PlayUrl(string $URL): bool
     {
         return $this->PlayUrlEx($URL, '');
     }
 
+    /**
+     * PlayUrlEx
+     *
+     * @param  string $URL
+     * @param  string $DisplayTitle
+     * @return bool
+     */
     public function PlayUrlEx(string $URL, string $DisplayTitle): bool
     {
         if ($this->GetValidSongURL($URL) == false) {
@@ -1243,11 +1350,25 @@ class SqueezeboxDevice extends IPSModuleStrict
         }
         return strpos($URL, str_replace('\\', '/', $LMSData->Data[0])) !== false;
     }
+
+    /**
+     * PlayUrlSpecial
+     *
+     * @param  string $URL
+     * @return bool
+     */
     public function PlayUrlSpecial(string $URL): bool
     {
         return $this->PlayUrlSpecialEx($URL, '');
     }
 
+    /**
+     * PlayUrlSpecialEx
+     *
+     * @param  string $URL
+     * @param  string $DisplayTitle
+     * @return bool
+     */
     public function PlayUrlSpecialEx(string $URL, string $DisplayTitle): bool
     {
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['playlist', 'play'], [$URL, $DisplayTitle]));
@@ -1256,6 +1377,13 @@ class SqueezeboxDevice extends IPSModuleStrict
         }
         return strpos($URL, str_replace('\\', '/', $LMSData->Data[0])) !== false;
     }
+
+    /**
+     * PlayFavorite
+     *
+     * @param  string $FavoriteID
+     * @return bool
+     */
     public function PlayFavorite(string $FavoriteID): bool
     {
         if ($FavoriteID == '') {
@@ -1272,17 +1400,25 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
+     * AddToPlaylistByUrl
      * Am Ende hinzufügen.
      *
      * @param string $URL
      *
-     * @return type
+     * @return bool
      */
     public function AddToPlaylistByUrl(string $URL): bool
     {
         return $this->AddToPlaylistByUrlEx($URL, '');
     }
 
+    /**
+     * AddToPlaylistByUrlEx
+     *
+     * @param  string $URL
+     * @param  string $DisplayTitle
+     * @return bool
+     */
     public function AddToPlaylistByUrlEx(string $URL, string $DisplayTitle): bool
     {
         if ($this->GetValidSongURL($URL) == false) {
@@ -1305,6 +1441,12 @@ class SqueezeboxDevice extends IPSModuleStrict
         //etc..
     }
 
+    /**
+     * DeleteFromPlaylistByUrl
+     *
+     * @param  string $URL
+     * @return bool
+     */
     public function DeleteFromPlaylistByUrl(string $URL): bool
     {
         if ($this->GetValidSongURL($URL) == false) {
@@ -1326,6 +1468,13 @@ class SqueezeboxDevice extends IPSModuleStrict
         //etc..
     }
 
+    /**
+     * MoveSongInPlaylist
+     *
+     * @param  int $Position
+     * @param  int $NewPosition
+     * @return bool
+     */
     public function MoveSongInPlaylist(int $Position, int $NewPosition): bool
     {
         $Position--;
@@ -1343,8 +1492,11 @@ class SqueezeboxDevice extends IPSModuleStrict
         return true;
     }
 
-    /*
-      The "playlist delete" command deletes the song at the specified index from the current playlist.
+    /**
+     * DeleteFromPlaylistByIndex
+     * The "playlist delete" command deletes the song at the specified index from the current playlist.
+     * @param  int $Position
+     * @return bool
      */
     public function DeleteFromPlaylistByIndex(int $Position): bool
     {
@@ -1362,6 +1514,12 @@ class SqueezeboxDevice extends IPSModuleStrict
         return $LMSData->Data[0] == $Position + 1;
     }
 
+    /**
+     * PreviewPlaylistStart
+     *
+     * @param  string $Name
+     * @return bool
+     */
     public function PreviewPlaylistStart(string $Name): bool
     {
         if ($Name == '') {
@@ -1377,6 +1535,11 @@ class SqueezeboxDevice extends IPSModuleStrict
         return $LMSData->Data[0] == 'url:' . $Name;
     }
 
+    /**
+     * PreviewPlaylistStop
+     *
+     * @return bool
+     */
     public function PreviewPlaylistStop(): bool
     {
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['playlist', 'preview'], 'cmd:stop'));
@@ -1387,14 +1550,12 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
+     * SavePlaylist
      * Speichert die aktuelle Wiedergabeliste vom Gerät in einer unter $Name angegebenen Wiedergabelisten-Datei auf dem LMS-Server.
      *
-     * @param string $Name
-     *                     Der Name der Wiedergabeliste. Ist diese Liste auf dem Server schon vorhanden, wird sie überschrieben.
+     * @param string $Name Der Name der Wiedergabeliste. Ist diese Liste auf dem Server schon vorhanden, wird sie überschrieben.
      *
-     * @return bool
-     *              true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
+     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function SavePlaylist(string $Name): bool
     {
@@ -1412,11 +1573,10 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
+     * SaveTempPlaylist
      * Speichert die aktuelle Wiedergabeliste vom Gerät in einer festen Wiedergabelisten-Datei auf dem LMS-Server.
      *
-     * @return bool
-     *              true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
+     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function SaveTempPlaylist(): bool
     {
@@ -1424,16 +1584,14 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
+     * ResumePlaylist
      * Lädt eine Wiedergabelisten-Datei aus dem LMS-Server und spring an die zuletzt abgespielten Track.
      *
-     * @param string $Name
-     *                     Der Name der Wiedergabeliste.
+     * @param string $Name  Der Name der Wiedergabeliste.
      *
-     * @return string
-     *                Kompletter Pfad der Wiedergabeliste.
-     * @exception
+     * @return bool|string  Kompletter Pfad der Wiedergabeliste
      */
-    public function ResumePlaylist(string $Name): bool
+    public function ResumePlaylist(string $Name): bool|string
     {
         if ($Name == '') {
             set_error_handler([$this, 'ModulErrorHandler']);
@@ -1456,11 +1614,10 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
+     * LoadTempPlaylist
      * Lädt eine zuvor gespeicherte Wiedergabelisten-Datei und setzt die Wiedergabe fort.
      *
-     * @return bool
-     *              true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
+     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function LoadTempPlaylist(): bool
     {
@@ -1479,16 +1636,14 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
+     * LoadPlaylist
      * Lädt eine Wiedergabelisten-Datei aus dem LMS-Server und startet die Wiedergabe derselben auf dem Gerät.
      *
-     * @param string $Name
-     *                     Der Name der Wiedergabeliste. Eine URL zu einem Stream, einem Verzeichnis oder einer Datei
+     * @param string $Name Der Name der Wiedergabeliste. Eine URL zu einem Stream, einem Verzeichnis oder einer Datei
      *
-     * @return string
-     *                Kompletter Pfad der Wiedergabeliste.
-     * @exception
+     * @return bool|string  Kompletter Pfad der Wiedergabeliste
      */
-    public function LoadPlaylist(string $Name): bool
+    public function LoadPlaylist(string $Name): bool|string
     {
         if ($Name == '') {
             set_error_handler([$this, 'ModulErrorHandler']);
@@ -1510,6 +1665,14 @@ class SqueezeboxDevice extends IPSModuleStrict
         return $ret;
     }
 
+    /**
+     * LoadPlaylistBySearch
+     *
+     * @param  string $Genre
+     * @param  string $Artist
+     * @param  string $Album
+     * @return bool
+     */
     public function LoadPlaylistBySearch(string $Genre, string $Artist, string $Album): bool
     {
         if ($Genre == '') {
@@ -1534,6 +1697,14 @@ class SqueezeboxDevice extends IPSModuleStrict
         return true;
     }
 
+    /**
+     * AddToPlaylistBySearch
+     *
+     * @param  string $Genre
+     * @param  string $Artist
+     * @param  string $Album
+     * @return bool
+     */
     public function AddToPlaylistBySearch(string $Genre, string $Artist, string $Album): bool
     {
         if ($Genre == '') {
@@ -1558,6 +1729,12 @@ class SqueezeboxDevice extends IPSModuleStrict
         return true;
     }
 
+    /**
+     * LoadPlaylistByTrackTitel
+     *
+     * @param  string $Titel
+     * @return bool
+     */
     public function LoadPlaylistByTrackTitel(string $Titel): bool
     {
         if ($Titel == '') {
@@ -1573,6 +1750,12 @@ class SqueezeboxDevice extends IPSModuleStrict
         return true;
     }
 
+    /**
+     * LoadPlaylistByAlbumTitel
+     *
+     * @param  string $Titel
+     * @return bool
+     */
     public function LoadPlaylistByAlbumTitel(string $Titel): bool
     {
         if ($Titel == '') {
@@ -1588,6 +1771,12 @@ class SqueezeboxDevice extends IPSModuleStrict
         return true;
     }
 
+    /**
+     * LoadPlaylistByArtistName
+     *
+     * @param  string $Name
+     * @return bool
+     */
     public function LoadPlaylistByArtistName(string $Name): bool
     {
         if ($Name == '') {
@@ -1603,6 +1792,12 @@ class SqueezeboxDevice extends IPSModuleStrict
         return true;
     }
 
+    /**
+     * LoadPlaylistByFavoriteID
+     *
+     * @param  string $FavoriteID
+     * @return bool
+     */
     public function LoadPlaylistByFavoriteID(string $FavoriteID): bool
     {
         if ($FavoriteID == '') {
@@ -1618,6 +1813,12 @@ class SqueezeboxDevice extends IPSModuleStrict
         return true;
     }
 
+    /**
+     * AddToPlaylistByTrackTitel
+     *
+     * @param  string $Titel
+     * @return bool
+     */
     public function AddToPlaylistByTrackTitel(string $Titel): bool
     {
         if ($Titel == '') {
@@ -1633,6 +1834,12 @@ class SqueezeboxDevice extends IPSModuleStrict
         return true;
     }
 
+    /**
+     * AddToPlaylistByAlbumTitel
+     *
+     * @param  string $Titel
+     * @return bool
+     */
     public function AddToPlaylistByAlbumTitel(string $Titel): bool
     {
         if ($Titel == '') {
@@ -1648,6 +1855,12 @@ class SqueezeboxDevice extends IPSModuleStrict
         return true;
     }
 
+    /**
+     * AddToPlaylistByArtistName
+     *
+     * @param  string $Name
+     * @return bool
+     */
     public function AddToPlaylistByArtistName(string $Name): bool
     {
         if ($Name == '') {
@@ -1663,6 +1876,12 @@ class SqueezeboxDevice extends IPSModuleStrict
         return true;
     }
 
+    /**
+     * AddToPlaylistByFavoriteID
+     *
+     * @param  string $FavoriteID
+     * @return bool
+     */
     public function AddToPlaylistByFavoriteID(string $FavoriteID): bool
     {
         if ($FavoriteID == '') {
@@ -1677,6 +1896,14 @@ class SqueezeboxDevice extends IPSModuleStrict
         return true;
     }
 
+    /**
+     * InsertInPlaylistBySearch
+     *
+     * @param  string $Genre
+     * @param  string $Artist
+     * @param  string $Album
+     * @return bool
+     */
     public function InsertInPlaylistBySearch(string $Genre, string $Artist, string $Album): bool
     {
         if ($Genre == '') {
@@ -1701,6 +1928,14 @@ class SqueezeboxDevice extends IPSModuleStrict
         return true;
     }
 
+    /**
+     * DeleteFromPlaylistBySearch
+     *
+     * @param  string $Genre
+     * @param  string $Artist
+     * @param  string $Album
+     * @return bool
+     */
     public function DeleteFromPlaylistBySearch(string $Genre, string $Artist, string $Album): bool
     {
         if ($Genre == '') {
@@ -1726,7 +1961,12 @@ class SqueezeboxDevice extends IPSModuleStrict
         return true;
     }
 
-    //The "playlist clear" command removes any song that is on the playlist. The player is stopped.
+    /**
+     * ClearPlaylist
+     * The "playlist clear" command removes any song that is on the playlist. The player is stopped.
+     *
+     * @return bool
+     */
     public function ClearPlaylist(): bool
     {
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['playlist', 'clear'], ''));
@@ -1736,6 +1976,12 @@ class SqueezeboxDevice extends IPSModuleStrict
         return true;
     }
 
+    /**
+     * AddPlaylistIndexToZappedList
+     *
+     * @param  int $Position
+     * @return bool
+     */
     public function AddPlaylistIndexToZappedList(int $Position): bool
     {
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['playlist', 'zap'], $Position));
@@ -1745,6 +1991,11 @@ class SqueezeboxDevice extends IPSModuleStrict
         return true;
     }
 
+    /**
+     * GetPlaylistURL
+     *
+     * @return false
+     */
     public function GetPlaylistURL(): false|string
     {
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['playlist', 'playlistsinfo'], ''));
@@ -1758,6 +2009,11 @@ class SqueezeboxDevice extends IPSModuleStrict
         return $SongInfo->GetSong()['Url'];
     }
 
+    /**
+     * IsPlaylistModified
+     *
+     * @return bool
+     */
     public function IsPlaylistModified(): bool
     {
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['playlist', 'modified'], '?'));
@@ -1833,6 +2089,12 @@ class SqueezeboxDevice extends IPSModuleStrict
       id:267 name:A98 modified:0 url:file://Volumes/... &lt;LF&gt;"
       </p>
       </blockquote> */
+
+    /**
+     * GetPlaylistInfo
+     *
+     * @return false|array
+     */
     public function GetPlaylistInfo(): false|array
     {
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['playlist', 'playlistsinfo'], ''));
@@ -1847,14 +2109,12 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
+     * GoToTrack
      * Springt in der aktuellen Wiedergabeliste auf einen Titel.
      *
-     * @param int $Index
-     *                   Track in der Wiedergabeliste auf welchen gesprungen werden soll.
+     * @param int $Index Track in der Wiedergabeliste auf welchen gesprungen werden soll.
      *
-     * @return bool
-     *              true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
+     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function GoToTrack(int $Index): bool
     {
@@ -1872,11 +2132,10 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
+     * NextTrack
      * Springt in der aktuellen Wiedergabeliste auf den nächsten Titel.
      *
-     * @return bool
-     *              true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
+     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function NextTrack(): bool
     {
@@ -1888,11 +2147,10 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
+     * PreviousTrack
      * Springt in der aktuellen Wiedergabeliste auf den vorherigen Titel.
      *
-     * @return bool
-     *              true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
+     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function PreviousTrack(): bool
     {
@@ -1904,6 +2162,8 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
+     * SetShuffle
+     *
      * Setzen des Zufallsmodus.
      *
      * @param int $Value
@@ -1911,9 +2171,7 @@ class SqueezeboxDevice extends IPSModuleStrict
      *                   1 = Titel
      *                   2 = Album
      *
-     * @return bool
-     *              true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
+     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function SetShuffle(int $Value): bool
     {
@@ -1931,16 +2189,14 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
-     * Setzen des Wiederholungsmodus.
+     * SetRepeat
      *
-     * @param int $Value
+     * Setzen des Wiederholungsmodus.
+     * @param  int $Value
      *                   0 = aus
      *                   1 = Titel
      *                   2 = Album
-     *
-     * @return bool
-     *              true bei erfolgreicher Ausführung und Rückmeldung
-     * @exception
+     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function SetRepeat(int $Value): bool
     {
@@ -1958,98 +2214,211 @@ class SqueezeboxDevice extends IPSModuleStrict
         return (int) $LMSData->Data[0] == $Value;
     }
 
+    /**
+     * LoadPlaylistByAlbumID
+     *
+     * @param  int $AlbumID
+     * @return bool
+     */
     public function LoadPlaylistByAlbumID(int $AlbumID): bool
     {
         return $this->_PlaylistControl('cmd:load', 'album_id:' . $AlbumID, sprintf($this->Translate('%s not found.'), 'AlbumID'));
     }
 
+    /**
+     * LoadPlaylistByGenreID
+     *
+     * @param  int $GenreID
+     * @return bool
+     */
     public function LoadPlaylistByGenreID(int $GenreID): bool
     {
         return $this->_PlaylistControl('cmd:load', 'genre_id:' . $GenreID, sprintf($this->Translate('%s not found.'), 'GenreID'));
     }
 
+    /**
+     * LoadPlaylistByArtistID
+     *
+     * @param  int $ArtistID
+     * @return bool
+     */
     public function LoadPlaylistByArtistID(int $ArtistID): bool
     {
         return $this->_PlaylistControl('cmd:load', 'artist_id:' . $ArtistID, sprintf($this->Translate('%s not found.'), 'ArtistID'));
     }
 
+    /**
+     * LoadPlaylistByPlaylistID
+     *
+     * @param  int $PlaylistID
+     * @return bool
+     */
     public function LoadPlaylistByPlaylistID(int $PlaylistID): bool
     {
         return $this->_PlaylistControl('cmd:load', 'playlist_id:' . $PlaylistID, sprintf($this->Translate('%s not found.'), 'PlaylistID'));
     }
 
+    /**
+     * LoadPlaylistBySongIDs
+     *
+     * @param  string $SongIDs
+     * @return bool
+     */
     public function LoadPlaylistBySongIDs(string $SongIDs): bool
     {
         return $this->_PlaylistControl('cmd:load', 'track_id:' . $SongIDs, sprintf($this->Translate('%s not found.'), 'SongIDs'));
     }
 
+    /**
+     * LoadPlaylistByFolderID
+     *
+     * @param  int $FolderID
+     * @return bool
+     */
     public function LoadPlaylistByFolderID(int $FolderID): bool
     {
         return $this->_PlaylistControl('cmd:load', 'folder_id:' . $FolderID, sprintf($this->Translate('%s not found.'), 'FolderID'));
     }
 
+    /**
+     * AddToPlaylistByAlbumID
+     *
+     * @param  int $AlbumID
+     * @return bool
+     */
     public function AddToPlaylistByAlbumID(int $AlbumID): bool
     {
         return $this->_PlaylistControl('cmd:add', 'album_id:' . $AlbumID, sprintf($this->Translate('%s not found.'), 'AlbumID'));
     }
 
+    /**
+     * AddToPlaylistByGenreID
+     *
+     * @param  int $GenreID
+     * @return bool
+     */
     public function AddToPlaylistByGenreID(int $GenreID): bool
     {
         return $this->_PlaylistControl('cmd:add', 'genre_id:' . $GenreID, sprintf($this->Translate('%s not found.'), 'GenreID'));
     }
 
+    /**
+     * AddToPlaylistByArtistID
+     *
+     * @param  int $ArtistID
+     * @return bool
+     */
     public function AddToPlaylistByArtistID(int $ArtistID): bool
     {
         return $this->_PlaylistControl('cmd:add', 'artist_id:' . $ArtistID, sprintf($this->Translate('%s not found.'), 'ArtistID'));
     }
 
+    /**
+     * AddToPlaylistByPlaylistID
+     *
+     * @param  int $PlaylistID
+     * @return bool
+     */
     public function AddToPlaylistByPlaylistID(int $PlaylistID): bool
     {
         return $this->_PlaylistControl('cmd:add', 'playlist_id:' . $PlaylistID, sprintf($this->Translate('%s not found.'), 'PlaylistID'));
     }
 
+    /**
+     * AddToPlaylistBySongIDs
+     *
+     * @param  string $SongIDs
+     * @return bool
+     */
     public function AddToPlaylistBySongIDs(string $SongIDs): bool
     {
         return $this->_PlaylistControl('cmd:add', 'track_id:' . $SongIDs, sprintf($this->Translate('%s not found.'), 'SongIDs'));
     }
 
+    /**
+     * AddToPlaylistByFolderID
+     *
+     * @param  int $FolderID
+     * @return bool
+     */
     public function AddToPlaylistByFolderID(int $FolderID): bool
     {
         return $this->_PlaylistControl('cmd:add', 'folder_id:' . $FolderID, sprintf($this->Translate('%s not found.'), 'FolderID'));
     }
 
-    //todo alles auch mit add + move
-    //todo insert testen !?!?
+    /**
+     * InsertInPlaylistByAlbumID
+     * @todo alles auch mit add + move
+     * @todo insert testen !?!?
+     * @param  int $AlbumID
+     * @return bool
+     */
     public function InsertInPlaylistByAlbumID(int $AlbumID): bool
     {
         return $this->_PlaylistControl('cmd:insert', 'album_id:' . $AlbumID, sprintf($this->Translate('%s not found.'), 'AlbumID'));
     }
 
+    /**
+     * InsertInPlaylistByGenreID
+     *
+     * @param  int $GenreID
+     * @return bool
+     */
     public function InsertInPlaylistByGenreID(int $GenreID): bool
     {
         return $this->_PlaylistControl('cmd:insert', 'genre_id:' . $GenreID, sprintf($this->Translate('%s not found.'), 'GenreID'));
     }
 
+    /**
+     * InsertInPlaylistByArtistID
+     *
+     * @param  int $ArtistID
+     * @return bool
+     */
     public function InsertInPlaylistByArtistID(int $ArtistID): bool
     {
         return $this->_PlaylistControl('cmd:insert', 'artist_id:' . $ArtistID, sprintf($this->Translate('%s not found.'), 'ArtistID'));
     }
 
+    /**
+     * InsertInPlaylistByPlaylistID
+     *
+     * @param  int $PlaylistID
+     * @return bool
+     */
     public function InsertInPlaylistByPlaylistID(int $PlaylistID): bool
     {
         return $this->_PlaylistControl('cmd:insert', 'playlist_id:' . $PlaylistID, sprintf($this->Translate('%s not found.'), 'PlaylistID'));
     }
 
+    /**
+     * InsertInPlaylistBySongIDs
+     *
+     * @param  string $SongIDs
+     * @return bool
+     */
     public function InsertInPlaylistBySongIDs(string $SongIDs): bool
     {
         return $this->_PlaylistControl('cmd:insert', 'track_id:' . $SongIDs, sprintf($this->Translate('%s not found.'), 'SongIDs'));
     }
 
+    /**
+     * InsertInPlaylistByFolderID
+     *
+     * @param  int $FolderID
+     * @return bool
+     */
     public function InsertInPlaylistByFolderID(int $FolderID): bool
     {
         return $this->_PlaylistControl('cmd:insert', 'folder_id:' . $FolderID, sprintf($this->Translate('%s not found.'), 'FolderID'));
     }
 
+    /**
+     * InsertInPlaylistByFavoriteID
+     *
+     * @param  string $FavoriteID
+     * @return bool
+     */
     public function InsertInPlaylistByFavoriteID(string $FavoriteID): bool
     {
         if ($FavoriteID == '') {
@@ -2064,32 +2433,64 @@ class SqueezeboxDevice extends IPSModuleStrict
         return true;
     }
 
+    /**
+     * DeleteFromPlaylistByAlbumID
+     *
+     * @param  int $AlbumID
+     * @return bool
+     */
     public function DeleteFromPlaylistByAlbumID(int $AlbumID): bool
     {
         return $this->_PlaylistControl('cmd:delete', 'album_id:' . $AlbumID, sprintf($this->Translate('%s not found.'), 'AlbumID'));
     }
 
+    /**
+     * DeleteFromPlaylistByGenreID
+     *
+     * @param  int $GenreID
+     * @return bool
+     */
     public function DeleteFromPlaylistByGenreID(int $GenreID): bool
     {
         return $this->_PlaylistControl('cmd:delete', 'genre_id:' . $GenreID, sprintf($this->Translate('%s not found.'), 'GenreID'));
     }
 
+    /**
+     * DeleteFromPlaylistByArtistID
+     *
+     * @param  int $ArtistID
+     * @return bool
+     */
     public function DeleteFromPlaylistByArtistID(int $ArtistID): bool
     {
         return $this->_PlaylistControl('cmd:delete', 'artist_id:' . $ArtistID, sprintf($this->Translate('%s not found.'), 'ArtistID'));
     }
 
+    /**
+     * DeleteFromPlaylistByPlaylistID
+     *
+     * @param  int $PlaylistID
+     * @return bool
+     */
     public function DeleteFromPlaylistByPlaylistID(int $PlaylistID): bool
     {
         return $this->_PlaylistControl('cmd:delete', 'playlist_id:' . $PlaylistID, sprintf($this->Translate('%s not found.'), 'PlaylistID'));
     }
 
+    /**
+     * DeleteFromPlaylistBySongIDs
+     *
+     * @param  string $SongIDs
+     * @return bool
+     */
     public function DeleteFromPlaylistBySongIDs(string $SongIDs): bool
     {
         return $this->_PlaylistControl('cmd:delete', 'track_id:' . $SongIDs, sprintf($this->Translate('%s not found.'), 'SongIDs'));
     }
 
     /**
+     * GetSongInfoByTrackIndex
+     *
      * Liefert Informationen über einen Song aus der aktuelle Wiedergabeliste.
      *
      * @param int $Index
@@ -2107,7 +2508,6 @@ class SqueezeboxDevice extends IPSModuleStrict
      *               ["disccount"]=>string
      *               ["bitrate"]=>string
      *               ["tracknum"]=>string
-     * @exception
      */
     public function GetSongInfoByTrackIndex(int $Index): false|array
     {
@@ -2128,6 +2528,8 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
+     * GetSongInfoOfTilePlaylist
+     *
      * Liefert Informationen über alle Songs aus der aktuelle Wiedergabeliste.
      *
      * @return array[index]
@@ -2141,7 +2543,6 @@ class SqueezeboxDevice extends IPSModuleStrict
      *                      ["disccount"]=>string
      *                      ["bitrate"]=>string
      *                      ["tracknum"]=>string
-     * @exception
      */
     public function GetSongInfoOfCurrentPlaylist(): false|array
     {
@@ -2162,6 +2563,11 @@ class SqueezeboxDevice extends IPSModuleStrict
     // START RANDOMPLAY
     ///////////////////////////////////////////////////////////////
 
+    /**
+     * StartRandomplayOfTracks
+     *
+     * @return bool
+     */
     public function StartRandomplayOfTracks(): bool
     {
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['randomplay'], ['tracks']));
@@ -2171,6 +2577,11 @@ class SqueezeboxDevice extends IPSModuleStrict
         return true;
     }
 
+    /**
+     * StartRandomplayOfAlbums
+     *
+     * @return bool
+     */
     public function StartRandomplayOfAlbums(): bool
     {
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['randomplay'], ['albums']));
@@ -2180,6 +2591,11 @@ class SqueezeboxDevice extends IPSModuleStrict
         return true;
     }
 
+    /**
+     * StartRandomplayOfArtist
+     *
+     * @return bool
+     */
     public function StartRandomplayOfArtist(): bool
     {
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['randomplay'], ['contributors']));
@@ -2189,6 +2605,11 @@ class SqueezeboxDevice extends IPSModuleStrict
         return true;
     }
 
+    /**
+     * StartRandomplayOfYear
+     *
+     * @return bool
+     */
     public function StartRandomplayOfYear(): bool
     {
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['randomplay'], ['year']));
@@ -2198,6 +2619,11 @@ class SqueezeboxDevice extends IPSModuleStrict
         return true;
     }
 
+    /**
+     * StopRandomplay
+     *
+     * @return bool
+     */
     public function StopRandomplay(): bool
     {
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['randomplay'], ['disable']));
@@ -2207,6 +2633,12 @@ class SqueezeboxDevice extends IPSModuleStrict
         return true;
     }
 
+    /**
+     * RandomplaySelectAllGenre
+     *
+     * @param  bool $Active
+     * @return bool
+     */
     public function RandomplaySelectAllGenre(bool $Active): bool
     {
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['randomplaygenreselectall'], [(int) $Active]));
@@ -2216,6 +2648,13 @@ class SqueezeboxDevice extends IPSModuleStrict
         return true;
     }
 
+    /**
+     * RandomplaySelectGenre
+     *
+     * @param  string $Genre
+     * @param  bool $Active
+     * @return bool
+     */
     public function RandomplaySelectGenre(string $Genre, bool $Active): bool
     {
         if ($Genre == '') {
@@ -2236,6 +2675,13 @@ class SqueezeboxDevice extends IPSModuleStrict
     ///////////////////////////////////////////////////////////////
     //################# ActionHandler
 
+    /**
+     * RequestAction
+     *
+     * @param  string $Ident
+     * @param  mixed $Value
+     * @return void
+     */
     public function RequestAction(string $Ident, mixed $Value): void
     {
         if ($this->IORequestAction($Ident, $Value)) {
@@ -2297,7 +2743,7 @@ class SqueezeboxDevice extends IPSModuleStrict
                 $result = $this->SetShuffle((int) $Value);
                 break;
             case 'Position2':
-                $Time = ($this->DurationRAW / 100) * $Value;
+                $Time = ($this->DurationRAW / 100) * (int) $Value;
                 $result = $this->SetPosition(intval($Time));
                 break;
             case 'PositionRaw':
@@ -2337,7 +2783,7 @@ class SqueezeboxDevice extends IPSModuleStrict
                         break;
                 }
                 break;
-            case 'CurrentPlaylist':
+            case 'TilePlaylist':
                 $result = $this->GoToTrack(json_decode($Value, true)['current'] + 1);
                 break;
             case 'showHTMLPlaylist':
@@ -2360,6 +2806,12 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     //################# DataPoints Ankommend von Parent-LMS-Splitter
+    /**
+     * ReceiveData
+     *
+     * @param  string $JSONString
+     * @return string
+     */
     public function ReceiveData(string $JSONString): string
     {
         $this->SendDebug('Receive Event', $JSONString, 0);
@@ -2380,10 +2832,14 @@ class SqueezeboxDevice extends IPSModuleStrict
         return '';
     }
 
+    /**
+     * SetStatus
+     *
+     * @param  int $State
+     * @return bool
+     */
     public function SetStatus(int $State): bool
     {
-        $this->SendDebug('OldState', $this->GetStatus(), 0);
-        $this->SendDebug('NewState', $State, 0);
         if ($State != $this->GetStatus()) {
             return parent::SetStatus($State);
         }
@@ -2391,7 +2847,10 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
+     * KernelReady
      * Wird ausgeführt wenn der Kernel hochgefahren wurde.
+     *
+     * @return void
      */
     protected function KernelReady(): void
     {
@@ -2399,6 +2858,11 @@ class SqueezeboxDevice extends IPSModuleStrict
         $this->ApplyChanges();
     }
 
+    /**
+     * RegisterParent
+     *
+     * @return void
+     */
     protected function RegisterParent(): void
     {
         $SplitterId = $this->IORegisterParent();
@@ -2414,7 +2878,11 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
+     * IOChangeState
+     *
      * Wird ausgeführt wenn sich der Status vom Parent ändert.
+     * @param  int $State
+     * @return void
      */
     protected function IOChangeState(int $State): void
     {
@@ -2432,6 +2900,7 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
+     * ProcessHookData
      * Verarbeitet Daten aus dem Webhook.
      *
      * @global array $_GET
@@ -2458,6 +2927,7 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
+     * SendDirect
      * Konvertiert $Data zu einem String und versendet diesen direkt an den LMS.
      *
      * @param \SqueezeBox\LMSData $LMSData Zu versendende Daten.
@@ -2531,6 +3001,13 @@ class SqueezeboxDevice extends IPSModuleStrict
         }
         return null;
     }
+    /**
+     * ModulErrorHandler
+     *
+     * @param  int $errno
+     * @param  string $errstr
+     * @return bool
+     */
     protected function ModulErrorHandler(int $errno, string $errstr): bool
     {
         if (!(error_reporting() & $errno)) {
@@ -2542,6 +3019,11 @@ class SqueezeboxDevice extends IPSModuleStrict
         return false;
     }
 
+    /**
+     * GenerateHTMLStyleProperty
+     *
+     * @return array
+     */
     private function GenerateHTMLStyleProperty(): array
     {
         $NewTableConfig = [
@@ -2706,6 +3188,17 @@ class SqueezeboxDevice extends IPSModuleStrict
         return ['Table' => $NewTableConfig, 'Columns' => $NewColumnsConfig, 'Rows' => $NewRowsConfig];
     }
 
+    /**
+     * DisplayLines
+     *
+     * @param  mixed $Line1
+     * @param  mixed $Line2
+     * @param  mixed $Huge
+     * @param  mixed $Duration
+     * @param  mixed $Centered
+     * @param  mixed $Brightness
+     * @return bool
+     */
     private function DisplayLines($Line1 = '', $Line2 = '', $Huge = false, $Duration = 3, $Centered = false, $Brightness = 4): bool
     {
         $Duration = ($Duration < 3 ? 3 : $Duration);
@@ -2733,6 +3226,14 @@ class SqueezeboxDevice extends IPSModuleStrict
         return true;
     }
 
+    /**
+     * _PlaylistControl
+     *
+     * @param  string $cmd
+     * @param  string $item
+     * @param  string $errormsg
+     * @return bool
+     */
     private function _PlaylistControl(string $cmd, string $item, string $errormsg): bool
     {
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData('playlistcontrol', [$cmd, $item]));
@@ -2752,16 +3253,31 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     //################# PRIVATE
+    /**
+     * _isPlayerConnected
+     *
+     * @return bool
+     */
     private function _isPlayerConnected(): bool
     {
         return $this->GetStatus() == IS_ACTIVE;
     }
 
+    /**
+     * _isPlayerOn
+     *
+     * @return bool
+     */
     private function _isPlayerOn(): bool
     {
         return (bool) $this->GetValue('Power');
     }
 
+    /**
+     * _StartSubscribe
+     *
+     * @return void
+     */
     private function _StartSubscribe(): void
     {
         if ($this->_isPlayerConnected()) {
@@ -2769,6 +3285,11 @@ class SqueezeboxDevice extends IPSModuleStrict
         }
     }
 
+    /**
+     * _StopSubscribe
+     *
+     * @return void
+     */
     private function _StopSubscribe(): void
     {
         if ($this->_isPlayerConnected()) {
@@ -2781,6 +3302,12 @@ class SqueezeboxDevice extends IPSModuleStrict
         }
     }
 
+    /**
+     * _SetNewName
+     *
+     * @param  string $Name
+     * @return void
+     */
     private function _SetNewName(string $Name): void
     {
         if (!$this->ReadPropertyBoolean('changeName')) {
@@ -2791,6 +3318,12 @@ class SqueezeboxDevice extends IPSModuleStrict
         }
     }
 
+    /**
+     * _SetNewPower
+     *
+     * @param  bool $Power
+     * @return void
+     */
     private function _SetNewPower(bool $Power): void
     {
         $this->SetValueBoolean('Power', $Power);
@@ -2807,6 +3340,11 @@ class SqueezeboxDevice extends IPSModuleStrict
         }
     }
 
+    /**
+     * _SetModeToPlay
+     *
+     * @return void
+     */
     private function _SetModeToPlay(): void
     {
         if ($this->GetValue('Status') != 2) {
@@ -2814,6 +3352,11 @@ class SqueezeboxDevice extends IPSModuleStrict
         }
     }
 
+    /**
+     * _SetModeToPause
+     *
+     * @return void
+     */
     private function _SetModeToPause(): void
     {
         if (!$this->_isPlayerOn()) {
@@ -2824,6 +3367,11 @@ class SqueezeboxDevice extends IPSModuleStrict
         }
     }
 
+    /**
+     * _SetModeToStop
+     *
+     * @return void
+     */
     private function _SetModeToStop(): void
     {
         if ($this->GetValue('Status') != 1) {
@@ -2832,10 +3380,19 @@ class SqueezeboxDevice extends IPSModuleStrict
         }
     }
 
+    /**
+     * _SetNewVolume
+     *
+     * @param  int|string $Value
+     * @return void
+     */
     private function _SetNewVolume(int|string $Value): void
     {
         if (is_string($Value) && (($Value[0] == '+') || $Value[0] == '-')) {
             $Value = (int) $this->GetValue('Volume') + (int) $Value;
+            if ($Value < 0) {
+                $Value = 0;
+            }
             if ($Value > 100) {
                 $Value = 100;
             }
@@ -2848,6 +3405,12 @@ class SqueezeboxDevice extends IPSModuleStrict
         $this->SetValueInteger('Volume', (int) $Value);
     }
 
+    /**
+     * _SetNewBass
+     *
+     * @param  int|string $Value
+     * @return void
+     */
     private function _SetNewBass(int|string $Value): void
     {
         if ($Value == '') {
@@ -2865,6 +3428,12 @@ class SqueezeboxDevice extends IPSModuleStrict
         $this->SetValueInteger('Bass', (int) $Value);
     }
 
+    /**
+     * _SetNewTreble
+     *
+     * @param  int|string $Value
+     * @return void
+     */
     private function _SetNewTreble(int|string $Value): void
     {
         if ($Value == '') {
@@ -2882,6 +3451,12 @@ class SqueezeboxDevice extends IPSModuleStrict
         $this->SetValueInteger('Treble', (int) $Value);
     }
 
+    /**
+     * _SetNewPitch
+     *
+     * @param  int|string $Value
+     * @return void
+     */
     private function _SetNewPitch(int|string $Value): void
     {
         if ($Value == '') {
@@ -2899,6 +3474,12 @@ class SqueezeboxDevice extends IPSModuleStrict
         $this->SetValueInteger('Pitch', (int) $Value);
     }
 
+    /**
+     * _SetNewTime
+     *
+     * @param  int $Time
+     * @return void
+     */
     private function _SetNewTime(int $Time): void
     {
         if ($this->DurationRAW == 0) {
@@ -2916,6 +3497,12 @@ class SqueezeboxDevice extends IPSModuleStrict
         }
     }
 
+    /**
+     * _SetNewDuration
+     *
+     * @param  int $Duration
+     * @return void
+     */
     private function _SetNewDuration(int $Duration): void
     {
         $this->DurationRAW = $Duration;
@@ -2936,6 +3523,12 @@ class SqueezeboxDevice extends IPSModuleStrict
         }
     }
 
+    /**
+     * _SetNewSleepTimeout
+     *
+     * @param  int $Value
+     * @return void
+     */
     private function _SetNewSleepTimeout(int $Value): void
     {
         if ($this->ReadPropertyBoolean('showSleepTimeout')) {
@@ -2948,6 +3541,12 @@ class SqueezeboxDevice extends IPSModuleStrict
         }
     }
 
+    /**
+     * _SetNewSyncMaster
+     *
+     * @param  bool $isMaster
+     * @return void
+     */
     private function _SetNewSyncMaster(bool $isMaster): void
     {
         if ($this->ReadPropertyBoolean('showSyncMaster')) {
@@ -2955,6 +3554,12 @@ class SqueezeboxDevice extends IPSModuleStrict
         }
     }
 
+    /**
+     * _SetNewSyncMembers
+     *
+     * @param  string $PlayerMACs
+     * @return void
+     */
     private function _SetNewSyncMembers(string $PlayerMACs): void
     {
         if ($PlayerMACs == '-') {
@@ -2968,6 +3573,11 @@ class SqueezeboxDevice extends IPSModuleStrict
         }
     }
 
+    /**
+     * _GetAllPlayers
+     *
+     * @return array
+     */
     private function _GetAllPlayers(): array
     {
         $Addresses = [];
@@ -2983,6 +3593,11 @@ class SqueezeboxDevice extends IPSModuleStrict
         return $Addresses;
     }
 
+    /**
+     * _SetNewSyncProfil
+     *
+     * @return void
+     */
     private function _SetNewSyncProfil(): void
     {
         if (!$this->ReadPropertyBoolean('showSyncControl')) {
@@ -3013,6 +3628,12 @@ class SqueezeboxDevice extends IPSModuleStrict
         $this->SetValueInteger('Sync', count($SyncMembers) == 0 ? 0 : 100);
     }
 
+    /**
+     * _SetSeekable
+     *
+     * @param  bool $Value
+     * @return void
+     */
     private function _SetSeekable(bool $Value): void
     {
         if ($Value != $this->isSeekable) {
@@ -3025,6 +3646,11 @@ class SqueezeboxDevice extends IPSModuleStrict
         }
     }
 
+    /**
+     * _RefreshPlaylistIndex
+     *
+     * @return void
+     */
     private function _RefreshPlaylistIndex(): void
     {
         $this->SetCover();
@@ -3033,37 +3659,45 @@ class SqueezeboxDevice extends IPSModuleStrict
             $Data = [];
         }
         $CurrentIndex = (int) $this->GetValue('Index');
-        if (count($Data) == 0) {
-            $this->SetValueString('CurrentPlaylist', '');
-        } else {
-            $playlistEntries = [];
-            foreach ($Data as $Index => ['Title' => $Title, 'Artist'=>$Artist, 'Duration'=>$Duration]) {
-                $playlistEntries[] = [
-                    'artist'        => $Artist,
-                    'song'          => $Title,
-                    'duration'      => $Duration
-                ];
+
+        // TilePlaylist
+        if ($this->ReadPropertyBoolean('showTilePlaylist')) {
+            $TilePlaylistData = '';
+            if (count($Data)) {
+                $playlistEntries = [];
+                foreach ($Data as $Index => ['Title' => $Title, 'Artist'=>$Artist, 'Duration'=>$Duration]) {
+                    $playlistEntries[] = [
+                        'artist'        => $Artist,
+                        'song'          => $Title,
+                        'duration'      => $Duration
+                    ];
+                }
+                $TilePlaylistData = json_encode([
+                    'current' => $CurrentIndex - 1,
+                    'entries' => $playlistEntries
+                ]);
             }
-            $this->SetValueString('CurrentPlaylist', json_encode([
-                'current' => $CurrentIndex - 1,
-                'entries' => $playlistEntries
-            ]));
+            $this->SetValueString('TilePlaylist', $TilePlaylistData);
         }
-        //HTML-Playlist
-        if (!$this->ReadPropertyBoolean('showHTMLPlaylist')) {
-            return;
+        // HTML-Playlist
+        if ($this->ReadPropertyBoolean('showHTMLPlaylist')) {
+            $HTML = $this->GetTable($Data, 'SqueezeBoxPlaylist', 'Track', 'Position', $CurrentIndex);
+            $this->SetValueString('Playlist', $HTML);
         }
-        $HTML = $this->GetTable($Data, 'SqueezeBoxPlaylist', 'Track', 'Position', $CurrentIndex);
-        $this->SetValueString('Playlist', $HTML);
     }
 
-    private function _RefreshPlaylist($Empty = false): void
+    /**
+     * _RefreshPlaylist
+     *
+     * @param  bool $Empty
+     * @return void
+     */
+    private function _RefreshPlaylist(bool $Empty = false): void
     {
         if ($Empty) {
             $this->Multi_Playlist = [];
         } else {
             $PlaylistDataArray = $this->GetSongInfoOfCurrentPlaylist();
-            $this->SendDebug('PlaylistDataArray', $PlaylistDataArray, 0);
             if ($PlaylistDataArray === false) {
                 $this->Multi_Playlist = [];
                 set_error_handler([$this, 'ModulErrorHandler']);
@@ -3078,6 +3712,11 @@ class SqueezeboxDevice extends IPSModuleStrict
         return;
     }
 
+    /**
+     * SetCover
+     *
+     * @return void
+     */
     private function SetCover(): void
     {
         $this->SendDebug('Refresh Cover', '', 0);
@@ -3109,6 +3748,12 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     //################# Decode Data
+    /**
+     * DecodeLMSResponse
+     *
+     * @param  mixed $LMSData
+     * @return bool
+     */
     private function DecodeLMSResponse(\SqueezeBox\LMSData $LMSData): bool
     {
         if ($LMSData == null) {
@@ -3235,7 +3880,7 @@ class SqueezeboxDevice extends IPSModuleStrict
                             break;
                         }
                         if (((string) $LMSData->Data[0][0] === '+') || ((string) $LMSData->Data[0][0] === '-')) {
-                            $this->SetValueInteger('Index', $this->GetValue('Index') + (int) $LMSData->Data[0]);
+                            $this->SetValueInteger('Index', (int) $this->GetValue('Index') + (int) $LMSData->Data[0]);
                         } else {
                             $this->SetValueInteger('Index', (int) $LMSData->Data[0] + 1);
                         }
@@ -3424,17 +4069,17 @@ class SqueezeboxDevice extends IPSModuleStrict
                             break;
                         case 'mixer bass':
                             if ($this->ReadPropertyBoolean('enableBass')) {
-                                $this->_SetNewBass((int)$Data->Value);
+                                $this->_SetNewBass((int) $Data->Value);
                             }
                             break;
                         case 'mixer treble':
                             if ($this->ReadPropertyBoolean('enableTreble')) {
-                                $this->_SetNewTreble((int)$Data->Value);
+                                $this->_SetNewTreble((int) $Data->Value);
                             }
                             break;
                         case 'mixer pitch':
                             if ($this->ReadPropertyBoolean('enablePitch')) {
-                                $this->_SetNewPitch((int)$Data->Value);
+                                $this->_SetNewPitch((int) $Data->Value);
                             }
                             break;
                         case 'playlist repeat':
@@ -3502,6 +4147,7 @@ class SqueezeboxDevice extends IPSModuleStrict
     //################# Datenaustausch
 
     /**
+     * Send
      * Konvertiert $Data zu einem JSONString und versendet diese an den Splitter.
      *
      * @param \SqueezeBox\LMSData $LMSData Zu versendende Daten.

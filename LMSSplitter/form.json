@@ -49,12 +49,26 @@
             "caption": "Optional LMS playlists:"
         },
         {
-            "name": "showPlaylist",
-            "type": "CheckBox",
-            "caption": "Show playlist as HTML-Box"
+            "type": "RowLayout",
+            "items": [
+                {
+                    "name": "showTilePlaylist",
+                    "type": "CheckBox",
+                    "caption": "Enable Tile-Visu Playlist",
+                    "width": "300px"
+                },
+                {
+                    "name": "showHTMLPlaylist",
+                    "type": "CheckBox",
+                    "caption": "Show playlist as HTML-Box",
+                    "onChange": "IPS_RequestAction($id,'showHTMLPlaylist',$showHTMLPlaylist);",
+                    "width": "300px"
+                }
+            ]
         },
         {
             "type": "ExpansionPanel",
+            "name": "HTMLExpansionPanel",
             "caption": "Playlist design",
             "items": [
                 {

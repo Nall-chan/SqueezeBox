@@ -10,6 +10,7 @@ namespace SqueezeBox;
 trait TimeConvert
 {
     /**
+     * ConvertSeconds
      *  Konvertiert Sekunden in einen lesbare Zeit.
      *
      * @param int $Time Zeit in Sekunden

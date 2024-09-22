@@ -9,9 +9,9 @@ declare(strict_types=1);
  * @package       Squeezebox
  * @file          module.php
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2022 Michael Tröger
+ * @copyright     2024 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.80
+ * @version       4.00
  *
  */
 require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
@@ -24,10 +24,10 @@ eval('declare(strict_types=1);namespace LMSConfigurator {?>' . file_get_contents
  * Erweitert IPSModule.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2022 Michael Tröger
+ * @copyright     2024 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.80
+ * @version       4.00
  *
  * @example <b>Ohne</b>
  *
@@ -44,7 +44,9 @@ class LMSConfigurator extends IPSModuleStrict
         }
 
     /**
-     * Interne Funktion des SDK.
+     * Create
+     *
+     * @return void
      */
     public function Create(): void
     {
@@ -55,7 +57,9 @@ class LMSConfigurator extends IPSModuleStrict
     }
 
     /**
-     * Interne Funktion des SDK.
+     * ApplyChanges
+     *
+     * @return void
      */
     public function ApplyChanges(): void
     {
@@ -96,13 +100,22 @@ class LMSConfigurator extends IPSModuleStrict
         }
     }
 
+    /**
+     * RequestAction
+     *
+     * @param  string $Ident
+     * @param  mixed $Value
+     * @return void
+     */
     public function RequestAction(string $Ident, mixed $Value): void
     {
         $this->IORequestAction($Ident, $Value);
     }
 
     /**
-     * Interne Funktion des SDK.
+     * GetConfigurationForm
+     *
+     * @return string
      */
     public function GetConfigurationForm(): string
     {
@@ -277,7 +290,9 @@ class LMSConfigurator extends IPSModuleStrict
     }
 
     /**
+     * KernelReady
      * Wird ausgeführt wenn der Kernel hochgefahren wurde.
+     * @return void
      */
     protected function KernelReady(): void
     {
@@ -285,6 +300,11 @@ class LMSConfigurator extends IPSModuleStrict
         $this->ApplyChanges();
     }
 
+    /**
+     * RegisterParent
+     *
+     * @return void
+     */
     protected function RegisterParent(): void
     {
         $SplitterId = $this->IORegisterParent();
@@ -299,7 +319,10 @@ class LMSConfigurator extends IPSModuleStrict
     }
 
     /**
+     * IOChangeState
      * Wird ausgeführt wenn sich der Status vom Parent ändert.
+     * @param  int $State
+     * @return void
      */
     protected function IOChangeState(int $State): void
     {
@@ -311,6 +334,7 @@ class LMSConfigurator extends IPSModuleStrict
     }
 
     /**
+     * GetDeviceInfo
      * IPS-Instanz-Funktion 'LMC_GetDeviceInfo'.
      * Lädt die bekannten Player vom LMS.
      *
@@ -349,6 +373,13 @@ class LMSConfigurator extends IPSModuleStrict
         return $players;
     }
 
+    /**
+     * GetInstanceList
+     *
+     * @param  string $GUID
+     * @param  string $ConfigParam
+     * @return array
+     */
     private function GetInstanceList(string $GUID, string $ConfigParam): array
     {
         $InstanceIDList = array_flip(array_values(array_filter(IPS_GetInstanceListByModuleID($GUID), [$this, 'FilterInstances'])));
@@ -358,22 +389,43 @@ class LMSConfigurator extends IPSModuleStrict
         return $InstanceIDList;
     }
 
+    /**
+     * FilterInstances
+     *
+     * @param  int $InstanceID
+     * @return bool
+     */
     private function FilterInstances(int $InstanceID): bool
     {
         return IPS_GetInstance($InstanceID)['ConnectionID'] == $this->ParentID;
     }
 
+    /**
+     * FilterBattery
+     *
+     * @param  array $Values
+     * @return bool
+     */
     private function FilterBattery(array $Values): bool
     {
         return $Values['model'] == 'baby';
     }
 
+    /**
+     * GetConfigParam
+     *
+     * @param  mixed $item1
+     * @param  int $InstanceID
+     * @param  string $ConfigParam
+     * @return void
+     */
     private function GetConfigParam(mixed &$item1, int $InstanceID, string $ConfigParam): void
     {
         $item1 = IPS_GetProperty($InstanceID, $ConfigParam);
     }
 
     /**
+     * Send
      * Konvertiert $Data zu einem JSONString und versendet diese an den Splitter.
      *
      * @param \SqueezeBox\LMSData $LMSData Zu versendende Daten.

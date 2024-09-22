@@ -8,9 +8,9 @@ declare(strict_types=1);
  * @package       Squeezebox
  * @file          module.php
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2022 Michael Tröger
+ * @copyright     2024 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.80
+ * @version       4.00
  *
  */
 eval('declare(strict_types=1);namespace SqueezeboxBattery {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableHelper.php') . '}');
@@ -48,10 +48,10 @@ class AutoLoaderSqueezeboxBatteryPHPSecLib
  * Erweitert IPSModule.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2022 Michael Tröger
+ * @copyright     2024 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.80
+ * @version       4.00
  *
  * @example <b>Ohne</b>
  *
@@ -70,7 +70,9 @@ class SqueezeboxBattery extends IPSModuleStrict
     use \SqueezeboxBattery\VariableHelper;
 
     /**
-     * Interne Funktion des SDK.
+     * Create
+     *
+     * @return void
      */
     public function Create(): void
     {
@@ -86,7 +88,9 @@ class SqueezeboxBattery extends IPSModuleStrict
     }
 
     /**
-     * Interne Funktion des SDK.
+     * ApplyChanges
+     *
+     * @return void
      */
     public function ApplyChanges(): void
     {
@@ -160,7 +164,13 @@ class SqueezeboxBattery extends IPSModuleStrict
     }
 
     /**
-     * Interne Funktion des SDK.
+     * MessageSink
+     *
+     * @param  int $TimeStamp
+     * @param  int $SenderID
+     * @param  int $Message
+     * @param  array $Data
+     * @return void
      */
     public function MessageSink(int $TimeStamp, int $SenderID, int $Message, array $Data): void
     {
@@ -174,6 +184,7 @@ class SqueezeboxBattery extends IPSModuleStrict
     //################# PUBLIC
 
     /**
+     * RequestState
      * IPS-Instanz-Funktion 'LSQB_RequestState'.
      * Aktuellen Status des Devices ermitteln und, wenn verbunden, abfragen.
      *
@@ -191,7 +202,7 @@ class SqueezeboxBattery extends IPSModuleStrict
         $ssh = new \phpseclib\Net\SSH2($this->ReadPropertyString('Address'));
         try {
             $this->SendDebug('Try to connect', '', 0);
-            $login = $ssh->login('root', $this->ReadPropertyString('Password'));
+            $ssh->login('root', $this->ReadPropertyString('Password'));
         } catch (\Throwable $th) {
             set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($this->Translate('Login failed.'), E_USER_NOTICE);
@@ -247,6 +258,13 @@ class SqueezeboxBattery extends IPSModuleStrict
         return true;
     }
 
+    /**
+     * ModulErrorHandler
+     *
+     * @param  int $errno
+     * @param  string $errstr
+     * @return bool
+     */
     protected function ModulErrorHandler(int $errno, string $errstr): bool
     {
         if (!(error_reporting() & $errno)) {

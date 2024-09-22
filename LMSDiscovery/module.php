@@ -8,9 +8,9 @@ declare(strict_types=1);
  * @package       Squeezebox
  * @file          module.php
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2022 Michael Tröger
+ * @copyright     2024 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.80
+ * @version       4.00
  *
  */
 require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
@@ -19,9 +19,9 @@ require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
  * LMSDiscovery Klasse implementiert.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2022 Michael Tröger
+ * @copyright     2024 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.80
+ * @version       4.00
  *
  * @example <b>Ohne</b>
  *
@@ -32,7 +32,9 @@ class LMSDiscovery extends IPSModuleStrict
     use \SqueezeBox\DebugHelper;
 
     /**
-     * Interne Funktion des SDK.
+     * Create
+     *
+     * @return void
      */
     public function Create(): void
     {
@@ -40,7 +42,9 @@ class LMSDiscovery extends IPSModuleStrict
     }
 
     /**
-     * Interne Funktion des SDK.
+     * ApplyChanges
+     *
+     * @return void
      */
     public function ApplyChanges(): void
     {
@@ -49,7 +53,9 @@ class LMSDiscovery extends IPSModuleStrict
     }
 
     /**
-     * Interne Funktion des SDK.
+     * GetConfigurationForm
+     *
+     * @return string
      */
     public function GetConfigurationForm(): string
     {
@@ -127,6 +133,11 @@ class LMSDiscovery extends IPSModuleStrict
         return json_encode($Form);
     }
 
+    /**
+     * GetIPSInstances
+     *
+     * @return array
+     */
     private function GetIPSInstances(): array
     {
         $InstanceIDList = IPS_GetInstanceListByModuleID('{35028918-3F9C-4524-9FB4-DBAF429C6E18}');
@@ -144,6 +155,11 @@ class LMSDiscovery extends IPSModuleStrict
         return $Devices;
     }
 
+    /**
+     * DiscoverDevices
+     *
+     * @return array
+     */
     private function DiscoverDevices(): array
     {
         $this->SendDebug('Discover', $this->Translate('Background discovery of Logitech Media Servers'), 0);
