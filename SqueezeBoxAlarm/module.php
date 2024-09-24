@@ -1,16 +1,14 @@
 <?php
 
 declare(strict_types=1);
-/*
- * @addtogroup squeezebox
- * @{
- *
+
+/**
  * @package       Squeezebox
  * @file          module.php
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2022 Michael Tröger
+ * @copyright     2024 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.81
+ * @version       4.00
  *
  */
 
@@ -29,73 +27,73 @@ class LSA_Alarm
 {
     /**
      * Id des Alarm.
-     *
-     * @var string
+     * 
+     * @var int|string
      */
-    public $Id;
+    public int|string $Id;
 
     /**
      * Index des Alarm.
-     *
+     * 
      * @var int
      */
-    public $Index;
+    public int $Index;
 
     /**
      * Tage des Alarm.
-     *
+     * 
      * @var string
      */
-    public $Dow = '0,1,2,3,4,5,6';
+    public string $Dow = '0,1,2,3,4,5,6';
 
     /**
      * Status des Alarm.
-     *
+     * 
      * @var bool
      */
-    public $Enabled = true;
+    public bool $Enabled = true;
 
     /**
      * Wiederholung des Alarm.
-     *
+     * 
      * @var bool
      */
-    public $Repeat = true;
+    public bool $Repeat = true;
 
     /**
      * Shuffle des Alarm.
-     *
+     * 
      * @var int
      */
-    public $Shufflemode = 0;
+    public int $Shufflemode = 0;
 
     /**
      * Uhrzeit des Alarm.
-     *
+     * 
      * @var int
      */
-    public $Time;
+    public int $Time;
 
     /**
      * Lautstärke des Alarm.
-     *
+     * 
      * @var int
      */
-    public $Volume;
+    public int $Volume;
 
     /**
      * Playlist des Alarm.
-     *
+     * 
      * @var string
      */
-    public $Url = 'CURRENT_PLAYLIST';
+    public string $Url = 'CURRENT_PLAYLIST';
 
     /**
+     * __construct
      * Erzeugt aus den übergeben Daten einen neuen LSA_Alarm.
-     *
+     * 
      * @param array $Alarm Das Array wie es von LMSTaggingArray erzeugt wird.
      * @param int   $Index Der fortlaufende Index dieses Weckers.
-     *
      * @return LSA_Alarm
      */
     public function __construct(array $Alarm = null, int $Index = null)
@@ -110,19 +108,23 @@ class LSA_Alarm
     }
 
     /**
+     * __sleep
      * Liefert die Daten welche behalten werden müssen.
+     * 
+     * @return array
      */
-    public function __sleep()
+    public function __sleep():array
     {
         return ['Id', 'Index', 'Dow', 'Enabled', 'Repeat', 'Time', 'Volume', 'Url', 'Shufflemode'];
     }
 
     /**
+     * IpsToDow
      * Schreibt die Wochentag aus dem IPS Format in die Eigenschaft Dow.
-     *
+     * 
      * @param int $Days Die Wochentag im IPS-Format.
      */
-    public function IpsToDow(int $Days)
+    public function IpsToDow(int $Days): void
     {
         for ($i = 0; $i < 8; $i++) {
             if ((($Days >> $i) & 0x1) == 1) {
@@ -138,11 +140,12 @@ class LSA_Alarm
     }
 
     /**
+     * DowToIps
      * Liefert die Eigenschaft Dow im IPS-Format.
-     *
+     * 
      * @return int Die Wochentage im IPS-Format.
      */
-    public function DowToIps()
+    public function DowToIps(): int
     {
         if ($this->Dow == '') {
             return 0;
@@ -160,11 +163,12 @@ class LSA_Alarm
     }
 
     /**
+     * AddDow
      * Fügt einen Wochentag zum Wecker hinzu.
-     *
+     * 
      * @param int $Dow Ein Wochentag.
      */
-    public function AddDow(int $Dow)
+    public function AddDow(int $Dow): void
     {
         if ($this->Dow == '') {
             $this->Dow = (string) $Dow;
@@ -181,11 +185,12 @@ class LSA_Alarm
     }
 
     /**
+     * DelDow
      * Löscht einen Wochentag aus dem Wecker.
-     *
+     * 
      * @param int $Dow Ein Wochentag.
      */
-    public function DelDow(int $Dow)
+    public function DelDow(int $Dow): void
     {
         if ($this->Dow == '') {
             return;
@@ -201,11 +206,12 @@ class LSA_Alarm
     }
 
     /**
+     * TimeToArray
      * Liefert die Alarmzeit als Array für die Ereignisse in IPS.
-     *
+     * 
      * @return array
      */
-    public function TimeToArray()
+    public function TimeToArray(): array
     {
         $result['Second'] = (int) gmdate('s', $this->Time);
         $result['Minute'] = (int) gmdate('i', $this->Time);
@@ -214,11 +220,12 @@ class LSA_Alarm
     }
 
     /**
+     * ArrayToTime
      * Schreibt die Alarmzeit aus dem übergeben Array in die Eigenschaft Time.
-     *
+     * 
      * @param array $Time
      */
-    public function ArrayToTime($Time)
+    public function ArrayToTime(array $Time): void
     {
         $this->Time = ((($Time[0] * 60) + $Time[1]) * 60) + $Time[2];
     }
@@ -231,16 +238,16 @@ class LSA_AlarmList
 {
     /**
      * Array mit allen Items.
-     *
+     * 
      * @var array
      */
-    public $Items = [];
+    public array $Items = [];
 
     /**
+     * __construct
      * Erzeugt eine neue LSA_AlarmList aus einem Array von LMSTaggingArray mit allen Alarmen.
-     *
+     * 
      * @param array $Alarms Alle Wecker oder null.
-     *
      * @return LSA_AlarmList
      */
     public function __construct(array $Alarms = null)
@@ -255,21 +262,24 @@ class LSA_AlarmList
     }
 
     /**
+     * __sleep
      * Liefert die Daten welche behalten werden müssen.
+     * 
+     * @return array
      */
-    public function __sleep()
+    public function __sleep(): array
     {
         return ['Items'];
     }
 
     /**
+     * Add
      * Fügt einen LSA_Alarm in $Items hinzu.
-     *
+     * 
      * @param LSA_Alarm $Alarm Das neue Objekt.
-     *
      * @return int Der Index des Items.
      */
-    public function Add(LSA_Alarm $Alarm)
+    public function Add(LSA_Alarm $Alarm): int
     {
         if (isset($this->Items[$Alarm->Id])) {
             return $this->Update($Alarm);
@@ -282,21 +292,23 @@ class LSA_AlarmList
     }
 
     /**
+     * Update
      * Update für einen LSA_Alarm in $Items.
      *
      * @param LSA_Alarm $Alarm Das neue Objekt.
      */
-    public function Update(LSA_Alarm $Alarm)
+    public function Update(LSA_Alarm $Alarm): void
     {
         $this->Items[$Alarm->Id] = $Alarm;
     }
 
     /**
+     * Remove
      * Löscht einen LSA_Alarm aus $Items.
      *
      * @param string $AlarmId Der Index des zu löschenden Items.
      */
-    public function Remove(string $AlarmId)
+    public function Remove(string $AlarmId): void
     {
         if (!isset($this->Items[$AlarmId])) {
             return;
@@ -311,13 +323,13 @@ class LSA_AlarmList
     }
 
     /**
+     * GetById
      * Liefert einen bestimmten LSA_Alarm aus den Items anhand der Id.
      *
      * @param string $AlarmId
-     *
      * @return LSA_Alarm $Alarm
      */
-    public function GetById(string $AlarmId)
+    public function GetById(string $AlarmId): false|LSA_Alarm
     {
         if (!isset($this->Items[$AlarmId])) {
             return false;
@@ -326,13 +338,13 @@ class LSA_AlarmList
     }
 
     /**
+     * GetByIndex
      * Liefert einen bestimmten LSA_Alarm aus den Items anhand des Index.
      *
      * @param int $Index
-     *
      * @return LSA_Alarm $Alarm
      */
-    public function GetByIndex(int $Index)
+    public function GetByIndex(int $Index): false|LSA_Alarm
     {
         foreach ($this->Items as $Alarm) {
             if ($Alarm->Index == $Index) {
@@ -348,12 +360,10 @@ class LSA_AlarmList
  * Erweitert IPSModule.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2022 Michael Tröger
+ * @copyright     2024 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.81
- *
- * @example <b>Ohne</b>
+ * @version       4.00
  *
  * @property int $ParentID
  * @property array $Multi_Playlist Alle Datensätze der Alarm-Playlisten.
@@ -368,7 +378,7 @@ class LSA_AlarmList
  * @method void RegisterProfileIntegerEx(string $Name, string $Icon, string $Prefix, string $Suffix, array $Associations, int $MaxValue = -1, float $StepSize = 0)
  * @method void RegisterProfileInteger(string $Name, string $Icon, string $Prefix, string $Suffix, int $MinValue, int $MaxValue, int $StepSize)
  * @method void UnregisterProfile(string $Name)
- * @method string GetTable(array $Data, string $HookPrefix, string $HookType, string $HookId, int $CurrentLine = -1)
+ * @method int FindIDForIdent(string $Ident)
  */
 class SqueezeboxAlarm extends IPSModule
 {
@@ -383,10 +393,16 @@ class SqueezeboxAlarm extends IPSModule
             \SqueezeboxAlarm\InstanceStatus::RegisterParent as IORegisterParent;
             \SqueezeboxAlarm\InstanceStatus::RequestAction as IORequestAction;
         }
-
+    
+    /**
+     * Socket
+     *
+     * @var resource
+     */
     private $Socket = false;
 
     /**
+     * __destruct
      * Destruktor
      * schließt bei Bedarf den noch offenen TCP-Socket.
      */
@@ -398,7 +414,9 @@ class SqueezeboxAlarm extends IPSModule
     }
 
     /**
-     * Interne Funktion des SDK.
+     * Create
+     *
+     * @return void
      */
     public function Create()
     {
@@ -421,7 +439,9 @@ class SqueezeboxAlarm extends IPSModule
     }
 
     /**
-     * Interne Funktion des SDK.
+     * Destroy
+     *
+     * @return void
      */
     public function Destroy()
     {
@@ -433,7 +453,9 @@ class SqueezeboxAlarm extends IPSModule
     }
 
     /**
-     * Interne Funktion des SDK.
+     * ApplyChanges
+     *
+     * @return void
      */
     public function ApplyChanges()
     {
@@ -501,7 +523,7 @@ class SqueezeboxAlarm extends IPSModule
         //Status-Variablen anlegen
         $this->RegisterVariableBoolean('EnableAll', $this->Translate('All alarms active'), '~Switch', 1);
         $this->EnableAction('EnableAll');
-        $this->RegisterVariableInteger('DefaultVolume', $this->Translate('Default alarm volume'), 'LSA.Intensity', 2);
+        $this->RegisterVariableInteger('DefaultVolume', $this->Translate('Default alarm volume'), '~Volume', 2);
         $this->EnableAction('DefaultVolume');
         $this->RegisterVariableBoolean('FadeIn', $this->Translate('Fade alarm'), '~Switch', 3);
         $this->EnableAction('FadeIn');
@@ -527,7 +549,7 @@ class SqueezeboxAlarm extends IPSModule
 
         if (!$this->ReadPropertyBoolean('showAlarmPlaylist')) {
             for ($AlarmIndex = 0; $AlarmIndex < 10; $AlarmIndex++) {
-                $vid = @$this->GetIDForIdent('AlarmPlaylist' . $AlarmIndex);
+                $vid = $this->FindIDForIdent('AlarmPlaylist' . $AlarmIndex);
                 if ($vid > 0) {
                     IPS_DeleteVariable($vid);
                 }
@@ -551,9 +573,8 @@ class SqueezeboxAlarm extends IPSModule
     }
 
     /**
-     * Interne Funktion des SDK.
-     *
-     *
+     * MessageSink
+     * 
      * @param int $TimeStamp
      * @param int $SenderID
      * @param int $Message
@@ -615,12 +636,13 @@ class SqueezeboxAlarm extends IPSModule
     //################# PUBLIC
 
     /**
+     * RequestAllState
      * IPS-Instanz-Funktion 'LSA_RequestAllState'.
      * Aktuellen Status des Devices ermitteln und, wenn verbunden, abfragen.
      *
      * @return bool True wenn alle Abfragen erfolgreich waren, sonst false.
      */
-    public function RequestAllState()
+    public function RequestAllState(): bool
     {
         if (!$this->RequestState('EnableAll')) {
             return false;
@@ -634,13 +656,14 @@ class SqueezeboxAlarm extends IPSModule
     }
 
     /**
+     * RequestState
      * IPS-Instanz-Funktion 'LSA_RequestState'.
      * Fragt einen Wert der Alarme ab. Es ist der Ident der Statusvariable zu übergeben.
      *
      * @param string $Ident Der Ident der abzufragenden Statusvariable.
      * @return bool True wenn erfolgreich, sonst false.
      */
-    public function RequestState(string $Ident)
+    public function RequestState(string $Ident): bool
     {
         switch ($Ident) {
             case 'Alarms':
@@ -738,13 +761,14 @@ class SqueezeboxAlarm extends IPSModule
     }
 
     /**
+     * SetAllActive
      * IPS-Instanz-Funktion 'LSA_SetAllActive'.
      * De/Aktiviert die Wecker-Funktionen des Gerätes.
      *
      * @param bool $Value De/Aktiviert die Wecker.
      * @return bool True wenn erfolgreich, sonst false.
      */
-    public function SetAllActive(bool $Value)
+    public function SetAllActive(bool $Value): bool
     {
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['alarm', ($Value ? 'enableall' : 'disableall')]));
         if ($LMSData === null) {
@@ -754,13 +778,14 @@ class SqueezeboxAlarm extends IPSModule
     }
 
     /**
+     * SetDefaultVolume
      * IPS-Instanz-Funktion 'LSA_SetDefaultVolume'.
      * Setzt die Standard-Lautstärke für neue Wecker.
      *
      * @param int $Value Die neue Lautstärke
      * @return bool True wenn erfolgreich, sonst false.
      */
-    public function SetDefaultVolume(int $Value)
+    public function SetDefaultVolume(int $Value): bool
     {
         if (($Value < 0) || ($Value > 100)) {
             set_error_handler([$this, 'ModulErrorHandler']);
@@ -776,13 +801,14 @@ class SqueezeboxAlarm extends IPSModule
     }
 
     /**
+     * SetFadeIn
      * IPS-Instanz-Funktion 'LSA_SetFadeIn'.
      * De/Aktiviert das Einblenden der Wiedergabe.
      *
      * @param bool $Value True zum aktivieren, False zum deaktivieren.
      * @return bool True wenn erfolgreich, sonst false.
      */
-    public function SetFadeIn(bool $Value)
+    public function SetFadeIn(bool $Value): bool
     {
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['playerpref', 'alarmfadeseconds'], (int) $Value));
         if ($LMSData === null) {
@@ -792,13 +818,14 @@ class SqueezeboxAlarm extends IPSModule
     }
 
     /**
+     * SetTimeout
      * IPS-Instanz-Funktion 'LSA_SetTimeout'.
      * Setzt die Zeit in Sekunden bis ein Wecker automatisch beendend wird.
      *
      * @param int $Value Zeit in Sekunden bis zum abschalten.
      * @return bool True wenn erfolgreich, sonst false.
      */
-    public function SetTimeout(int $Value)
+    public function SetTimeout(int $Value): bool
     {
         if ($Value < 0) {
             set_error_handler([$this, 'ModulErrorHandler']);
@@ -814,13 +841,14 @@ class SqueezeboxAlarm extends IPSModule
     }
 
     /**
+     * SetSnoozeSeconds
      * IPS-Instanz-Funktion 'LSA_SetSnoozeSeconds'.
      * Setzt die Schlummerzeit in Sekunden.
      *
      * @param int $Value Die Schlummerzeit in Sekunden.
      * @return bool True wenn erfolgreich, sonst false.
      */
-    public function SetSnoozeSeconds(int $Value)
+    public function SetSnoozeSeconds(int $Value): bool
     {
         if ($Value < 0) {
             set_error_handler([$this, 'ModulErrorHandler']);
@@ -836,12 +864,13 @@ class SqueezeboxAlarm extends IPSModule
     }
 
     /**
+     * AlarmSnooze
      * IPS-Instanz-Funktion 'LSA_AlarmSnooze'.
      * Sendet das Schlummersignal an das Gerät und pausiert somit einen aktiven Alarm.
      *
      * @return bool True wenn erfolgreich, sonst false.
      */
-    public function AlarmSnooze()
+    public function AlarmSnooze(): bool
     {
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['button'], ['snooze.single']));
         if ($LMSData === null) {
@@ -851,12 +880,13 @@ class SqueezeboxAlarm extends IPSModule
     }
 
     /**
+     * AlarmStop
      * IPS-Instanz-Funktion 'LSA_AlarmStop'.
      * Beendet ein aktiven Alarm.
      *
      * @return bool True wenn erfolgreich, sonst false.
      */
-    public function AlarmStop()
+    public function AlarmStop(): bool
     {
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['button'], ['power_off']));
         if ($LMSData === null) {
@@ -866,12 +896,13 @@ class SqueezeboxAlarm extends IPSModule
     }
 
     /**
+     * AddAlarm
      * IPS-Instanz-Funktion 'LSA_AddAlarm'.
      * Fragt einen Wert der Alarme ab. Es ist der Ident der Statusvariable zu übergeben.
      *
-     * @return bool|int Index des Weckers, im Fehlerfall false.
+     * @return false|int Index des Weckers, im Fehlerfall false.
      */
-    public function AddAlarm()
+    public function AddAlarm(): false|int
     {
         if (count($this->Alarms->Items) > 9) {
             return false;
@@ -889,13 +920,14 @@ class SqueezeboxAlarm extends IPSModule
     }
 
     /**
+     * DelAlarm
      * IPS-Instanz-Funktion 'LSA_DelAlarm'.
      * Löscht einen Wecker.
      *
      * @param int $AlarmIndex Der Index des zu löschenden Weckers.
      * @return bool True wenn erfolgreich, sonst false.
      */
-    public function DelAlarm(int $AlarmIndex)
+    public function DelAlarm(int $AlarmIndex): bool
     {
         $Alarms = $this->Alarms;
         $Alarm = $Alarms->GetByIndex($AlarmIndex);
@@ -915,6 +947,7 @@ class SqueezeboxAlarm extends IPSModule
     }
 
     /**
+     * SetPlaylist
      * IPS-Instanz-Funktion 'LSA_SetPlaylist'.
      * Setzt die Playlist bzw. die Wiedergabe für den Wecker.
      *
@@ -922,7 +955,7 @@ class SqueezeboxAlarm extends IPSModule
      * @param string $Url        Die wiederzugebene URL.
      * @return bool True wenn erfolgreich, sonst false.
      */
-    public function SetPlaylist(int $AlarmIndex, string $Url)
+    public function SetPlaylist(int $AlarmIndex, string $Url): bool
     {
         $Alarms = $this->Alarms;
         $Alarm = $Alarms->GetByIndex($AlarmIndex);
@@ -945,6 +978,7 @@ class SqueezeboxAlarm extends IPSModule
     }
 
     /**
+     * SetShuffle
      * IPS-Instanz-Funktion 'LSA_SetShuffle'.
      * Setzt den Modus der zufälligen Wiedergabe des Weckers.
      *
@@ -952,7 +986,7 @@ class SqueezeboxAlarm extends IPSModule
      * @param string $Value      Der neue Modus.
      * @return bool True wenn erfolgreich, sonst false.
      */
-    public function SetShuffle(int $AlarmIndex, int $Value)
+    public function SetShuffle(int $AlarmIndex, int $Value): bool
     {
         if (($Value < 0) || ($Value > 2)) {
             set_error_handler([$this, 'ModulErrorHandler']);
@@ -977,6 +1011,7 @@ class SqueezeboxAlarm extends IPSModule
     }
 
     /**
+     * SetRepeat
      * IPS-Instanz-Funktion 'LSA_SetRepeat'.
      * De/Aktiviert die Wiederholung.
      *
@@ -984,7 +1019,7 @@ class SqueezeboxAlarm extends IPSModule
      * @param bool $Value      De/Aktiviert die Wiederholung.
      * @return bool True wenn erfolgreich, sonst false.
      */
-    public function SetRepeat(int $AlarmIndex, bool $Value)
+    public function SetRepeat(int $AlarmIndex, bool $Value): bool
     {
         $Alarms = $this->Alarms;
         $Alarm = $Alarms->GetByIndex($AlarmIndex);
@@ -1003,6 +1038,7 @@ class SqueezeboxAlarm extends IPSModule
     }
 
     /**
+     * SetVolume
      * IPS-Instanz-Funktion 'LSA_SetVolume'.
      * Setzt die Lautstärke des Weckers.
      *
@@ -1010,7 +1046,7 @@ class SqueezeboxAlarm extends IPSModule
      * @param int $Value      Die neue Lautstärke des Weckers.
      * @return bool True wenn erfolgreich, sonst false.
      */
-    public function SetVolume(int $AlarmIndex, int $Value)
+    public function SetVolume(int $AlarmIndex, int $Value): bool
     {
         if (($Value < 0) || ($Value > 100)) {
             set_error_handler([$this, 'ModulErrorHandler']);
@@ -1037,7 +1073,11 @@ class SqueezeboxAlarm extends IPSModule
     //################# ActionHandler
 
     /**
-     * Interne Funktion des SDK.
+     * RequestAction
+     *
+     * @param  string $Ident
+     * @param  mixed $Value
+     * @return void
      */
     public function RequestAction($Ident, $Value)
     {
@@ -1125,6 +1165,21 @@ class SqueezeboxAlarm extends IPSModule
                     $result = true;
                 }
                 break;
+                            case 'AlarmPlaylists0':
+            case 'AlarmPlaylists1':
+            case 'AlarmPlaylists2':
+            case 'AlarmPlaylists3':
+            case 'AlarmPlaylists4':
+            case 'AlarmPlaylists5':
+            case 'AlarmPlaylists6':
+            case 'AlarmPlaylists7':
+            case 'AlarmPlaylists8':
+            case 'AlarmPlaylists9':
+                $Index = (int) substr($Ident, -1);
+                $List = json_decode($Value, true);
+                $Item = $List['entries'][$List['current']];
+                $this->SetPlaylist($Index, $Item['id']);
+                break;
             default:
                 set_error_handler([$this, 'ModulErrorHandler']);
                 trigger_error($this->Translate('Invalid ident'), E_USER_NOTICE);
@@ -1141,7 +1196,10 @@ class SqueezeboxAlarm extends IPSModule
     //################# DataPoints Ankommend von Parent-LMS-Splitter
 
     /**
-     * Interne Funktion des SDK.
+     * ReceiveData
+     *
+     * @param  string $JSONString
+     * @return string
      */
     public function ReceiveData($JSONString)
     {
@@ -1159,15 +1217,23 @@ class SqueezeboxAlarm extends IPSModule
     }
 
     /**
+     * KernelReady
      * Wird ausgeführt wenn der Kernel hochgefahren wurde.
+     *
+     * @return void
      */
-    protected function KernelReady()
+    protected function KernelReady(): void
     {
         $this->UnregisterMessage(0, IPS_KERNELSTARTED);
         $this->ApplyChanges();
     }
 
-    protected function RegisterParent()
+    /**
+     * RegisterParent
+     *
+     * @return void
+     */
+    protected function RegisterParent(): void
     {
         $SplitterId = $this->IORegisterParent();
         if ($SplitterId > 0) {
@@ -1181,9 +1247,13 @@ class SqueezeboxAlarm extends IPSModule
     }
 
     /**
+     * IOChangeState
      * Wird ausgeführt wenn sich der Status vom Parent ändert.
+     *
+     * @param  int $State
+     * @return void
      */
-    protected function IOChangeState($State)
+    protected function IOChangeState(int $State): void
     {
         if ($State == IS_ACTIVE) {
             $this->LoadAlarmPlaylists();
@@ -1192,10 +1262,10 @@ class SqueezeboxAlarm extends IPSModule
     }
 
     /**
+     * ProcessHookData
      * Verarbeitet Daten aus dem Webhook.
      *
      * @param string $ID Die ausgewählte Alarm-Playlist als URL.
-     *
      * @global array $_GET
      */
     protected function ProcessHookdata()
@@ -1224,13 +1294,13 @@ class SqueezeboxAlarm extends IPSModule
     }
 
     /**
+     * SendDirect
      * Konvertiert $Data zu einem String und versendet diesen direkt an den LMS.
      *
      * @param \SqueezeBox\LMSData $LMSData Zu versendende Daten.
-     *
-     * @return \SqueezeBox\LMSData Objekt mit der Antwort. NULL im Fehlerfall.
+     * @return null|\SqueezeBox\LMSData Objekt mit der Antwort. NULL im Fehlerfall.
      */
-    protected function SendDirect(\SqueezeBox\LMSData $LMSData)
+    protected function SendDirect(\SqueezeBox\LMSData $LMSData): null|\SqueezeBox\LMSData
     {
         try {
             if (!$this->HasActiveParent()) {
@@ -1297,7 +1367,14 @@ class SqueezeboxAlarm extends IPSModule
         return null;
     }
 
-    protected function ModulErrorHandler($errno, $errstr)
+    /**
+     * ModulErrorHandler
+     *
+     * @param  int $errno
+     * @param  string $errstr
+     * @return bool
+     */
+    protected function ModulErrorHandler(int $errno, string $errstr): bool
     {
         if (!(error_reporting() & $errno)) {
             // Dieser Fehlercode ist nicht in error_reporting enthalten
@@ -1311,9 +1388,12 @@ class SqueezeboxAlarm extends IPSModule
     //################# PRIVATE
 
     /**
+     * DeleteProfile
      * Löscht die nicht mehr benötigten Profile.
+     *
+     * @return void
      */
-    private function DeleteProfile()
+    private function DeleteProfile(): void
     {
         $this->UnregisterProfile('LSA.Intensity');
         $this->UnregisterProfile('LSA.Shuffle');
@@ -1322,11 +1402,12 @@ class SqueezeboxAlarm extends IPSModule
     }
 
     /**
+     * GenerateHTMLStyleProperty
      * Liefert die Werkeinstellungen für die Eigenschaften Html, Table und Rows.
      *
      * @return array
      */
-    private function GenerateHTMLStyleProperty()
+    private function GenerateHTMLStyleProperty(): array
     {
         $NewTableConfig = [
             [
@@ -1394,39 +1475,56 @@ class SqueezeboxAlarm extends IPSModule
     }
 
     /**
+     * RefreshPlaylist
      * Erzeugt eine HTML-Tabelle mit allen Playlisten für eine ~HTMLBox-Variable.
      *
      * @param int $AlarmIndex    Der Index des Alarms.
      * @param int $PlaylistIndex Der Index der aktuell gewählten Alarm-Playlist
      */
-    private function RefreshPlaylist(int $AlarmIndex, int $PlaylistIndex)
+    private function RefreshPlaylist(int $AlarmIndex, int $PlaylistIndex): void
     {
-        if (!$this->ReadPropertyBoolean('showAlarmPlaylist')) {
-            return;
-        }
-        $vid = @$this->GetIDForIdent('AlarmPlaylist' . $AlarmIndex);
-        if ($vid === false) {
-            $vid = $this->RegisterVariableString('AlarmPlaylist' . $AlarmIndex, sprintf($this->Translate('Alarm %d playlist selection'), $AlarmIndex + 1), '~HTMLBox', (($AlarmIndex + 1) * 10) + 7);
-            IPS_SetIcon($vid, 'Database');
-        }
-
         $Data = $this->Multi_Playlist;
         if (!is_array($Data)) {
             $Data = [];
         }
+        /*if ($this->RegisterVariableString('AlarmPlaylists' . $AlarmIndex, sprintf($this->Translate('Alarm %d playlist selection'), $AlarmIndex + 1), '~Playlist', (($AlarmIndex + 1) * 10) + 8)) {
+            $this->EnableAction('AlarmPlaylists' . $AlarmIndex);
+        }
+        if (count($Data) == 0) {
+            $this->SetValueString('AlarmPlaylists' . $AlarmIndex, '');
+        } else {
+            $playlistEntries = [];
+            foreach ($Data as $Index => ['Category' => $Category, 'Title'=>$Title, 'Url'=>$Url]) {
+                $playlistEntries[] = [
+                    'artist'        => $Category,
+                    'id'            => $Url,
+                    'song'          => $Title
+                ];
+            }
+            $this->SetValueString('AlarmPlaylists' . $AlarmIndex, json_encode([
+                'current' => $PlaylistIndex + 1,
+                'entries' => $playlistEntries
+            ]));
+        }*/
 
-        $HTML = $this->GetTable($Data, 'LSAPlaylist', 'AlarmPlaylist' . $AlarmIndex, 'Url', $PlaylistIndex + 1);
-        $this->SetValueString('AlarmPlaylist' . $AlarmIndex, $HTML);
+        //HTML-Tabelle
+        if ($this->ReadPropertyBoolean('showAlarmPlaylist')) {
+            if ($this->RegisterVariableString('AlarmPlaylist' . $AlarmIndex, sprintf($this->Translate('Alarm %d playlist selection'), $AlarmIndex + 1), '~HTMLBox', (($AlarmIndex + 1) * 10) + 7)) {
+                IPS_SetIcon($this->FindIDForIdent('AlarmPlaylist' . $AlarmIndex), 'Database');
+            }
+            $HTML = $this->GetTable($Data, 'LSAPlaylist', 'AlarmPlaylist' . $AlarmIndex, 'Url', $PlaylistIndex + 1);
+            $this->SetValueString('AlarmPlaylist' . $AlarmIndex, $HTML);
+        }
     }
 
     /**
-     * Liefert einen eintrag aus den Alarm-Playlisten anhand der URL.
+     * GetPlaylistItemFromUrl
+     * Liefert einen Eintrag aus den Alarm-Playlisten anhand der URL.
      *
      * @param string $Url Die URL des zu suchenden Eintrages.
-     *
-     * @return array Der gefundene Eintrag.
+     * @return null|array Der gefundene Eintrag.
      */
-    private function GetPlaylistItemFromUrl(string $Url)
+    private function GetPlaylistItemFromUrl(string $Url): ?array
     {
         $Playlist = $this->Multi_Playlist;
         if (count($Playlist) == 0) {
@@ -1448,11 +1546,13 @@ class SqueezeboxAlarm extends IPSModule
     }
 
     /**
+     * RefreshDeleteProfil
      * Aktualisiert das Profil LSA.Del* mit der korrekten Anzahl der Alarme.
      *
      * @param int $Count Anzahl der Alarme.
+     * @return void
      */
-    private function RefreshDeleteProfil(int $Count)
+    private function RefreshDeleteProfil(int $Count): void
     {
         $Assoziations = [];
         for ($index = 0; $index < $Count; $index++) {
@@ -1462,9 +1562,12 @@ class SqueezeboxAlarm extends IPSModule
     }
 
     /**
+     * LoadAlarmPlaylists
      * Lädt alle für diesen Player gültige Alarm-Playlisten und speichert sie im Buffer.
+     * 
+     * @return void
      */
-    private function LoadAlarmPlaylists()
+    private function LoadAlarmPlaylists(): void
     {
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['alarm', 'playlists'], [0, 100000]));
         if ($LMSData === null) {
@@ -1480,13 +1583,15 @@ class SqueezeboxAlarm extends IPSModule
     }
 
     /**
-     *  Erzeugt und Aktualisiert die Statusvariablen eines Alarms bei Veränderung.
+     * RefreshEvent
+     * Erzeugt und Aktualisiert die Statusvariablen eines Alarms bei Veränderung.
      *
      * @param LSA_Alarm $Alarm Ein Alarm.
+     * @return void
      */
-    private function RefreshEvent(LSA_Alarm $Alarm)
+    private function RefreshEvent(LSA_Alarm $Alarm): void
     {
-        $eid = @$this->GetIDForIdent('AlarmTime' . $Alarm->Index);
+        $eid = $this->FindIDForIdent('AlarmTime' . $Alarm->Index);
         if ($eid > 0) {
             $this->UnregisterMessage($eid, EM_CHANGEACTIVE);
             $this->UnregisterMessage($eid, EM_CHANGECYCLIC);
@@ -1529,13 +1634,10 @@ class SqueezeboxAlarm extends IPSModule
 
         $PlaylistItem = $this->GetPlaylistItemFromUrl($Alarm->Url);
         if (!is_null($PlaylistItem)) {
-            $vid = @$this->GetIDForIdent('AlarmPlaylistName' . $Alarm->Index);
-            if ($vid === false) {
-                $vid = $this->RegisterVariableString('AlarmPlaylistName' . $Alarm->Index, sprintf($this->Translate('Alarm %d playlist'), $Alarm->Index + 1), '', (($Alarm->Index + 1) * 10) + 6);
-                IPS_SetIcon($vid, 'Database');
+            if ($this->RegisterVariableString('AlarmPlaylistName' . $Alarm->Index, sprintf($this->Translate('Alarm %d playlist'), $Alarm->Index + 1), '', (($Alarm->Index + 1) * 10) + 6)) {
+                IPS_SetIcon($this->FindIDForIdent('AlarmPlaylistName' . $Alarm->Index), 'Database');
             }
             $this->SetValueString('AlarmPlaylistName' . $Alarm->Index, $PlaylistItem['Title']);
-
             $this->RefreshPlaylist($Alarm->Index, $PlaylistItem['Index']);
         }
         if ($this->RegisterVariableInteger('AlarmShuffle' . $Alarm->Index, sprintf($this->Translate('Alarm %d playlist shuffle'), $Alarm->Index + 1), 'LSA.Shuffle', (($Alarm->Index + 1) * 10) + 5)) {
@@ -1543,34 +1645,30 @@ class SqueezeboxAlarm extends IPSModule
         }
         $this->SetValueInteger('AlarmShuffle' . $Alarm->Index, $Alarm->Shufflemode);
 
-        $vid = @$this->GetIDForIdent('AlarmRepeat' . $Alarm->Index);
-        if ($vid === false) {
-            $vid = $this->RegisterVariableBoolean('AlarmRepeat' . $Alarm->Index, sprintf($this->Translate('Alarm %d repeat'), $Alarm->Index + 1), '~Switch', (($Alarm->Index + 1) * 10) + 4);
+        if ($this->RegisterVariableInteger('AlarmRepeat' . $Alarm->Index, sprintf($this->Translate('Alarm %d repeat'), $Alarm->Index + 1), '~Repeat', (($Alarm->Index + 1) * 10) + 4)) {
             $this->EnableAction('AlarmRepeat' . $Alarm->Index);
-            IPS_SetIcon($vid, 'Repeat');
+            IPS_SetIcon($this->FindIDForIdent('AlarmRepeat' . $Alarm->Index), 'Repeat');
         }
         $this->SetValueInteger('AlarmRepeat' . $Alarm->Index, (int) $Alarm->Repeat);
 
-        $vid = @$this->GetIDForIdent('AlarmVolume' . $Alarm->Index);
-        if ($vid === false) {
-            $this->RegisterVariableInteger('AlarmVolume' . $Alarm->Index, sprintf($this->Translate('Alarm %d volume'), $Alarm->Index + 1), 'LSA.Intensity', (($Alarm->Index + 1) * 10) + 3);
+        if ($this->RegisterVariableInteger('AlarmVolume' . $Alarm->Index, sprintf($this->Translate('Alarm %d volume'), $Alarm->Index + 1), '~Volume', (($Alarm->Index + 1) * 10) + 3)) {
             $this->EnableAction('AlarmVolume' . $Alarm->Index);
         }
         $this->SetValueInteger('AlarmVolume' . $Alarm->Index, $Alarm->Volume);
 
-        $vid = @$this->GetIDForIdent('AlarmState' . $Alarm->Index);
-        if ($vid === false) {
-            $this->RegisterVariableInteger('AlarmState' . $Alarm->Index, sprintf($this->Translate('Alarm %d state'), $Alarm->Index + 1), 'LSA.State', (($Alarm->Index + 1) * 10) + 2);
+        if ($this->RegisterVariableInteger('AlarmState' . $Alarm->Index, sprintf($this->Translate('Alarm %d state'), $Alarm->Index + 1), 'LSA.State', (($Alarm->Index + 1) * 10) + 2)) {
             $this->EnableAction('AlarmState' . $Alarm->Index);
         }
     }
 
     /**
-     *  Aktualisiert alle Statusvariablen bei Veränderung und löscht u.U. Statusvariablen.
+     * RefreshEvents
+     * Aktualisiert alle Statusvariablen bei Veränderung und löscht u.U. Statusvariablen.
      *
      * @param LSA_AlarmList $Alarms Die komplette Alarmliste.
+     * @return void
      */
-    private function RefreshEvents(LSA_AlarmList $Alarms)
+    private function RefreshEvents(LSA_AlarmList $Alarms): void
     {
         $Index = 0;
         foreach ($Alarms->Items as $Alarm) {
@@ -1581,7 +1679,7 @@ class SqueezeboxAlarm extends IPSModule
 
         for ($i = $Index + 1; $i < 10; $i++) {
             $delete = $this->ReadPropertyBoolean('dynamicDisplay');
-            $eid = @$this->GetIDForIdent('AlarmTime' . $i);
+            $eid = $this->FindIDForIdent('AlarmTime' . $i);
             if ($eid > 0) {
                 $this->UnregisterMessage($eid, EM_CHANGEACTIVE);
                 $this->UnregisterMessage($eid, EM_CHANGECYCLIC);
@@ -1595,7 +1693,7 @@ class SqueezeboxAlarm extends IPSModule
                 }
             }
 
-            $vid = @$this->GetIDForIdent('AlarmPlaylistName' . $i);
+            $vid = $this->FindIDForIdent('AlarmPlaylistName' . $i);
             if ($vid > 0) {
                 if ($delete) {
                     IPS_DeleteVariable($vid);
@@ -1604,7 +1702,7 @@ class SqueezeboxAlarm extends IPSModule
                 }
             }
 
-            $vid = @$this->GetIDForIdent('AlarmShuffle' . $i);
+            $vid = $this->FindIDForIdent('AlarmShuffle' . $i);
             if ($vid > 0) {
                 if ($delete) {
                     IPS_DeleteVariable($vid);
@@ -1613,7 +1711,7 @@ class SqueezeboxAlarm extends IPSModule
                 }
             }
 
-            $vid = @$this->GetIDForIdent('AlarmRepeat' . $i);
+            $vid = $this->FindIDForIdent('AlarmRepeat' . $i);
             if ($vid > 0) {
                 if ($delete) {
                     IPS_DeleteVariable($vid);
@@ -1622,7 +1720,7 @@ class SqueezeboxAlarm extends IPSModule
                 }
             }
 
-            $vid = @$this->GetIDForIdent('AlarmVolume' . $i);
+            $vid = $this->FindIDForIdent('AlarmVolume' . $i);
             if ($vid > 0) {
                 if ($delete) {
                     IPS_DeleteVariable($vid);
@@ -1631,7 +1729,7 @@ class SqueezeboxAlarm extends IPSModule
                 }
             }
 
-            $vid = @$this->GetIDForIdent('AlarmState' . $i);
+            $vid = $this->FindIDForIdent('AlarmState' . $i);
             if ($vid > 0) {
                 if ($delete) {
                     IPS_DeleteVariable($vid);
@@ -1640,7 +1738,7 @@ class SqueezeboxAlarm extends IPSModule
                 }
             }
 
-            $vid = @$this->GetIDForIdent('AlarmPlaylist' . $i);
+            $vid = $this->FindIDForIdent('AlarmPlaylist' . $i);
             if ($vid > 0) {
                 if ($this->ReadPropertyBoolean('showAlarmPlaylist')) {
                     if ($delete) {
@@ -1656,7 +1754,13 @@ class SqueezeboxAlarm extends IPSModule
     }
 
     //################# Decode Data
-    private function DecodeLMSResponse(\SqueezeBox\LMSData $LMSData)
+    /**
+     * DecodeLMSResponse
+     *
+     * @param  mixed $LMSData
+     * @return bool
+     */
+    private function DecodeLMSResponse(\SqueezeBox\LMSData $LMSData): bool
     {
         if ($LMSData == null) {
             return false;
@@ -1700,7 +1804,7 @@ class SqueezeboxAlarm extends IPSModule
                         $AlarmIndex = count($Alarms->Items);
                         $this->RefreshDeleteProfil($AlarmIndex);
                         $delete = $this->ReadPropertyBoolean('dynamicDisplay');
-                        $eid = @$this->GetIDForIdent('AlarmTime' . $AlarmIndex);
+                        $eid = $this->FindIDForIdent('AlarmTime' . $AlarmIndex);
                         if ($eid > 0) {
                             $this->UnregisterMessage($eid, EM_CHANGEACTIVE);
                             $this->UnregisterMessage($eid, EM_CHANGECYCLIC);
@@ -1714,7 +1818,7 @@ class SqueezeboxAlarm extends IPSModule
                             }
                         }
 
-                        $vid = @$this->GetIDForIdent('AlarmPlaylistName' . $AlarmIndex);
+                        $vid = $this->FindIDForIdent('AlarmPlaylistName' . $AlarmIndex);
                         if ($vid > 0) {
                             if ($delete) {
                                 IPS_DeleteVariable($vid);
@@ -1723,7 +1827,7 @@ class SqueezeboxAlarm extends IPSModule
                             }
                         }
 
-                        $vid = @$this->GetIDForIdent('AlarmShuffle' . $AlarmIndex);
+                        $vid = $this->FindIDForIdent('AlarmShuffle' . $AlarmIndex);
                         if ($vid > 0) {
                             if ($delete) {
                                 IPS_DeleteVariable($vid);
@@ -1732,7 +1836,7 @@ class SqueezeboxAlarm extends IPSModule
                             }
                         }
 
-                        $vid = @$this->GetIDForIdent('AlarmRepeat' . $AlarmIndex);
+                        $vid = $this->FindIDForIdent('AlarmRepeat' . $AlarmIndex);
                         if ($vid > 0) {
                             if ($delete) {
                                 IPS_DeleteVariable($vid);
@@ -1741,7 +1845,7 @@ class SqueezeboxAlarm extends IPSModule
                             }
                         }
 
-                        $vid = @$this->GetIDForIdent('AlarmVolume' . $AlarmIndex);
+                        $vid = $this->FindIDForIdent('AlarmVolume' . $AlarmIndex);
                         if ($vid > 0) {
                             if ($delete) {
                                 IPS_DeleteVariable($vid);
@@ -1750,7 +1854,7 @@ class SqueezeboxAlarm extends IPSModule
                             }
                         }
 
-                        $vid = @$this->GetIDForIdent('AlarmState' . $AlarmIndex);
+                        $vid = $this->FindIDForIdent('AlarmState' . $AlarmIndex);
                         if ($vid > 0) {
                             if ($delete) {
                                 IPS_DeleteVariable($vid);
@@ -1759,7 +1863,7 @@ class SqueezeboxAlarm extends IPSModule
                             }
                         }
 
-                        $vid = @$this->GetIDForIdent('AlarmPlaylist' . $AlarmIndex);
+                        $vid = $this->FindIDForIdent('AlarmPlaylist' . $AlarmIndex);
                         if ($vid > 0) {
                             if ($this->ReadPropertyBoolean('showAlarmPlaylist')) {
                                 if ($delete) {
@@ -1771,7 +1875,14 @@ class SqueezeboxAlarm extends IPSModule
                                 IPS_DeleteVariable($vid);
                             }
                         }
-
+                        /*$vid = $this->FindIDForIdent('AlarmPlaylists' . $AlarmIndex);
+                        if ($vid > 0) {
+                            if ($delete) {
+                                IPS_DeleteVariable($vid);
+                            } else {
+                                $this->SetValueString('AlarmPlaylists' . $AlarmIndex, '');
+                            }
+                        }*/
                         $this->RefreshEvents($Alarms);
                         break;
                     case 'update':
@@ -1835,12 +1946,9 @@ class SqueezeboxAlarm extends IPSModule
                         if ($Alarm === false) {
                             break;
                         }
-                        $vid = @$this->GetIDForIdent('AlarmState' . $Alarm->Index);
-                        if ($vid === false) {
-                            $this->RegisterVariableInteger('AlarmState' . $Alarm->Index, sprintf($this->Translate('Alarm %d state'), $Alarm->Index + 1), 'LSA.State', (($Alarm->Index + 1) * 10) + 2);
+                        if ($this->RegisterVariableInteger('AlarmState' . $Alarm->Index, sprintf($this->Translate('Alarm %d state'), $Alarm->Index + 1), 'LSA.State', (($Alarm->Index + 1) * 10) + 2)) {
                             $this->EnableAction('AlarmState' . $Alarm->Index);
                         }
-
                         $this->SetValueInteger('AlarmState' . $Alarm->Index, $State);
                         break;
                 }
@@ -1848,7 +1956,6 @@ class SqueezeboxAlarm extends IPSModule
             case 'prefset':
                 $LMSData->Command[1] = $LMSData->Command[2];
                 unset($LMSData->Command[2]);
-                // FIXME: No break. Please add proper comment if intentional
                 // No break. Add additional comment above this line if intentional
             case 'playerpref':
                 switch ($LMSData->Command[1]) {
@@ -1896,13 +2003,13 @@ class SqueezeboxAlarm extends IPSModule
     //################# Datenaustausch
 
     /**
+     * Send
      * Konvertiert $Data zu einem JSONString und versendet diese an den Splitter.
      *
      * @param \SqueezeBox\LMSData $LMSData Zu versendende Daten.
-     *
-     * @return \SqueezeBox\LMSData Objekt mit der Antwort. NULL im Fehlerfall.
+     * @return null|\SqueezeBox\LMSData Objekt mit der Antwort. NULL im Fehlerfall.
      */
-    private function Send(\SqueezeBox\LMSData $LMSData)
+    private function Send(\SqueezeBox\LMSData $LMSData): null|\SqueezeBox\LMSData
     {
         try {
             if (!$this->HasActiveParent()) {
@@ -1931,5 +2038,3 @@ class SqueezeboxAlarm extends IPSModule
         }
     }
 }
-
-/* @} */

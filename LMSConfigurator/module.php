@@ -2,16 +2,14 @@
 
 declare(strict_types=1);
 
-/*
- * @addtogroup squeezebox
- * @{
- *
+
+/**
  * @package       Squeezebox
  * @file          module.php
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2022 Michael Tröger
+ * @copyright     2024 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.81
+ * @version       4.00
  *
  */
 require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
@@ -24,12 +22,10 @@ eval('declare(strict_types=1);namespace LMSConfigurator {?>' . file_get_contents
  * Erweitert IPSModule.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2022 Michael Tröger
+ * @copyright     2024 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.81
- *
- * @example <b>Ohne</b>
+ * @version       4.00
  *
  * @property int $ParentID
  */
@@ -42,9 +38,11 @@ class LMSConfigurator extends IPSModule
             \LMSConfigurator\InstanceStatus::RegisterParent as IORegisterParent;
             \LMSConfigurator\InstanceStatus::RequestAction as IORequestAction;
         }
-
+    
     /**
-     * Interne Funktion des SDK.
+     * Create
+     *
+     * @return void
      */
     public function Create()
     {
@@ -53,9 +51,11 @@ class LMSConfigurator extends IPSModule
         $this->SetReceiveDataFilter('.*"nothingtoreceive":.*');
         $this->ParentID = 0;
     }
-
+  
     /**
-     * Interne Funktion des SDK.
+     * ApplyChanges
+     *
+     * @return void
      */
     public function ApplyChanges()
     {
@@ -77,9 +77,8 @@ class LMSConfigurator extends IPSModule
     }
 
     /**
-     * Interne Funktion des SDK.
-     *
-     *
+     * MessageSink
+     * 
      * @param int $TimeStamp
      * @param int $SenderID
      * @param int $Message
@@ -96,16 +95,22 @@ class LMSConfigurator extends IPSModule
         }
     }
 
+    /**
+     * RequestAction
+     *
+     * @param  string $Ident
+     * @param  mixed $Value
+     * @return void
+     */
     public function RequestAction($Ident, $Value)
     {
-        if ($this->IORequestAction($Ident, $Value)) {
-            return true;
-        }
-        return false;
+        $this->IORequestAction($Ident, $Value);
     }
 
     /**
-     * Interne Funktion des SDK.
+     * GetConfigurationForm
+     *
+     * @return string
      */
     public function GetConfigurationForm()
     {
@@ -280,22 +285,29 @@ class LMSConfigurator extends IPSModule
     }
 
     /**
+     * KernelReady
      * Wird ausgeführt wenn der Kernel hochgefahren wurde.
+     * 
+     * @return void
      */
-    protected function KernelReady()
+    protected function KernelReady(): void
     {
         $this->UnregisterMessage(0, IPS_KERNELSTARTED);
         $this->ApplyChanges();
     }
 
-    protected function RegisterParent()
+    /**
+     * RegisterParent
+     *
+     * @return void
+     */
+    protected function RegisterParent(): void
     {
         $SplitterId = $this->IORegisterParent();
         if ($SplitterId > 0) {
             $IOId = @IPS_GetInstance($SplitterId)['ConnectionID'];
             if ($IOId > 0) {
                 $this->SetSummary(IPS_GetProperty($IOId, 'Host'));
-
                 return;
             }
         }
@@ -303,9 +315,13 @@ class LMSConfigurator extends IPSModule
     }
 
     /**
+     * IOChangeState
      * Wird ausgeführt wenn sich der Status vom Parent ändert.
+     * 
+     * @param  int $State
+     * @return void
      */
-    protected function IOChangeState($State)
+    protected function IOChangeState(int $State): void
     {
         if ($State == IS_ACTIVE) {
             // Buffer aller Player laden
@@ -315,12 +331,13 @@ class LMSConfigurator extends IPSModule
     }
 
     /**
+     * GetDeviceInfo
      * IPS-Instanz-Funktion 'LMC_GetDeviceInfo'.
      * Lädt die bekannten Player vom LMS.
      *
      * @return array|bool Assoziiertes Array,  false und Fehlermeldung.
      */
-    private function GetDeviceInfo()
+    private function GetDeviceInfo(): array
     {
         $count = $this->Send(new \SqueezeBox\LMSData(['player', 'count'], '?'));
         if (($count === false) || ($count === null)) {
@@ -353,7 +370,14 @@ class LMSConfigurator extends IPSModule
         return $players;
     }
 
-    private function GetInstanceList(string $GUID, string $ConfigParam)
+    /**
+     * GetInstanceList
+     * 
+     * @param  string $GUID
+     * @param  string $ConfigParam
+     * @return array
+     */
+    private function GetInstanceList(string $GUID, string $ConfigParam): array
     {
         $InstanceIDList = array_flip(array_values(array_filter(IPS_GetInstanceListByModuleID($GUID), [$this, 'FilterInstances'])));
         if ($ConfigParam != '') {
@@ -362,29 +386,49 @@ class LMSConfigurator extends IPSModule
         return $InstanceIDList;
     }
 
-    private function FilterInstances(int $InstanceID)
+    /**
+     * FilterInstances
+     * 
+     * @param  int $InstanceID
+     * @return bool
+     */
+    private function FilterInstances(int $InstanceID): bool
     {
         return IPS_GetInstance($InstanceID)['ConnectionID'] == $this->ParentID;
     }
 
-    private function FilterBattery($Values)
+    /**
+     * FilterBattery
+     *
+     * @param  array $Values
+     * @return bool
+     */
+    private function FilterBattery(array $Values): bool
     {
         return $Values['model'] == 'baby';
     }
 
-    private function GetConfigParam(&$item1, $InstanceID, $ConfigParam)
+    /**
+     * GetConfigParam
+     *
+     * @param  mixed $item1
+     * @param  int $InstanceID
+     * @param  string $ConfigParam
+     * @return void
+     */
+    private function GetConfigParam(mixed &$item1, int $InstanceID, string $ConfigParam): void
     {
         $item1 = IPS_GetProperty($InstanceID, $ConfigParam);
     }
 
     /**
+     * Send
      * Konvertiert $Data zu einem JSONString und versendet diese an den Splitter.
      *
      * @param \SqueezeBox\LMSData $LMSData Zu versendende Daten.
-     *
-     * @return \SqueezeBox\LMSData Objekt mit der Antwort. NULL im Fehlerfall.
+     * @return null|\SqueezeBox\LMSData Objekt mit der Antwort. NULL im Fehlerfall.
      */
-    private function Send(\SqueezeBox\LMSData $LMSData)
+    private function Send(\SqueezeBox\LMSData $LMSData): null|\SqueezeBox\LMSData
     {
         try {
             $JSONData = $LMSData->ToJSONString('{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}');

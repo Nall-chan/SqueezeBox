@@ -4,21 +4,25 @@ declare(strict_types=1);
 
 namespace SqueezeBox;
 
-eval('declare(strict_types=1);namespace SqueezeBox {?>' . file_get_contents(__DIR__ . '/helper/UTF8Helper.php') . '}');
 require_once __DIR__ . '/TimeConvert.php';  // diverse Klassen
 
-/*
- * @addtogroup squeezebox
- * @{
- *
+
+/**
  * @package       Squeezebox
  * @file          SqueezeBoxClass.php
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2022 Michael Tröger
+ * @copyright     2024 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       3.81
+ * @version       4.00
  *
  */
+
+enum DeviceType
+{
+    case isServer;
+    case isMAC;
+    case isIP;
+}
 
 /**
  * Trait mit allen Profilen der Instanz Squeezebox-Device.
@@ -29,29 +33,22 @@ require_once __DIR__ . '/TimeConvert.php';  // diverse Klassen
 trait LSQProfile
 {
     /**
+     * CreateProfile
      * Erzeugt alle benötigten Profile.
+     *
+     * @return void
      */
-    private function CreateProfile()
+    private function CreateProfile(): void
     {
-        $this->RegisterProfileIntegerEx('LSQ.Status', 'Information', '', '', [
-            [0, $this->Translate('Prev'), '', -1],
-            [1, 'Stop', '', -1],
-            [2, 'Play', '', -1],
-            [3, 'Pause', '', -1],
-            [4, $this->Translate('Next'), '', -1]
-        ]);
-        $this->RegisterProfileInteger('LSQ.Intensity', 'Intensity', '', ' %', 0, 100, 1);
-        $this->RegisterProfileInteger('LSQ.Volume', 'Speaker', '', ' %', 0, 100, 1);
+        $this->UnregisterProfile('LSQ.Status');
+        $this->UnregisterProfile('LSQ.Volume');
+        $this->UnregisterProfile('LSQ.Intensity');
+        $this->UnregisterProfile('LSQ.Repeat');
         $this->RegisterProfileInteger('LSQ.Pitch', 'Intensity', '', ' %', 80, 120, 1);
         $this->RegisterProfileIntegerEx('LSQ.Shuffle', 'Shuffle', '', '', [
             [0, $this->Translate('Off'), '', -1],
             [1, $this->Translate('Title'), '', -1],
             [2, 'Album', '', -1]
-        ]);
-        $this->RegisterProfileIntegerEx('LSQ.Repeat', 'Repeat', '', '', [
-            [0, $this->Translate('Off'), '', -1],
-            [1, $this->Translate('Title'), '', -1],
-            [2, 'Playlist', '', -1]
         ]);
         $this->RegisterProfileIntegerEx('LSQ.Preset', 'Execute', '', '', [
             [1, '1', '', -1],
@@ -83,16 +80,16 @@ trait LSQProfile
     }
 
     /**
+     * DeleteProfile
      * Löscht alle nicht mehr benötigten Profile.
+     *
+     * @return void
      */
-    private function DeleteProfile()
+    private function DeleteProfile(): void
     {
         $this->UnregisterProfile('LSQ.Tracklist.' . $this->InstanceID);
-        $this->UnregisterProfile('LSQ.Status');
-        $this->UnregisterProfile('LSQ.Intensity');
         $this->UnregisterProfile('LSQ.Pitch');
         $this->UnregisterProfile('LSQ.Shuffle');
-        $this->UnregisterProfile('LSQ.Repeat');
         $this->UnregisterProfile('LSQ.Preset');
         $this->UnregisterProfile('LSQ.SleepTimer');
     }
@@ -104,9 +101,12 @@ trait LSQProfile
 trait LMSProfile
 {
     /**
+     * CreateProfile
      * Erzeugt alle benötigten Profile.
+     *
+     * @return void
      */
-    private function CreateProfile()
+    private function CreateProfile(): void
     {
         $this->RegisterProfileIntegerEx('LMS.Scanner', 'Gear', '', '', [
             [0, $this->Translate('standby'), '', -1],
@@ -119,9 +119,12 @@ trait LMSProfile
     }
 
     /**
+     * DeleteProfile
      * Löscht alle nicht mehr benötigten Profile.
+     *
+     * @return void
      */
-    private function DeleteProfile()
+    private function DeleteProfile(): void
     {
         $this->UnregisterProfile('LMS.PlayerSelect.' . $this->InstanceID);
         $this->UnregisterProfile('LMS.Scanner');
@@ -132,55 +135,48 @@ trait LMSProfile
  * Definiert eine Datensatz zum Versenden an des LMS.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2022 Michael Tröger
+ * @copyright     2024 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.81
- *
- * @method mixed EncodeUTF8(mixed &$item)
- * @method mixed DecodeUTF8(mixed &$item)
- * @example <b>Ohne</b>
+ * @version       4.00
  */
 class LMSData extends \stdClass
 {
-    use \SqueezeBox\UTF8Coder;
-
     /**
      * Adresse des Gerätes.
      *
      * @var string
      */
-    public $Address;
+    public string $Address;
 
     /**
      * Alle Kommandos als Array.
      *
      * @var string|array
      */
-    public $Command;
+    public string|array $Command;
 
     /**
      * Alle Daten des Kommandos.
      *
      * @var string|array
      */
-    public $Data;
+    public string|array $Data;
 
     /**
      * Flag ob auf Antwort gewartet werden muss.
-     *
      * @var bool
      */
-    public $needResponse;
+    public bool $needResponse;
 
     /**
      * Anzahl der versendeten Daten.
-     *
      * @var int
      */
-    private $SendValues;
+    private int $SendValues;
 
     /**
+     * __construct
      * Erzeugt ein Objekt vom Typ LMSData.
      *
      * @param string|array $Command      Kommando
@@ -204,23 +200,24 @@ class LMSData extends \stdClass
     }
 
     /**
+     * ToJSONStringForLMS
      * Erzeugt einen String für den Datenaustausch mit einer IO-Instanz.
      *
      * @param string $GUID Die TX-GUID
-     *
      * @return string Der JSON-String für den Datenaustausch.
      */
-    public function ToJSONStringForLMS($GUID)
+    public function ToJSONStringForLMS(string $GUID): string
     {
         return json_encode(['DataID' => $GUID, 'Buffer' => utf8_encode($this->ToRawStringForLMS())]);
     }
 
     /**
+     * ToRawStringForLMS
      * Erzeugt einen String für das CLI des LMS.
      *
      * @return string CLI-Befehl für den LMS.
      */
-    public function ToRawStringForLMS()
+    public function ToRawStringForLMS(): string
     {
         $Command = implode(' ', $this->Command);
         $this->SendValues = 0;
@@ -238,23 +235,24 @@ class LMSData extends \stdClass
     }
 
     /**
+     * GetSearchPatter
      * Liefert das Suchmuster für die SendQueue.
      *
      * @return string Das Suchmuster.
      */
-    public function GetSearchPatter()
+    public function GetSearchPatter(): string
     {
         return $this->Address . implode('', $this->Command);
     }
 
     /**
+     * CreateFromGenericObject
      * Befüllt das Objekt mit neuen Daten aus dem Datenaustausch.
      *
      * @param \stdClass $Data Das Objekt aus dem Datenaustausch.
      */
-    public function CreateFromGenericObject($Data)
+    public function CreateFromGenericObject(object $Data): void
     {
-        $this->DecodeUTF8($Data);
         $this->Address = $Data->Address;
         $this->Command = $Data->Command;
         $this->Data = $Data->Data;
@@ -264,23 +262,23 @@ class LMSData extends \stdClass
     }
 
     /**
+     * SliceData
      * Schneidet aus den Netzdaten die Anzahl der versendeten Daten ab.
      */
-    public function SliceData()
+    public function SliceData(): void
     {
         $this->Data = array_slice($this->Data, $this->SendValues);
     }
 
     /**
+     * ToJSONString
      * Erzeugt ein JSON-String für den internen Datenaustausch dieses Moduls.
      *
      * @param string $GUID GUID des Datenpaketes.
-     *
      * @return string Der JSON-String.
      */
-    public function ToJSONString($GUID)
+    public function ToJSONString(string $GUID): string
     {
-        $this->EncodeUTF8($this);
         return json_encode(['DataID'       => $GUID,
             'Address'                      => $this->Address,
             'Command'                      => $this->Command,
@@ -294,63 +292,40 @@ class LMSData extends \stdClass
  * Klasse mit den Empfangenen Daten vom LMS.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2022 Michael Tröger
+ * @copyright     2024 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.81
- *
- * @example <b>Ohne</b>
+ * @version       4.00
  */
 class LMSResponse extends LMSData
 {
-    /**
-     * Antwort ist vom LMS-Server.
-     *
-     * @static
-     */
-    public const isServer = 0;
-
-    /**
-     * Antwort ist von einer MAC-Adresse.
-     *
-     * @static
-     */
-    public const isMAC = 1;
-
-    /**
-     * Antwort ist von einer IP-Adresse.
-     *
-     * @static
-     */
-    public const isIP = 2;
 
     /**
      * Enthält den Type des Versenders einer Antwort.
      *
-     * @var int Kann ::isServer, ::isMAC oder ::isIP sein.
+     * @var DeviceType
      */
-    public $Device;
+    public DeviceType $Device;
 
     /**
      * Zerlegt eine Antwort des LMS und erzeugt daraus ein LMSResponse-Objekt.
-     *
      * @param string $RawString
      */
     public function __construct(string $RawString)
     {
         $array = explode(' ', $RawString); // Antwortstring in Array umwandeln
         if (strpos($array[0], '%3A') == 2) { //isMAC
-            $this->Device = self::isMAC;
+            $this->Device = DeviceType::isMAC;
             $this->Address = rawurldecode(array_shift($array));
         } elseif (strpos($array[0], '.')) { //isIP
-            $this->Device = self::isIP;
+            $this->Device = DeviceType::isIP;
             $this->Address = array_shift($array);
         } else { // isServer
-            $this->Device = self::isServer;
+            $this->Device = DeviceType::isServer;
             $this->Address = '';
         }
         $this->Command = [array_shift($array)];
-        if ($this->Device == self::isServer) {
+        if ($this->Device == DeviceType::isServer) {
             if (count($array) != 0) {
                 switch ($this->Command[0]) {
                     case 'player':
@@ -445,15 +420,14 @@ class LMSResponse extends LMSData
     }
 
     /**
+     * ToJSONStringForDevice
      * Erzeugt aus dem Objekt einen JSON-String.
      *
      * @param string $GUID GUID welche in den JSON-String eingebunden wird.
-     *
      * @return string Der JSON-String für den Datenaustausch
      */
-    public function ToJSONStringForDevice(string $GUID)
+    public function ToJSONStringForDevice(string $GUID): string
     {
-        $this->EncodeUTF8($this);
         return json_encode(['DataID'  => $GUID,
             'Address'                 => $this->Address,
             'Command'                 => $this->Command,
@@ -466,31 +440,30 @@ class LMSResponse extends LMSData
  * Zerlegt einen getaggten Datensatz in Name und Wert.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2022 Michael Tröger
+ * @copyright     2024 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.81
- *
- * @example <b>Ohne</b>
+ * @version       4.00
  */
 class LMSTaggingData extends \stdClass
 {
     /**
      * @var string Der Name des Datensatzes.
      */
-    public $Name;
+    public string $Name;
 
     /**
      * @var string Der Inhalt des Datensatz.
      */
-    public $Value;
+    public string $Value;
 
     /**
+     * __construct
      * Erzeugt ein LMSTaggingData-Objekt aus $TaggedDataLine.
      *
      * @param string $TaggedDataLine Die Rohdaten.
      */
-    public function __construct($TaggedDataLine)
+    public function __construct(string $TaggedDataLine)
     {
         $Part = explode(':', $TaggedDataLine);
         $this->Name = array_shift($Part);
@@ -506,12 +479,10 @@ class LMSTaggingData extends \stdClass
  * Zerlegt einen Array aus getaggten Datensätzen.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2022 Michael Tröger
+ * @copyright     2024 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.81
- *
- * @example <b>Ohne</b>
+ * @version       4.00
  */
 class LMSTaggingArray extends \stdClass
 {
@@ -586,9 +557,10 @@ class LMSTaggingArray extends \stdClass
     /**
      * @var array Enthält die Nutzdaten
      */
-    private $DataArray;
+    private array $DataArray = [];
 
     /**
+     * __construct
      * Erzeugt aus einem Array mit getaggten Daten ein mehrdimensionales Array.
      *
      * @param array  $TaggedData  Das Array mit allen getaggten Zeilen.
@@ -658,43 +630,47 @@ class LMSTaggingArray extends \stdClass
     }
 
     /**
+     * DataArray
      * Liefert das Array mit allen Nutzdaten.
      *
      * @return array Das Array mit allen Nutzdaten.
      */
-    public function DataArray()
+    public function DataArray(): array
     {
         return $this->DataArray;
     }
 
     /**
+     * Compact
      * Bricht das Array auf einen bestimmte Index runter.
      *
      * @param string $Index Der zu verwendende Index.
      */
-    public function Compact(string $Index)
+    public function Compact(string $Index): void
     {
         array_walk($this->DataArray, [$this, 'FlatDataArray'], $Index);
     }
 
     /**
+     * Count
      * Liefert die Anzahl der Daten im DataArray.
      *
      * @return int Anzahl der Einträge in DataArray.
      */
-    public function Count()
+    public function Count(): int
     {
         return count($this->DataArray);
     }
 
     /**
+     * FlatDataArray
      * Callback-Funktion für Compact.
      *
      * @param mixed $Item Das aktuelle Item.
      * @param mixed Der übergeben Index von Item.
      * @param string $Index Der Index aus Item der hochkopiert wird.
      */
-    protected function FlatDataArray(&$Item, $Key, $Index)
+    protected function FlatDataArray(&$Item, $Key, $Index): void
     {
         $Item = $Item[$Index];
     }
@@ -704,12 +680,10 @@ class LMSTaggingArray extends \stdClass
  * Zerlegt einen Array aus getaggten Datensätzen zu SongInfos.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2022 Michael Tröger
+ * @copyright     2024 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       3.81
- *
- * @example <b>Ohne</b>
+ * @version       4.00
  */
 class LMSSongInfo extends \stdClass
 {
@@ -743,21 +717,23 @@ class LMSSongInfo extends \stdClass
         'Modified'         => 0,
         'Playlist'         => 3
     ];
+    
     /**
      * Ein Array das alle Songs enthält.
      *
      * @var array
      */
-    private $SongArray = [];
+    private array $SongArray = [];
 
     /**
      * Die gesamte Spielzeit in Sekunden.
      *
      * @var int
      */
-    private $Duration = 0;
+    private int $Duration = 0;
 
     /**
+     * __construct
      * Erzeugt aus einem Array mit getaggten Daten ein LMSSongInfo Objekt.
      *
      * @param array $TaggedData
@@ -778,6 +754,9 @@ class LMSSongInfo extends \stdClass
             } else {
                 if ($Part->Name == 'id') {
                     $id++;
+                    $Songs[$id]['Artist'] = '';
+                    $Songs[$id]['Title'] = '';
+                    $Songs[$id]['Duration'] = 0;
                 }
             }
             $Index = ucfirst($Part->Name);
@@ -808,41 +787,45 @@ class LMSSongInfo extends \stdClass
     }
 
     /**
+     * GetSong
      * Liefert den ersten Datensatz der Songs.
      *
      * @return array Der Datensatz des Songs.
      */
-    public function GetSong()
+    public function GetSong(): array
     {
         return array_shift($this->SongArray);
     }
 
     /**
+     * GetAllSongs
      * Liefert alle Datensätze der Songs.
      *
      * @return array Alle Datensätze.
      */
-    public function GetAllSongs()
+    public function GetAllSongs(): array
     {
         return $this->SongArray;
     }
 
     /**
+     * GetTotalDuration
      * Liefert die Laufzeit alle Songs.
      *
      * @return int Die Laufzeit in Sekunden.
      */
-    public function GetTotalDuration()
+    public function GetTotalDuration(): int
     {
         return $this->Duration;
     }
 
     /**
+     * CountAllSongs
      * Liefert die Anzahl alles Songs.
      *
      * @return int Die Anzahl der Songs.
      */
-    public function CountAllSongs()
+    public function CountAllSongs(): int
     {
         return count($this->SongArray);
     }
@@ -854,13 +837,13 @@ class LMSSongInfo extends \stdClass
 trait LMSSongURL
 {
     /**
+     * GetValidSongURL
      * Prüft und korrigiert eine URL.
      *
-     * @param type $SongURL
-     *
+     * @param string $SongURL
      * @return bool True wenn URL valid ist, sonst false
      */
-    protected function GetValidSongURL(&$SongURL)
+    protected function GetValidSongURL(string &$SongURL): bool
     {
         if (!is_string($SongURL)) {
             trigger_error(sprintf($this->Translate('%s must be string.'), 'URL'), E_USER_NOTICE);
@@ -884,13 +867,14 @@ trait LMSHTMLTable
     use TimeConvert;
 
     /**
+     * GetTableHeader
      * Liefert den Header der HTML-Tabelle.
      *
-     * @param array $Config Die Konfiguration der Tabelle
-     *
+     * @param array $Config_Table Die Konfiguration der Tabelle
+     * @param array $Config_Columns Die Konfiguration der Tabelle
      * @return string HTML-String
      */
-    protected function GetTableHeader($Config_Table, $Config_Columns)
+    protected function GetTableHeader(array $Config_Table, array $Config_Columns): string
     {
         $table = '';
         // Kopf der Tabelle erzeugen
@@ -968,6 +952,7 @@ sleep(10).then(() => {
     }
 
     /**
+     * GetTable
      * Liefert den Inhalt der HTML-Box für ein Tabelle.
      *
      * @param array  $Data        Die Nutzdaten der Tabelle.
@@ -975,10 +960,9 @@ sleep(10).then(() => {
      * @param string $HookType    Ein String welcher als Parameter Type im Webhook übergeben wird.
      * @param string $HookId      Der Index aus dem Array $Data welcher die Nutzdaten (Parameter ID) des Webhook enthält.
      * @param int    $CurrentLine Die Aktuelle Zeile welche als Aktiv erzeugt werden soll.
-     *
      * @return string Der HTML-String.
      */
-    protected function GetTable($Data, $HookPrefix, $HookType, $HookId, $CurrentLine = -1)
+    protected function GetTable(array $Data, string $HookPrefix, string $HookType, string $HookId, int $CurrentLine = -1): string
     {
         $Config_Table = array_column(json_decode($this->ReadPropertyString('Table'), true), 'style', 'tag');
         $Config_Columns = json_decode($this->ReadPropertyString('Columns'), true);
@@ -1059,15 +1043,15 @@ sleep(10).then(() => {
 trait LMSCover
 {
     /**
+     * GetCover
      * Liefert die Rohdaten eines Covers, welches vom LMS geladen wurde.
      *
      * @param string $CoverID Die ID des Covers.
      * @param string $Size    Die Größe des Covers in Pixel.
      * @param string $Player  Die Player-MAC.
-     *
      * @return bool|string Die Rohdaten des Covers, oder false im Fehlerfall.
      */
-    protected function GetCover(string $CoverID, string $Size, string $Player)
+    protected function GetCover(string $CoverID, string $Size, string $Player): bool|string
     {
         $SplitterID = IPS_GetInstance($this->InstanceID)['ConnectionID'];
         $IoID = IPS_GetInstance($SplitterID)['ConnectionID'];
@@ -1093,5 +1077,3 @@ trait LMSCover
         return @Sys_GetURLContentEx($URL, $Login);
     }
 }
-
-/* @} */

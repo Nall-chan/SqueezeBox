@@ -1,6 +1,6 @@
 [![SDK](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20Version-3.81-blue.svg)](https://community.symcon.de/t/modul-squeezebox-release/46937)
-[![Version](https://img.shields.io/badge/Symcon%20Version-6.1%20%3E-green.svg)](https://www.symcon.de/service/dokumentation/installation/migrationen/v60-v61-q1-2022/)  
+[![Version](https://img.shields.io/badge/Modul%20Version-4.00-blue.svg)](https://community.symcon.de/t/modul-squeezebox-release/46937)
+[![Version](https://img.shields.io/badge/Symcon%20Version-7.0%20%3E-green.svg)](https://www.symcon.de/service/dokumentation/installation/migrationen/)  
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Check Style](https://github.com/Nall-chan/SqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/SqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions)  
 [![Spenden](https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_SM.gif)](#2-spenden)  
@@ -30,7 +30,7 @@ Daten zur Stromversorgung und des Akkus in IPS einbinden.
 
 ## 2. Voraussetzungen
 
- - IP-Symcon ab Version 6.1
+ - IP-Symcon ab Version 7.0
  - kompatibler Player mit aktivierten SSH-Zugang  
 
 ## 3. Software-Installation

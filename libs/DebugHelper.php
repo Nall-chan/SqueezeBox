@@ -22,12 +22,12 @@ namespace SqueezeBox;
 trait DebugHelper
 {
     /**
+     * SendDebug
      * Ergänzt SendDebug um Möglichkeit Objekte und Array auszugeben.
-     *
      * @param string $Message Nachricht für Data.
      * @param mixed  $Data    Daten für die Ausgabe.
-     *
-     * @return int $Format Ausgabeformat für Strings.
+     * @param int $Format Ausgabeformat für Strings.
+     * @return bool
      */
     protected function SendDebug($Message, $Data, $Format)
     {
@@ -68,5 +68,3 @@ trait DebugHelper
         return true;
     }
 }
-
-/* @} */

@@ -30,6 +30,7 @@
             "Shuffle": "Mischen",
             "Repeat": "Wiederholen",
             "Show playlist as HTML-Box": "Playlist als HTML-Box anlegen",
+            "Enable Tile-Visu Playlist": "Aktiviere Kachel-Visu Playlist",
             "Playlist design": "Playlist Darstellung",
             "Table design": "Darstellung Tabelle",
             "HTML-Tag": "HTML-Tag",
@@ -107,8 +108,8 @@
             "Duration in seconds": "Dauer in Sekunden",
             "Position": "Spielzeit",
             "Position in seconds": "Spielzeit in Sekunden",
-            "Signalstrength": "Signalstärke",
-            "Sleeptimer": "Einschlaftimer",
+            "Signal strength": "Signalstärke",
+            "Sleep timer": "Einschlaftimer",
             "Switch off in": "Ausschalten in",
             "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"
         }
