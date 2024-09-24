@@ -1,10 +1,8 @@
 <?php
 
 declare(strict_types=1);
-/*
- * @addtogroup squeezebox
- * @{
- *
+
+/**
  * @package       Squeezebox
  * @file          module.php
  * @author        Michael Tröger <micha@nall-chan.net>
@@ -91,11 +89,11 @@ class LSA_Alarm
     public string $Url = 'CURRENT_PLAYLIST';
 
     /**
+     * __construct
      * Erzeugt aus den übergeben Daten einen neuen LSA_Alarm.
      *
      * @param array $Alarm Das Array wie es von LMSTaggingArray erzeugt wird.
      * @param int   $Index Der fortlaufende Index dieses Weckers.
-     *
      * @return LSA_Alarm
      */
     public function __construct(array $Alarm = null, int $Index = null)
@@ -112,6 +110,7 @@ class LSA_Alarm
     /**
      * __sleep
      * Liefert die Daten welche behalten werden müssen.
+     *
      * @return array
      */
     public function __sleep(): array
@@ -249,7 +248,6 @@ class LSA_AlarmList
      * Erzeugt eine neue LSA_AlarmList aus einem Array von LMSTaggingArray mit allen Alarmen.
      *
      * @param array $Alarms Alle Wecker oder null.
-     *
      * @return LSA_AlarmList
      */
     public function __construct(array $Alarms = null)
@@ -266,6 +264,7 @@ class LSA_AlarmList
     /**
      * __sleep
      * Liefert die Daten welche behalten werden müssen.
+     *
      * @return array
      */
     public function __sleep(): array
@@ -278,7 +277,6 @@ class LSA_AlarmList
      * Fügt einen LSA_Alarm in $Items hinzu.
      *
      * @param LSA_Alarm $Alarm Das neue Objekt.
-     *
      * @return int Der Index des Items.
      */
     public function Add(LSA_Alarm $Alarm): int
@@ -329,7 +327,6 @@ class LSA_AlarmList
      * Liefert einen bestimmten LSA_Alarm aus den Items anhand der Id.
      *
      * @param string $AlarmId
-     *
      * @return LSA_Alarm $Alarm
      */
     public function GetById(string $AlarmId): false|LSA_Alarm
@@ -345,7 +342,6 @@ class LSA_AlarmList
      * Liefert einen bestimmten LSA_Alarm aus den Items anhand des Index.
      *
      * @param int $Index
-     *
      * @return LSA_Alarm $Alarm
      */
     public function GetByIndex(int $Index): false|LSA_Alarm
@@ -369,8 +365,6 @@ class LSA_AlarmList
  *
  * @version       4.00
  *
- * @example <b>Ohne</b>
- *
  * @property int $ParentID
  * @property array $Multi_Playlist Alle Datensätze der Alarm-Playlisten.
  * @property LSA_AlarmList $Alarms Alle Wecker als Objekt.
@@ -384,6 +378,7 @@ class LSA_AlarmList
  * @method void RegisterProfileIntegerEx(string $Name, string $Icon, string $Prefix, string $Suffix, array $Associations, int $MaxValue = -1, float $StepSize = 0)
  * @method void RegisterProfileInteger(string $Name, string $Icon, string $Prefix, string $Suffix, int $MinValue, int $MaxValue, int $StepSize)
  * @method void UnregisterProfile(string $Name)
+ * @method int FindIDForIdent(string $Ident)
  */
 class SqueezeboxAlarm extends IPSModuleStrict
 {
@@ -399,6 +394,11 @@ class SqueezeboxAlarm extends IPSModuleStrict
             \SqueezeboxAlarm\InstanceStatus::RequestAction as IORequestAction;
         }
 
+    /**
+     * Socket
+     *
+     * @var resource
+     */
     private $Socket = false;
 
     /**
@@ -573,8 +573,7 @@ class SqueezeboxAlarm extends IPSModuleStrict
     }
 
     /**
-     * Interne Funktion des SDK.
-     *
+     * MessageSink
      *
      * @param int $TimeStamp
      * @param int $SenderID
@@ -901,9 +900,9 @@ class SqueezeboxAlarm extends IPSModuleStrict
      * IPS-Instanz-Funktion 'LSA_AddAlarm'.
      * Fragt einen Wert der Alarme ab. Es ist der Ident der Statusvariable zu übergeben.
      *
-     * @return bool|int Index des Weckers, im Fehlerfall false.
+     * @return false|int Index des Weckers, im Fehlerfall false.
      */
-    public function AddAlarm(): bool|int
+    public function AddAlarm(): false|int
     {
         if (count($this->Alarms->Items) > 9) {
             return false;
@@ -1267,7 +1266,6 @@ class SqueezeboxAlarm extends IPSModuleStrict
      * Verarbeitet Daten aus dem Webhook.
      *
      * @param string $ID Die ausgewählte Alarm-Playlist als URL.
-     *
      * @global array $_GET
      */
     protected function ProcessHookData(): void
@@ -1300,10 +1298,9 @@ class SqueezeboxAlarm extends IPSModuleStrict
      * Konvertiert $Data zu einem String und versendet diesen direkt an den LMS.
      *
      * @param \SqueezeBox\LMSData $LMSData Zu versendende Daten.
-     *
-     * @return \SqueezeBox\LMSData Objekt mit der Antwort. NULL im Fehlerfall.
+     * @return null|\SqueezeBox\LMSData Objekt mit der Antwort. NULL im Fehlerfall.
      */
-    protected function SendDirect(\SqueezeBox\LMSData $LMSData): ?\SqueezeBox\LMSData
+    protected function SendDirect(\SqueezeBox\LMSData $LMSData): null|\SqueezeBox\LMSData
     {
         try {
             if (!$this->HasActiveParent()) {
@@ -1525,7 +1522,6 @@ class SqueezeboxAlarm extends IPSModuleStrict
      * Liefert einen Eintrag aus den Alarm-Playlisten anhand der URL.
      *
      * @param string $Url Die URL des zu suchenden Eintrages.
-     *
      * @return null|array Der gefundene Eintrag.
      */
     private function GetPlaylistItemFromUrl(string $Url): ?array
@@ -1568,6 +1564,7 @@ class SqueezeboxAlarm extends IPSModuleStrict
     /**
      * LoadAlarmPlaylists
      * Lädt alle für diesen Player gültige Alarm-Playlisten und speichert sie im Buffer.
+     *
      * @return void
      */
     private function LoadAlarmPlaylists(): void
@@ -1666,7 +1663,7 @@ class SqueezeboxAlarm extends IPSModuleStrict
 
     /**
      * RefreshEvents
-     *  Aktualisiert alle Statusvariablen bei Veränderung und löscht u.U. Statusvariablen.
+     * Aktualisiert alle Statusvariablen bei Veränderung und löscht u.U. Statusvariablen.
      *
      * @param LSA_AlarmList $Alarms Die komplette Alarmliste.
      * @return void
@@ -2010,10 +2007,9 @@ class SqueezeboxAlarm extends IPSModuleStrict
      * Konvertiert $Data zu einem JSONString und versendet diese an den Splitter.
      *
      * @param \SqueezeBox\LMSData $LMSData Zu versendende Daten.
-     *
-     * @return \SqueezeBox\LMSData Objekt mit der Antwort. NULL im Fehlerfall.
+     * @return null|\SqueezeBox\LMSData Objekt mit der Antwort. NULL im Fehlerfall.
      */
-    private function Send(\SqueezeBox\LMSData $LMSData): ?\SqueezeBox\LMSData
+    private function Send(\SqueezeBox\LMSData $LMSData): null|\SqueezeBox\LMSData
     {
         try {
             if (!$this->HasActiveParent()) {
@@ -2042,5 +2038,3 @@ class SqueezeboxAlarm extends IPSModuleStrict
         }
     }
 }
-
-/* @} */

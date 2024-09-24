@@ -2,10 +2,7 @@
 
 declare(strict_types=1);
 
-/*
- * @addtogroup squeezebox
- * @{
- *
+/**
  * @package       Squeezebox
  * @file          module.php
  * @author        Michael Tröger <micha@nall-chan.net>
@@ -36,8 +33,6 @@ eval('declare(strict_types=1);namespace LMSSplitter {?>' . file_get_contents(__D
  *
  * @version       4.00
  *
- * @example <b>Ohne</b>
- *
  * @property array $ReplyLMSData \SqueezeBox\LMSData Enthält die versendeten Befehle und speichert die Antworten.
  * @property string $Buffer EmpfangsBuffer
  * @property string $Host Adresse des LMS (aus IO-Parent ausgelesen)
@@ -57,6 +52,7 @@ eval('declare(strict_types=1);namespace LMSSplitter {?>' . file_get_contents(__D
  * @method void SetValueString(string $Ident, string $value)
  * @method void RegisterProfileIntegerEx(string $Name, string $Icon, string $Prefix, string $Suffix, array $Associations, int $MaxValue = -1, float $StepSize = 0)
  * @method void UnregisterProfile(string $Name)
+ * @method int FindIDForIdent(string $Ident)
  */
 class LMSSplitter extends IPSModuleStrict
 {
@@ -74,6 +70,11 @@ class LMSSplitter extends IPSModuleStrict
             \LMSSplitter\InstanceStatus::RegisterParent as IORegisterParent;
             \LMSSplitter\InstanceStatus::RequestAction as IORequestAction;
         }
+    /**
+     * Socket
+     *
+     * @var resource
+     */
     private $Socket = false;
 
     /**
@@ -132,6 +133,7 @@ class LMSSplitter extends IPSModuleStrict
         }
         parent::Destroy();
     }
+
     /**
      * Migrate
      * @param  string $JSONData
@@ -154,6 +156,7 @@ class LMSSplitter extends IPSModuleStrict
         }
         return json_encode($Data);
     }
+
     /**
      * ApplyChanges
      *
@@ -180,7 +183,8 @@ class LMSSplitter extends IPSModuleStrict
         // Eigene Variablen
         $this->RegisterVariableString('Version', 'Version', '', 0);
         $this->RegisterVariableInteger('RescanState', 'Scanner', 'LMS.Scanner', 1);
-        $this->RegisterMessage($this->FindIDForIdent('RescanState'), VM_UPDATE);
+        $this->ScannerID = $this->FindIDForIdent('RescanState');
+        $this->RegisterMessage($this->ScannerID, VM_UPDATE);
         $this->EnableAction('RescanState');
 
         $this->RegisterVariableString('RescanInfo', $this->Translate('Rescan state'), '', 2);
@@ -255,7 +259,7 @@ class LMSSplitter extends IPSModuleStrict
                 break;
             case VM_UPDATE:
                 if (($SenderID == $this->ScannerID) && ($Data[0] == 0)) {
-                    $this->RefreshAllPlaylists();
+                    $this->RefreshPlaylistBuffer();
                 }
                 break;
             case FM_CHILDADDED:
@@ -470,7 +474,7 @@ class LMSSplitter extends IPSModuleStrict
                 $LMSResponse = new \SqueezeBox\LMSData('version', '?');
                 break;
             case 'Playlists':
-                return $this->RefreshAllPlaylists();
+                return $this->RefreshPlaylistBuffer();
             default:
                 set_error_handler([$this, 'ModulErrorHandler']);
                 trigger_error($this->Translate('Invalid Ident'));
@@ -488,7 +492,7 @@ class LMSSplitter extends IPSModuleStrict
      * GetAudioDirs
      * IPS-Instanz-Funktion 'LMS_GetAudioDirs'.
      *
-     * @return array
+     * @return false|array
      */
     public function GetAudioDirs(): false|array
     {
@@ -523,7 +527,7 @@ class LMSSplitter extends IPSModuleStrict
      * IPS-Instanz-Funktion 'LMS_GetSyncGroups'.
      * Liefer ein Array welches die Gruppen mit ihren jeweiligen IPS-InstanzeIDs enthält.
      *
-     * @return array Array welches so viele Elemente wie Gruppen enthält.
+     * @return false|array Array welches so viele Elemente wie Gruppen enthält.
      */
     public function GetSyncGroups(): false|array
     {
@@ -569,13 +573,11 @@ class LMSSplitter extends IPSModuleStrict
      * IPS-Instanz-Funktion 'LMS_GetPlayerInfo'.
      *
      * @param int $Index Der Index des Player.
-     *
      * @example <code>
      * $ret = LMS_GetPlayerInfo(37340 \/*[LMSSplitter]*\/,6);
      * var_dump($ret);
      * </code>
-     *
-     * @return array Ein assoziiertes Array mit den Daten des Players.
+     * @return false|array Ein assoziiertes Array mit den Daten des Players.
      */
     public function GetPlayerInfo(int $Index): false|array
     {
@@ -659,7 +661,7 @@ class LMSSplitter extends IPSModuleStrict
      * GetLibraryInfo
      * IPS-Instanz-Funktion 'LMS_GetLibraryInfo'.
      *
-     * @return array
+     * @return false|array
      */
     public function GetLibraryInfo(): false|array
     {
@@ -697,7 +699,7 @@ class LMSSplitter extends IPSModuleStrict
      * GetGenres
      * IPS-Instanz-Funktion 'LMS_GetGenres'.
      *
-     * @return array
+     * @return  false|array
      */
     public function GetGenres(): false|array
     {
@@ -709,7 +711,7 @@ class LMSSplitter extends IPSModuleStrict
      * IPS-Instanz-Funktion 'LMS_GetGenresEx'.
      *
      * @param string $Search Suchstring
-     * @return array
+     * @return false|array
      */
     public function GetGenresEx(string $Search): false|array
     {
@@ -729,10 +731,10 @@ class LMSSplitter extends IPSModuleStrict
     }
 
     /**
-     * GetArtistsEx
+     * GetArtists
      * IPS-Instanz-Funktion 'LMS_GetArtists'.
      *
-     * @return array
+     * @return false|array
      */
     public function GetArtists(): false|array
     {
@@ -744,7 +746,7 @@ class LMSSplitter extends IPSModuleStrict
      * IPS-Instanz-Funktion 'LMS_GetArtistsEx'.
      *
      * @param string $Search Suchstring
-     * @return array
+     * @return false|array
      */
     public function GetArtistsEx(string $Search): false|array
     {
@@ -767,7 +769,7 @@ class LMSSplitter extends IPSModuleStrict
      * GetAlbums
      * IPS-Instanz-Funktion 'LMS_GetAlbums'.
      *
-     * @return array
+     * @return false|array
      */
     public function GetAlbums(): false|array
     {
@@ -779,7 +781,7 @@ class LMSSplitter extends IPSModuleStrict
      * IPS-Instanz-Funktion 'LMS_GetAlbumsEx'.
      *
      * @param string $Search Suchstring
-     * @return array
+     * @return false|array
      */
     public function GetAlbumsEx(string $Search): false|array
     {
@@ -802,8 +804,7 @@ class LMSSplitter extends IPSModuleStrict
      * IPS-Instanz-Funktion 'LMS_GetDirectoryByID'. Liefert Informationen zu einem Verzeichnis.
      *
      * @param int $FolderID ID des Verzeichnis welches durchsucht werden soll. 0= root
-     *
-     * @return array|bool Array mit den Quellen oder false bei Fehler.
+     * @return false|array Array mit den Quellen oder false bei Fehler.
      */
     public function GetDirectoryByID(int $FolderID): false|array
     {
@@ -826,8 +827,7 @@ class LMSSplitter extends IPSModuleStrict
      * IPS-Instanz-Funktion 'LMS_GetDirectoryByIDRecursive'. Liefert rekursiv Informationen zu einem Verzeichnis.
      *
      * @param int $FolderID ID des Verzeichnis welches durchsucht werden soll.
-     *
-     * @return array|bool Array mit den Quellen oder false bei Fehler.
+     * @return false|array Array mit den Quellen oder false bei Fehler.
      */
     public function GetDirectoryByIDRecursive(int $FolderID): false|array
     {
@@ -852,8 +852,7 @@ class LMSSplitter extends IPSModuleStrict
      * IPS-Instanz-Funktion 'LMS_GetDirectoryByURL'. Liefert rekursiv Informationen zu einem Verzeichnis.
      *
      * @param string $Directory URL des Verzeichnis welches durchsucht werden soll.
-     *
-     * @return array|bool Array mit den Quellen oder false bei Fehler.
+     * @return false|array Array mit den Quellen oder false bei Fehler.
      */
     public function GetDirectoryByURL(string $Directory): false|array
     {
@@ -875,8 +874,7 @@ class LMSSplitter extends IPSModuleStrict
      * IPS-Instanz-Funktion 'LMS_GetDirectoryByURLRecursive'. Liefert rekursiv Informationen zu einem Verzeichnis.
      *
      * @param string $Directory URL des Verzeichnis welches durchsucht werden soll.
-     *
-     * @return array|bool Array mit den Quellen oder false bei Fehler.
+     * @return false|array Array mit den Quellen oder false bei Fehler.
      */
     public function GetDirectoryByURLRecursive(string $Directory): false|array
     {
@@ -898,7 +896,7 @@ class LMSSplitter extends IPSModuleStrict
      * IPS-Instanz-Funktion 'LMS_GetPlaylists'.
      * Liefert alle Server Playlisten.
      *
-     * @return array Array mit den Server-Playlists. FALSE im Fehlerfall.
+     * @return false|array Array mit den Server-Playlists. FALSE im Fehlerfall.
      */
     public function GetPlaylists(): false|array
     {
@@ -911,7 +909,7 @@ class LMSSplitter extends IPSModuleStrict
      * Liefert alle Server Playlisten.
      *
      * @param string $Search Such-String
-     * @return array Array mit den Server-Playlists. FALSE im Fehlerfall.
+     * @return false|array Array mit den Server-Playlists. FALSE im Fehlerfall.
      */
     public function GetPlaylistsEx(string $Search): false|array
     {
@@ -953,7 +951,7 @@ class LMSSplitter extends IPSModuleStrict
      * Liefert alle Songs einer Playlist.
      *
      * @param int $PlaylistId Die Playlist welche gelesen werden soll.
-     * @return array Array mit Songs der Playlist.
+     * @return false|array Array mit Songs der Playlist.
      */
     public function GetPlaylist(int $PlaylistId): false|array
     {
@@ -1188,7 +1186,7 @@ class LMSSplitter extends IPSModuleStrict
      * Liefert Details zu einem Song anhand der ID.
      *
      * @param int $SongID Die ID des Song
-     * @return array Array mit den Daten des Song. FALSE wenn SongID unbekannt.
+     * @return false|array Array mit den Daten des Song. FALSE wenn SongID unbekannt.
      */
     public function GetSongInfoByFileID(int $SongID): false|array
     {
@@ -1214,7 +1212,7 @@ class LMSSplitter extends IPSModuleStrict
      * Liefert Details zu einem Song anhand der URL.
      *
      * @param string $SongURL Die URL des Song
-     * @return array Array mit den Daten des Song. FALSE wenn Song unbekannt.
+     * @return false|array Array mit den Daten des Song. FALSE wenn Song unbekannt.
      */
     public function GetSongInfoByFileURL(string $SongURL): false|array
     {
@@ -1421,12 +1419,11 @@ class LMSSplitter extends IPSModuleStrict
 
     /**
      * AddFavorite
-     *  IPS-Instanz-Funktion 'LMS_AddFavorite'.
+     * IPS-Instanz-Funktion 'LMS_AddFavorite'.
      *
      * @param string $ParentFavoriteID
      * @param string $Title
      * @param string $URL
-     *
      * @return bool
      */
     public function AddFavorite(string $ParentFavoriteID, string $Title, string $URL): bool
@@ -1719,7 +1716,7 @@ class LMSSplitter extends IPSModuleStrict
 
             if ($isResponse === false) { //War keine Antwort also ein Event
                 $this->SendDebug('LMS_Event', $Data, 0);
-                if ($Data->Device != \SqueezeBox\LMSResponse::isServer) {
+                if ($Data->Device != \SqueezeBox\DeviceType::isServer) {
                     if ($Data->Command[0] == 'playlist') {
                         $this->DecodeLMSResponse($Data);
                     }
@@ -1824,6 +1821,7 @@ class LMSSplitter extends IPSModuleStrict
         $this->LoadPlaylistforPlayers($_GET['Type'], $_GET['ID']);
         echo 'OK';
     }
+
     /**
      * LoadPlaylistforPlayers
      *
@@ -1879,15 +1877,15 @@ class LMSSplitter extends IPSModuleStrict
             LSQ_LoadPlaylistByFavoriteID($MasterId, (string) $PlaylistId);
         }
     }
+
     /**
      * Send
      * Versendet ein \SqueezeBox\LMSData-Objekt und empfängt die Antwort.
      *
      * @param \SqueezeBox\LMSData $LMSData Das Objekt welches versendet werden soll.
-     *
      * @return null|\SqueezeBox\LMSData Enthält die Antwort auf das Versendete Objekt oder NULL im Fehlerfall.
      */
-    protected function Send(\SqueezeBox\LMSData $LMSData): ?\SqueezeBox\LMSData
+    protected function Send(\SqueezeBox\LMSData $LMSData): null|\SqueezeBox\LMSData
     {
         try {
             if ($this->GetStatus() != IS_ACTIVE) {
@@ -1925,10 +1923,9 @@ class LMSSplitter extends IPSModuleStrict
      * Konvertiert $Data zu einem String und versendet diesen direkt an den LMS.
      *
      * @param \SqueezeBox\LMSData $LMSData Zu versendende Daten.
-     *
      * @return null|\SqueezeBox\LMSData \SqueezeBox\LMSData mit der Antwort. NULL im Fehlerfall.
      */
-    protected function SendDirect(\SqueezeBox\LMSData $LMSData): ?\SqueezeBox\LMSData
+    protected function SendDirect(\SqueezeBox\LMSData $LMSData): null|\SqueezeBox\LMSData
     {
         try {
             if ($this->GetStatus() != IS_ACTIVE) {
@@ -2115,11 +2112,11 @@ class LMSSplitter extends IPSModuleStrict
     }
 
     /**
-     * RefreshAllPlaylists
+     * RefreshPlaylistBuffer
      *
      * @return void
      */
-    private function RefreshAllPlaylists(): void
+    private function RefreshPlaylistBuffer(): void
     {
         $Data = [0, 100000, 'tags:u'];
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData('playlists', $Data));
@@ -2177,35 +2174,36 @@ class LMSSplitter extends IPSModuleStrict
      */
     private function RefreshPlaylist(): void
     {
-        if (!$this->ReadPropertyBoolean('showHTMLPlaylist')) {
-            return;
-        }
+
         $Data = $this->Multi_Playlists;
         if (!is_array($Data)) {
             $Data = [];
         }
-        /*
-        if (count($Data) == 0) {
-           $this->SetValueString('SelectPlaylist', '');
-        } else {
-            $playlistEntries = [];
-            foreach ($Data as $Index => ['Playlist' => $Playlist, 'Tracks'=>$Tracks, 'Duration'=>$Duration, 'Id' =>$Id]) {
-                $playlistEntries[] = [
-                    'artist'        => $Tracks,
-                    //'tracks'        => $Tracks,
-                    'id'            => $Id,
-                    'song'          => $Playlist,
-                    'duration'      => $Duration
-                ];
+        // TilePlaylist
+        if ($this->ReadPropertyBoolean('showTilePlaylist')) {
+            $TilePlaylistData = '';
+            if (count($Data)) {
+                $playlistEntries = [];
+                foreach ($Data as $Index => ['Playlist' => $Playlist, 'Tracks'=>$Tracks, 'Duration'=>$Duration, 'Id' =>$Id]) {
+                    $playlistEntries[] = [
+                        'artist'        => $Tracks,
+                        //'tracks'        => $Tracks,
+                        'id'            => $Id,
+                        'song'          => $Playlist,
+                        'duration'      => $Duration
+                    ];
+                }
+                $TilePlaylistData = json_encode([
+                    'entries' => $playlistEntries
+                ]);
             }
-            $this->SetValueString('SelectPlaylist', json_encode([
-                'entries' => $playlistEntries
-            ]));
+            $this->SetValueString('SelectPlaylist', $TilePlaylistData);
         }
-         */
         //HTML-Playlist
-        $HTML = $this->GetTable($Data, 'LMSPlaylist', 'Playlist', 'Id');
-        $this->SetValueString('Playlists', $HTML);
+        if ($this->ReadPropertyBoolean('showHTMLPlaylist')) {
+            $HTML = $this->GetTable($Data, 'LMSPlaylist', 'Playlist', 'Id');
+            $this->SetValueString('Playlists', $HTML);
+        }
     }
 
     ///////////////////////////////////////////////////////////////
@@ -2277,7 +2275,7 @@ class LMSSplitter extends IPSModuleStrict
                         if ($this->GetValue('RescanState') != 0) {
                             $this->SetValueInteger('RescanState', 0);   // fertig
                         } else {
-                            $this->RefreshAllPlaylists();
+                            $this->RefreshPlaylistBuffer();
                         }
                         return true;
                     } elseif ($LMSData->Data[0] == 'playlists') {
@@ -2355,7 +2353,7 @@ class LMSSplitter extends IPSModuleStrict
                 break;
             case 'playlist': // Client Playlist info
                 if ($LMSData->Command[1] == 'save') {
-                    $this->RefreshAllPlaylists();
+                    $this->RefreshPlaylistBuffer();
                     return true;
                 }
                 break;
@@ -2443,7 +2441,7 @@ class LMSSplitter extends IPSModuleStrict
      * Wartet auf eine Antwort einer Anfrage an den LMS.
      *
      * @param \SqueezeBox\LMSData $LMSData Das Objekt welches an den LMS versendet wurde.
-     * @return array|false Enthält ein Array mit den Daten der Antwort. False bei einem Timeout
+     * @return false|array Enthält ein Array mit den Daten der Antwort. False bei einem Timeout
      */
     private function WaitForResponse(\SqueezeBox\LMSData $LMSData): false|array
     {
@@ -2488,7 +2486,6 @@ class LMSSplitter extends IPSModuleStrict
      * Fügt eine Antwort in die SendQueue ein.
      *
      * @param \SqueezeBox\LMSResponse $LMSResponse Das empfangene \SqueezeBox\LMSData Objekt.
-     *
      * @return bool True wenn Anfrage zur Antwort gefunden wurde, sonst false.
      */
     private function SendQueueUpdate(\SqueezeBox\LMSResponse $LMSResponse): bool
@@ -2526,5 +2523,3 @@ class LMSSplitter extends IPSModuleStrict
         $this->unlock('ReplyLMSData');
     }
 }
-
-/* @} */

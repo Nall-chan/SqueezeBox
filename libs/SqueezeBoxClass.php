@@ -6,10 +6,7 @@ namespace SqueezeBox;
 
 require_once __DIR__ . '/TimeConvert.php';  // diverse Klassen
 
-/*
- * @addtogroup squeezebox
- * @{
- *
+/**
  * @package       Squeezebox
  * @file          SqueezeBoxClass.php
  * @author        Michael Tröger <micha@nall-chan.net>
@@ -18,6 +15,12 @@ require_once __DIR__ . '/TimeConvert.php';  // diverse Klassen
  * @version       4.00
  *
  */
+enum DeviceType
+{
+    case isServer;
+    case isMAC;
+    case isIP;
+}
 
 /**
  * Trait mit allen Profilen der Instanz Squeezebox-Device.
@@ -51,7 +54,11 @@ trait LSQProfile
             [3, '3', '', -1],
             [4, '4', '', -1],
             [5, '5', '', -1],
-            [6, '6', '', -1]
+            [6, '6', '', -1],
+            [7, '7', '', -1],
+            [8, '8', '', -1],
+            [9, '9', '', -1],
+            [10, '10', '', -1]
         ]);
         $this->RegisterProfileIntegerEx('LSQ.SleepTimer', 'Gear', '', '', [
             [0, '%d', '', -1],
@@ -130,8 +137,6 @@ trait LMSProfile
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
  * @version       4.00
- *
- * @example <b>Ohne</b>
  */
 class LMSData extends \stdClass
 {
@@ -140,35 +145,35 @@ class LMSData extends \stdClass
      *
      * @var string
      */
-    public $Address;
+    public string $Address;
 
     /**
      * Alle Kommandos als Array.
      *
      * @var string|array
      */
-    public $Command;
+    public string|array $Command;
 
     /**
      * Alle Daten des Kommandos.
      *
      * @var string|array
      */
-    public $Data;
+    public string|array $Data;
 
     /**
      * Flag ob auf Antwort gewartet werden muss.
      *
      * @var bool
      */
-    public $needResponse;
+    public bool $needResponse;
 
     /**
      * Anzahl der versendeten Daten.
      *
      * @var int
      */
-    private $SendValues;
+    private int $SendValues;
 
     /**
      * __construct
@@ -199,7 +204,6 @@ class LMSData extends \stdClass
      * Erzeugt einen String für den Datenaustausch mit einer IO-Instanz.
      *
      * @param string $GUID Die TX-GUID
-     *
      * @return string Der JSON-String für den Datenaustausch.
      */
     public function ToJSONStringForLMS(string $GUID): string
@@ -271,7 +275,6 @@ class LMSData extends \stdClass
      * Erzeugt ein JSON-String für den internen Datenaustausch dieses Moduls.
      *
      * @param string $GUID GUID des Datenpaketes.
-     *
      * @return string Der JSON-String.
      */
     public function ToJSONString(string $GUID): string
@@ -293,40 +296,18 @@ class LMSData extends \stdClass
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
  * @version       4.00
- *
- * @example <b>Ohne</b>
  */
 class LMSResponse extends LMSData
 {
     /**
-     * Antwort ist vom LMS-Server.
-     *
-     * @static
-     */
-    public const isServer = 0;
-
-    /**
-     * Antwort ist von einer MAC-Adresse.
-     *
-     * @static
-     */
-    public const isMAC = 1;
-
-    /**
-     * Antwort ist von einer IP-Adresse.
-     *
-     * @static
-     */
-    public const isIP = 2;
-
-    /**
      * Enthält den Type des Versenders einer Antwort.
      *
-     * @var int Kann ::isServer, ::isMAC oder ::isIP sein.
+     * @var DeviceType
      */
-    public $Device;
+    public DeviceType $Device;
 
     /**
+     * __construct
      * Zerlegt eine Antwort des LMS und erzeugt daraus ein LMSResponse-Objekt.
      *
      * @param string $RawString
@@ -335,17 +316,17 @@ class LMSResponse extends LMSData
     {
         $array = explode(' ', $RawString); // Antwortstring in Array umwandeln
         if (strpos($array[0], '%3A') == 2) { //isMAC
-            $this->Device = self::isMAC;
+            $this->Device = DeviceType::isMAC;
             $this->Address = rawurldecode(array_shift($array));
         } elseif (strpos($array[0], '.')) { //isIP
-            $this->Device = self::isIP;
+            $this->Device = DeviceType::isIP;
             $this->Address = array_shift($array);
         } else { // isServer
-            $this->Device = self::isServer;
+            $this->Device = DeviceType::isServer;
             $this->Address = '';
         }
         $this->Command = [array_shift($array)];
-        if ($this->Device == self::isServer) {
+        if ($this->Device == DeviceType::isServer) {
             if (count($array) != 0) {
                 switch ($this->Command[0]) {
                     case 'player':
@@ -444,12 +425,10 @@ class LMSResponse extends LMSData
      * Erzeugt aus dem Objekt einen JSON-String.
      *
      * @param string $GUID GUID welche in den JSON-String eingebunden wird.
-     *
      * @return string Der JSON-String für den Datenaustausch
      */
     public function ToJSONStringForDevice(string $GUID): string
     {
-        //$this->EncodeUTF8($this);
         return json_encode(['DataID'  => $GUID,
             'Address'                 => $this->Address,
             'Command'                 => $this->Command,
@@ -466,20 +445,18 @@ class LMSResponse extends LMSData
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
  * @version       4.00
- *
- * @example <b>Ohne</b>
  */
 class LMSTaggingData extends \stdClass
 {
     /**
      * @var string Der Name des Datensatzes.
      */
-    public $Name;
+    public string $Name;
 
     /**
      * @var string Der Inhalt des Datensatz.
      */
-    public $Value;
+    public string $Value;
 
     /**
      * __construct
@@ -507,8 +484,6 @@ class LMSTaggingData extends \stdClass
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
  * @version       4.00
- *
- * @example <b>Ohne</b>
  */
 class LMSTaggingArray extends \stdClass
 {
@@ -583,7 +558,7 @@ class LMSTaggingArray extends \stdClass
     /**
      * @var array Enthält die Nutzdaten
      */
-    private $DataArray;
+    private array $DataArray = [];
 
     /**
      * __construct
@@ -710,8 +685,6 @@ class LMSTaggingArray extends \stdClass
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
  * @version       4.00
- *
- * @example <b>Ohne</b>
  */
 class LMSSongInfo extends \stdClass
 {
@@ -745,19 +718,20 @@ class LMSSongInfo extends \stdClass
         'Modified'         => 0,
         'Playlist'         => 3
     ];
+
     /**
      * Ein Array das alle Songs enthält.
      *
      * @var array
      */
-    private $SongArray = [];
+    private array $SongArray = [];
 
     /**
      * Die gesamte Spielzeit in Sekunden.
      *
      * @var int
      */
-    private $Duration = 0;
+    private int $Duration = 0;
 
     /**
      * __construct
@@ -868,7 +842,6 @@ trait LMSSongURL
      * Prüft und korrigiert eine URL.
      *
      * @param string $SongURL
-     *
      * @return bool True wenn URL valid ist, sonst false
      */
     protected function GetValidSongURL(string &$SongURL): bool
@@ -900,10 +873,9 @@ trait LMSHTMLTable
      *
      * @param array $Config_Table Die Konfiguration der Tabelle
      * @param array $Config_Columns Die Konfiguration der Tabelle
-     *
      * @return string HTML-String
      */
-    protected function GetTableHeader($Config_Table, $Config_Columns): string
+    protected function GetTableHeader(array $Config_Table, array $Config_Columns): string
     {
         $table = '';
         // Kopf der Tabelle erzeugen
@@ -989,7 +961,6 @@ sleep(10).then(() => {
      * @param string $HookType    Ein String welcher als Parameter Type im Webhook übergeben wird.
      * @param string $HookId      Der Index aus dem Array $Data welcher die Nutzdaten (Parameter ID) des Webhook enthält.
      * @param int    $CurrentLine Die Aktuelle Zeile welche als Aktiv erzeugt werden soll.
-     *
      * @return string Der HTML-String.
      */
     protected function GetTable(array $Data, string $HookPrefix, string $HookType, string $HookId, int $CurrentLine = -1): string
@@ -1079,7 +1050,6 @@ trait LMSCover
      * @param string $CoverID Die ID des Covers.
      * @param string $Size    Die Größe des Covers in Pixel.
      * @param string $Player  Die Player-MAC.
-     *
      * @return bool|string Die Rohdaten des Covers, oder false im Fehlerfall.
      */
     protected function GetCover(string $CoverID, string $Size, string $Player): bool|string
@@ -1108,5 +1078,3 @@ trait LMSCover
         return @Sys_GetURLContentEx($URL, $Login);
     }
 }
-
-/* @} */

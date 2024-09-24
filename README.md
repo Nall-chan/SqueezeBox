@@ -1,6 +1,6 @@
 [![SDK](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20Version-3.80-blue.svg)](https://community.symcon.de/t/modul-squeezebox-release/46937)
-[![Version](https://img.shields.io/badge/Symcon%20Version-6.4%20%3E-green.svg)](https://www.symcon.de/service/dokumentation/installation/migrationen/v60-v61-q1-2022/)  
+[![Version](https://img.shields.io/badge/Modul%20Version-4.00-blue.svg)](https://community.symcon.de/t/modul-squeezebox-release/46937)
+[![Version](https://img.shields.io/badge/Symcon%20Version-7.1%20%3E-green.svg)](https://www.symcon.de/de/service/dokumentation/installation/migrationen/v70-v71-q1-2024/)  
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Check Style](https://github.com/Nall-chan/SqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/SqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions)  
 [![Spenden](https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_SM.gif)](#6-spenden)  
@@ -76,7 +76,7 @@ Logitech Media Server.
 
 ## 2. Voraussetzungen
 
- - IP-Symcon ab Version 6.4
+ - IP-Symcon ab Version 7.1
  - Logitech Media Server (getestet ab 7.9.x)
  - kompatible Player
 
@@ -127,11 +127,17 @@ Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:
 
 ### 3. Changelog
 
+Version 4.00:
+ - Diverse Anpassungen für Symcon 7.0 bei den Profilen.  
+ - Neue Playlist für Symcon 7.0 eingebaut.
+ - Unterstützung für Kachel-Visu (Media-Kachel).  
+
+Version 3.81:
+ - Anzeige der Variable für Stummschaltung war defekt.  
+
 Version 3.80:
- - Diverse Anpassungen für Symcon 6.4 bei den Profilen.  
  - Mehr Statusvariablen können abgewählt werden.  
  - HTML-Playlist ist bei neu angelegten Instanzen ab Werk ausgeschaltet.  
- - Neue Playlist für Symcon 6.4 eingebaut.
 
 Version 3.72:
  - Anzeige und Steuerung der Variable für Stummschaltung war defekt.  

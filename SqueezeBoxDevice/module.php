@@ -2,10 +2,7 @@
 
 declare(strict_types=1);
 
-/*
- * @addtogroup squeezebox
- * @{
- *
+/**
  * @package       Squeezebox
  * @file          module.php
  * @author        Michael Tröger <micha@nall-chan.net>
@@ -32,8 +29,6 @@ eval('declare(strict_types=1);namespace SqueezeboxDevice {?>' . file_get_content
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  * @version       4.00
  *
- * @example <b>Ohne</b>
- *
  * @property int $ParentID
  * @property array $Multi_Playlist Alle Datensätze der Playlisten
  * @property int $PlayerMode
@@ -54,6 +49,7 @@ eval('declare(strict_types=1);namespace SqueezeboxDevice {?>' . file_get_content
  * @method void SetValueInteger(string $Ident, int $value)
  * @method void SetValueString(string $Ident, string $value)
  * @method void UnregisterProfile(string $Name)
+ * @method int FindIDForIdent(string $Ident)
  */
 class SqueezeboxDevice extends IPSModuleStrict
 {
@@ -61,7 +57,7 @@ class SqueezeboxDevice extends IPSModuleStrict
         \SqueezeBox\LMSSongUrl,
         \SqueezeBox\LMSCover,
         \SqueezeBox\LSQProfile,
-        \squeezebox\DebugHelper,
+        \SqueezeBox\DebugHelper,
         \SqueezeboxDevice\VariableHelper,
         \SqueezeboxDevice\VariableProfileHelper,
         \SqueezeboxDevice\BufferHelper,
@@ -132,6 +128,7 @@ class SqueezeboxDevice extends IPSModuleStrict
 
     /**
      * Migrate
+     *
      * @param  string $JSONData
      * @return string
      */
@@ -425,8 +422,8 @@ class SqueezeboxDevice extends IPSModuleStrict
 
     /**
      * RequestAllState
-     *
      * Aktuellen Status des Devices ermitteln und, wenn verbunden, abfragen..
+     *
      * @return bool
      */
     public function RequestAllState(): bool
@@ -482,7 +479,6 @@ class SqueezeboxDevice extends IPSModuleStrict
 
     /**
      * RequestState
-     *
      * IPS-Instanz-Funktion 'LSQ_RequestState'.
      * Fragt einen Wert des Players ab. Es ist der Ident der Statusvariable zu übergeben.
      *
@@ -668,7 +664,6 @@ class SqueezeboxDevice extends IPSModuleStrict
 
     /**
      * SetUnSync
-     *
      * IPS-Instanz-Funktion 'LSQ_SetUnSync'.
      * Sync dieses Gerätes aufheben.
      *
@@ -686,8 +681,8 @@ class SqueezeboxDevice extends IPSModuleStrict
     /**
      * SetName
      * Setzten den Namen in dem Device.
-     *
      * IPS-Instanz-Funktion 'LSQ_SetName'.
+     *
      * @param string $Name Neuer Name
      * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
@@ -709,7 +704,6 @@ class SqueezeboxDevice extends IPSModuleStrict
 
     /**
      * GetName
-     *
      * IPS-Instanz-Funktion 'LSQ_GetName'.
      * Liefert den Namen von dem Device.
      *
@@ -727,14 +721,12 @@ class SqueezeboxDevice extends IPSModuleStrict
 
     /**
      * SetPower
-     *
      * IPS-Instanz-Funktion 'LSQ_SetPower'.
      * Schaltet das Gerät ein oder aus.
      *
      * @param bool $Value
      *                    false  = ausschalten
      *                    true = einschalten
-     *
      * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function Power(bool $Value): bool
@@ -748,7 +740,6 @@ class SqueezeboxDevice extends IPSModuleStrict
 
     /**
      * SetSleep
-     *
      * Restzeit bis zum Sleep setzen.
      *
      * @param int $Seconds Sekunden bis zum ausschalten
@@ -772,13 +763,11 @@ class SqueezeboxDevice extends IPSModuleStrict
 
     /**
      * SetMute
-     *
      * Setzten der Stummschaltung.
      *
      * @param boolean $Value
      *                      true = Stumm an
      *                      false = Stumm aus
-     *
      * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function SetMute(bool $Value): bool
@@ -795,7 +784,6 @@ class SqueezeboxDevice extends IPSModuleStrict
      * Setzten der Lautstärke.
      *
      * @param int $Value
-     *
      * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function SetVolume(int $Value): bool
@@ -818,7 +806,6 @@ class SqueezeboxDevice extends IPSModuleStrict
      * Setzten der Lautstärke.
      *
      * @param string $Value
-     *
      * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function SetVolumeEx(string $Value): bool
@@ -847,7 +834,6 @@ class SqueezeboxDevice extends IPSModuleStrict
      * Setzt den Bass-Wert.
      *
      * @param int $Value
-     *
      * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function SetBass(int $Value): bool
@@ -876,7 +862,6 @@ class SqueezeboxDevice extends IPSModuleStrict
      * Setzt den Bass-Wert.
      *
      * @param string $Value
-     *
      * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function SetBassEx(string $Value): bool
@@ -911,7 +896,6 @@ class SqueezeboxDevice extends IPSModuleStrict
      * Setzt den Treble-Wert.
      *
      * @param int $Value
-     *
      * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function SetTreble(int $Value): bool
@@ -940,7 +924,6 @@ class SqueezeboxDevice extends IPSModuleStrict
      * Setzt den Treble-Wert.
      *
      * @param string $Value
-     *
      * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function SetTrebleEx(string $Value): bool
@@ -975,7 +958,6 @@ class SqueezeboxDevice extends IPSModuleStrict
      * Setzt den Pitch-Wert.
      *
      * @param int $Value
-     *
      * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function SetPitch(int $Value): bool
@@ -1004,7 +986,6 @@ class SqueezeboxDevice extends IPSModuleStrict
      * Setzt den Pitch-Wert.
      *
      * @param string $Value
-     *
      * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function SetPitchEx(string $Value): bool
@@ -1107,7 +1088,6 @@ class SqueezeboxDevice extends IPSModuleStrict
      * Startet die Wiedergabe.
      *
      * @param int $FadeIn Einblendezeit
-     *
      * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function PlayEx(int $FadeIn): bool
@@ -1154,7 +1134,6 @@ class SqueezeboxDevice extends IPSModuleStrict
      * Setzt eine absolute Zeit-Position des aktuellen Titels.
      *
      * @param int $Value Zeit in Sekunden.
-     *
      * @return bool true bei erfolgreicher Ausführung und Rückmeldung.
      */
     public function SetPosition(int $Value): bool
@@ -1221,7 +1200,7 @@ class SqueezeboxDevice extends IPSModuleStrict
      * @param  int $Brightness
      * @return bool
      */
-    public function Display2LinesEx(string $Text1, string $Text2, int $Duration, bool $Centered, int $Brightness): bool
+    public function Display2LinesEx(string $Text1, string $Text2, int $Duration, bool $Centered, int $Brightness)
     {
         return $this->DisplayLines($Text1, $Text2, false, $Duration, $Centered, $Brightness);
     }
@@ -1324,7 +1303,6 @@ class SqueezeboxDevice extends IPSModuleStrict
      * Lädt eine neue Playlist.
      *
      * @param string $URL SongURL, Verzeichnis oder Remote-Stream
-     *
      * @return bool
      */
     public function PlayUrl(string $URL): bool
@@ -1404,7 +1382,6 @@ class SqueezeboxDevice extends IPSModuleStrict
      * Am Ende hinzufügen.
      *
      * @param string $URL
-     *
      * @return bool
      */
     public function AddToPlaylistByUrl(string $URL): bool
@@ -1495,6 +1472,7 @@ class SqueezeboxDevice extends IPSModuleStrict
     /**
      * DeleteFromPlaylistByIndex
      * The "playlist delete" command deletes the song at the specified index from the current playlist.
+     *
      * @param  int $Position
      * @return bool
      */
@@ -1554,7 +1532,6 @@ class SqueezeboxDevice extends IPSModuleStrict
      * Speichert die aktuelle Wiedergabeliste vom Gerät in einer unter $Name angegebenen Wiedergabelisten-Datei auf dem LMS-Server.
      *
      * @param string $Name Der Name der Wiedergabeliste. Ist diese Liste auf dem Server schon vorhanden, wird sie überschrieben.
-     *
      * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function SavePlaylist(string $Name): bool
@@ -1588,7 +1565,6 @@ class SqueezeboxDevice extends IPSModuleStrict
      * Lädt eine Wiedergabelisten-Datei aus dem LMS-Server und spring an die zuletzt abgespielten Track.
      *
      * @param string $Name  Der Name der Wiedergabeliste.
-     *
      * @return bool|string  Kompletter Pfad der Wiedergabeliste
      */
     public function ResumePlaylist(string $Name): bool|string
@@ -1640,8 +1616,7 @@ class SqueezeboxDevice extends IPSModuleStrict
      * Lädt eine Wiedergabelisten-Datei aus dem LMS-Server und startet die Wiedergabe derselben auf dem Gerät.
      *
      * @param string $Name Der Name der Wiedergabeliste. Eine URL zu einem Stream, einem Verzeichnis oder einer Datei
-     *
-     * @return bool|string  Kompletter Pfad der Wiedergabeliste
+     * @return bool|string Kompletter Pfad der Wiedergabeliste
      */
     public function LoadPlaylist(string $Name): bool|string
     {
@@ -2113,7 +2088,6 @@ class SqueezeboxDevice extends IPSModuleStrict
      * Springt in der aktuellen Wiedergabeliste auf einen Titel.
      *
      * @param int $Index Track in der Wiedergabeliste auf welchen gesprungen werden soll.
-     *
      * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function GoToTrack(int $Index): bool
@@ -2163,14 +2137,12 @@ class SqueezeboxDevice extends IPSModuleStrict
 
     /**
      * SetShuffle
-     *
      * Setzen des Zufallsmodus.
      *
      * @param int $Value
      *                   0 = aus
      *                   1 = Titel
      *                   2 = Album
-     *
      * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
     public function SetShuffle(int $Value): bool
@@ -2190,9 +2162,9 @@ class SqueezeboxDevice extends IPSModuleStrict
 
     /**
      * SetRepeat
-     *
      * Setzen des Wiederholungsmodus.
-     * @param  int $Value
+     *
+     * @param int $Value
      *                   0 = aus
      *                   1 = Titel
      *                   2 = Album
@@ -2348,6 +2320,7 @@ class SqueezeboxDevice extends IPSModuleStrict
 
     /**
      * InsertInPlaylistByAlbumID
+     *
      * @todo alles auch mit add + move
      * @todo insert testen !?!?
      * @param  int $AlbumID
@@ -2490,14 +2463,12 @@ class SqueezeboxDevice extends IPSModuleStrict
 
     /**
      * GetSongInfoByTrackIndex
-     *
      * Liefert Informationen über einen Song aus der aktuelle Wiedergabeliste.
      *
      * @param int $Index
      *                   $Index für die absolute Position des Titels in der Wiedergabeliste.
      *                   0 für den aktuellen Titel
-     *
-     * @return array
+     * @return false|array
      *               ["duration"]=>string
      *               ["id"]=>string
      *               ["title"]=>string
@@ -2529,10 +2500,9 @@ class SqueezeboxDevice extends IPSModuleStrict
 
     /**
      * GetSongInfoOfTilePlaylist
-     *
      * Liefert Informationen über alle Songs aus der aktuelle Wiedergabeliste.
      *
-     * @return array[index]
+     * @return false|array[index]
      *                      ["duration"]=>string
      *                      ["id"]=>string
      *                      ["title"]=>string
@@ -2833,20 +2803,6 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
-     * SetStatus
-     *
-     * @param  int $State
-     * @return bool
-     */
-    public function SetStatus(int $State): bool
-    {
-        if ($State != $this->GetStatus()) {
-            return parent::SetStatus($State);
-        }
-        return false;
-    }
-
-    /**
      * KernelReady
      * Wird ausgeführt wenn der Kernel hochgefahren wurde.
      *
@@ -2879,8 +2835,8 @@ class SqueezeboxDevice extends IPSModuleStrict
 
     /**
      * IOChangeState
-     *
      * Wird ausgeführt wenn sich der Status vom Parent ändert.
+     *
      * @param  int $State
      * @return void
      */
@@ -2931,10 +2887,9 @@ class SqueezeboxDevice extends IPSModuleStrict
      * Konvertiert $Data zu einem String und versendet diesen direkt an den LMS.
      *
      * @param \SqueezeBox\LMSData $LMSData Zu versendende Daten.
-     *
-     * @return \SqueezeBox\LMSData Objekt mit der Antwort. NULL im Fehlerfall.
+     * @return null|\SqueezeBox\LMSData Objekt mit der Antwort. NULL im Fehlerfall.
      */
-    protected function SendDirect(\SqueezeBox\LMSData $LMSData): ?\SqueezeBox\LMSData
+    protected function SendDirect(\SqueezeBox\LMSData $LMSData): null|\SqueezeBox\LMSData
     {
         if ($this->ReadPropertyString('Address') == '') {
             return null;
@@ -3001,6 +2956,21 @@ class SqueezeboxDevice extends IPSModuleStrict
         }
         return null;
     }
+
+    /**
+     * SetStatus
+     *
+     * @param  int $State
+     * @return bool
+     */
+    protected function SetStatus(int $State): bool
+    {
+        if ($State != $this->GetStatus()) {
+            parent::SetStatus($State);
+        }
+        return false;
+    }
+
     /**
      * ModulErrorHandler
      *
@@ -3793,7 +3763,7 @@ class SqueezeboxDevice extends IPSModuleStrict
                         $this->_SetNewVolume($LMSData->Data[0]);
                         break;
                     case 'muting':
-                        $this->SetValueBoolean('Mute', (int) $LMSData->Data[0] == 1);
+                        $this->SetValueBoolean('Mute', (bool) $LMSData->Data[0]);
                         break;
                     case 'bass':
                         if ($this->ReadPropertyBoolean('enableBass')) {
@@ -4151,7 +4121,6 @@ class SqueezeboxDevice extends IPSModuleStrict
      * Konvertiert $Data zu einem JSONString und versendet diese an den Splitter.
      *
      * @param \SqueezeBox\LMSData $LMSData Zu versendende Daten.
-     *
      * @return \SqueezeBox\LMSData Objekt mit der Antwort. NULL im Fehlerfall.
      */
     private function Send(\SqueezeBox\LMSData $LMSData): ?\SqueezeBox\LMSData
@@ -4190,5 +4159,3 @@ class SqueezeboxDevice extends IPSModuleStrict
         }
     }
 }
-
-/* @} */

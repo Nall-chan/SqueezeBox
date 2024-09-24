@@ -11,10 +11,9 @@ trait TimeConvert
 {
     /**
      * ConvertSeconds
-     *  Konvertiert Sekunden in einen lesbare Zeit.
+     * Konvertiert Sekunden in einen lesbare Zeit.
      *
      * @param int $Time Zeit in Sekunden
-     *
      * @return string Zeit als String.
      */
     protected function ConvertSeconds(int $Time): string

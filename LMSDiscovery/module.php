@@ -1,10 +1,8 @@
 <?php
 
 declare(strict_types=1);
-/*
- * @addtogroup squeezebox
- * @{
- *
+
+/**
  * @package       Squeezebox
  * @file          module.php
  * @author        Michael Tröger <micha@nall-chan.net>
@@ -22,8 +20,6 @@ require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
  * @copyright     2024 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  * @version       4.00
- *
- * @example <b>Ohne</b>
  *
  * @property array $Devices
  */
@@ -207,5 +203,3 @@ class LMSDiscovery extends IPSModuleStrict
         return $DeviceData;
     }
 }
-
-/* @} */

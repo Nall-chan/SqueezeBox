@@ -1,10 +1,8 @@
 <?php
 
 declare(strict_types=1);
-/*
- * @addtogroup squeezebox
- * @{
- *
+
+/**
  * @package       Squeezebox
  * @file          module.php
  * @author        Michael Tröger <micha@nall-chan.net>
@@ -52,8 +50,6 @@ class AutoLoaderSqueezeboxBatteryPHPSecLib
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
  * @version       4.00
- *
- * @example <b>Ohne</b>
  *
  * @method bool SendDebug(string $Message, mixed $Data, int $Format)
  * @method void RegisterProfileIntegerEx(string $Name, string $Icon, string $Prefix, string $Suffix, array $Associations, int $MaxValue = -1, float $StepSize = 0)
@@ -276,5 +272,3 @@ class SqueezeboxBattery extends IPSModuleStrict
         return false;
     }
 }
-
-/* @} */

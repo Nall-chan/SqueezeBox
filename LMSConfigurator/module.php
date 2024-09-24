@@ -2,10 +2,7 @@
 
 declare(strict_types=1);
 
-/*
- * @addtogroup squeezebox
- * @{
- *
+/**
  * @package       Squeezebox
  * @file          module.php
  * @author        Michael Tröger <micha@nall-chan.net>
@@ -28,8 +25,6 @@ eval('declare(strict_types=1);namespace LMSConfigurator {?>' . file_get_contents
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
  * @version       4.00
- *
- * @example <b>Ohne</b>
  *
  * @property int $ParentID
  */
@@ -81,8 +76,7 @@ class LMSConfigurator extends IPSModuleStrict
     }
 
     /**
-     * Interne Funktion des SDK.
-     *
+     * MessageSink
      *
      * @param int $TimeStamp
      * @param int $SenderID
@@ -292,6 +286,7 @@ class LMSConfigurator extends IPSModuleStrict
     /**
      * KernelReady
      * Wird ausgeführt wenn der Kernel hochgefahren wurde.
+     *
      * @return void
      */
     protected function KernelReady(): void
@@ -321,6 +316,7 @@ class LMSConfigurator extends IPSModuleStrict
     /**
      * IOChangeState
      * Wird ausgeführt wenn sich der Status vom Parent ändert.
+     *
      * @param  int $State
      * @return void
      */
@@ -429,10 +425,9 @@ class LMSConfigurator extends IPSModuleStrict
      * Konvertiert $Data zu einem JSONString und versendet diese an den Splitter.
      *
      * @param \SqueezeBox\LMSData $LMSData Zu versendende Daten.
-     *
-     * @return ?\SqueezeBox\LMSData Objekt mit der Antwort. NULL im Fehlerfall.
+     * @return null|\SqueezeBox\LMSData Objekt mit der Antwort. NULL im Fehlerfall.
      */
-    private function Send(\SqueezeBox\LMSData $LMSData): ?\SqueezeBox\LMSData
+    private function Send(\SqueezeBox\LMSData $LMSData): null|\SqueezeBox\LMSData
     {
         try {
             $JSONData = $LMSData->ToJSONString('{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}');
