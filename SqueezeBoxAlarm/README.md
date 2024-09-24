@@ -52,8 +52,8 @@ Bei der manuellen Einrichtung ist die Instanz im Dialog `Instanz hinzufügen` un
 **Konfigurationsseite:**  
 ![Instanz hinzufügen](imgs/conf1.png)  
 
-| Name                                | Eigenschaft       | Typ     | Standardwert | Funktion                                                      |
-| :---------------------------------: | :---------------: | :-----: | :----------: | :-----------------------------------------------------------: |
+| Name                                | Eigenschaft       |   Typ   | Standardwert | Funktion                                                      |
+| :---------------------------------- | :---------------- | :-----: | :----------- | :------------------------------------------------------------ |
 | MAC-Adresse                         | Address           | string  |              | MAC Adresse der Squeezebox [Format xx:xx:xx:xx:xx:xx ]        |
 | Button anzeigen für Wecker anlegen. | showAdd           | boolean | true         | de/aktiviert einen Button im WebFront für Wecker hinzufügen.  |
 | Button anzeigen für Wecker löschen. | showDelete        | boolean | true         | de/aktiviert einen Button im WebFront für Wecker löschen.     |
@@ -69,8 +69,8 @@ Bei der manuellen Einrichtung ist die Instanz im Dialog `Instanz hinzufügen` un
 Folgende Statusvariablen werden automatisch angelegt.
 **Statusvariablen allgemein:**  
 
-| Name                        | Typ     | Ident         | Beschreibung                                                  |
-| :-------------------------: | :-----: | :-----------: | :-----------------------------------------------------------: |
+| Name                        |   Typ   | Ident         | Beschreibung                                                  |
+| :-------------------------- | :-----: | :------------ | :------------------------------------------------------------ |
 | Alle Wecker aktiv           | boolean | EnableAll     | Globaler ein/aus Schalter aller Wecker dieses Gerätes.        |
 | Weckerlautstärke            | integer | DefaultVolume | Standard Lautstärke beim erstellen eines neuen Weckers.       |
 | Weckerwiedergabe einblenden | boolean | FadeIn        | Einblenden der Wiedergabe aktivieren / deaktivieren.          |
@@ -83,9 +83,9 @@ Werden pro in der Squeezebox eingerichteten Wecker automatisch erzeugt.
 Wird ein Wecker in der SqueezeBox gelöscht, so werden bei konfigurierten Auto-Löschen die Variablen auch wieder entfernt.  
 (X = Nummer vom Wecker)  
 
-| Name                             | Typ     | Ident              | Beschreibung                                                               |
-| :------------------------------: | :-----: | :----------------: | :------------------------------------------------------------------------: |
-| Wecker X Weckzeit                | event   | AlarmTimeX         | tägliches Ereignis welches die Wochentage und Weckzeit des Weckers enthält |
+| Name                             |   Typ   | Ident              | Beschreibung                                                               |
+| :------------------------------- | :-----: | :----------------- | :------------------------------------------------------------------------- |
+| Wecker X Weckzeit                |  event  | AlarmTimeX         | tägliches Ereignis welches die Wochentage und Weckzeit des Weckers enthält |
 | Wecker X Status                  | integer | AlarmStateX        | Der aktuelle Alarm-Status des Weckers                                      |
 | Wecker X Wiedergabeliste         | string  | AlarmPlaylistNameX | Der Name der gewählten Playlist des Weckers.                               |
 | Wecker X wiederholen             | boolean | AlarmRepeatX       | Alarmwiederholung ja / nein                                                |
@@ -97,8 +97,8 @@ Wird ein Wecker in der SqueezeBox gelöscht, so werden bei konfigurierten Auto-L
 
 **Profile**:
 
-| Name                   | Typ     | verwendet von Statusvariablen |
-| :--------------------: | :-----: | :---------------------------: |
+| Name                   |   Typ   | verwendet von Statusvariablen |
+| :--------------------- | :-----: | :---------------------------- |
 | LSA.Intensity          | integer | Lautstärke                    |
 | LSA.Timeout            | integer | Automatisch beenden           |
 | LSA.Snooze             | integer | Schlummerzeit                 |

@@ -65,16 +65,16 @@ Ermöglicht die Kommunikation von IPS mit dem CLI des Logitech Media Servers.
 **Konfigurationsseite:**  
 ![Instanz hinzufügen](imgs/conf2.png)  
 
-|             Name              | Eigenschaft  |   Typ   | Standardwert |                         Funktion                          |
-| :---------------------------: | :----------: | :-----: | :----------: | :-------------------------------------------------------: |
-|           CLI Port            |     Port     | integer |     9090     |                     CLI-Port des LMS                      |
-|        Webserver Port         |   Webport    | integer |     9000     |                  Port des LMS-Webserver                   |
-|         Benutzername          |     User     | string  |              | Benutzername wenn im LMS die Authentifizierung aktiv ist. |
-|           Passwort            |   Password   | string  |              |   Passwort wenn im LMS die Authentifizierung aktiv ist.   |
-| Playlist als HTML-Box anlegen | showPlaylist | boolean |     true     |    de/aktiviert die Anzeige der Playlist als HTML-Box.    |
-|     Playlist Darstellung      |    Table     | string  |   Tabelle    |      Style Eigenschaften der Playlist HTML-Tabelle.       |
-|       Playlist Spalten        |   Columns    | string  |   Tabelle    |         Style Eigenschaften der Playlist Spalten.         |
-|        Playlist Zeilen        |     Rows     | string  |   Tabelle    |         Style Eigenschaften der Playlist Zeilen.          |
+| Name                          | Eigenschaft  |   Typ   | Standardwert | Funktion                                                  |
+| :---------------------------- | :----------- | :-----: | :----------- | :-------------------------------------------------------- |
+| CLI Port                      | Port         | integer | 9090         | CLI-Port des LMS                                          |
+| Webserver Port                | Webport      | integer | 9000         | Port des LMS-Webserver                                    |
+| Benutzername                  | User         | string  |              | Benutzername wenn im LMS die Authentifizierung aktiv ist. |
+| Passwort                      | Password     | string  |              | Passwort wenn im LMS die Authentifizierung aktiv ist.     |
+| Playlist als HTML-Box anlegen | showPlaylist | boolean | true         | de/aktiviert die Anzeige der Playlist als HTML-Box.       |
+| Playlist Darstellung          | Table        | string  | Tabelle      | Style Eigenschaften der Playlist HTML-Tabelle.            |
+| Playlist Spalten              | Columns      | string  | Tabelle      | Style Eigenschaften der Playlist Spalten.                 |
+| Playlist Zeilen               | Rows         | string  | Tabelle      | Style Eigenschaften der Playlist Zeilen.                  |
 
 
 ## 5. Statusvariablen und Profile
@@ -82,24 +82,24 @@ Ermöglicht die Kommunikation von IPS mit dem CLI des Logitech Media Servers.
 Folgende Statusvariablen werden automatisch angelegt.
 **Statusvariablen allgemein:**  
 
-|        Name        |   Typ   |     Ident      |                          Beschreibung                          |
-| :----------------: | :-----: | :------------: | :------------------------------------------------------------: |
-|      Version       | string  |    Version     |          Software-Version des Logitech Media Server.           |
-|      Scanner       | integer |  RescanState   |            Aktueller Zustand vom Datenbank Scanner.            |
-|   Rescan Status    | string  |   RescanInfo   |               Aktueller Status bei aktivem scan.               |
-| Rescan Fortschritt | string  | RescanProgress |            Aktueller Fortschritt bei aktivem scan.             |
-|   Anzahl Player    | integer |    Players     |            Anzahl der des Server bekannten Player.             |
-|   Player wählen    | integer |  PlayerSelect  | Spezialvariable für das Laden von Playlisten aus dem WebFront. |
-|     Playlisten     | string  |   Playlists    |      HTML-Box mit allen dem Server bekannten Playlisten.       |
+| Name               |   Typ   | Ident          | Beschreibung                                                   |
+| :----------------- | :-----: | :------------- | :------------------------------------------------------------- |
+| Version            | string  | Version        | Software-Version des Logitech Media Server.                    |
+| Scanner            | integer | RescanState    | Aktueller Zustand vom Datenbank Scanner.                       |
+| Rescan Status      | string  | RescanInfo     | Aktueller Status bei aktivem scan.                             |
+| Rescan Fortschritt | string  | RescanProgress | Aktueller Fortschritt bei aktivem scan.                        |
+| Anzahl Player      | integer | Players        | Anzahl der des Server bekannten Player.                        |
+| Player wählen      | integer | PlayerSelect   | Spezialvariable für das Laden von Playlisten aus dem WebFront. |
+| Playlisten         | string  | Playlists      | HTML-Box mit allen dem Server bekannten Playlisten.            |
 
 ![WebFront Beispiel](imgs/log1.png)  
 
 **Profile**:
 
-|              Name               |   Typ   | verwendet von Statusvariablen |
-| :-----------------------------: | :-----: | :---------------------------: |
-|           LMS.Scanner           | integer |            Scanner            |
-| LMS.PlayerSelect.\<InstanzeID\> | integer |         PlayerSelect          |
+| Name                            |   Typ   | verwendet von Statusvariablen |
+| :------------------------------ | :-----: | :---------------------------- |
+| LMS.Scanner                     | integer | Scanner                       |
+| LMS.PlayerSelect.\<InstanzeID\> | integer | PlayerSelect                  |
 
 
 ## 6. WebFront
@@ -182,17 +182,17 @@ Im Fehlerfall wird `false` zurückgegeben.
 
 **Array:**  
 
-|    Index    |   Typ   |          Beschreibung           |
-| :---------: | :-----: | :-----------------------------: |
-| Playerindex | integer |   Index des Players im Server   |
-|  Playerid   | string  | IP oder MAC-Adresse des Players |
-|    Uuid     | string  |     interne ID des Players      |
-|     Ip      | string  |     IP-Adresse des Players      |
-|    Name     | string  |        Name des Players         |
-|    Model    | string  |         Typ vom Player          |
-|  Modelname  | string  |      Modelname vom Player       |
-| Displaytype | string  |         Typ des Display         |
-|  Connected  |  bool   |    Verbunden mit dem Server     |
+| Index       |   Typ   | Beschreibung                    |
+| :---------- | :-----: | :------------------------------ |
+| Playerindex | integer | Index des Players im Server     |
+| Playerid    | string  | IP oder MAC-Adresse des Players |
+| Uuid        | string  | interne ID des Players          |
+| Ip          | string  | IP-Adresse des Players          |
+| Name        | string  | Name des Players                |
+| Model       | string  | Typ vom Player                  |
+| Modelname   | string  | Modelname vom Player            |
+| Displaytype | string  | Typ des Display                 |
+| Connected   |  bool   | Verbunden mit dem Server        |
 | Instanceid  | integer | InstanzeID wenn in IPS angelegt |
   
 ### 2. Datenbank-Scanner
@@ -235,12 +235,12 @@ Liefert Informationen über die Datenbank des LMS.
 
 **Array:**  
 
-|  Index  |   Typ   |        Beschreibung         |
-| :-----: | :-----: | :-------------------------: |
+|  Index  |   Typ   | Beschreibung                |
+| :-----: | :-----: | :-------------------------- |
 | Genres  | integer | Anzahl verschiedener Genres |
-| Artists | integer |   Anzahl der Interpreten    |
-| Albums  | integer |      Anzahl der Alben       |
-|  Songs  | integer |     Anzahl aller Titel      |
+| Artists | integer | Anzahl der Interpreten      |
+| Albums  | integer | Anzahl der Alben            |
+|  Songs  | integer | Anzahl aller Titel          |
 
 ---
 
@@ -379,12 +379,12 @@ Im Fehlerfall wird `false` zurückgegeben.
 
 **Array:**  
 
-|  Index   |   Typ   |               Beschreibung                |
-| :------: | :-----: | :---------------------------------------: |
-| Filename | string  |             Datei-/Ordnername             |
-|   Type   | string  |             track oder folder             |
+|  Index   |   Typ   | Beschreibung                              |
+| :------: | :-----: | :---------------------------------------- |
+| Filename | string  | Datei-/Ordnername                         |
+|   Type   | string  | track oder folder                         |
 | Coverid  | integer | CoverID der Datei. 0 wenn nicht vorhanden |
-|   Url    | string  |           Kompletter Dateiname            |
+|   Url    | string  | Kompletter Dateiname                      |
 
 **Beispiel:**  
 ```
@@ -409,24 +409,24 @@ Im Fehlerfall wird `false` zurückgegeben.
 
 **Array:**  
 
-|      Index       |   Typ   |            Beschreibung             |
-| :--------------: | :-----: | :---------------------------------: |
-|        Id        | integer |  ID des Song in der LMS-Datenbank   |
-|      Title       | string  |                Titel                |
-|      Genre       | string  |                Genre                |
-|      Album       | string  |                Album                |
-|      Artist      | string  |              Interpret              |
-|     Duration     | integer |          Länge in Sekunden          |
-|       Disc       | integer |          Aktuelles Medium           |
-|    Disccount     | integer |  Anzahl aller Medien dieses Albums  |
-|     Bitrate      | string  |         Bitrate in Klartext         |
-|     Tracknum     | integer |        Tracknummer im Album         |
-|       Url        | string  |          Pfad der Playlist          |
-|     Album_id     | integer | UID des Album in der LMS-Datenbank  |
+| Index            |   Typ   | Beschreibung                        |
+| :--------------- | :-----: | :---------------------------------- |
+| Id               | integer | ID des Song in der LMS-Datenbank    |
+| Title            | string  | Titel                               |
+| Genre            | string  | Genre                               |
+| Album            | string  | Album                               |
+| Artist           | string  | Interpret                           |
+| Duration         | integer | Länge in Sekunden                   |
+| Disc             | integer | Aktuelles Medium                    |
+| Disccount        | integer | Anzahl aller Medien dieses Albums   |
+| Bitrate          | string  | Bitrate in Klartext                 |
+| Tracknum         | integer | Tracknummer im Album                |
+| Url              | string  | Pfad der Playlist                   |
+| Album_id         | integer | UID des Album in der LMS-Datenbank  |
 | Artwork_track_id | string  | UID des Cover in der LMS-Datenbank  |
-|     Genre_id     | integer | UID des Genre in der LMS-Datenbank  |
-|    Artist_id     | integer | UID des Artist in der LMS-Datenbank |
-|       Year       | integer |  Jahr des Song, soweit hinterlegt   |
+| Genre_id         | integer | UID des Genre in der LMS-Datenbank  |
+| Artist_id        | integer | UID des Artist in der LMS-Datenbank |
+| Year             | integer | Jahr des Song, soweit hinterlegt    |
 
 ### 5. Playlisten
 
@@ -440,11 +440,11 @@ Im Fehlerfall wird `false` zurückgegeben.
 
 **Array:**  
 
-|  Index   |   Typ   |           Beschreibung            |
-| :------: | :-----: | :-------------------------------: |
-| Playlist | string  |         Name der Playlist         |
-|   Url    | string  |       Kompletter Dateiname        |
-|    Id    | string  |      PlaylistID der Playlist      |
+|  Index   |   Typ   | Beschreibung                      |
+| :------: | :-----: | :-------------------------------- |
+| Playlist | string  | Name der Playlist                 |
+|   Url    | string  | Kompletter Dateiname              |
+|    Id    | string  | PlaylistID der Playlist           |
 |  Tracks  | integer | Anzahl der Tracks in der Playlist |
 | Duration | integer | Laufzeit der Playlist in Sekunden |
 
@@ -526,10 +526,10 @@ Im Fehlerfall wird `false` zurückgegeben.
 
 **Array:**  
 
-|  Index   |  Typ   |        Beschreibung        |
-| :------: | :----: | :------------------------: |
-| Category | string |   Kategorie der Playlist   |
-|  Title   | string |     Name der Playlist      |
+|  Index   |  Typ   | Beschreibung               |
+| :------: | :----: | :------------------------- |
+| Category | string | Kategorie der Playlist     |
+|  Title   | string | Name der Playlist          |
 |   Url    | string | komplette URL der Playlist |
 
 ### 7. Favoriten
@@ -545,12 +545,12 @@ Im Fehlerfall wird `false` zurückgegeben.
 
 **Array:**  
 
-|  Index   |  Typ   |                         Beschreibung                          |
-| :------: | :----: | :-----------------------------------------------------------: |
-|   Name   | string |                       Name des Eintrags                       |
-|   Type   | string |                       Typ des Eintrags                        |
-|   Url    | string |                         komplette URL                         |
-| Isaudio  |  bool  |                true wenn es ein Audiofile ist                 |
+|  Index   |  Typ   | Beschreibung                                                  |
+| :------: | :----: | :------------------------------------------------------------ |
+|   Name   | string | Name des Eintrags                                             |
+|   Type   | string | Typ des Eintrags                                              |
+|   Url    | string | komplette URL                                                 |
+| Isaudio  |  bool  | true wenn es ein Audiofile ist                                |
 | Hasitems |  bool  | true wenn unterhalb des Eintrages noch Element vorhanden sind |
 
 **Beispiel:**  
@@ -625,9 +625,9 @@ Im Fehlerfall wird `false` zurückgegeben.
 
 **Array:**  
 
-| Index  |  Typ   |                    Beschreibung                    |
-| :----: | :----: | :------------------------------------------------: |
-| Exists |  bool  |   True wenn die Datei in den Favoriten existiert   |
+| Index  |  Typ   | Beschreibung                                       |
+| :----: | :----: | :------------------------------------------------- |
+| Exists |  bool  | True wenn die Datei in den Favoriten existiert     |
 | Index  | string | Der Index der Datei in den Favoriten (FavoritenID) |
 
 
@@ -643,12 +643,12 @@ Im Fehlerfall wird `false` zurückgegeben.
 
 **Array:**  
 
-| Index  |  Typ   |                      Beschreibung                       |
-| :----: | :----: | :-----------------------------------------------------: |
-|  Icon  | string |                URL zum Icon des Eintrags                |
-|  Cmd   | string |       Das zu verwendende Kommando für den Player        |
-| Weight | string |                   Sortierreihenfolge                    |
-|  Name  | string |                 Der Names des Eintrags                  |
+| Index  |  Typ   | Beschreibung                                            |
+| :----: | :----: | :------------------------------------------------------ |
+|  Icon  | string | URL zum Icon des Eintrags                               |
+|  Cmd   | string | Das zu verwendende Kommando für den Player              |
+| Weight | string | Sortierreihenfolge                                      |
+|  Name  | string | Der Names des Eintrags                                  |
 |  Type  | string | Der Typ des Eintrags, xmlbrowser oder xmlbrowser_search |
 
 ---
@@ -673,13 +673,13 @@ LMS_GetRadioOrAppDataEx($id,"search",``,`Anime`);
 
 **Array:**  
 
-|  Index   |  Typ   |                         Beschreibung                          |
-| :------: | :----: | :-----------------------------------------------------------: |
-|    Id    | string |              Die ID des Eintrags im Format x.x.x              |
-|   Name   | string |                       Name des Eintrags                       |
-|   Type   | string |                       Typ des Eintrags                        |
-|   Url    | string |                         komplette URL                         |
-| Isaudio  |  bool  |                true wenn es ein Audiofile ist                 |
+|  Index   |  Typ   | Beschreibung                                                  |
+| :------: | :----: | :------------------------------------------------------------ |
+|    Id    | string | Die ID des Eintrags im Format x.x.x                           |
+|   Name   | string | Name des Eintrags                                             |
+|   Type   | string | Typ des Eintrags                                              |
+|   Url    | string | komplette URL                                                 |
+| Isaudio  |  bool  | true wenn es ein Audiofile ist                                |
 | Hasitems |  bool  | true wenn unterhalb des Eintrages noch Element vorhanden sind |
 
 ## 8. Aktionen  

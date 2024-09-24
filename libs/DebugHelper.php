@@ -69,5 +69,3 @@ trait DebugHelper
         return true;
     }
 }
-
-/* @} */

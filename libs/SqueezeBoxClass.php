@@ -15,6 +15,10 @@ require_once __DIR__ . '/TimeConvert.php';  // diverse Klassen
  * @version       4.00
  *
  */
+
+/**
+ * GeräteTyp
+ */
 enum DeviceType
 {
     case isServer;
