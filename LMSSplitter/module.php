@@ -200,8 +200,8 @@ class LMSSplitter extends IPSModule
             $this->UnregisterVariable('HTMLPlaylists');
         }
         if ($this->ReadPropertyBoolean('showTilePlaylist')) {
-            //$this->RegisterVariableString('SelectPlaylist', 'Playlists', '~Playlist', 7);
-            //$this->EnableAction('SelectPlaylist');
+            $this->RegisterVariableString('SelectPlaylist', 'Playlists', '~Playlist', 7);
+            $this->EnableAction('SelectPlaylist');
             $PlaylistActive = true;
         } else {
             $this->UnregisterVariable('SelectPlaylist');
@@ -313,12 +313,11 @@ class LMSSplitter extends IPSModule
             return;
         }
         switch ($Ident) {
-            /*case 'SelectPlaylist':
+            case 'SelectPlaylist':
                 $Playlist = json_decode($Value, true);
                 $Item = $Playlist['entries'][$Playlist['current']];
                 $this->LoadPlaylistforPlayers('Playlist', $Item['id']);
                 break;
-             */
             case 'PlayerSelect':
                 $ProfilName = 'LMS.PlayerSelect.' . $this->InstanceID;
                 $Assoziations = IPS_GetVariableProfile($ProfilName)['Associations'];
@@ -2202,7 +2201,7 @@ class LMSSplitter extends IPSModule
         //HTML-Playlist
         if ($this->ReadPropertyBoolean('showHTMLPlaylist')) {
             $HTML = $this->GetTable($Data, 'LMSPlaylist', 'Playlist', 'Id');
-            $this->SetValueString('Playlists', $HTML);
+            $this->SetValueString('HTMLPlaylists', $HTML);
         }
     }
 

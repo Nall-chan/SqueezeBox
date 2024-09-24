@@ -3,7 +3,7 @@
 [![Version](https://img.shields.io/badge/Symcon%20Version-7.1%20%3E-green.svg)](https://www.symcon.de/de/service/dokumentation/installation/migrationen/v70-v71-q1-2024/)  
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Check Style](https://github.com/Nall-chan/SqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/SqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions)  
-[![Spenden](https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_SM.gif)](#6-spenden)
+[![Spenden](https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_SM.gif)](#6-spenden)  
 
 # Symcon-Modul: SqueezeBox  <!-- omit in toc -->  
 Ermöglicht die Steuerung sowie die Darstellung der Zustände
@@ -128,6 +128,8 @@ Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:
 ### 3. Changelog
 
 Version 4.00:
+ - Diverse Anpassungen für Symcon 7.0 bei den Profilen.  
+ - Neue Playlist für Symcon 7.0 eingebaut.
  - Unterstützung für Kachel-Visu (Media-Kachel).  
 
 Version 3.81:
