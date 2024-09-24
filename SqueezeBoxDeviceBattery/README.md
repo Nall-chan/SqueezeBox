@@ -30,7 +30,7 @@ Daten zur Stromversorgung und des Akkus in IPS einbinden.
 
 ## 2. Voraussetzungen
 
- - IP-Symcon ab Version 7.0
+ - IP-Symcon ab Version 7.1
  - kompatibler Player mit aktivierten SSH-Zugang  
 
 ## 3. Software-Installation
@@ -46,11 +46,11 @@ Bei der manuellen Einrichtung ist die Instanz im Dialog `Instanz hinzufügen` un
 **Konfigurationsseite:**  
 ![Instanz hinzufügen](imgs/conf1.png)  
 
-|   Name    | Eigenschaft |   Typ   | Standardwert |               Funktion               |
-| :-------: | :---------: | :-----: | :----------: | :----------------------------------: |
-|   Host    |   Address   | string  |              | IP-Adresse / Hostname der Squeezebox |
-| Passwort  |  Password   | string  |     1234     |     Passwort für den SSH-Zugang      |
-| Intervall |  Interval   | integer |      30      |           Abfrageintervall           |
+| Name      | Eigenschaft |   Typ   | Standardwert | Funktion                             |
+| :-------- | :---------- | :-----: | :----------- | :----------------------------------- |
+| Host      | Address     | string  |              | IP-Adresse / Hostname der Squeezebox |
+| Passwort  | Password    | string  | 1234         | Passwort für den SSH-Zugang          |
+| Intervall | Interval    | integer | 30           | Abfrageintervall                     |
 
 
 ## 5. Statusvariablen und Profile
@@ -58,26 +58,26 @@ Bei der manuellen Einrichtung ist die Instanz im Dialog `Instanz hinzufügen` un
 Folgende Statusvariablen werden automatisch angelegt.
 **Statusvariablen:**  
 
-|        Name        |   Typ   |       Ident        |           Beschreibung           |
-| :----------------: | :-----: | :----------------: | :------------------------------: |
-|       Status       | integer |       State        |    Status der Stromversorgung    |
-|   Gerätespannung   |  float  |     SysVoltage     |      Interne Gerätespannung      |
-|    Netzspannung    |  float  |    WallVoltage     | Spannung vom externen Anschluss  |
-|     Ladestatus     | integer |    ChargeState     | Aktueller Betriebsmodus des Akku |
-| Akkuladekapazität  |  float  |    BatteryLevel    |            in Prozent            |
-|   Akkutemperatur   |  float  | BatteryTemperature |              in °C               |
-| Akkuspannung Summe |  float  |   BatteryVoltage   |             in Volt              |
-|   Akkuspannung 1   |  float  |    BatteryVMon1    |             in Volt              |
-|   Akkuspannung 2   |  float  |    BatteryVMon2    |             in Volt              |
-|   Akkukapazität    | integer |  BatteryCapacity   |              in mAh              |
+| Name               |   Typ   | Ident              | Beschreibung                     |
+| :----------------- | :-----: | :----------------- | :------------------------------- |
+| Status             | integer | State              | Status der Stromversorgung       |
+| Gerätespannung     |  float  | SysVoltage         | Interne Gerätespannung           |
+| Netzspannung       |  float  | WallVoltage        | Spannung vom externen Anschluss  |
+| Ladestatus         | integer | ChargeState        | Aktueller Betriebsmodus des Akku |
+| Akkuladekapazität  |  float  | BatteryLevel       | in Prozent                       |
+| Akkutemperatur     |  float  | BatteryTemperature | in °C                            |
+| Akkuspannung Summe |  float  | BatteryVoltage     | in Volt                          |
+| Akkuspannung 1     |  float  | BatteryVMon1       | in Volt                          |
+| Akkuspannung 2     |  float  | BatteryVMon2       | in Volt                          |
+| Akkukapazität      | integer | BatteryCapacity    | in mAh                           |
 
 **Profile**:
 
-|    Name     |   Typ   | verwendet von Statusvariablen |
-| :---------: | :-----: | :---------------------------: |
-| LSQB.Power  | integer |            Status             |
-| LSQB.Charge | integer |          Ladestatus           |
-|  LSQB.mAh   | integer |         Akkukapazität         |
+| Name        |   Typ   | verwendet von Statusvariablen |
+| :---------- | :-----: | :---------------------------- |
+| LSQB.Power  | integer | Status                        |
+| LSQB.Charge | integer | Ladestatus                    |
+| LSQB.mAh    | integer | Akkukapazität                 |
 
 
 ## 6. WebFront

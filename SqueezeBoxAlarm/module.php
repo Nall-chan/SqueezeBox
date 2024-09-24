@@ -27,63 +27,63 @@ class LSA_Alarm
 {
     /**
      * Id des Alarm.
-     * 
+     *
      * @var int|string
      */
     public int|string $Id;
 
     /**
      * Index des Alarm.
-     * 
+     *
      * @var int
      */
     public int $Index;
 
     /**
      * Tage des Alarm.
-     * 
+     *
      * @var string
      */
     public string $Dow = '0,1,2,3,4,5,6';
 
     /**
      * Status des Alarm.
-     * 
+     *
      * @var bool
      */
     public bool $Enabled = true;
 
     /**
      * Wiederholung des Alarm.
-     * 
+     *
      * @var bool
      */
     public bool $Repeat = true;
 
     /**
      * Shuffle des Alarm.
-     * 
+     *
      * @var int
      */
     public int $Shufflemode = 0;
 
     /**
      * Uhrzeit des Alarm.
-     * 
+     *
      * @var int
      */
     public int $Time;
 
     /**
      * Lautstärke des Alarm.
-     * 
+     *
      * @var int
      */
     public int $Volume;
 
     /**
      * Playlist des Alarm.
-     * 
+     *
      * @var string
      */
     public string $Url = 'CURRENT_PLAYLIST';
@@ -91,7 +91,7 @@ class LSA_Alarm
     /**
      * __construct
      * Erzeugt aus den übergeben Daten einen neuen LSA_Alarm.
-     * 
+     *
      * @param array $Alarm Das Array wie es von LMSTaggingArray erzeugt wird.
      * @param int   $Index Der fortlaufende Index dieses Weckers.
      * @return LSA_Alarm
@@ -110,10 +110,10 @@ class LSA_Alarm
     /**
      * __sleep
      * Liefert die Daten welche behalten werden müssen.
-     * 
+     *
      * @return array
      */
-    public function __sleep():array
+    public function __sleep(): array
     {
         return ['Id', 'Index', 'Dow', 'Enabled', 'Repeat', 'Time', 'Volume', 'Url', 'Shufflemode'];
     }
@@ -121,7 +121,7 @@ class LSA_Alarm
     /**
      * IpsToDow
      * Schreibt die Wochentag aus dem IPS Format in die Eigenschaft Dow.
-     * 
+     *
      * @param int $Days Die Wochentag im IPS-Format.
      */
     public function IpsToDow(int $Days): void
@@ -142,7 +142,7 @@ class LSA_Alarm
     /**
      * DowToIps
      * Liefert die Eigenschaft Dow im IPS-Format.
-     * 
+     *
      * @return int Die Wochentage im IPS-Format.
      */
     public function DowToIps(): int
@@ -165,7 +165,7 @@ class LSA_Alarm
     /**
      * AddDow
      * Fügt einen Wochentag zum Wecker hinzu.
-     * 
+     *
      * @param int $Dow Ein Wochentag.
      */
     public function AddDow(int $Dow): void
@@ -187,7 +187,7 @@ class LSA_Alarm
     /**
      * DelDow
      * Löscht einen Wochentag aus dem Wecker.
-     * 
+     *
      * @param int $Dow Ein Wochentag.
      */
     public function DelDow(int $Dow): void
@@ -208,7 +208,7 @@ class LSA_Alarm
     /**
      * TimeToArray
      * Liefert die Alarmzeit als Array für die Ereignisse in IPS.
-     * 
+     *
      * @return array
      */
     public function TimeToArray(): array
@@ -222,7 +222,7 @@ class LSA_Alarm
     /**
      * ArrayToTime
      * Schreibt die Alarmzeit aus dem übergeben Array in die Eigenschaft Time.
-     * 
+     *
      * @param array $Time
      */
     public function ArrayToTime(array $Time): void
@@ -238,7 +238,7 @@ class LSA_AlarmList
 {
     /**
      * Array mit allen Items.
-     * 
+     *
      * @var array
      */
     public array $Items = [];
@@ -246,7 +246,7 @@ class LSA_AlarmList
     /**
      * __construct
      * Erzeugt eine neue LSA_AlarmList aus einem Array von LMSTaggingArray mit allen Alarmen.
-     * 
+     *
      * @param array $Alarms Alle Wecker oder null.
      * @return LSA_AlarmList
      */
@@ -264,7 +264,7 @@ class LSA_AlarmList
     /**
      * __sleep
      * Liefert die Daten welche behalten werden müssen.
-     * 
+     *
      * @return array
      */
     public function __sleep(): array
@@ -275,7 +275,7 @@ class LSA_AlarmList
     /**
      * Add
      * Fügt einen LSA_Alarm in $Items hinzu.
-     * 
+     *
      * @param LSA_Alarm $Alarm Das neue Objekt.
      * @return int Der Index des Items.
      */
@@ -393,7 +393,7 @@ class SqueezeboxAlarm extends IPSModule
             \SqueezeboxAlarm\InstanceStatus::RegisterParent as IORegisterParent;
             \SqueezeboxAlarm\InstanceStatus::RequestAction as IORequestAction;
         }
-    
+
     /**
      * Socket
      *
@@ -574,7 +574,7 @@ class SqueezeboxAlarm extends IPSModule
 
     /**
      * MessageSink
-     * 
+     *
      * @param int $TimeStamp
      * @param int $SenderID
      * @param int $Message
@@ -1165,7 +1165,7 @@ class SqueezeboxAlarm extends IPSModule
                     $result = true;
                 }
                 break;
-                            case 'AlarmPlaylists0':
+            case 'AlarmPlaylists0':
             case 'AlarmPlaylists1':
             case 'AlarmPlaylists2':
             case 'AlarmPlaylists3':
@@ -1564,7 +1564,7 @@ class SqueezeboxAlarm extends IPSModule
     /**
      * LoadAlarmPlaylists
      * Lädt alle für diesen Player gültige Alarm-Playlisten und speichert sie im Buffer.
-     * 
+     *
      * @return void
      */
     private function LoadAlarmPlaylists(): void

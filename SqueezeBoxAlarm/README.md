@@ -52,16 +52,16 @@ Bei der manuellen Einrichtung ist die Instanz im Dialog `Instanz hinzufügen` un
 **Konfigurationsseite:**  
 ![Instanz hinzufügen](imgs/conf1.png)  
 
-|                Name                 |    Eigenschaft    |   Typ   | Standardwert |                           Funktion                            |
-| :---------------------------------: | :---------------: | :-----: | :----------: | :-----------------------------------------------------------: |
-|             MAC-Adresse             |      Address      | string  |              |    MAC Adresse der Squeezebox [Format xx:xx:xx:xx:xx:xx ]     |
-| Button anzeigen für Wecker anlegen. |      showAdd      | boolean |     true     | de/aktiviert einen Button im WebFront für Wecker hinzufügen.  |
-| Button anzeigen für Wecker löschen. |    showDelete     | boolean |     true     |   de/aktiviert einen Button im WebFront für Wecker löschen.   |
-|   Nicht benutzte Objekte löschen.   |  dynamicDisplay   | boolean |     true     |   aktiviert das automatische entfernen von Statusvariablen.   |
-| Alarm Playlist als HTML-Box anlegen | showAlarmPlaylist | boolean |     true     | de/aktiviert die Anzeige einer HTML-Box mit allen Playlisten. |
-|        Playlist Darstellung         |       Table       | string  |   Tabelle    |        Style Eigenschaften der Playlist HTML-Tabelle.         |
-|          Playlist Spalten           |      Columns      | string  |   Tabelle    |           Style Eigenschaften der Playlist Spalten.           |
-|           Playlist Zeilen           |       Rows        | string  |   Tabelle    |           Style Eigenschaften der Playlist Zeilen.            |
+| Name                                | Eigenschaft       |   Typ   | Standardwert | Funktion                                                      |
+| :---------------------------------- | :---------------- | :-----: | :----------- | :------------------------------------------------------------ |
+| MAC-Adresse                         | Address           | string  |              | MAC Adresse der Squeezebox [Format xx:xx:xx:xx:xx:xx ]        |
+| Button anzeigen für Wecker anlegen. | showAdd           | boolean | true         | de/aktiviert einen Button im WebFront für Wecker hinzufügen.  |
+| Button anzeigen für Wecker löschen. | showDelete        | boolean | true         | de/aktiviert einen Button im WebFront für Wecker löschen.     |
+| Nicht benutzte Objekte löschen.     | dynamicDisplay    | boolean | true         | aktiviert das automatische entfernen von Statusvariablen.     |
+| Alarm Playlist als HTML-Box anlegen | showAlarmPlaylist | boolean | true         | de/aktiviert die Anzeige einer HTML-Box mit allen Playlisten. |
+| Playlist Darstellung                | Table             | string  | Tabelle      | Style Eigenschaften der Playlist HTML-Tabelle.                |
+| Playlist Spalten                    | Columns           | string  | Tabelle      | Style Eigenschaften der Playlist Spalten.                     |
+| Playlist Zeilen                     | Rows              | string  | Tabelle      | Style Eigenschaften der Playlist Zeilen.                      |
 
 
 ## 5. Statusvariablen und Profile
@@ -69,13 +69,13 @@ Bei der manuellen Einrichtung ist die Instanz im Dialog `Instanz hinzufügen` un
 Folgende Statusvariablen werden automatisch angelegt.
 **Statusvariablen allgemein:**  
 
-|            Name             |   Typ   |     Ident     |                         Beschreibung                          |
-| :-------------------------: | :-----: | :-----------: | :-----------------------------------------------------------: |
-|      Alle Wecker aktiv      | boolean |   EnableAll   |    Globaler ein/aus Schalter aller Wecker dieses Gerätes.     |
-|      Weckerlautstärke       | integer | DefaultVolume |    Standard Lautstärke beim erstellen eines neuen Weckers.    |
-| Weckerwiedergabe einblenden | boolean |    FadeIn     |     Einblenden der Wiedergabe aktivieren / deaktivieren.      |
-|     Automatisch beenden     | integer |    Timeout    | Zeit in Sekunden nach der ein Alarm automatisch beendet wird. |
-|        Schlummerzeit        | integer | SnoozeSeconds |           Zeit in Sekunden für den Schlummertimer.            |
+| Name                        |   Typ   | Ident         | Beschreibung                                                  |
+| :-------------------------- | :-----: | :------------ | :------------------------------------------------------------ |
+| Alle Wecker aktiv           | boolean | EnableAll     | Globaler ein/aus Schalter aller Wecker dieses Gerätes.        |
+| Weckerlautstärke            | integer | DefaultVolume | Standard Lautstärke beim erstellen eines neuen Weckers.       |
+| Weckerwiedergabe einblenden | boolean | FadeIn        | Einblenden der Wiedergabe aktivieren / deaktivieren.          |
+| Automatisch beenden         | integer | Timeout       | Zeit in Sekunden nach der ein Alarm automatisch beendet wird. |
+| Schlummerzeit               | integer | SnoozeSeconds | Zeit in Sekunden für den Schlummertimer.                      |
 
 **Ereignisse und Statusvariablen pro Wecker:**  
 
@@ -83,29 +83,29 @@ Werden pro in der Squeezebox eingerichteten Wecker automatisch erzeugt.
 Wird ein Wecker in der SqueezeBox gelöscht, so werden bei konfigurierten Auto-Löschen die Variablen auch wieder entfernt.  
 (X = Nummer vom Wecker)  
 
-|               Name               |   Typ   |       Ident        |                                Beschreibung                                |
-| :------------------------------: | :-----: | :----------------: | :------------------------------------------------------------------------: |
-|        Wecker X Weckzeit         |  event  |     AlarmTimeX     | tägliches Ereignis welches die Wochentage und Weckzeit des Weckers enthält |
-|         Wecker X Status          | integer |    AlarmStateX     |                   Der aktuelle Alarm-Status des Weckers                    |
-|     Wecker X Wiedergabeliste     | string  | AlarmPlaylistNameX |                Der Name der gewählten Playlist des Weckers.                |
-|       Wecker X wiederholen       | boolean |    AlarmRepeatX    |                        Alarmwiederholung ja / nein                         |
-|       Wecker X Lautstärke        | integer |    AlarmVolumeX    |                           Lautstärke des Weckers                           |
-| Wecker X Wiedergabeliste mischen | integer |   AlarmShuffleX    |                          Zufallsmodus des Weckers                          |
-| Wecker X Wiedergabeliste wählen  | string  |   AlarmPlaylistX   |              HTML-Box mit allen verfügbaren Alarm-Playlisten               |
+| Name                             |   Typ   | Ident              | Beschreibung                                                               |
+| :------------------------------- | :-----: | :----------------- | :------------------------------------------------------------------------- |
+| Wecker X Weckzeit                |  event  | AlarmTimeX         | tägliches Ereignis welches die Wochentage und Weckzeit des Weckers enthält |
+| Wecker X Status                  | integer | AlarmStateX        | Der aktuelle Alarm-Status des Weckers                                      |
+| Wecker X Wiedergabeliste         | string  | AlarmPlaylistNameX | Der Name der gewählten Playlist des Weckers.                               |
+| Wecker X wiederholen             | boolean | AlarmRepeatX       | Alarmwiederholung ja / nein                                                |
+| Wecker X Lautstärke              | integer | AlarmVolumeX       | Lautstärke des Weckers                                                     |
+| Wecker X Wiedergabeliste mischen | integer | AlarmShuffleX      | Zufallsmodus des Weckers                                                   |
+| Wecker X Wiedergabeliste wählen  | string  | AlarmPlaylistX     | HTML-Box mit allen verfügbaren Alarm-Playlisten                            |
 
 ![WebFront Beispiel](imgs/log1.png)  
 
 **Profile**:
 
-|          Name          |   Typ   | verwendet von Statusvariablen |
-| :--------------------: | :-----: | :---------------------------: |
-|     LSA.Intensity      | integer |          Lautstärke           |
-|      LSA.Timeout       | integer |      Automatisch beenden      |
-|       LSA.Snooze       | integer |         Schlummerzeit         |
-|      LSA.Shuffle       | integer |    Wiedergabeliste mischen    |
-|        LSA.Add         | integer |       Wecker hinzufügen       |
-| LSA.Del.\<InstanzeID\> | integer |        Wecker löschen         |
-|       LSA.State        | integer |         Wecker Status         |
+| Name                   |   Typ   | verwendet von Statusvariablen |
+| :--------------------- | :-----: | :---------------------------- |
+| LSA.Intensity          | integer | Lautstärke                    |
+| LSA.Timeout            | integer | Automatisch beenden           |
+| LSA.Snooze             | integer | Schlummerzeit                 |
+| LSA.Shuffle            | integer | Wiedergabeliste mischen       |
+| LSA.Add                | integer | Wecker hinzufügen             |
+| LSA.Del.\<InstanzeID\> | integer | Wecker löschen                |
+| LSA.State              | integer | Wecker Status                 |
 
 
 ## 6. WebFront

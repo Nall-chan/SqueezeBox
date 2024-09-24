@@ -24,6 +24,7 @@ trait DebugHelper
     /**
      * SendDebug
      * Ergänzt SendDebug um Möglichkeit Objekte und Array auszugeben.
+     *
      * @param string $Message Nachricht für Data.
      * @param mixed  $Data    Daten für die Ausgabe.
      * @param int $Format Ausgabeformat für Strings.

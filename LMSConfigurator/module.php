@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 /**
  * @package       Squeezebox
  * @file          module.php
@@ -38,7 +37,7 @@ class LMSConfigurator extends IPSModule
             \LMSConfigurator\InstanceStatus::RegisterParent as IORegisterParent;
             \LMSConfigurator\InstanceStatus::RequestAction as IORequestAction;
         }
-    
+
     /**
      * Create
      *
@@ -51,7 +50,7 @@ class LMSConfigurator extends IPSModule
         $this->SetReceiveDataFilter('.*"nothingtoreceive":.*');
         $this->ParentID = 0;
     }
-  
+
     /**
      * ApplyChanges
      *
@@ -78,7 +77,7 @@ class LMSConfigurator extends IPSModule
 
     /**
      * MessageSink
-     * 
+     *
      * @param int $TimeStamp
      * @param int $SenderID
      * @param int $Message
@@ -287,7 +286,7 @@ class LMSConfigurator extends IPSModule
     /**
      * KernelReady
      * Wird ausgeführt wenn der Kernel hochgefahren wurde.
-     * 
+     *
      * @return void
      */
     protected function KernelReady(): void
@@ -317,7 +316,7 @@ class LMSConfigurator extends IPSModule
     /**
      * IOChangeState
      * Wird ausgeführt wenn sich der Status vom Parent ändert.
-     * 
+     *
      * @param  int $State
      * @return void
      */
@@ -372,7 +371,7 @@ class LMSConfigurator extends IPSModule
 
     /**
      * GetInstanceList
-     * 
+     *
      * @param  string $GUID
      * @param  string $ConfigParam
      * @return array
@@ -388,7 +387,7 @@ class LMSConfigurator extends IPSModule
 
     /**
      * FilterInstances
-     * 
+     *
      * @param  int $InstanceID
      * @return bool
      */

@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 /**
  * @package       Squeezebox
  * @file          module.php
@@ -82,7 +81,7 @@ class SqueezeboxDevice extends IPSModule
             fclose($this->Socket);
         }
     }
- 
+
     /**
      * Create
      *
@@ -129,7 +128,7 @@ class SqueezeboxDevice extends IPSModule
 
     /**
      * Migrate
-     * 
+     *
      * @param  string $JSONData
      * @return string
      */
@@ -424,7 +423,7 @@ class SqueezeboxDevice extends IPSModule
     /**
      * RequestAllState
      * Aktuellen Status des Devices ermitteln und, wenn verbunden, abfragen..
-     * 
+     *
      * @return bool
      */
     public function RequestAllState(): bool
@@ -683,7 +682,7 @@ class SqueezeboxDevice extends IPSModule
      * SetName
      * Setzten den Namen in dem Device.
      * IPS-Instanz-Funktion 'LSQ_SetName'.
-     * 
+     *
      * @param string $Name Neuer Name
      * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
@@ -783,7 +782,7 @@ class SqueezeboxDevice extends IPSModule
     /**
      * SetVolume
      * Setzten der Lautstärke.
-     * 
+     *
      * @param int $Value
      * @return bool true bei erfolgreicher Ausführung und Rückmeldung
      */
@@ -1356,7 +1355,7 @@ class SqueezeboxDevice extends IPSModule
         }
         return strpos($URL, str_replace('\\', '/', $LMSData->Data[0])) !== false;
     }
-    
+
     /**
      * PlayFavorite
      *
@@ -1473,7 +1472,7 @@ class SqueezeboxDevice extends IPSModule
     /**
      * DeleteFromPlaylistByIndex
      * The "playlist delete" command deletes the song at the specified index from the current playlist.
-     * 
+     *
      * @param  int $Position
      * @return bool
      */
@@ -2065,7 +2064,7 @@ class SqueezeboxDevice extends IPSModule
       id:267 name:A98 modified:0 url:file://Volumes/... &lt;LF&gt;"
       </p>
       </blockquote> */
-      
+
     /**
      * GetPlaylistInfo
      *
@@ -2164,7 +2163,7 @@ class SqueezeboxDevice extends IPSModule
     /**
      * SetRepeat
      * Setzen des Wiederholungsmodus.
-     * 
+     *
      * @param int $Value
      *                   0 = aus
      *                   1 = Titel
@@ -2231,7 +2230,7 @@ class SqueezeboxDevice extends IPSModule
         return $this->_PlaylistControl('cmd:load', 'playlist_id:' . $PlaylistID, sprintf($this->Translate('%s not found.'), 'PlaylistID'));
     }
 
-        /**
+    /**
      * LoadPlaylistBySongIDs
      *
      * @param  string $SongIDs
@@ -2321,7 +2320,7 @@ class SqueezeboxDevice extends IPSModule
 
     /**
      * InsertInPlaylistByAlbumID
-     * 
+     *
      * @todo alles auch mit add + move
      * @todo insert testen !?!?
      * @param  int $AlbumID
@@ -2502,7 +2501,7 @@ class SqueezeboxDevice extends IPSModule
     /**
      * GetSongInfoOfTilePlaylist
      * Liefert Informationen über alle Songs aus der aktuelle Wiedergabeliste.
-     * 
+     *
      * @return false|array[index]
      *                      ["duration"]=>string
      *                      ["id"]=>string
@@ -2837,7 +2836,7 @@ class SqueezeboxDevice extends IPSModule
     /**
      * IOChangeState
      * Wird ausgeführt wenn sich der Status vom Parent ändert.
-     * 
+     *
      * @param  int $State
      * @return void
      */
@@ -2957,18 +2956,19 @@ class SqueezeboxDevice extends IPSModule
         }
         return null;
     }
-    
+
     /**
      * SetStatus
      *
      * @param  int $State
-     * @return void
+     * @return bool
      */
     protected function SetStatus($State)
     {
         if ($State != $this->GetStatus()) {
             parent::SetStatus($State);
         }
+        return false;
     }
 
     /**

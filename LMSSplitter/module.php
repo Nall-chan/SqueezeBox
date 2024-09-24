@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 /**
  * @package       Squeezebox
  * @file          module.php
@@ -70,14 +69,14 @@ class LMSSplitter extends IPSModule
             \LMSSplitter\InstanceStatus::MessageSink as IOMessageSink; // MessageSink gibt es sowohl hier in der Klasse, als auch im Trait InstanceStatus. Hier wird für die Methode im Trait ein Alias benannt.
             \LMSSplitter\InstanceStatus::RegisterParent as IORegisterParent;
             \LMSSplitter\InstanceStatus::RequestAction as IORequestAction;
-        }    
+        }
     /**
      * Socket
      *
      * @var resource
      */
     private $Socket = false;
-    
+
     /**
      * __destruct
      *
@@ -89,7 +88,7 @@ class LMSSplitter extends IPSModule
             fclose($this->Socket);
         }
     }
- 
+
     /**
      * Create
      *
@@ -120,7 +119,7 @@ class LMSSplitter extends IPSModule
         $this->ParentID = 0;
         $this->ScannerID = 0;
     }
- 
+
     /**
      * Destroy
      *
@@ -157,7 +156,7 @@ class LMSSplitter extends IPSModule
         }
         return json_encode($Data);
     }
-    
+
     /**
      * ApplyChanges
      *
@@ -382,7 +381,7 @@ class LMSSplitter extends IPSModule
                 $this->UpdateFormField('Columns', 'enabled', (bool) $Value);
                 $this->UpdateFormField('Rows', 'enabled', (bool) $Value);
                 $this->UpdateFormField('HTMLExpansionPanel', 'expanded', (bool) $Value);
-                return;                
+                return;
             default:
                 echo $this->Translate('Invalid Ident');
                 break;
@@ -1421,7 +1420,7 @@ class LMSSplitter extends IPSModule
     /**
      * AddFavorite
      * IPS-Instanz-Funktion 'LMS_AddFavorite'.
-     * 
+     *
      * @param string $ParentFavoriteID
      * @param string $Title
      * @param string $URL
@@ -1996,7 +1995,7 @@ class LMSSplitter extends IPSModule
         echo $errstr . "\r\n";
         return false;
     }
-    
+
     /**
      * GenerateHTMLStyleProperty
      *
@@ -2111,7 +2110,7 @@ class LMSSplitter extends IPSModule
         }
         return $Instances;
     }
-    
+
     /**
      * RefreshPlaylistBuffer
      *
@@ -2138,7 +2137,7 @@ class LMSSplitter extends IPSModule
                 set_error_handler([$this, 'ModulErrorHandler']);
                 trigger_error(sprintf($this->Translate('Error read Playlist %d .'), $Key), E_USER_NOTICE);
                 restore_error_handler();
-                $Playlist['Playlist'] = $Playlists['Playlist'];                
+                $Playlist['Playlist'] = $Playlists['Playlist'];
                 continue;
             }
             $LMSSongData->SliceData();
@@ -2187,10 +2186,10 @@ class LMSSplitter extends IPSModule
                 $playlistEntries = [];
                 foreach ($Data as $Index => ['Playlist' => $Playlist, 'Tracks'=>$Tracks, 'Duration'=>$Duration, 'Id' =>$Id]) {
                     $playlistEntries[] = [
-                    'artist'        => $Tracks,
-                    //'tracks'        => $Tracks,
-                    'id'            => $Id,
-                    'song'          => $Playlist,
+                        'artist'        => $Tracks,
+                        //'tracks'        => $Tracks,
+                        'id'            => $Id,
+                        'song'          => $Playlist,
                         'duration'      => $Duration
                     ];
                 }
@@ -2200,7 +2199,7 @@ class LMSSplitter extends IPSModule
             }
             $this->SetValueString('SelectPlaylist', $TilePlaylistData);
         }
-        //HTML-Playlist        
+        //HTML-Playlist
         if ($this->ReadPropertyBoolean('showHTMLPlaylist')) {
             $HTML = $this->GetTable($Data, 'LMSPlaylist', 'Playlist', 'Id');
             $this->SetValueString('Playlists', $HTML);
@@ -2390,7 +2389,7 @@ class LMSSplitter extends IPSModule
         $this->SendDebug('IPS_SendDataToChildren', $Data, 0);
         $this->SendDataToChildren($Data);
     }
-    
+
     /**
      * CheckLogin
      *
@@ -2511,6 +2510,7 @@ class LMSSplitter extends IPSModule
      * Löscht einen Eintrag aus der SendQueue.
      *
      * @param int $Index Der Index des zu löschenden Eintrags.
+     * @return void
      */
     private function SendQueueRemove(string $Index): void
     {

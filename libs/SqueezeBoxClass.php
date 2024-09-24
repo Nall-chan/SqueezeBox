@@ -6,7 +6,6 @@ namespace SqueezeBox;
 
 require_once __DIR__ . '/TimeConvert.php';  // diverse Klassen
 
-
 /**
  * @package       Squeezebox
  * @file          SqueezeBoxClass.php
@@ -17,6 +16,9 @@ require_once __DIR__ . '/TimeConvert.php';  // diverse Klassen
  *
  */
 
+/**
+ * GeräteTyp
+ */
 enum DeviceType
 {
     case isServer;
@@ -165,12 +167,14 @@ class LMSData extends \stdClass
 
     /**
      * Flag ob auf Antwort gewartet werden muss.
+     *
      * @var bool
      */
     public bool $needResponse;
 
     /**
      * Anzahl der versendeten Daten.
+     *
      * @var int
      */
     private int $SendValues;
@@ -299,7 +303,6 @@ class LMSData extends \stdClass
  */
 class LMSResponse extends LMSData
 {
-
     /**
      * Enthält den Type des Versenders einer Antwort.
      *
@@ -308,7 +311,9 @@ class LMSResponse extends LMSData
     public DeviceType $Device;
 
     /**
+     * __construct
      * Zerlegt eine Antwort des LMS und erzeugt daraus ein LMSResponse-Objekt.
+     *
      * @param string $RawString
      */
     public function __construct(string $RawString)
@@ -717,7 +722,7 @@ class LMSSongInfo extends \stdClass
         'Modified'         => 0,
         'Playlist'         => 3
     ];
-    
+
     /**
      * Ein Array das alle Songs enthält.
      *

@@ -99,31 +99,31 @@ Die Einrichtung der Instanzen ist direkt in der Dokumentation der jeweiligen Mod
 ###  1. GUID der Module
 
  
-|       Modul       |     Typ      | Prefix |                  GUID                  |
-| :---------------: | :----------: | :----: | :------------------------------------: |
-|   LMSDiscovery    |  Discovery   |  LMS   | {28AC8A6C-4E03-43BE-9C3E-B8FEF78D374C} |
-|    LMSSplitter    |   Splitter   |  LMS   | {96A9AB3A-2538-42C5-A130-FC34205A706A} |
-|  LMSConfigurator  | Configurator |  LMC   | {35028918-3F9C-4524-9FB4-DBAF429C6E18} |
-| SqueezeboxDevice  |    Device    |  LSQ   | {118189F9-DC7E-4DF4-80E1-9A4DF0882DD7} |
-|  SqueezeboxAlarm  |    Device    |  LSA   | {E7423083-3502-42C8-B244-2852D0BE41D4} |
-| SqueezeboxBattery |    Device    |  LSQB  | {718158BB-B247-4A71-9440-9C2FF1378752} |
+| Modul             | Typ          | Prefix | GUID                                   |
+| :---------------- | :----------- | :----: | :------------------------------------- |
+| LMSDiscovery      | Discovery    |  LMS   | {28AC8A6C-4E03-43BE-9C3E-B8FEF78D374C} |
+| LMSSplitter       | Splitter     |  LMS   | {96A9AB3A-2538-42C5-A130-FC34205A706A} |
+| LMSConfigurator   | Configurator |  LMC   | {35028918-3F9C-4524-9FB4-DBAF429C6E18} |
+| SqueezeboxDevice  | Device       |  LSQ   | {118189F9-DC7E-4DF4-80E1-9A4DF0882DD7} |
+| SqueezeboxAlarm   | Device       |  LSA   | {E7423083-3502-42C8-B244-2852D0BE41D4} |
+| SqueezeboxBattery | Device       |  LSQB  | {718158BB-B247-4A71-9440-9C2FF1378752} |
 
 
 ### 2. Datenaustausch
 
-|        Funktion         |                  GUID                  |
-| :---------------------: | :------------------------------------: |
+| Funktion                | GUID                                   |
+| :---------------------- | :------------------------------------- |
 | von Splitter zu Devices | {EDDCCB34-E194-434D-93AD-FFDF1B56EF38} |
 | von Devices zu Splitter | {CB5950B3-593C-4126-9F0F-8655A3944419} |
 
 
 Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:  
 
-| Eigenschaft |  Typ   |           Funktion            |
-| :---------: | :----: | :---------------------------: |
-|   Address   | string |  MAC / IP-Adresse oder leer   |
-|   Command   | array  |    CLI Kommandos als Array    |
-|    Data     | array  | Daten des Kommandos als Array |
+| Eigenschaft |  Typ   | Funktion                      |
+| :---------- | :----: | :---------------------------- |
+| Address     | string | MAC / IP-Adresse oder leer    |
+| Command     | array  | CLI Kommandos als Array       |
+| Data        | array  | Daten des Kommandos als Array |
 
 ### 3. Changelog
 
