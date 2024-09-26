@@ -64,7 +64,7 @@ class SqueezeboxDevice extends IPSModuleStrict
         \SqueezeboxDevice\InstanceStatus,
         \SqueezeboxDevice\WebhookHelper {
             \SqueezeboxDevice\InstanceStatus::MessageSink as IOMessageSink;
-            \SqueezeboxDevice\InstanceStatus::RegisterParent as IORegisterParent;
+            \SqueezeboxDevice\InstanceStatus::RegisterParent as RegisterParent;
             \SqueezeboxDevice\InstanceStatus::RequestAction as IORequestAction;
         }
     private $Socket = false;
@@ -101,12 +101,12 @@ class SqueezeboxDevice extends IPSModuleStrict
         $this->RegisterPropertyBoolean('enableRandomplay', false);
         $this->RegisterPropertyBoolean('enableRawDuration', false);
         $this->RegisterPropertyBoolean('enableRawPosition', false);
-        $this->RegisterPropertyBoolean('enablePreset', true);
-        $this->RegisterPropertyBoolean('enableSleepTimer', true);
-        $this->RegisterPropertyBoolean('showSleepTimeout', true);
-        $this->RegisterPropertyBoolean('showSyncMaster', true);
-        $this->RegisterPropertyBoolean('showSyncControl', true);
-        $this->RegisterPropertyBoolean('showSignalstrength', true);
+        $this->RegisterPropertyBoolean('enablePreset', false);
+        $this->RegisterPropertyBoolean('enableSleepTimer', false);
+        $this->RegisterPropertyBoolean('showSleepTimeout', false);
+        $this->RegisterPropertyBoolean('showSyncMaster', false);
+        $this->RegisterPropertyBoolean('showSyncControl', false);
+        $this->RegisterPropertyBoolean('showSignalstrength', false);
         $this->RegisterPropertyBoolean('showTilePlaylist', true);
         $this->RegisterPropertyBoolean('showHTMLPlaylist', false);
         $Style = $this->GenerateHTMLStyleProperty();
@@ -355,7 +355,7 @@ class SqueezeboxDevice extends IPSModuleStrict
         }
         // Wenn Parent aktiv, dann Anmeldung an der Hardware bzw. Datenabgleich starten
         $this->RegisterParent();
-        if ($this->HasActiveParent()) {
+        if ($this->HasActiveParent() && (trim($Address) != '')) {
             $this->IOChangeState(IS_ACTIVE);
             $this->_RefreshPlaylist();
             // Erst nach 5 Sekunden, sonst sind beim ModuleReload InstanceInterface Fehler möglich
@@ -2815,25 +2815,6 @@ class SqueezeboxDevice extends IPSModuleStrict
     }
 
     /**
-     * RegisterParent
-     *
-     * @return void
-     */
-    protected function RegisterParent(): void
-    {
-        $SplitterId = $this->IORegisterParent();
-        if ($SplitterId > 0) {
-            $IOId = @IPS_GetInstance($SplitterId)['ConnectionID'];
-            if ($IOId > 0) {
-                $this->SetSummary(IPS_GetProperty($IOId, 'Host'));
-
-                return;
-            }
-        }
-        $this->SetSummary(('none'));
-    }
-
-    /**
      * IOChangeState
      * Wird ausgeführt wenn sich der Status vom Parent ändert.
      *
@@ -3652,7 +3633,7 @@ class SqueezeboxDevice extends IPSModuleStrict
         // HTML-Playlist
         if ($this->ReadPropertyBoolean('showHTMLPlaylist')) {
             $HTML = $this->GetTable($Data, 'SqueezeBoxPlaylist', 'Track', 'Position', $CurrentIndex);
-            $this->SetValueString('Playlist', $HTML);
+            $this->SetValueString('HTMLPlaylist', $HTML);
         }
     }
 
@@ -3860,7 +3841,7 @@ class SqueezeboxDevice extends IPSModuleStrict
                         if (isset($LMSData->Data[1])) {
                             $this->SetValueInteger('Index', (int) $LMSData->Data[1] + 1);
                         } else {
-                            $this->_RefreshPlaylist();
+                            $this->_RefreshPlaylistIndex();
                         }
 
                         $this->RequestState('Playlistname');

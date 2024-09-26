@@ -475,7 +475,9 @@ class LMSTaggingData extends \stdClass
         if (count($Part) > 1) {
             $this->Value = implode(':', $Part);
         } else {
-            $this->Value = array_shift($Part);
+            if (count($Part) == 1) {
+                $this->Value = array_shift($Part);
+            }
         }
     }
 }
@@ -779,6 +781,9 @@ class LMSSongInfo extends \stdClass
             } else {
                 if (is_string($Part->Value)) {
                     $Songs[$id][$Index] = rawurldecode($Part->Value);
+                    if ($Index == 'Remote_title') {
+                        $Songs[$id]['Title'] = $Songs[$id]['Remote_title'];
+                    }
                 } else {
                     $Songs[$id][$Index] = $Part->Value;
                 }

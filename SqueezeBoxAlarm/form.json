@@ -30,12 +30,20 @@
             "caption": "Delete unused objects."
         },
         {
-            "name": "showAlarmPlaylist",
-            "type": "CheckBox",
-            "caption": "Show alarm playlists as HTML-Box"
+            "type": "RowLayout",
+            "items": [
+                {
+                    "name": "showAlarmHTMLPlaylist",
+                    "type": "CheckBox",
+                    "caption": "Show alarm playlists as HTML-Box",
+                    "onChange": "IPS_RequestAction($id,'showAlarmHTMLPlaylist',$showAlarmHTMLPlaylist);",
+                    "width": "300px"
+                }
+            ]
         },
         {
             "type": "ExpansionPanel",
+            "name": "HTMLExpansionPanel",
             "caption": "Playlist design",
             "items": [
                 {
