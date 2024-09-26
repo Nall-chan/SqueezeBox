@@ -102,7 +102,6 @@ class LMSSplitter extends IPSModule
         $this->RegisterPropertyString('Password', '');
         $this->RegisterPropertyInteger('Port', 9090);
         $this->RegisterPropertyInteger('Webport', 9000);
-        $this->RegisterPropertyBoolean('showTilePlaylist', true);
         $this->RegisterPropertyBoolean('showHTMLPlaylist', false);
         $Style = $this->GenerateHTMLStyleProperty();
         $this->RegisterPropertyString('Table', json_encode($Style['Table']));
@@ -198,13 +197,6 @@ class LMSSplitter extends IPSModule
             $PlaylistActive = true;
         } else {
             $this->UnregisterVariable('HTMLPlaylists');
-        }
-        if ($this->ReadPropertyBoolean('showTilePlaylist')) {
-            $this->RegisterVariableString('SelectPlaylist', 'Playlists', '~Playlist', 7);
-            $this->EnableAction('SelectPlaylist');
-            $PlaylistActive = true;
-        } else {
-            $this->UnregisterVariable('SelectPlaylist');
         }
         if ($PlaylistActive) {
             $this->RegisterProfileIntegerEx('LMS.PlayerSelect.' . $this->InstanceID, 'Speaker', '', '', []);
@@ -313,11 +305,6 @@ class LMSSplitter extends IPSModule
             return;
         }
         switch ($Ident) {
-            case 'SelectPlaylist':
-                $Playlist = json_decode($Value, true);
-                $Item = $Playlist['entries'][$Playlist['current']];
-                $this->LoadPlaylistforPlayers('Playlist', $Item['id']);
-                break;
             case 'PlayerSelect':
                 $ProfilName = 'LMS.PlayerSelect.' . $this->InstanceID;
                 $Assoziations = IPS_GetVariableProfile($ProfilName)['Associations'];
@@ -2178,27 +2165,8 @@ class LMSSplitter extends IPSModule
         if (!is_array($Data)) {
             $Data = [];
         }
-        // TilePlaylist
-        if ($this->ReadPropertyBoolean('showTilePlaylist')) {
-            $TilePlaylistData = '';
-            if (count($Data)) {
-                $playlistEntries = [];
-                foreach ($Data as $Index => ['Playlist' => $Playlist, 'Tracks'=>$Tracks, 'Duration'=>$Duration, 'Id' =>$Id]) {
-                    $playlistEntries[] = [
-                        'artist'        => $Tracks,
-                        //'tracks'        => $Tracks,
-                        'id'            => $Id,
-                        'song'          => $Playlist,
-                        'duration'      => $Duration
-                    ];
-                }
-                $TilePlaylistData = json_encode([
-                    'entries' => $playlistEntries
-                ]);
-            }
-            $this->SetValueString('SelectPlaylist', $TilePlaylistData);
-        }
-        //HTML-Playlist
+        // TilePlaylist -> Visu-SDK Fehlt, oder HTML-SDK nutzen
+        // HTML-Playlist
         if ($this->ReadPropertyBoolean('showHTMLPlaylist')) {
             $HTML = $this->GetTable($Data, 'LMSPlaylist', 'Playlist', 'Id');
             $this->SetValueString('HTMLPlaylists', $HTML);

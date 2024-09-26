@@ -58,7 +58,7 @@ Bei der manuellen Einrichtung ist die Instanz im Dialog `Instanz hinzufügen` un
 | Button anzeigen für Wecker anlegen. | showAdd           | boolean | true         | de/aktiviert einen Button im WebFront für Wecker hinzufügen.  |
 | Button anzeigen für Wecker löschen. | showDelete        | boolean | true         | de/aktiviert einen Button im WebFront für Wecker löschen.     |
 | Nicht benutzte Objekte löschen.     | dynamicDisplay    | boolean | true         | aktiviert das automatische entfernen von Statusvariablen.     |
-| Alarm Playlist als HTML-Box anlegen | showAlarmPlaylist | boolean | true         | de/aktiviert die Anzeige einer HTML-Box mit allen Playlisten. |
+| Alarm Playlist als HTML-Box anlegen | showAlarmHTMLPlaylist | boolean | true         | de/aktiviert die Anzeige einer HTML-Box mit allen Playlisten. |
 | Playlist Darstellung                | Table             | string  | Tabelle      | Style Eigenschaften der Playlist HTML-Tabelle.                |
 | Playlist Spalten                    | Columns           | string  | Tabelle      | Style Eigenschaften der Playlist Spalten.                     |
 | Playlist Zeilen                     | Rows              | string  | Tabelle      | Style Eigenschaften der Playlist Zeilen.                      |
@@ -91,7 +91,7 @@ Wird ein Wecker in der SqueezeBox gelöscht, so werden bei konfigurierten Auto-L
 | Wecker X wiederholen             | boolean | AlarmRepeatX       | Alarmwiederholung ja / nein                                                |
 | Wecker X Lautstärke              | integer | AlarmVolumeX       | Lautstärke des Weckers                                                     |
 | Wecker X Wiedergabeliste mischen | integer | AlarmShuffleX      | Zufallsmodus des Weckers                                                   |
-| Wecker X Wiedergabeliste wählen  | string  | AlarmPlaylistX     | HTML-Box mit allen verfügbaren Alarm-Playlisten                            |
+| Wecker X Wiedergabeliste wählen  | string  | AlarmHTMLPlaylistX     | HTML-Box mit allen verfügbaren Alarm-Playlisten                            |
 
 ![WebFront Beispiel](imgs/log1.png)  
 

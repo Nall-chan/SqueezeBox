@@ -427,7 +427,7 @@ class SqueezeboxAlarm extends IPSModule
         $this->RegisterPropertyBoolean('dynamicDisplay', false);
         $this->RegisterPropertyBoolean('showAdd', true);
         $this->RegisterPropertyBoolean('showDelete', true);
-        $this->RegisterPropertyBoolean('showAlarmPlaylist', true);
+        $this->RegisterPropertyBoolean('showAlarmHTMLPlaylist', true);
         $Style = $this->GenerateHTMLStyleProperty();
         $this->RegisterPropertyString('Table', json_encode($Style['Table']));
         $this->RegisterPropertyString('Columns', json_encode($Style['Columns']));
@@ -436,6 +436,29 @@ class SqueezeboxAlarm extends IPSModule
         $this->Multi_Playlist = [];
         $this->Alarms = new LSA_AlarmList([]);
         $this->ParentID = 0;
+    }
+
+    /**
+     * Migrate
+     *
+     * @param  string $JSONData
+     * @return string
+     */
+    public function Migrate($JSONData)
+    {
+        $Data = json_decode($JSONData);
+        if (property_exists($Data->configuration, 'showAlarmPlaylist')) {
+            $Data->configuration->showAlarmHTMLPlaylist = $Data->configuration->showAlarmPlaylist;
+            for ($AlarmIndex = 0; $AlarmIndex < 10; $AlarmIndex++) {
+                $vid = $this->FindIDForIdent('AlarmPlaylist' . $AlarmIndex);
+                if ($vid > 0) { //Migrate Statusvariable AlarmPlaylist to AlarmHTMLPlaylist
+                    @IPS_SetIdent($vid, 'AlarmHTMLPlaylist' . $AlarmIndex);
+                }
+            }
+            $this->SendDebug('Migrate', json_encode($Data), 0);
+            $this->LogMessage('Migrated settings:' . json_encode($Data), KL_MESSAGE);
+        }
+        return json_encode($Data);
     }
 
     /**
@@ -547,9 +570,9 @@ class SqueezeboxAlarm extends IPSModule
             $this->UnregisterProfile('LSA.Del.' . $this->InstanceID);
         }
 
-        if (!$this->ReadPropertyBoolean('showAlarmPlaylist')) {
+        if (!$this->ReadPropertyBoolean('showAlarmHTMLPlaylist')) {
             for ($AlarmIndex = 0; $AlarmIndex < 10; $AlarmIndex++) {
-                $vid = $this->FindIDForIdent('AlarmPlaylist' . $AlarmIndex);
+                $vid = $this->FindIDForIdent('AlarmHTMLPlaylist' . $AlarmIndex);
                 if ($vid > 0) {
                     IPS_DeleteVariable($vid);
                 }
@@ -560,7 +583,7 @@ class SqueezeboxAlarm extends IPSModule
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
-        if ($this->ReadPropertyBoolean('showAlarmPlaylist')) {
+        if ($this->ReadPropertyBoolean('showAlarmHTMLPlaylist')) {
             $this->RegisterHook('/hook/LSAPlaylist' . $this->InstanceID);
         } else {
             $this->UnregisterHook('/hook/LSAPlaylist' . $this->InstanceID);
@@ -1085,6 +1108,12 @@ class SqueezeboxAlarm extends IPSModule
             return;
         }
         switch ($Ident) {
+            case 'showAlarmHTMLPlaylist':
+                $this->UpdateFormField('Table', 'enabled', (bool) $Value);
+                $this->UpdateFormField('Columns', 'enabled', (bool) $Value);
+                $this->UpdateFormField('Rows', 'enabled', (bool) $Value);
+                $this->UpdateFormField('HTMLExpansionPanel', 'expanded', (bool) $Value);
+                return;
             case 'EnableAll':
                 $result = $this->SetAllActive((bool) $Value);
                 break;
@@ -1164,21 +1193,6 @@ class SqueezeboxAlarm extends IPSModule
                 } else {
                     $result = true;
                 }
-                break;
-            case 'AlarmPlaylists0':
-            case 'AlarmPlaylists1':
-            case 'AlarmPlaylists2':
-            case 'AlarmPlaylists3':
-            case 'AlarmPlaylists4':
-            case 'AlarmPlaylists5':
-            case 'AlarmPlaylists6':
-            case 'AlarmPlaylists7':
-            case 'AlarmPlaylists8':
-            case 'AlarmPlaylists9':
-                $Index = (int) substr($Ident, -1);
-                $List = json_decode($Value, true);
-                $Item = $List['entries'][$List['current']];
-                $this->SetPlaylist($Index, $Item['id']);
                 break;
             default:
                 set_error_handler([$this, 'ModulErrorHandler']);
@@ -1283,7 +1297,7 @@ class SqueezeboxAlarm extends IPSModule
             return;
         }
 
-        if (substr($_GET['Type'], 0, -1) != 'AlarmPlaylist') {
+        if (substr($_GET['Type'], 0, -1) != 'AlarmHTMLPlaylist') {
             echo $this->Translate('Bad Request');
             return;
         }
@@ -1487,33 +1501,14 @@ class SqueezeboxAlarm extends IPSModule
         if (!is_array($Data)) {
             $Data = [];
         }
-        /*if ($this->RegisterVariableString('AlarmPlaylists' . $AlarmIndex, sprintf($this->Translate('Alarm %d playlist selection'), $AlarmIndex + 1), '~Playlist', (($AlarmIndex + 1) * 10) + 8)) {
-            $this->EnableAction('AlarmPlaylists' . $AlarmIndex);
-        }
-        if (count($Data) == 0) {
-            $this->SetValueString('AlarmPlaylists' . $AlarmIndex, '');
-        } else {
-            $playlistEntries = [];
-            foreach ($Data as $Index => ['Category' => $Category, 'Title'=>$Title, 'Url'=>$Url]) {
-                $playlistEntries[] = [
-                    'artist'        => $Category,
-                    'id'            => $Url,
-                    'song'          => $Title
-                ];
+        // TilePlaylist -> Visu-SDK Fehlt, oder HTML-SDK nutzen
+        // HTML-Tabelle
+        if ($this->ReadPropertyBoolean('showAlarmHTMLPlaylist')) {
+            if ($this->RegisterVariableString('AlarmHTMLPlaylist' . $AlarmIndex, sprintf($this->Translate('Alarm %d playlist selection'), $AlarmIndex + 1), '~HTMLBox', (($AlarmIndex + 1) * 10) + 7)) {
+                IPS_SetIcon($this->FindIDForIdent('AlarmHTMLPlaylist' . $AlarmIndex), 'Database');
             }
-            $this->SetValueString('AlarmPlaylists' . $AlarmIndex, json_encode([
-                'current' => $PlaylistIndex + 1,
-                'entries' => $playlistEntries
-            ]));
-        }*/
-
-        //HTML-Tabelle
-        if ($this->ReadPropertyBoolean('showAlarmPlaylist')) {
-            if ($this->RegisterVariableString('AlarmPlaylist' . $AlarmIndex, sprintf($this->Translate('Alarm %d playlist selection'), $AlarmIndex + 1), '~HTMLBox', (($AlarmIndex + 1) * 10) + 7)) {
-                IPS_SetIcon($this->FindIDForIdent('AlarmPlaylist' . $AlarmIndex), 'Database');
-            }
-            $HTML = $this->GetTable($Data, 'LSAPlaylist', 'AlarmPlaylist' . $AlarmIndex, 'Url', $PlaylistIndex + 1);
-            $this->SetValueString('AlarmPlaylist' . $AlarmIndex, $HTML);
+            $HTML = $this->GetTable($Data, 'LSAPlaylist', 'AlarmHTMLPlaylist' . $AlarmIndex, 'Url', $PlaylistIndex + 1);
+            $this->SetValueString('AlarmHTMLPlaylist' . $AlarmIndex, $HTML);
         }
     }
 
@@ -1865,7 +1860,7 @@ class SqueezeboxAlarm extends IPSModule
 
                         $vid = $this->FindIDForIdent('AlarmPlaylist' . $AlarmIndex);
                         if ($vid > 0) {
-                            if ($this->ReadPropertyBoolean('showAlarmPlaylist')) {
+                            if ($this->ReadPropertyBoolean('showAlarmHTMLPlaylist')) {
                                 if ($delete) {
                                     IPS_DeleteVariable($vid);
                                 } else {
@@ -1875,14 +1870,6 @@ class SqueezeboxAlarm extends IPSModule
                                 IPS_DeleteVariable($vid);
                             }
                         }
-                        /*$vid = $this->FindIDForIdent('AlarmPlaylists' . $AlarmIndex);
-                        if ($vid > 0) {
-                            if ($delete) {
-                                IPS_DeleteVariable($vid);
-                            } else {
-                                $this->SetValueString('AlarmPlaylists' . $AlarmIndex, '');
-                            }
-                        }*/
                         $this->RefreshEvents($Alarms);
                         break;
                     case 'update':
