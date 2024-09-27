@@ -131,6 +131,9 @@ Version 4.00:
  - Diverse Anpassungen für Symcon 7.0 bei den Profilen.  
  - Neue Playlist für Symcon 7.0 eingebaut.
  - Unterstützung für Kachel-Visu (Media-Kachel).  
+ - Konfigurationsformulare für Battery und Alarm prüfen die IP/Mac Adressen der Player.  
+ - Statusabfragen beim starten von Symcon und Modulupdate vereinheitlicht.  
+ - Keine nachfolgende Fehlermeldungen wenn Player nicht verbunden ist.  
 
 Version 3.81:
  - Anzeige der Variable für Stummschaltung war defekt.  

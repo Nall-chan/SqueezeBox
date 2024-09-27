@@ -50,6 +50,7 @@ eval('declare(strict_types=1);namespace SqueezeboxDevice {?>' . file_get_content
  * @method void SetValueString(string $Ident, string $value)
  * @method void UnregisterProfile(string $Name)
  * @method int FindIDForIdent(string $Ident)
+ * @method void RegisterParent()
  */
 class SqueezeboxDevice extends IPSModule
 {
@@ -356,9 +357,8 @@ class SqueezeboxDevice extends IPSModule
         $this->RegisterParent();
         if ($this->HasActiveParent() && (trim($Address) != '')) {
             $this->IOChangeState(IS_ACTIVE);
-            $this->_RefreshPlaylist();
-            // Erst nach 5 Sekunden, sonst sind beim ModuleReload InstanceInterface Fehler möglich
-            IPS_RunScriptText('IPS_Sleep(5000);IPS_RequestAction(' . $this->InstanceID . ', \'_SetNewSyncProfil\', true);');
+        } else {
+            $this->IOChangeState(IS_INACTIVE);
         }
     }
 
@@ -2833,6 +2833,11 @@ class SqueezeboxDevice extends IPSModule
             }
         }
         $this->SetStatus($Value);
+        if ($Value == IS_ACTIVE){
+            $this->_RefreshPlaylist();
+            // Erst nach 5 Sekunden, sonst sind beim ModuleReload InstanceInterface Fehler möglich
+            IPS_RunScriptText('IPS_Sleep(5000);IPS_RequestAction(' . $this->InstanceID . ', \'_SetNewSyncProfil\', true);');
+        }
     }
 
     /**

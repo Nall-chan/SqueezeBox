@@ -379,6 +379,7 @@ class LSA_AlarmList
  * @method void RegisterProfileInteger(string $Name, string $Icon, string $Prefix, string $Suffix, int $MinValue, int $MaxValue, int $StepSize)
  * @method void UnregisterProfile(string $Name)
  * @method int FindIDForIdent(string $Ident)
+ * @method void RegisterParent()
  */
 class SqueezeboxAlarm extends IPSModule
 {
@@ -496,28 +497,6 @@ class SqueezeboxAlarm extends IPSModule
 
         // Adresse prüfen
         $Address = $this->ReadPropertyString('Address');
-        $changeAddress = false;
-        //ip Adresse:
-        if (preg_match('/\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b/', $Address) !== 1) {
-            // Keine IP Adresse
-            if (strlen($Address) == 12) {
-                $Address = strtolower(implode(':', str_split($Address, 2)));
-                $changeAddress = true;
-            }
-            if (preg_match('/^([0-9A-Fa-f]{2}[-]){5}([0-9A-Fa-f]{2})$/', $Address) === 1) {
-                $Address = strtolower(str_replace('-', ':', $Address));
-                $changeAddress = true;
-            }
-            if ($Address != strtolower($Address)) {
-                $Address = strtolower($Address);
-                $changeAddress = true;
-            }
-        }
-        if ($changeAddress) {
-            IPS_SetProperty($this->InstanceID, 'Address', $Address);
-            IPS_ApplyChanges($this->InstanceID);
-            return;
-        }
 
         // Adresse als Filter setzen
         $this->SetReceiveDataFilter('.*"Address":"' . $Address . '","Command":\["(alarm.*|client".*|playerpref","alarm.*|prefset","server","alarm.*)');
@@ -589,9 +568,10 @@ class SqueezeboxAlarm extends IPSModule
             $this->UnregisterHook('/hook/LSAPlaylist' . $this->InstanceID);
         }
         $this->RegisterParent();
-        // Wenn Parent aktiv, dann Anmeldung an der Hardware bzw. Datenabgleich starten
-        if ($this->HasActiveParent()) {
+        if ($this->HasActiveParent() && (trim($Address) != '')) {
             $this->IOChangeState(IS_ACTIVE);
+        } else {
+            $this->IOChangeState(IS_INACTIVE);
         }
     }
 
@@ -1243,24 +1223,6 @@ class SqueezeboxAlarm extends IPSModule
     }
 
     /**
-     * RegisterParent
-     *
-     * @return void
-     */
-    protected function RegisterParent(): void
-    {
-        $SplitterId = $this->IORegisterParent();
-        if ($SplitterId > 0) {
-            $IOId = @IPS_GetInstance($SplitterId)['ConnectionID'];
-            if ($IOId > 0) {
-                $this->SetSummary(IPS_GetProperty($IOId, 'Host'));
-                return;
-            }
-        }
-        $this->SetSummary(('none'));
-    }
-
-    /**
      * IOChangeState
      * Wird ausgeführt wenn sich der Status vom Parent ändert.
      *
@@ -1269,10 +1231,22 @@ class SqueezeboxAlarm extends IPSModule
      */
     protected function IOChangeState(int $State): void
     {
+          if (IPS_GetKernelRunlevel() != KR_READY) {
+            return;
+        }
+        $Value = IS_INACTIVE;
         if ($State == IS_ACTIVE) {
+            $LMSResponse = $this->SendDirect(new \SqueezeBox\LMSData('connected', '?'));
+            if ($LMSResponse != null) {
+                $Value = ($LMSResponse->Data[0] == '1') ? IS_ACTIVE : IS_INACTIVE;
+            }
+        }
+        $this->SetStatus($Value);
+        if ($Value == IS_ACTIVE) {
             $this->LoadAlarmPlaylists();
             $this->RequestAllState();
-        }
+        }            
+
     }
 
     /**
