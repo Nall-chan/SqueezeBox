@@ -1,0 +1,22 @@
+Legende:
+🟥 Aktuell nicht für Kachel-Visu verfügbar
+❗ Variable wird neu angelegt ❗
+☑️ Werte der Variablen ändern sich, passend zum Profil
+✅ Variable erhält nur neues Profil
+
+Kompatibilität Kachel-Visu:
+🟥  Splitter TilePlaylist: geht aktuell nicht, da die Visu es nur in einer Media-Kachel anzeigt
+
+🟥  Wecker TilePlaylist: geht aktuell nicht, da die Visu es nur in einer Media-Kachel anzeigt
+☑️❗Wecker Wiederholung: Bool wird gelöscht und als Integer mit ~Repeat neu angelegt. Es sind aber nur 0 und 1 als Wert gültig.
+✅  Wecker Lautstärke: ~Volume
+
+🟥  Player Zufall: Aktuell nicht von der Tile-Visu unterstützt.
+☑️❗Player Fortschritt: Integer wird gelöscht und als Float mit ~Progress neu angelegt.
+☑️  Player Wiedergabe: ~PlaybackPreviousNext (Alte Werte sind jetzt mit um +1 zu erhöhen.)
+☑️  Player Wiederholung: ~Repeat (Die Werte 1 und 2 wurden untereinander getauscht.)
+✅  Player Playlist: ~Playlist
+✅  Player Künstler: ~Artist
+✅  Player Lied: ~Song
+✅  Player Lautstärke: ~Volume
+✅  Player Stummschaltung: ~Mute

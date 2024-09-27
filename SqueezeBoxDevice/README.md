@@ -19,7 +19,7 @@ Logitech Media Server.
 - [3. Software-Installation](#3-software-installation)
 - [4. Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
 - [5. Statusvariablen und Profile](#5-statusvariablen-und-profile)
-- [6. WebFront](#6-webfront)
+- [6. Kachel Visualisierung](#6-kachel-visualisierung)
 - [7. PHP-Befehlsreferenz](#7-php-befehlsreferenz)
   - [1. Allgemein](#1-allgemein)
   - [2. Steuerung](#2-steuerung)
@@ -66,24 +66,29 @@ Bei der manuellen Einrichtung ist die Instanz im Dialog `Instanz hinzufügen` un
 ![Instanz hinzufügen](imgs/conf1.png)  
 ![Instanz hinzufügen](imgs/conf2.png)  
 
-| Name                                   | Eigenschaft       |   Typ   | Standardwert | Funktion                                                              |
-| :------------------------------------- | :---------------- | :-----: | :----------- | :-------------------------------------------------------------------- |
-| IP/MAC-Adresse                         | Address           | string  |              | MAC Adresse der Squeezebox [Format xx:xx:xx:xx:xx:xx ]                |
-| Namen der Instanz automatisch anpassen | changeName        | boolean | false        | Instanz automatisch umbenennen wenn der Name vom Gerät sich ändert.   |
-| Aktiviere Tiefenregler                 | enableBass        | boolean | true         | Statusvariablen für Tiefenregler anlegen.                             |
-| Aktiviere Hochtonregler                | enableTreble      | boolean | true         | Statusvariablen für Hochtonregler anlegen.                            |
-| Aktiviere Tonhöhenregler               | enablePitch       | boolean | true         | Statusvariablen für Tonhöhenregler anlegen.                           |
-| Aktiviere Zufallswiedergabe            | enableRandomplay  | boolean | true         | Statusvariablen für Zufallswiedergabe anlegen.                        |
-| Aktiviere Dauer in Sekunden            | enableRawDuration | boolean | false        | Statusvariable für Dauer in Sekunden anlegen.                         |
-| Aktiviere Spielzeit in Sekunden        | enableRawPosition | integer | false        | Statusvariable für aktuelle Position im Track in Sekunden anlegen.    |
-| Zeige Sync-Master an                   | showSyncMaster    | boolean | true         | Statusvariablen für Master einer Gruppe anlegen.                      |
-| Zeige Steuerung für Sync an            | showSyncControl   | boolean | true         | Statusvariablen für Synchronisierung anlegen.                         |
-| Größe Cover                            | CoverSize         | string  | cover        | Größe vom Cover:  cover  cover150x150  cover300x300                   |
-| Update Interval bei Wiedergabe         | Interval          | integer | 2            | Abstand in welchen der LMS aktuelle Daten bei der Wiedergabe liefert. |
-| Playlist als HTML-Box anlegen          | showPlaylist      | boolean | true         | Aktiviert die Darstellung der Playlist als HTML-Box.                  |
-| Playlist Darstellung                   | Table             | string  | Tabelle      | Style Eigenschaften der Playlist HTML-Tabelle.                        |
-| Playlist Spalten                       | Columns           | string  | Tabelle      | Style Eigenschaften der Playlist Spalten.                             |
-| Playlist Zeilen                        | Rows              | string  | Tabelle      | Style Eigenschaften der Playlist Zeilen.                              |
+| Name                                   | Eigenschaft        |   Typ   | Standardwert | Funktion                                                              |
+| :------------------------------------- | :----------------- | :-----: | :----------- | :-------------------------------------------------------------------- |
+| IP/MAC-Adresse                         | Address            | string  |              | MAC Adresse der Squeezebox [Format xx:xx:xx:xx:xx:xx ]                |
+| Namen der Instanz automatisch anpassen | changeName         | boolean | false        | Instanz automatisch umbenennen wenn der Name vom Gerät sich ändert.   |
+| Aktiviere Tiefenregler                 | enableBass         | boolean | false        | Statusvariable für Tiefenregler anlegen.                              |
+| Aktiviere Hochtonregler                | enableTreble       | boolean | false        | Statusvariable für Hochtonregler anlegen.                             |
+| Aktiviere Tonhöhenregler               | enablePitch        | boolean | false        | Statusvariable für Tonhöhenregler anlegen.                            |
+| Aktiviere Zufallswiedergabe            | enableRandomplay   | boolean | false        | Statusvariable für Zufallswiedergabe anlegen.                         |
+| Aktiviere Dauer in Sekunden            | enableRawDuration  | boolean | false        | Statusvariable für Dauer in Sekunden anlegen.                         |
+| Aktiviere Spielzeit in Sekunden        | enableRawPosition  | boolean | false        | Statusvariable für aktuelle Position im Track in Sekunden anlegen.    |
+| Aktiviere Einschlaftimer Steuerung     | enablePreset       | boolean | false        | Statusvariable zur Steuerung des Einschlaftimer anlegen.              |
+| Zeige Restzeit Einschlaftimer          | showSleepTimeout   | boolean | false        | Statusvariable für Ablauf des Sleep-Timer anlegen.                    |
+| Aktiviere Preset                       | enableSleepTimer   | boolean | false        | Statusvariable für Presets anlegen.                                   |
+| Aktiviere Signalstärke                 | showSignalstrength | boolean | false        | Statusvariable für Signalstärke anlegen.                              |
+| Zeige Sync-Master an                   | showSyncMaster     | boolean | false        | Statusvariable für Master einer Gruppe anlegen.                       |
+| Zeige Steuerung für Sync an            | showSyncControl    | boolean | false        | Statusvariable für Synchronisierung anlegen.                          |
+| Größe Cover                            | CoverSize          | string  | cover        | Größe vom Cover:  cover  cover150x150  cover300x300                   |
+| Update Interval bei Wiedergabe         | Interval           | integer | 2            | Abstand in welchen der LMS aktuelle Daten bei der Wiedergabe liefert. |
+| Playlist für Kachel-Visu anlegen       | showTilePlaylist   | boolean | true         | Aktiviert die Darstellung der Playlist für die Kachel-Visu.           |
+| Playlist als HTML-Box anlegen          | showHTMLPlaylist   | boolean | false        | Aktiviert die Darstellung der Playlist als HTML-Box.                  |
+| Playlist Darstellung                   | Table              | string  | Tabelle      | Style Eigenschaften der HTML-Playlist Tabelle.                        |
+| Playlist Spalten                       | Columns            | string  | Tabelle      | Style Eigenschaften der HTML-Playlist (Spalten).                      |
+| Playlist Zeilen                        | Rows               | string  | Tabelle      | Style Eigenschaften der HTML-Playlist (Zeilen).                       |
 
 
 ## 5. Statusvariablen und Profile
@@ -107,7 +112,7 @@ Folgende Statusvariablen werden automatisch angelegt.
 | Mischen                | integer | Shuffle        | Aktuelle Playlist mischen                                  |
 | Wiederholen            | integer | Repeat         | Aktuelle Playlist wiederholen                              |
 | Playlist Anzahl Tracks | integer | Tracks         | Aktuelle Anzahl der Tracks in der Playlist                 |
-| Playlist               | string  | Playlistname   | Name der Playlist oder Remote-Stream, sofern vorhanden     |
+| Name der Playlist      | string  | Playlistname   | Name der Playlist oder Remote-Stream, sofern vorhanden     |
 | Album                  | string  | Album          | Album des Tracks der aktuellen Wiedergabe                  |
 | Titel                  | string  | Title          | Titel des Tracks der aktuellen Wiedergabe                  |
 | Interpret              | string  | Artist         | Interpret des Tracks der aktuellen Wiedergabe              |
@@ -117,7 +122,7 @@ Folgende Statusvariablen werden automatisch angelegt.
 | Spielzeit              | string  | Position       | Aktuelle Postion im Track als Klartext                     |
 | Position               |  float  | Position2      | Aktuelle Postion im Track in Prozent                       |
 | Spielzeit in Sekunden  | integer | PositionRaw    | Aktuelle Position im Track in Sekunden                     |
-| Signalstärke           | integer | Signalstrength | WLAN-Signalstärke des Players, sofern vorhanden            |
+| Signalstärke           | integer | Signalstrength | WLAN-Signalstärke des Players                              |
 | Einschlaftimer         | integer | SleepTimer     | Gewählter Zeitraum für Einschlaftimer                      |
 | Ausschalten in         | string  | SleepTimeout   | Zeit bis zum Ausschalten                                   |
 | Playlist               | string  | Playlist       | HTML-Box mit der Playlist des Players                      |
@@ -134,13 +139,18 @@ Folgende Statusvariablen werden automatisch angelegt.
 | LSQ.Randomplay               | integer | Randomplay                    |
 | LSQ.Tracklist.\<InstanzeID\> | integer | Tracks                        |
 
-## 6. WebFront
+## 6. Kachel Visualisierung
 
-Die direkte Darstellung im WebFront ist möglich, es wird aber empfohlen mit Links zu arbeiten.  
-![WebFront Beispiel](imgs/wf1.png)  
+Die direkte Darstellung in der Visualisierung ist möglich, es wird aber empfohlen mit Links zu arbeiten.  
 
-Hier ein Beispiel mit einer SplitPane und zwei Dummy-Instanzen (Playlist & Steuerung) welche Links zu den Statusvariablen und dem Cover enthalten.  
-![WebFront Beispiel](imgs/wf2.png)  
+Darstellung als Media-Kachel
+![WebFront Beispiel](imgs/visu_small.png)  
+
+Vergrößerte Ansicht
+![WebFront Beispiel](imgs/visu_large.png)  
+
+Ansicht mit alter HTML-Playlist (Link auf HTML-Playlist Variable auf gleiche Ebene wie Instanz der Media-Kachel)  
+![WebFront Beispiel](imgs/visu_htmlplaylist.png)  
 
 ## 7. PHP-Befehlsreferenz
 
