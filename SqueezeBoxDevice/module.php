@@ -2833,7 +2833,7 @@ class SqueezeboxDevice extends IPSModule
             }
         }
         $this->SetStatus($Value);
-        if ($Value == IS_ACTIVE){
+        if ($Value == IS_ACTIVE) {
             $this->_RefreshPlaylist();
             // Erst nach 5 Sekunden, sonst sind beim ModuleReload InstanceInterface Fehler möglich
             IPS_RunScriptText('IPS_Sleep(5000);IPS_RequestAction(' . $this->InstanceID . ', \'_SetNewSyncProfil\', true);');

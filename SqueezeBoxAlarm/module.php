@@ -1231,7 +1231,7 @@ class SqueezeboxAlarm extends IPSModule
      */
     protected function IOChangeState(int $State): void
     {
-          if (IPS_GetKernelRunlevel() != KR_READY) {
+        if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
         $Value = IS_INACTIVE;
@@ -1245,7 +1245,7 @@ class SqueezeboxAlarm extends IPSModule
         if ($Value == IS_ACTIVE) {
             $this->LoadAlarmPlaylists();
             $this->RequestAllState();
-        }            
+        }
 
     }
 
@@ -1707,13 +1707,13 @@ class SqueezeboxAlarm extends IPSModule
                 }
             }
 
-            $vid = $this->FindIDForIdent('AlarmPlaylist' . $i);
+            $vid = $this->FindIDForIdent('AlarmHTMLPlaylist' . $i);
             if ($vid > 0) {
-                if ($this->ReadPropertyBoolean('showAlarmPlaylist')) {
+                if ($this->ReadPropertyBoolean('showAlarmHTMLPlaylist')) {
                     if ($delete) {
                         IPS_DeleteVariable($vid);
                     } else {
-                        $this->SetValueString('AlarmPlaylist' . $i, '');
+                        $this->SetValueString('AlarmHTMLPlaylist' . $i, '');
                     }
                 } else {
                     IPS_DeleteVariable($vid);
