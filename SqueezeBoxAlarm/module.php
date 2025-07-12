@@ -18,7 +18,6 @@ eval('declare(strict_types=1);namespace SqueezeboxAlarm {?>' . file_get_contents
 eval('declare(strict_types=1);namespace SqueezeboxAlarm {?>' . file_get_contents(__DIR__ . '/../libs/helper/ParentIOHelper.php') . '}');
 eval('declare(strict_types=1);namespace SqueezeboxAlarm {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableHelper.php') . '}');
 eval('declare(strict_types=1);namespace SqueezeboxAlarm {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableProfileHelper.php') . '}');
-eval('declare(strict_types=1);namespace SqueezeboxAlarm {?>' . file_get_contents(__DIR__ . '/../libs/helper/WebhookHelper.php') . '}');
 
 /**
  * Enthält die Daten eines Alarm.
@@ -388,8 +387,7 @@ class SqueezeboxAlarm extends IPSModuleStrict
         \SqueezeBox\DebugHelper,
         \SqueezeboxAlarm\BufferHelper,
         \SqueezeboxAlarm\InstanceStatus,
-        \SqueezeboxAlarm\VariableHelper,
-        \SqueezeboxAlarm\WebhookHelper {
+        \SqueezeboxAlarm\VariableHelper {
             \SqueezeboxAlarm\InstanceStatus::MessageSink as IOMessageSink;
             \SqueezeboxAlarm\InstanceStatus::RegisterParent as IORegisterParent;
             \SqueezeboxAlarm\InstanceStatus::RequestAction as IORequestAction;

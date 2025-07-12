@@ -19,7 +19,6 @@ eval('declare(strict_types=1);namespace LMSSplitter {?>' . file_get_contents(__D
 eval('declare(strict_types=1);namespace LMSSplitter {?>' . file_get_contents(__DIR__ . '/../libs/helper/SemaphoreHelper.php') . '}');
 eval('declare(strict_types=1);namespace LMSSplitter {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableHelper.php') . '}');
 eval('declare(strict_types=1);namespace LMSSplitter {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableProfileHelper.php') . '}');
-eval('declare(strict_types=1);namespace LMSSplitter {?>' . file_get_contents(__DIR__ . '/../libs/helper/WebhookHelper.php') . '}');
 
 /**
  * LMSSplitter Klasse für die Kommunikation mit dem Logitech Media-Server (LMS).
@@ -64,8 +63,7 @@ class LMSSplitter extends IPSModuleStrict
         \LMSSplitter\VariableHelper,
         \LMSSplitter\BufferHelper,
         \LMSSplitter\InstanceStatus,
-        \LMSSplitter\Semaphore,
-        \LMSSplitter\WebhookHelper {
+        \LMSSplitter\Semaphore{
             \LMSSplitter\InstanceStatus::MessageSink as IOMessageSink; // MessageSink gibt es sowohl hier in der Klasse, als auch im Trait InstanceStatus. Hier wird für die Methode im Trait ein Alias benannt.
             \LMSSplitter\InstanceStatus::RegisterParent as IORegisterParent;
             \LMSSplitter\InstanceStatus::RequestAction as IORequestAction;

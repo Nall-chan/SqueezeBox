@@ -18,7 +18,6 @@ eval('declare(strict_types=1);namespace SqueezeboxDevice {?>' . file_get_content
 eval('declare(strict_types=1);namespace SqueezeboxDevice {?>' . file_get_contents(__DIR__ . '/../libs/helper/ParentIOHelper.php') . '}');
 eval('declare(strict_types=1);namespace SqueezeboxDevice {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableHelper.php') . '}');
 eval('declare(strict_types=1);namespace SqueezeboxDevice {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableProfileHelper.php') . '}');
-eval('declare(strict_types=1);namespace SqueezeboxDevice {?>' . file_get_contents(__DIR__ . '/../libs/helper/WebhookHelper.php') . '}');
 
 /**
  * SqueezeboxDevice Klasse für eine SqueezeBox-Instanz in IPS.
@@ -62,8 +61,7 @@ class SqueezeboxDevice extends IPSModuleStrict
         \SqueezeboxDevice\VariableHelper,
         \SqueezeboxDevice\VariableProfileHelper,
         \SqueezeboxDevice\BufferHelper,
-        \SqueezeboxDevice\InstanceStatus,
-        \SqueezeboxDevice\WebhookHelper {
+        \SqueezeboxDevice\InstanceStatus {
             \SqueezeboxDevice\InstanceStatus::MessageSink as IOMessageSink;
             \SqueezeboxDevice\InstanceStatus::RequestAction as IORequestAction;
         }
