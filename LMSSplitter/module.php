@@ -43,8 +43,7 @@ eval('declare(strict_types=1);namespace LMSSplitter {?>' . file_get_contents(__D
  *
  * @method bool lock(string $ident)
  * @method void unlock(string $ident)
- * @method void RegisterHook(string $WebHook)
- * @method void UnregisterHook(string $WebHook)
+ * @method bool RegisterHook(string $WebHook)
  * @method void SetValueBoolean(string $Ident, bool $value)
  * @method void SetValueFloat(string $Ident, float $value)
  * @method void SetValueInteger(string $Ident, int $value)
@@ -125,7 +124,6 @@ class LMSSplitter extends IPSModuleStrict
     public function Destroy(): void
     {
         if (!IPS_InstanceExists($this->InstanceID)) {
-            $this->UnregisterHook('/hook/LMSPlaylist' . $this->InstanceID);
             $this->DeleteProfile();
         }
         parent::Destroy();
@@ -217,8 +215,6 @@ class LMSSplitter extends IPSModuleStrict
         // ServerPlaylisten
         if ($this->ReadPropertyBoolean('showHTMLPlaylist')) {
             $this->RegisterHook('/hook/LMSPlaylist' . $this->InstanceID);
-        } else {
-            $this->UnregisterHook('/hook/LMSPlaylist' . $this->InstanceID);
         }
 
         // Config prüfen

@@ -41,8 +41,7 @@ eval('declare(strict_types=1);namespace SqueezeboxDevice {?>' . file_get_content
  * @property string $SyncMembers
  * @property string $WebHookSecretTrack
  * @property resource|false $Socket
- * @method void RegisterHook(string $WebHook)
- * @method void UnregisterHook(string $WebHook)
+ * @method bool RegisterHook(string $WebHook)
  * @method void SetValueBoolean(string $Ident, bool $value)
  * @method void SetValueFloat(string $Ident, float $value)
  * @method void SetValueInteger(string $Ident, int $value)
@@ -168,7 +167,6 @@ class SqueezeboxDevice extends IPSModuleStrict
             if ($CoverID > 0) {
                 @IPS_DeleteMedia($CoverID, true);
             }
-            $this->UnregisterHook('/hook/SqueezeBoxPlaylist' . $this->InstanceID);
             $this->DeleteProfile();
         }
         parent::Destroy();
@@ -348,8 +346,6 @@ class SqueezeboxDevice extends IPSModuleStrict
         // Playlist
         if ($this->ReadPropertyBoolean('showHTMLPlaylist')) {
             $this->RegisterHook('/hook/SqueezeBoxPlaylist' . $this->InstanceID);
-        } else {
-            $this->UnregisterHook('/hook/SqueezeBoxPlaylist' . $this->InstanceID);
         }
         // Wenn Parent aktiv, dann Anmeldung an der Hardware bzw. Datenabgleich starten
         $this->RegisterParent();

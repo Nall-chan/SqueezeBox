@@ -368,8 +368,7 @@ class LSA_AlarmList
  * @property array $Multi_Playlist Alle Datensätze der Alarm-Playlisten.
  * @property LSA_AlarmList $Alarms Alle Wecker als Objekt.
  * @property resource|false $Socket
- * @method void RegisterHook(string $WebHook)
- * @method void UnregisterHook(string $WebHook)
+ * @method bool RegisterHook(string $WebHook)
  * @method void SetValueBoolean(string $Ident, bool $value)
  * @method void SetValueFloat(string $Ident, float $value)
  * @method void SetValueInteger(string $Ident, int $value)
@@ -468,7 +467,6 @@ class SqueezeboxAlarm extends IPSModuleStrict
     public function Destroy(): void
     {
         if (!IPS_InstanceExists($this->InstanceID)) {
-            $this->UnregisterHook('/hook/LSAPlaylist' . $this->InstanceID);
             $this->DeleteProfile();
         }
         parent::Destroy();
@@ -562,8 +560,6 @@ class SqueezeboxAlarm extends IPSModuleStrict
         }
         if ($this->ReadPropertyBoolean('showAlarmHTMLPlaylist')) {
             $this->RegisterHook('/hook/LSAPlaylist' . $this->InstanceID);
-        } else {
-            $this->UnregisterHook('/hook/LSAPlaylist' . $this->InstanceID);
         }
         $this->RegisterParent();
         if ($this->HasActiveParent() && (trim($Address) != '')) {
