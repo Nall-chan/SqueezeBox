@@ -559,7 +559,7 @@ class SqueezeboxAlarm extends IPSModuleStrict
             return;
         }
         if ($this->ReadPropertyBoolean('showAlarmHTMLPlaylist')) {
-            $this->RegisterHook('/hook/LSAPlaylist' . $this->InstanceID);
+            $this->RegisterHook('LSAPlaylist' . $this->InstanceID);
         }
         $this->RegisterParent();
         if ($this->HasActiveParent() && (trim($Address) != '')) {

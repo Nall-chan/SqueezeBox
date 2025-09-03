@@ -214,7 +214,7 @@ class LMSSplitter extends IPSModuleStrict
 
         // ServerPlaylisten
         if ($this->ReadPropertyBoolean('showHTMLPlaylist')) {
-            $this->RegisterHook('/hook/LMSPlaylist' . $this->InstanceID);
+            $this->RegisterHook('LMSPlaylist' . $this->InstanceID);
         }
 
         // Config prüfen

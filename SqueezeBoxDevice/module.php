@@ -345,7 +345,7 @@ class SqueezeboxDevice extends IPSModuleStrict
 
         // Playlist
         if ($this->ReadPropertyBoolean('showHTMLPlaylist')) {
-            $this->RegisterHook('/hook/SqueezeBoxPlaylist' . $this->InstanceID);
+            $this->RegisterHook('SqueezeBoxPlaylist' . $this->InstanceID);
         }
         // Wenn Parent aktiv, dann Anmeldung an der Hardware bzw. Datenabgleich starten
         $this->RegisterParent();
