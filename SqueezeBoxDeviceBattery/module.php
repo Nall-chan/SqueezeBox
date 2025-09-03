@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2024 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       4.00
+ * @version       4.05
  *
  */
 eval('declare(strict_types=1);namespace SqueezeboxBattery {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableHelper.php') . '}');
@@ -49,7 +49,7 @@ class AutoLoaderSqueezeboxBatteryPHPSecLib
  * @copyright     2024 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       4.00
+ * @version       4.05
  *
  * @method bool SendDebug(string $Message, mixed $Data, int $Format)
  * @method void RegisterProfileIntegerEx(string $Name, string $Icon, string $Prefix, string $Suffix, array $Associations, int $MaxValue = -1, float $StepSize = 0)

@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2024 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       4.00
+ * @version       4.05
  *
  */
 require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
@@ -26,7 +26,7 @@ eval('declare(strict_types=1);namespace SqueezeboxDevice {?>' . file_get_content
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2024 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       4.00
+ * @version       4.05
  *
  * @property int $ParentID
  * @property array $Multi_Playlist Alle Datensätze der Playlisten
@@ -385,6 +385,9 @@ class SqueezeboxDevice extends IPSModuleStrict
                 }
                 break;
             case VM_UPDATE:
+                if (($this->ReadPropertyString('Address') == '') || ($this->GetStatus() != IS_ACTIVE)) {
+                    return;
+                }
                 if ($SenderID == $this->PlayerMode) {
                     if ($Data[0] == 2) {
                         $this->_StartSubscribe();
@@ -2483,6 +2486,7 @@ class SqueezeboxDevice extends IPSModuleStrict
         if ($LMSData === null) {
             return false;
         }
+        $LMSData->SliceData();
         $SongInfo = new \SqueezeBox\LMSSongInfo($LMSData->Data);
         $SongArray = $SongInfo->GetSong();
         if (count($SongArray) == 1) {
@@ -2510,6 +2514,9 @@ class SqueezeboxDevice extends IPSModuleStrict
     public function GetSongInfoOfCurrentPlaylist(): false|array
     {
         $max = $this->GetValue('Tracks');
+        if ($max == 0) {
+            return [];
+        }
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['status', '0', (string) $max], 'tags:gladiqrRtueJINpsy'));
         if ($LMSData === null) {
             return false;
