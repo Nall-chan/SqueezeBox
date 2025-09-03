@@ -1,5 +1,5 @@
 [![SDK](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20Version-4.00-blue.svg)](https://community.symcon.de/t/modul-squeezebox-release/46937)
+[![Version](https://img.shields.io/badge/Modul%20Version-4.05-blue.svg)](https://community.symcon.de/t/modul-squeezebox-release/46937)
 [![Version](https://img.shields.io/badge/Symcon%20Version-7.1%20%3E-green.svg)](https://www.symcon.de/de/service/dokumentation/installation/migrationen/v70-v71-q1-2024/)  
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Check Style](https://github.com/Nall-chan/SqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/SqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions)  
@@ -126,6 +126,12 @@ Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:
 | Data        | array  | Daten des Kommandos als Array |
 
 ### 3. Changelog
+
+Version 4.05:
+ - Das Anlegen von Player Instanzen über den Konfigurator schlug fehl, weil die Playlist Daten nicht korrekt verarbeitet wurden.  
+ - Player Instanz hat auch versucht Daten abzurufen, wenn keine MAC Adresse gesetzt war, oder die Instanz inaktiv war.  
+ - Fehlermeldung im Log betreffend eines Variablenprofil des Splitter behoben.  
+
 
 Version 4.00:
  - Diverse Anpassungen für Symcon 7.0 bei den Profilen.  

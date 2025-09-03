@@ -1,5 +1,5 @@
 [![SDK](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20Version-4.00-blue.svg)](https://community.symcon.de/t/modul-squeezebox-release/46937)
+[![Version](https://img.shields.io/badge/Modul%20Version-4.05-blue.svg)](https://community.symcon.de/t/modul-squeezebox-release/46937)
 [![Version](https://img.shields.io/badge/Symcon%20Version-7.1%20%3E-green.svg)](https://www.symcon.de/de/service/dokumentation/installation/migrationen/v70-v71-q1-2024/)  
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Check Style](https://github.com/Nall-chan/SqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/SqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions)  
@@ -52,16 +52,16 @@ Bei der manuellen Einrichtung ist die Instanz im Dialog `Instanz hinzufügen` un
 **Konfigurationsseite:**  
 ![Instanz hinzufügen](imgs/conf1.png)  
 
-| Name                                | Eigenschaft       |   Typ   | Standardwert | Funktion                                                      |
-| :---------------------------------- | :---------------- | :-----: | :----------- | :------------------------------------------------------------ |
-| MAC-Adresse                         | Address           | string  |              | MAC Adresse der Squeezebox [Format xx:xx:xx:xx:xx:xx ]        |
-| Button anzeigen für Wecker anlegen. | showAdd           | boolean | true         | de/aktiviert einen Button im WebFront für Wecker hinzufügen.  |
-| Button anzeigen für Wecker löschen. | showDelete        | boolean | true         | de/aktiviert einen Button im WebFront für Wecker löschen.     |
-| Nicht benutzte Objekte löschen.     | dynamicDisplay    | boolean | true         | aktiviert das automatische entfernen von Statusvariablen.     |
+| Name                                | Eigenschaft           |   Typ   | Standardwert | Funktion                                                      |
+| :---------------------------------- | :-------------------- | :-----: | :----------- | :------------------------------------------------------------ |
+| MAC-Adresse                         | Address               | string  |              | MAC Adresse der Squeezebox [Format xx:xx:xx:xx:xx:xx ]        |
+| Button anzeigen für Wecker anlegen. | showAdd               | boolean | true         | de/aktiviert einen Button im WebFront für Wecker hinzufügen.  |
+| Button anzeigen für Wecker löschen. | showDelete            | boolean | true         | de/aktiviert einen Button im WebFront für Wecker löschen.     |
+| Nicht benutzte Objekte löschen.     | dynamicDisplay        | boolean | true         | aktiviert das automatische entfernen von Statusvariablen.     |
 | Alarm Playlist als HTML-Box anlegen | showAlarmHTMLPlaylist | boolean | true         | de/aktiviert die Anzeige einer HTML-Box mit allen Playlisten. |
-| Playlist Darstellung                | Table             | string  | Tabelle      | Style Eigenschaften der Playlist HTML-Tabelle.                |
-| Playlist Spalten                    | Columns           | string  | Tabelle      | Style Eigenschaften der Playlist Spalten.                     |
-| Playlist Zeilen                     | Rows              | string  | Tabelle      | Style Eigenschaften der Playlist Zeilen.                      |
+| Playlist Darstellung                | Table                 | string  | Tabelle      | Style Eigenschaften der Playlist HTML-Tabelle.                |
+| Playlist Spalten                    | Columns               | string  | Tabelle      | Style Eigenschaften der Playlist Spalten.                     |
+| Playlist Zeilen                     | Rows                  | string  | Tabelle      | Style Eigenschaften der Playlist Zeilen.                      |
 
 
 ## 5. Statusvariablen und Profile
@@ -91,7 +91,7 @@ Wird ein Wecker in der SqueezeBox gelöscht, so werden bei konfigurierten Auto-L
 | Wecker X wiederholen             | boolean | AlarmRepeatX       | Alarmwiederholung ja / nein                                                |
 | Wecker X Lautstärke              | integer | AlarmVolumeX       | Lautstärke des Weckers                                                     |
 | Wecker X Wiedergabeliste mischen | integer | AlarmShuffleX      | Zufallsmodus des Weckers                                                   |
-| Wecker X Wiedergabeliste wählen  | string  | AlarmHTMLPlaylistX     | HTML-Box mit allen verfügbaren Alarm-Playlisten                            |
+| Wecker X Wiedergabeliste wählen  | string  | AlarmHTMLPlaylistX | HTML-Box mit allen verfügbaren Alarm-Playlisten                            |
 
 ![WebFront Beispiel](imgs/log1.png)  
 

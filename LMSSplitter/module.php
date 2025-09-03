@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2024 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       4.00
+ * @version       4.05
  *
  */
 
@@ -31,7 +31,7 @@ eval('declare(strict_types=1);namespace LMSSplitter {?>' . file_get_contents(__D
  * @copyright     2024 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       4.00
+ * @version       4.05
  *
  * @property array $ReplyLMSData \SqueezeBox\LMSData Enthält die versendeten Befehle und speichert die Antworten.
  * @property string $Buffer EmpfangsBuffer

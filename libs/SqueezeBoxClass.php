@@ -12,7 +12,7 @@ require_once __DIR__ . '/TimeConvert.php';  // diverse Klassen
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2024 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       4.00
+ * @version       4.05
  *
  */
 
@@ -140,7 +140,7 @@ trait LMSProfile
  * @copyright     2024 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       4.00
+ * @version       4.05
  */
 class LMSData extends \stdClass
 {
@@ -299,7 +299,7 @@ class LMSData extends \stdClass
  * @copyright     2024 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       4.00
+ * @version       4.05
  */
 class LMSResponse extends LMSData
 {
@@ -448,7 +448,7 @@ class LMSResponse extends LMSData
  * @copyright     2024 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       4.00
+ * @version       4.05
  */
 class LMSTaggingData extends \stdClass
 {
@@ -489,7 +489,7 @@ class LMSTaggingData extends \stdClass
  * @copyright     2024 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       4.00
+ * @version       4.05
  */
 class LMSTaggingArray extends \stdClass
 {
@@ -690,7 +690,7 @@ class LMSTaggingArray extends \stdClass
  * @copyright     2024 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       4.00
+ * @version       4.05
  */
 class LMSSongInfo extends \stdClass
 {
