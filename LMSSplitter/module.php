@@ -256,7 +256,8 @@ class LMSSplitter extends IPSModule
                 break;
             case FM_CHILDADDED:
             case FM_CHILDREMOVED:
-                IPS_RunScriptText('usleep(100000);IPS_RequestAction(' . $this->InstanceID . ',\'RefreshPlayerList\',0);');
+                // In neuen Script-Thread kurz warten, sonst hat eine neue Instanz noch keinen Namen :(
+                IPS_RunScriptText('IPS_Sleep(5000);IPS_RequestAction(' . $this->InstanceID . ',\'RefreshPlayerList\',0);');
                 break;
         }
     }

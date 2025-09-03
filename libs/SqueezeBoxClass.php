@@ -789,7 +789,7 @@ class LMSSongInfo extends \stdClass
                 }
             }
         }
-        if ((count($Songs) != 1) && isset($Songs[-1])) {
+        if (isset($Songs[-1])) {
             unset($Songs[-1]);
         }
         $this->SongArray = $Songs;

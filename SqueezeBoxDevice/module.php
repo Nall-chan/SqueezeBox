@@ -391,6 +391,9 @@ class SqueezeboxDevice extends IPSModule
                 }
                 break;
             case VM_UPDATE:
+                if (($this->ReadPropertyString('Address') == '') || ($this->GetStatus() != IS_ACTIVE)) {
+                    return;
+                }
                 if ($SenderID == $this->PlayerMode) {
                     if ($Data[0] == 2) {
                         $this->_StartSubscribe();
@@ -2489,6 +2492,7 @@ class SqueezeboxDevice extends IPSModule
         if ($LMSData === null) {
             return false;
         }
+        $LMSData->SliceData();
         $SongInfo = new \SqueezeBox\LMSSongInfo($LMSData->Data);
         $SongArray = $SongInfo->GetSong();
         if (count($SongArray) == 1) {
@@ -2516,6 +2520,9 @@ class SqueezeboxDevice extends IPSModule
     public function GetSongInfoOfCurrentPlaylist(): false|array
     {
         $max = $this->GetValue('Tracks');
+        if ($max == 0) {
+            return [];
+        }
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['status', '0', (string) $max], 'tags:gladiqrRtueJINpsy'));
         if ($LMSData === null) {
             return false;
