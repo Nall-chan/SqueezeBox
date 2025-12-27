@@ -547,10 +547,7 @@ class SqueezeboxAlarm extends IPSModuleStrict
 
         if (!$this->ReadPropertyBoolean('showAlarmHTMLPlaylist')) {
             for ($AlarmIndex = 0; $AlarmIndex < 10; $AlarmIndex++) {
-                $vid = $this->FindIDForIdent('AlarmHTMLPlaylist' . $AlarmIndex);
-                if ($vid > 0) {
-                    IPS_DeleteVariable($vid);
-                }
+                $this->UnregisterVariable('AlarmHTMLPlaylist' . $AlarmIndex);
             }
         }
 
