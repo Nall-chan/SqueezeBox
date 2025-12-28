@@ -10,3 +10,6 @@ url=https://github.com/Nall-chan/StylePHP.git
 [submodule ".vscode"]
 	path = .vscode
 url=https://github.com/Nall-chan/SymconVSCTasks.git
+[submodule "libs/phpseclib"]
+	path = libs/phpseclib
+	url = https://github.com/phpseclib/phpseclib
