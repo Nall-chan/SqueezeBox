@@ -59,14 +59,14 @@
                                     "width": "300px"
                                 },
                                 {
-                                    "name": "enableRawDuration",
+                                    "name": "enableDurationText",
                                     "type": "CheckBox",
-                                    "caption": "Enable duration in seconds"
+                                    "caption": "Enable duration as text"
                                 },
                                 {
-                                    "name": "enableRawPosition",
+                                    "name": "enablePositionText",
                                     "type": "CheckBox",
-                                    "caption": "Enable position in seconds"
+                                    "caption": "Enable position as text"
                                 }
                             ]
                         },

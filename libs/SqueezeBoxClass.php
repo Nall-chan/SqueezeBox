@@ -38,28 +38,12 @@ trait LSQProfile
      */
     private function CreateProfile(): void
     {
-        $this->UnregisterProfile('LSQ.Status');
-        $this->UnregisterProfile('LSQ.Volume');
-        $this->UnregisterProfile('LSQ.Intensity');
-        $this->UnregisterProfile('LSQ.Repeat');
-        $this->RegisterProfileInteger('LSQ.Pitch', 'Intensity', '', ' %', 80, 120, 1);
         $this->RegisterProfileIntegerEx('LSQ.Shuffle', 'Shuffle', '', '', [
             [0, $this->Translate('Off'), '', -1],
             [1, $this->Translate('Title'), '', -1],
             [2, 'Album', '', -1]
         ]);
-        $this->RegisterProfileIntegerEx('LSQ.Preset', 'Execute', '', '', [
-            [1, '1', '', -1],
-            [2, '2', '', -1],
-            [3, '3', '', -1],
-            [4, '4', '', -1],
-            [5, '5', '', -1],
-            [6, '6', '', -1],
-            [7, '7', '', -1],
-            [8, '8', '', -1],
-            [9, '9', '', -1],
-            [10, '10', '', -1]
-        ]);
+
         $this->RegisterProfileIntegerEx('LSQ.SleepTimer', 'Gear', '', '', [
             [0, '%d', '', -1],
             [900, '%d', '', -1],
@@ -67,13 +51,6 @@ trait LSQProfile
             [2700, '%d', '', -1],
             [3600, '%d', '', -1],
             [5400, '%d', '', -1]
-        ]);
-        $this->RegisterProfileIntegerEx('LSQ.Randomplay', 'Shuffle', '', '', [
-            [0, $this->Translate('Off'), '', -1],
-            [1, 'Track', '', -1],
-            [2, 'Album', '', -1],
-            [3, $this->Translate('Artist'), '', -1],
-            [4, $this->Translate('Year'), '', -1],
         ]);
     }
 
@@ -85,11 +62,7 @@ trait LSQProfile
      */
     private function DeleteProfile(): void
     {
-        $this->UnregisterProfile('LSQ.Tracklist.' . $this->InstanceID);
-        $this->UnregisterProfile('LSQ.Pitch');
-        $this->UnregisterProfile('LSQ.Shuffle');
-        $this->UnregisterProfile('LSQ.Preset');
-        $this->UnregisterProfile('LSQ.SleepTimer');
+
     }
 }
 

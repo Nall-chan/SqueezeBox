@@ -63,6 +63,7 @@ namespace SqueezeBox\Presentation{
     }
     class Enum
     {
+        public const Layout = 'LAYOUT';
         public const Options = 'OPTIONS';
         public const Value = 'Value';
         public const Caption = 'Caption';
@@ -73,6 +74,14 @@ namespace SqueezeBox\Presentation{
 
     class Value
     {
+        public const Min = 'MIN';
+        public const Max = 'MAX';
+        public const Digits = 'DIGITS';
+        public const Prefix = 'PREFIX';
+        public const Suffix = 'SUFFIX';
+        public const Type = 'USAGE_TYPE';
+        public const IntervalsUsed = 'INTERVALS_ACTIVE';
+        public const Intervals = 'INTERVALS';
         public const Options = 'OPTIONS';
         public const Value = 'Value';
         public const Caption = 'Caption';
@@ -119,11 +128,6 @@ namespace SqueezeBox\Splitter
     }
 }
 
-namespace SqueezeBox\Configurator
-{
-
-}
-
 namespace SqueezeBox\Device
 {
 
@@ -135,9 +139,9 @@ namespace SqueezeBox\Device
         public const EnableBass = 'enableBass';
         public const EnableTreble = 'enableTreble';
         public const EnablePitch = 'enablePitch';
-        public const EnableRandomplay = 'enableRandomplay';
-        public const EnableRawDuration = 'enableRawDuration';
-        public const EnableRawPosition = 'enableRawPosition';
+        public const EnableRandomPlay = 'enableRandomplay';
+        public const EnableDurationText = 'enableDurationText';
+        public const EnablePositionText = 'enablePositionText';
         public const EnablePreset = 'enablePreset';
         public const EnableSleepTimer = 'enableSleepTimer';
         public const ShowSleepTimeout = 'showSleepTimeout';
