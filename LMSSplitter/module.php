@@ -1470,7 +1470,7 @@ class LyrionMusicServer extends IPSModuleStrict
         $LMSData->SliceData();
         return (new \SqueezeBox\LMSTaggingArray($LMSData->Data, 'category'))->DataArray();
     }
-    
+
     /**
      * GetFavorites
      * IPS-Instanz-Funktion 'LMS_GetFavorites'.
@@ -2446,8 +2446,8 @@ class LyrionMusicServer extends IPSModuleStrict
             set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($exc->getMessage(), $exc->getCode());
             restore_error_handler();
-            return null;
         }
+        return null;
     }
 
     /**

@@ -459,7 +459,9 @@ class Squeezebox extends IPSModuleStrict
         if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSleepTimeout)) {
             $this->RequestState('SleepTimeout');
         }
-        $this->RequestState('Randomplay');
+        if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableRandomplay)) {
+            $this->RequestState('Randomplay');
+        }
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['status', '-', 1], ['tags:gladiqrRtueJINpsy', 'subscribe:0']));
         if ($LMSData === null) {
             return false;
@@ -3827,24 +3829,25 @@ class Squeezebox extends IPSModuleStrict
                 $this->SetCover();
                 break;
             case 'randomplay':
-                switch ($LMSData->Data[0]) {
-                    case 'tracks':
-                        $this->SetValueInteger('Randomplay', 1);
-                        break;
-                    case 'albums':
-                        $this->SetValueInteger('Randomplay', 2);
-                        break;
-                    case 'contributors':
-                        $this->SetValueInteger('Randomplay', 3);
-                        break;
-                    case 'year':
-                        $this->SetValueInteger('Randomplay', 4);
-                        break;
-                    default:
-                        $this->SetValueInteger('Randomplay', 0);
-                        break;
+                if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableRandomplay)) {
+                    switch ($LMSData->Data[0]) {
+                        case 'tracks':
+                            $this->SetValueInteger('Randomplay', 1);
+                            break;
+                        case 'albums':
+                            $this->SetValueInteger('Randomplay', 2);
+                            break;
+                        case 'contributors':
+                            $this->SetValueInteger('Randomplay', 3);
+                            break;
+                        case 'year':
+                            $this->SetValueInteger('Randomplay', 4);
+                            break;
+                        default:
+                            $this->SetValueInteger('Randomplay', 0);
+                            break;
+                    }
                 }
-
                 break;
             case 'status':
                 $isSyncActive = false;

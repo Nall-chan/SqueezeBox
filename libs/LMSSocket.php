@@ -104,7 +104,7 @@ trait LMSSocket
             }
             $result = unserialize($answer);
             if ($LMSData->needResponse === false) {
-                return $result;
+                return null;
             }
             $LMSData->Data = $result->Data;
             $this->SendDebug('Response', $LMSData, 0);

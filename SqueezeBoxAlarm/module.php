@@ -34,9 +34,9 @@ class LSA_Alarm
     /**
      * Index des Alarm.
      *
-     * @var int
+     * @var ?int
      */
-    public int $Index;
+    public ?int $Index;
 
     /**
      * Tage des Alarm.
@@ -92,14 +92,11 @@ class LSA_Alarm
      * Erzeugt aus den übergeben Daten einen neuen LSA_Alarm.
      *
      * @param array $Alarm Das Array wie es von LMSTaggingArray erzeugt wird.
-     * @param int   $Index Der fortlaufende Index dieses Weckers.
+     * @param ?int   $Index Der fortlaufende Index dieses Weckers.
      * @return LSA_Alarm
      */
-    public function __construct(array $Alarm = null, int $Index = null)
+    public function __construct(array $Alarm, ?int $Index = null)
     {
-        if (is_null($Alarm)) {
-            return;
-        }
         foreach ($Alarm as $Key => $Value) {
             $this->{$Key} = $Value;
         }
@@ -238,7 +235,7 @@ class LSA_AlarmList
     /**
      * Array mit allen Items.
      *
-     * @var array
+     * @var LSA_Alarm[]
      */
     public array $Items = [];
 
@@ -249,11 +246,8 @@ class LSA_AlarmList
      * @param array $Alarms Alle Wecker oder null.
      * @return LSA_AlarmList
      */
-    public function __construct(array $Alarms = null)
+    public function __construct(array $Alarms)
     {
-        if (is_null($Alarms)) {
-            return;
-        }
         foreach ($Alarms as $Index => $AlarmData) {
             $Alarm = new LSA_Alarm($AlarmData, $Index);
             $this->Items[$Alarm->Id] = $Alarm;
@@ -295,10 +289,12 @@ class LSA_AlarmList
      * Update für einen LSA_Alarm in $Items.
      *
      * @param LSA_Alarm $Alarm Das neue Objekt.
+     * @return int
      */
-    public function Update(LSA_Alarm $Alarm): void
+    public function Update(LSA_Alarm $Alarm): int
     {
         $this->Items[$Alarm->Id] = $Alarm;
+        return $this->Items[$Alarm->Id]->Index;
     }
 
     /**
@@ -420,7 +416,6 @@ class SqueezeboxAlarm extends IPSModuleStrict
         $this->RegisterPropertyString(\SqueezeBox\Alarm\Property::Table, json_encode($Style['Table']));
         $this->RegisterPropertyString(\SqueezeBox\Alarm\Property::Columns, json_encode($Style['Columns']));
         $this->RegisterPropertyString(\SqueezeBox\Alarm\Property::Rows, json_encode($Style['Rows']));
-
         $this->Multi_Playlist = [];
         $this->Alarms = new LSA_AlarmList([]);
         $this->ParentID = 0;
@@ -1320,7 +1315,7 @@ class SqueezeboxAlarm extends IPSModuleStrict
             return;
         }
         $AlarmIndex = substr($_GET['Type'], -1);
-        $MySecret = $this->{'WebHookSecretAlarmPlaylist' . $AlarmIndex};
+        $MySecret = $this->{'WebHookSecretAlarmHTMLPlaylist' . $AlarmIndex};
         $CalcSecret = base64_encode(sha1($MySecret . '0' . rawurldecode($_GET['ID']), true));
 
         if ($CalcSecret != rawurldecode($_GET['Secret'])) {
