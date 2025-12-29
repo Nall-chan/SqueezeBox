@@ -1,11 +1,9 @@
 {
     "id": "{718158BB-B247-4A71-9440-9C2FF1378752}",
-    "name": "SqueezeboxBattery",
+    "name": "Squeezebox Battery",
     "type": 3,
-    "vendor": "Logitech",
-    "aliases": [
-        "Squeezebox Battery"
-    ],
+    "vendor": "Lyrion",
+    "aliases": [],
     "parentRequirements": [
         "{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}"
     ],

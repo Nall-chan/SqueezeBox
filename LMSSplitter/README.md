@@ -5,9 +5,9 @@
 [![Check Style](https://github.com/Nall-chan/SqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/SqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions)  
 [![PayPal.Me](https://img.shields.io/badge/PayPal-Me-lightblue.svg)](#2-spenden)[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#2-spenden)
 
-# Logitech Media Server Splitter (LMSSplitter) <!-- omit in toc -->  
+# Lyrion Music Server Splitter (LMSSplitter) <!-- omit in toc -->  
 
-Ermöglicht die Kommunikation von IPS mit dem CLI des Logitech Media Servers.  
+Ermöglicht die Kommunikation von IPS mit dem CLI des Lyrion Music Servers.  
 
 ## Inhaltsverzeichnis  <!-- omit in toc -->
 
@@ -43,7 +43,7 @@ Ermöglicht die Kommunikation von IPS mit dem CLI des Logitech Media Servers.
 ## 2. Voraussetzungen
 
 - Symcon ab Version 8.2
-- Logitech Media Server (getestet ab 7.9.x)
+- Lyrion Music Server
 - kompatibler Player
 
 ## 3. Software-Installation
@@ -53,12 +53,12 @@ Dieses Modul ist Bestandteil der [SqueezeBox-Library](../README.md#3-software-in
 ## 4. Einrichten der Instanzen in IP-Symcon
 
 Diese Instanz wird automatisch angelegt, wenn im ['Discovery-Modul'](../LMSDiscovery/README.md) ein ['Konfigurator'](../LMSConfigurator/README.md) in Symcon angelegt wird.  
-Bei der manuellen Einrichtung ist die Instanz im Dialog `Instanz hinzufügen` unter dem Hersteller `Logitech` zu finden.  
+Bei der manuellen Einrichtung ist die Instanz im Dialog `Instanz hinzufügen` unter dem Hersteller `Lyrion` zu finden.  
 ![Instanz hinzufügen](imgs/add1.png)  
 
 Es wird automatisch eine `Client Socket` Instanz erzeugt.  
 Dieser muss über die Schaltfläche `Schnittstelle konfigurieren` oder den Button `Öffne Client-Socket` noch geöffnet und konfiguriert werden.  
-In dem Client Socket ist die IP-Adresse bzw. der Hostname einzutragen unter dem der `Logitech Media Server` erreichbar ist.  
+In dem Client Socket ist die IP-Adresse bzw. der Hostname einzutragen unter dem der `Lyrion Music Server` erreichbar ist.  
 ![Instanz hinzufügen](imgs/conf1.png)  
 
 **Konfigurationsseite:**  
@@ -83,7 +83,7 @@ Folgende Statusvariablen werden automatisch angelegt.
 
 | Name               |   Typ   | Ident          | Beschreibung                                                   |
 | :----------------- | :-----: | :------------- | :------------------------------------------------------------- |
-| Version            | string  | Version        | Software-Version des Logitech Media Server.                    |
+| Version            | string  | Version        | Software-Version des Lyrion Music Server.                      |
 | Scanner            | integer | RescanState    | Aktueller Zustand vom Datenbank Scanner.                       |
 | Rescan Status      | string  | RescanInfo     | Aktueller Status bei aktivem scan.                             |
 | Rescan Fortschritt | string  | RescanProgress | Aktueller Fortschritt bei aktivem scan.                        |

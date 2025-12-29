@@ -6,36 +6,39 @@ declare(strict_types=1);
  * @package       Squeezebox
  * @file          module.php
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2024 Michael Tröger
+ * @copyright     2025 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       4.05
+ * @version       4.10
  *
  */
 require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
 require_once __DIR__ . '/../libs/SqueezeBoxClass.php';  // diverse Klassen
-eval('declare(strict_types=1);namespace LMSConfigurator {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
-eval('declare(strict_types=1);namespace LMSConfigurator {?>' . file_get_contents(__DIR__ . '/../libs/helper/ParentIOHelper.php') . '}');
+eval('declare(strict_types=1);namespace LyrionMusicServerConfigurator {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
+eval('declare(strict_types=1);namespace LyrionMusicServerConfigurator {?>' . file_get_contents(__DIR__ . '/../libs/helper/ParentIOHelper.php') . '}');
 
 /**
- * LMSConfigurator Klasse für ein SqueezeBox Konfigurator.
+ * LyrionMusicServerConfigurator Klasse für ein SqueezeBox Konfigurator.
  * Erweitert IPSModule.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2024 Michael Tröger
+ * @copyright     2025 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       4.05
+ * @version       4.10
  *
  * @property int $ParentID
+ * @method bool IORequestAction(string $Ident, mixed $Value)
+ * @method void IOMessageSink(int $TimeStamp, int $SenderID, int $Message, array $Data)
+ * @method int IORegisterParent()
  */
-class LMSConfigurator extends IPSModuleStrict
+class LyrionMusicServerConfigurator extends IPSModuleStrict
 {
     use \SqueezeBox\DebugHelper,
-        \LMSConfigurator\BufferHelper,
-        \LMSConfigurator\InstanceStatus {
-            \LMSConfigurator\InstanceStatus::MessageSink as IOMessageSink;
-            \LMSConfigurator\InstanceStatus::RegisterParent as IORegisterParent;
-            \LMSConfigurator\InstanceStatus::RequestAction as IORequestAction;
+        \LyrionMusicServerConfigurator\BufferHelper,
+        \LyrionMusicServerConfigurator\InstanceStatus {
+            \LyrionMusicServerConfigurator\InstanceStatus::MessageSink as IOMessageSink;
+            \LyrionMusicServerConfigurator\InstanceStatus::RegisterParent as IORegisterParent;
+            \LyrionMusicServerConfigurator\InstanceStatus::RequestAction as IORequestAction;
         }
 
     /**
@@ -46,7 +49,6 @@ class LMSConfigurator extends IPSModuleStrict
     public function Create(): void
     {
         parent::Create();
-        $this->ConnectParent('{96A9AB3A-2538-42C5-A130-FC34205A706A}');
         $this->SetReceiveDataFilter('.*"nothingtoreceive":.*');
         $this->ParentID = 0;
     }
@@ -85,8 +87,12 @@ class LMSConfigurator extends IPSModuleStrict
      */
     public function MessageSink(int $TimeStamp, int $SenderID, int $Message, array $Data): void
     {
-        $this->IOMessageSink($TimeStamp, $SenderID, $Message, $Data);
-
+        if (!IPS_InstanceExists($this->InstanceID)) {
+            return;
+        }
+        if (IPS_InstanceExists($SenderID)) {
+            $this->IOMessageSink($TimeStamp, $SenderID, $Message, $Data);
+        }
         switch ($Message) {
             case IPS_KERNELSTARTED:
                 $this->KernelReady();
@@ -129,39 +135,21 @@ class LMSConfigurator extends IPSModuleStrict
             ];
             $this->SendDebug('FORM', json_encode($Form), 0);
             $this->SendDebug('FORM', json_last_error_msg(), 0);
-
             return json_encode($Form);
         }
         $Splitter = IPS_GetInstance($this->InstanceID)['ConnectionID'];
         $IO = IPS_GetInstance($Splitter)['ConnectionID'];
-        $ParentCreate = [
-            [
-                'moduleID'      => '{96A9AB3A-2538-42C5-A130-FC34205A706A}',
-                'configuration' => [
-                    'User'     => IPS_GetProperty($Splitter, 'User'),
-                    'Password' => IPS_GetProperty($Splitter, 'Password'),
-                    'Port'     => IPS_GetProperty($Splitter, 'Port'),
-                    'Webport'  => IPS_GetProperty($Splitter, 'Webport')
-                ]
-            ],
-            [
-                'moduleID'      => '{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}',
-                'configuration' => [
-                    'Host' => IPS_GetProperty($IO, 'Host'),
-                    'Port' => (int) IPS_GetProperty($IO, 'Port')
-                ]
-            ]
-        ];
-
-        $FoundPlayers = $FoundBattery = $FoundAlarms = $this->GetDeviceInfo();
-        $FoundBattery = array_filter($FoundBattery, [$this, 'FilterBattery']);
+        $FoundPlayers = $this->GetDeviceInfo();
+        $FoundAlarms = array_filter($FoundPlayers, [$this, 'FilterAlarms']);
+        $FoundBattery = array_filter($FoundPlayers, [$this, 'FilterBattery']);
         $this->SendDebug('Found Players', $FoundPlayers, 0);
+        $this->SendDebug('Found Alarms', $FoundAlarms, 0);
         $this->SendDebug('Found Battery', $FoundBattery, 0);
-        $InstanceIDListPlayers = $this->GetInstanceList('{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}', 'Address');
+        $InstanceIDListPlayers = $this->GetInstanceList(\SqueezeBox\GUID::Squeezebox, \SqueezeBox\Device\Property::Address);
         $this->SendDebug('IPS Players', $InstanceIDListPlayers, 0);
-        $InstanceIDListAlarms = $this->GetInstanceList('{E7423083-3502-42C8-B244-2852D0BE41D4}', 'Address');
+        $InstanceIDListAlarms = $this->GetInstanceList(\SqueezeBox\GUID::Alarm, \SqueezeBox\Alarm\Property::Address);
         $this->SendDebug('IPS Alarms', $InstanceIDListAlarms, 0);
-        $InstanceIDListBattery = $this->GetInstanceList('{718158BB-B247-4A71-9440-9C2FF1378752}', 'Address');
+        $InstanceIDListBattery = $this->GetInstanceList(\SqueezeBox\GUID::Battery, \SqueezeBox\Battery\Property::Address);
         $this->SendDebug('IPS Battery', $InstanceIDListBattery, 0);
         $PlayerValues = [];
         foreach ($FoundPlayers as $Address => $Device) {
@@ -184,12 +172,12 @@ class LMSConfigurator extends IPSModuleStrict
                     'location'   => ''
                 ];
             }
-            $Create = [
-                'moduleID'      => '{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}',
-                'configuration' => ['Address' => $Address]
+            $AddValue['create'] = [
+                'moduleID'      => \SqueezeBox\GUID::Squeezebox,
+                'configuration' => [
+                    \SqueezeBox\Device\Property::Address => $Address
+                ]
             ];
-
-            $AddValue['create'] = array_merge([$Create], $ParentCreate);
             $PlayerValues[] = $AddValue;
         }
         foreach ($InstanceIDListPlayers as $InstanceID => $Address) {
@@ -220,12 +208,12 @@ class LMSConfigurator extends IPSModuleStrict
                     'location'   => ''
                 ];
             }
-            $Create = [
-                'moduleID'      => '{E7423083-3502-42C8-B244-2852D0BE41D4}',
-                'configuration' => ['Address' => $Address]
+            $AddValue['create'] = [
+                'moduleID'      => \SqueezeBox\GUID::Alarm,
+                'configuration' => [
+                    \SqueezeBox\Alarm\Property::Address => $Address
+                ]
             ];
-
-            $AddValue['create'] = array_merge([$Create], $ParentCreate);
             $AlarmValues[] = $AddValue;
         }
         foreach ($InstanceIDListAlarms as $InstanceID => $Address) {
@@ -255,12 +243,12 @@ class LMSConfigurator extends IPSModuleStrict
                     'location'   => ''
                 ];
             }
-            $Create = [
-                'moduleID'      => '{718158BB-B247-4A71-9440-9C2FF1378752}',
-                'configuration' => ['Address' => $Device['ip']]
+            $AddValue['create'] = [
+                'moduleID'      => \SqueezeBox\GUID::Battery,
+                'configuration' => [
+                    \SqueezeBox\Battery\Property::Address => $Device['ip']
+                ]
             ];
-
-            $AddValue['create'] = array_merge([$Create], $ParentCreate);
             $BatteryValues[] = $AddValue;
         }
         foreach ($InstanceIDListBattery as $InstanceID => $Address) {
@@ -338,35 +326,35 @@ class LMSConfigurator extends IPSModuleStrict
      */
     private function GetDeviceInfo(): array
     {
-        $count = $this->Send(new \SqueezeBox\LMSData(['player', 'count'], '?'));
-        if (($count === false) || ($count === null)) {
+        $Count = $this->Send(new \SqueezeBox\LMSData(['player', 'count'], '?'));
+        if (($Count === false) || ($Count === null)) {
             return [];
         }
-        $players = [];
-        for ($i = 0; $i < $count->Data[0]; $i++) {
-            $playerid = $this->Send(new \SqueezeBox\LMSData(['player', 'id'], [$i, '?']));
-            if ($playerid === false) {
+        $Players = [];
+        for ($i = 0; $i < $Count->Data[0]; $i++) {
+            $PlayerId = $this->Send(new \SqueezeBox\LMSData(['player', 'id'], [$i, '?']));
+            if ($PlayerId === false) {
                 continue;
             }
-            $id = strtolower(rawurldecode($playerid->Data[1]));
+            $Id = strtolower(rawurldecode($PlayerId->Data[1]));
 
-            $playerip = $this->Send(new \SqueezeBox\LMSData(['player', 'ip'], [$i, '?']));
-            if ($playerip === false) {
+            $PlayerIP = $this->Send(new \SqueezeBox\LMSData(['player', 'ip'], [$i, '?']));
+            if ($PlayerIP === false) {
                 continue;
             }
-            $players[$id]['ip'] = rawurldecode(explode(':', $playerip->Data[1])[0]);
-            $playername = $this->Send(new \SqueezeBox\LMSData(['player', 'name'], [$i, '?']));
-            if ($playername === false) {
+            $Players[$Id]['ip'] = rawurldecode(explode(':', $PlayerIP->Data[1])[0]);
+            $PlayerName = $this->Send(new \SqueezeBox\LMSData(['player', 'name'], [$i, '?']));
+            if ($PlayerName === false) {
                 continue;
             }
-            $players[$id]['name'] = rawurldecode($playername->Data[1]);
-            $playermodel = $this->Send(new \SqueezeBox\LMSData(['player', 'model'], [$i, '?']));
-            if ($playermodel === false) {
+            $Players[$Id]['name'] = rawurldecode($PlayerName->Data[1]);
+            $PlayerModel = $this->Send(new \SqueezeBox\LMSData(['player', 'model'], [$i, '?']));
+            if ($PlayerModel === false) {
                 continue;
             }
-            $players[$id]['model'] = rawurldecode($playermodel->Data[1]);
+            $Players[$Id]['model'] = rawurldecode($PlayerModel->Data[1]);
         }
-        return $players;
+        return $Players;
     }
 
     /**
@@ -408,6 +396,17 @@ class LMSConfigurator extends IPSModuleStrict
     }
 
     /**
+     * FilterAlarms
+     *
+     * @param  array $Values
+     * @return bool
+     */
+    private function FilterAlarms(array $Values): bool
+    {
+        return !in_array($Values['model'], ['squeezelite', 'unknown', '']);
+    }
+
+    /**
      * GetConfigParam
      *
      * @param  mixed $item1
@@ -425,12 +424,12 @@ class LMSConfigurator extends IPSModuleStrict
      * Konvertiert $Data zu einem JSONString und versendet diese an den Splitter.
      *
      * @param \SqueezeBox\LMSData $LMSData Zu versendende Daten.
-     * @return null|\SqueezeBox\LMSData Objekt mit der Antwort. NULL im Fehlerfall.
+     * @return ?\SqueezeBox\LMSData Objekt mit der Antwort. NULL im Fehlerfall.
      */
-    private function Send(\SqueezeBox\LMSData $LMSData): null|\SqueezeBox\LMSData
+    private function Send(\SqueezeBox\LMSData $LMSData): ?\SqueezeBox\LMSData
     {
         try {
-            $JSONData = $LMSData->ToJSONString('{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}');
+            $JSONData = $LMSData->ToJSONString();
             $answer = @$this->SendDataToParent($JSONData);
             if ($answer == false) {
                 return null;

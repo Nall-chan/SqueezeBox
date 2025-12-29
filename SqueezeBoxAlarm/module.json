@@ -1,11 +1,9 @@
 {
     "id": "{E7423083-3502-42C8-B244-2852D0BE41D4}",
-    "name": "SqueezeboxAlarm",
+    "name": "Squeezebox Alarm",
     "type": 3,
-    "vendor": "Logitech",
-    "aliases": [
-        "Squeezebox Alarm"
-    ],
+    "vendor": "Lyrion",
+    "aliases": [],
     "parentRequirements": [
         "{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}"
     ],

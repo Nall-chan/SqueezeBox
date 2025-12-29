@@ -19,9 +19,9 @@
     "locale": {
         "de": {
             "Restart LMS": "LMS neustarten",
-            "Restart the Logitech Media Server.": "Neustart des Logitech Media Servers."
+            "Restart the Lyrion Music Server.": "Neustart des Lyrion Music Servers."
         }
     },
     "format": "Restart LMS",
-    "description": "Restart the Logitech Media Server."
+    "description": "Restart the Lyrion Music Server."
 }

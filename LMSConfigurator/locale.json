@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "Lyrion Music Server Configurator": "Lyrion Music Server Konfigurator",
             "Players": "Player",
             "Alarms": "Wecker",
             "Battery": "Batterie",

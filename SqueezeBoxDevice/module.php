@@ -6,9 +6,9 @@ declare(strict_types=1);
  * @package       Squeezebox
  * @file          module.php
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2024 Michael Tröger
+ * @copyright     2025 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       4.05
+ * @version       4.10
  *
  */
 require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
@@ -26,7 +26,7 @@ eval('declare(strict_types=1);namespace SqueezeboxDevice {?>' . file_get_content
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2024 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       4.05
+ * @version       4.10
  *
  * @property int $ParentID
  * @property array $Multi_Playlist Alle Datensätze der Playlisten
@@ -40,7 +40,7 @@ eval('declare(strict_types=1);namespace SqueezeboxDevice {?>' . file_get_content
  * @property string $SyncMaster
  * @property string $SyncMembers
  * @property string $WebHookSecretTrack
- * @property resource|false $Socket
+ * @property resource|bool $Socket
  * @method bool RegisterHook(string $WebHook)
  * @method void SetValueBoolean(string $Ident, bool $value)
  * @method void SetValueFloat(string $Ident, float $value)
@@ -49,10 +49,14 @@ eval('declare(strict_types=1);namespace SqueezeboxDevice {?>' . file_get_content
  * @method void UnregisterProfile(string $Name)
  * @method int FindIDForIdent(string $Ident)
  * @method void RegisterParent()
+ * @method bool IORequestAction(string $Ident, mixed $Value)
+ * @method void IOMessageSink(int $TimeStamp, int $SenderID, int $Message, array $Data)
+ * @method int IORegisterParent()
  */
-class SqueezeboxDevice extends IPSModuleStrict
+class Squeezebox extends IPSModuleStrict
 {
-    use \SqueezeBox\LMSHTMLTable,
+    use \SqueezeBox\LMSSocket,
+        \SqueezeBox\LMSHTMLTable,
         \SqueezeBox\LMSSongUrl,
         \SqueezeBox\LMSCover,
         \SqueezeBox\LSQProfile,
@@ -64,20 +68,13 @@ class SqueezeboxDevice extends IPSModuleStrict
             \SqueezeboxDevice\InstanceStatus::MessageSink as IOMessageSink;
             \SqueezeboxDevice\InstanceStatus::RequestAction as IORequestAction;
         }
-    private $Socket = false;
 
     /**
-     * __destruct
-     * schließt bei Bedarf den noch offenen TCP-Socket.
+     * Socket
      *
-     * @return void
+     * @var resource|bool
      */
-    public function __destruct()
-    {
-        if ($this->Socket) {
-            fclose($this->Socket);
-        }
-    }
+    private $Socket = false;
 
     /**
      * Create
@@ -87,30 +84,29 @@ class SqueezeboxDevice extends IPSModuleStrict
     public function Create(): void
     {
         parent::Create();
-        $this->ConnectParent('{96A9AB3A-2538-42C5-A130-FC34205A706A}');
         $this->SetReceiveDataFilter('.*"Address":"".*');
-        $this->RegisterPropertyString('Address', '');
-        $this->RegisterPropertyInteger('Interval', 2);
-        $this->RegisterPropertyString('CoverSize', 'cover');
-        $this->RegisterPropertyBoolean('enableBass', false);
-        $this->RegisterPropertyBoolean('enableTreble', false);
-        $this->RegisterPropertyBoolean('enablePitch', false);
-        $this->RegisterPropertyBoolean('enableRandomplay', false);
-        $this->RegisterPropertyBoolean('enableRawDuration', false);
-        $this->RegisterPropertyBoolean('enableRawPosition', false);
-        $this->RegisterPropertyBoolean('enablePreset', false);
-        $this->RegisterPropertyBoolean('enableSleepTimer', false);
-        $this->RegisterPropertyBoolean('showSleepTimeout', false);
-        $this->RegisterPropertyBoolean('showSyncMaster', false);
-        $this->RegisterPropertyBoolean('showSyncControl', false);
-        $this->RegisterPropertyBoolean('showSignalstrength', false);
-        $this->RegisterPropertyBoolean('showTilePlaylist', true);
-        $this->RegisterPropertyBoolean('showHTMLPlaylist', false);
+        $this->RegisterPropertyString(\SqueezeBox\Device\Property::Address, '');
+        $this->RegisterPropertyInteger(\SqueezeBox\Device\Property::Interval, 2);
+        $this->RegisterPropertyString(\SqueezeBox\Device\Property::CoverSize, 'cover');
+        $this->RegisterPropertyBoolean(\SqueezeBox\Device\Property::EnableBass, false);
+        $this->RegisterPropertyBoolean(\SqueezeBox\Device\Property::EnableTreble, false);
+        $this->RegisterPropertyBoolean(\SqueezeBox\Device\Property::EnablePitch, false);
+        $this->RegisterPropertyBoolean(\SqueezeBox\Device\Property::EnableRandomplay, false);
+        $this->RegisterPropertyBoolean(\SqueezeBox\Device\Property::EnableRawDuration, false);
+        $this->RegisterPropertyBoolean(\SqueezeBox\Device\Property::EnableRawPosition, false);
+        $this->RegisterPropertyBoolean(\SqueezeBox\Device\Property::EnablePreset, false);
+        $this->RegisterPropertyBoolean(\SqueezeBox\Device\Property::EnableSleepTimer, false);
+        $this->RegisterPropertyBoolean(\SqueezeBox\Device\Property::ShowSleepTimeout, false);
+        $this->RegisterPropertyBoolean(\SqueezeBox\Device\Property::ShowSyncMaster, false);
+        $this->RegisterPropertyBoolean(\SqueezeBox\Device\Property::ShowSyncControl, false);
+        $this->RegisterPropertyBoolean(\SqueezeBox\Device\Property::ShowSignalStrength, false);
+        $this->RegisterPropertyBoolean(\SqueezeBox\Device\Property::ShowTilePlaylist, true);
+        $this->RegisterPropertyBoolean(\SqueezeBox\Device\Property::ShowHTMLPlaylist, false);
         $Style = $this->GenerateHTMLStyleProperty();
-        $this->RegisterPropertyString('Table', json_encode($Style['Table']));
-        $this->RegisterPropertyString('Columns', json_encode($Style['Columns']));
-        $this->RegisterPropertyString('Rows', json_encode($Style['Rows']));
-        $this->RegisterPropertyBoolean('changeName', false);
+        $this->RegisterPropertyString(\SqueezeBox\Device\Property::Table, json_encode($Style['Table']));
+        $this->RegisterPropertyString(\SqueezeBox\Device\Property::Columns, json_encode($Style['Columns']));
+        $this->RegisterPropertyString(\SqueezeBox\Device\Property::Rows, json_encode($Style['Rows']));
+        $this->RegisterPropertyBoolean(\SqueezeBox\Device\Property::ChangeName, false);
 
         $this->Multi_Playlist = [];
         $this->ParentID = 0;
@@ -194,7 +190,7 @@ class SqueezeboxDevice extends IPSModuleStrict
         $this->SyncMaster = '';
         $this->SyncMembers = '';
         parent::ApplyChanges();
-        $Address = $this->ReadPropertyString('Address');
+        $Address = $this->ReadPropertyString(\SqueezeBox\Device\Property::Address);
         // Adresse als Filter setzen
         $this->SetReceiveDataFilter('.*"Address":"' . $Address . '".*');
         $this->SetSummary($Address);
@@ -208,7 +204,7 @@ class SqueezeboxDevice extends IPSModuleStrict
         if (preg_match('/\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b/', $Address) !== 1) {
             $this->RegisterVariableBoolean('Power', 'Power', '~Switch', 1);
             $this->EnableAction('Power');
-            if ($this->ReadPropertyBoolean('enablePreset')) {
+            if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnablePreset)) {
                 $this->RegisterVariableInteger('Preset', 'Preset', 'LSQ.Preset', 2);
                 $this->EnableAction('Preset');
             } else {
@@ -218,30 +214,30 @@ class SqueezeboxDevice extends IPSModuleStrict
             $this->EnableAction('Mute');
             $this->RegisterVariableInteger('Volume', 'Volume', '~Volume', 5);
             $this->EnableAction('Volume');
-            if ($this->ReadPropertyBoolean('enableBass')) {
+            if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableBass)) {
                 $this->RegisterVariableInteger('Bass', 'Bass', '~Intensity.100', 6);
                 $this->EnableAction('Bass');
             } else {
                 $this->UnregisterVariable('Bass');
             }
-            if ($this->ReadPropertyBoolean('enableTreble')) {
+            if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableTreble)) {
                 $this->RegisterVariableInteger('Treble', $this->Translate('Treble'), '~Intensity.100', 7);
                 $this->EnableAction('Treble');
             } else {
                 $this->UnregisterVariable('Treble');
             }
-            if ($this->ReadPropertyBoolean('enablePitch')) {
+            if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnablePitch)) {
                 $this->RegisterVariableInteger('Pitch', $this->Translate('Pitch'), 'LSQ.Pitch', 8);
                 $this->EnableAction('Pitch');
             } else {
                 $this->UnregisterVariable('Pitch');
             }
-            if ($this->ReadPropertyBoolean('showSyncMaster')) {
+            if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSyncMaster)) {
                 $this->RegisterVariableBoolean('Master', $this->Translate('Master'), '', 14);
             } else {
                 $this->UnregisterVariable('Master');
             }
-            if ($this->ReadPropertyBoolean('showSyncControl')) {
+            if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSyncControl)) {
                 $this->RegisterProfileIntegerEx('LSQ.Sync.' . $this->InstanceID, 'Speaker-100', '', '', [
                     [0, $this->Translate('Off'), '', -1],
                     [100, $this->Translate('On'), '', 0x00ff00]
@@ -251,7 +247,7 @@ class SqueezeboxDevice extends IPSModuleStrict
             } else {
                 $this->UnregisterVariable('Sync');
             }
-            if ($this->ReadPropertyBoolean('showSignalstrength')) {
+            if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSignalStrength)) {
                 $this->RegisterVariableInteger('Signalstrength', $this->Translate('Signal strength'), '~Intensity.100', 31);
             } else {
                 $this->UnregisterVariable('Signalstrength');
@@ -273,18 +269,18 @@ class SqueezeboxDevice extends IPSModuleStrict
         $this->RegisterMessage($this->PlayerMode, VM_UPDATE);
         $this->EnableAction('Status');
 
-        if ($this->ReadPropertyBoolean('enableRandomplay')) {
+        if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableRandomplay)) {
             $this->RegisterVariableInteger('Randomplay', $this->Translate('Randomplay'), 'LSQ.Randomplay', 13);
             $this->EnableAction('Randomplay');
         } else {
             $this->UnregisterVariable('Randomplay');
         }
-        if ($this->ReadPropertyBoolean('enableRawDuration')) {
+        if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableRawDuration)) {
             $this->RegisterVariableInteger('DurationRaw', $this->Translate('Duration in seconds'), '', 28);
         } else {
             $this->UnregisterVariable('DurationRaw');
         }
-        if ($this->ReadPropertyBoolean('enableRawPosition')) {
+        if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableRawPosition)) {
             $this->RegisterVariableInteger('PositionRaw', $this->Translate('Position in seconds'), '', 29);
             $this->EnableAction('PositionRaw');
         } else {
@@ -313,26 +309,26 @@ class SqueezeboxDevice extends IPSModuleStrict
         $this->RegisterVariableString('Position', $this->Translate('Position'), '', 25);
         $this->RegisterVariableFloat('Position2', 'Position', '~Progress', 26);
         $this->DisableAction('Position2');
-        if ($this->ReadPropertyBoolean('enableSleepTimer')) {
+        if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableSleepTimer)) {
             $this->RegisterVariableInteger('SleepTimer', $this->Translate('Sleep timer'), 'LSQ.SleepTimer', 32);
             $this->EnableAction('SleepTimer');
         } else {
             $this->UnregisterVariable('SleepTimer');
         }
-        if ($this->ReadPropertyBoolean('showSleepTimeout')) {
+        if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSleepTimeout)) {
             $this->RegisterVariableString('SleepTimeout', $this->Translate('Switch off in'), '', 33);
         } else {
             $this->UnregisterVariable('SleepTimeout');
         }
 
         // Playlist
-        if ($this->ReadPropertyBoolean('showTilePlaylist')) {
+        if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowTilePlaylist)) {
             $this->RegisterVariableString('TilePlaylist', 'Playlist', '~Playlist', 34);
             $this->EnableAction('TilePlaylist');
         } else {
             $this->UnregisterVariable('TilePlaylist');
         }
-        if ($this->ReadPropertyBoolean('showHTMLPlaylist')) {
+        if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowHTMLPlaylist)) {
             $this->RegisterVariableString('HTMLPlaylist', 'Playlist', '~HTMLBox', 30);
         } else {
             $this->UnregisterVariable('HTMLPlaylist');
@@ -344,7 +340,7 @@ class SqueezeboxDevice extends IPSModuleStrict
         }
 
         // Playlist
-        if ($this->ReadPropertyBoolean('showHTMLPlaylist')) {
+        if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowHTMLPlaylist)) {
             $this->RegisterHook('SqueezeBoxPlaylist' . $this->InstanceID);
         }
         // Wenn Parent aktiv, dann Anmeldung an der Hardware bzw. Datenabgleich starten
@@ -367,7 +363,12 @@ class SqueezeboxDevice extends IPSModuleStrict
      */
     public function MessageSink(int $TimeStamp, int $SenderID, int $Message, array $Data): void
     {
-        $this->IOMessageSink($TimeStamp, $SenderID, $Message, $Data);
+        if (!IPS_InstanceExists($this->InstanceID)) {
+            return;
+        }
+        if (IPS_InstanceExists($SenderID)) {
+            $this->IOMessageSink($TimeStamp, $SenderID, $Message, $Data);
+        }
         switch ($Message) {
             case IPS_KERNELSTARTED:
                 $this->KernelReady();
@@ -385,7 +386,7 @@ class SqueezeboxDevice extends IPSModuleStrict
                 }
                 break;
             case VM_UPDATE:
-                if (($this->ReadPropertyString('Address') == '') || ($this->GetStatus() != IS_ACTIVE)) {
+                if (($this->ReadPropertyString(\SqueezeBox\Device\Property::Address) == '') || ($this->GetStatus() != IS_ACTIVE)) {
                     return;
                 }
                 if ($SenderID == $this->PlayerMode) {
@@ -414,8 +415,6 @@ class SqueezeboxDevice extends IPSModuleStrict
         }
     }
 
-    //################# PUBLIC
-
     /**
      * RequestAllState
      * Aktuellen Status des Devices ermitteln und, wenn verbunden, abfragen..
@@ -434,13 +433,13 @@ class SqueezeboxDevice extends IPSModuleStrict
         $this->RequestState('Remote');
         $this->RequestState('Mute');
         $this->RequestState('Volume');
-        if ($this->ReadPropertyBoolean('enableBass')) {
+        if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableBass)) {
             $this->RequestState('Bass');
         }
-        if ($this->ReadPropertyBoolean('enableTreble')) {
+        if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableTreble)) {
             $this->RequestState('Treble');
         }
-        if ($this->ReadPropertyBoolean('enablePitch')) {
+        if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnablePitch)) {
             $this->RequestState('Pitch');
         }
         $this->RequestState('Shuffle');
@@ -454,10 +453,10 @@ class SqueezeboxDevice extends IPSModuleStrict
         $this->RequestState('Genre');
         $this->RequestState('Duration');
         $this->RequestState('Position');
-        if ($this->ReadPropertyBoolean('showSignalstrength')) {
+        if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSignalStrength)) {
             $this->RequestState('Signalstrength');
         }
-        if ($this->ReadPropertyBoolean('showSleepTimeout')) {
+        if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSleepTimeout)) {
             $this->RequestState('SleepTimeout');
         }
         $this->RequestState('Randomplay');
@@ -504,7 +503,7 @@ class SqueezeboxDevice extends IPSModuleStrict
                 $LMSResponse = new \SqueezeBox\LMSData(['mixer', 'power'], '?');
                 break;
             case 'Bass':
-                if (!$this->ReadPropertyBoolean('enableBass')) {
+                if (!$this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableBass)) {
                     set_error_handler([$this, 'ModulErrorHandler']);
                     trigger_error($this->Translate('Invalid ident'));
                     restore_error_handler();
@@ -513,7 +512,7 @@ class SqueezeboxDevice extends IPSModuleStrict
                 $LMSResponse = new \SqueezeBox\LMSData(['mixer', 'bass'], '?');
                 break;
             case 'Treble':
-                if (!$this->ReadPropertyBoolean('enableTreble')) {
+                if (!$this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableTreble)) {
                     set_error_handler([$this, 'ModulErrorHandler']);
                     trigger_error($this->Translate('Invalid ident'));
                     restore_error_handler();
@@ -522,7 +521,7 @@ class SqueezeboxDevice extends IPSModuleStrict
                 $LMSResponse = new \SqueezeBox\LMSData(['mixer', 'treble'], '?');
                 break;
             case 'Pitch':
-                if (!$this->ReadPropertyBoolean('enablePitch')) {
+                if (!$this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnablePitch)) {
                     set_error_handler([$this, 'ModulErrorHandler']);
                     trigger_error($this->Translate('Invalid ident'));
                     restore_error_handler();
@@ -614,7 +613,7 @@ class SqueezeboxDevice extends IPSModuleStrict
             restore_error_handler();
             return false;
         }
-        if ($id['ModuleInfo']['ModuleID'] != '{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}') {
+        if ($id['ModuleInfo']['ModuleID'] != \SqueezeBox\GUID::Squeezebox) {
             set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($this->Translate('SlaveInstance in not a LSQ_PlayerInstanz'), E_USER_NOTICE);
             restore_error_handler();
@@ -626,7 +625,7 @@ class SqueezeboxDevice extends IPSModuleStrict
             restore_error_handler();
             return false;
         }
-        $ClientMac = IPS_GetProperty($SlaveInstanceID, 'Address');
+        $ClientMac = IPS_GetProperty($SlaveInstanceID, \SqueezeBox\Device\Property::Address);
         if (($ClientMac === '') || ($ClientMac === false)) {
             set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($this->Translate('SlaveInstance Address is not set.'), E_USER_NOTICE);
@@ -670,9 +669,6 @@ class SqueezeboxDevice extends IPSModuleStrict
         $ret = $this->SendDirect(new \SqueezeBox\LMSData('sync', '-'))->Data[0];
         return $ret == '-';
     }
-    ///////////////////////////////////////////////////////////////
-    // START PLAYER
-    ///////////////////////////////////////////////////////////////
 
     /**
      * SetName
@@ -703,9 +699,9 @@ class SqueezeboxDevice extends IPSModuleStrict
      * IPS-Instanz-Funktion 'LSQ_GetName'.
      * Liefert den Namen von dem Device.
      *
-     * @return false|string Name vom Device
+     * @return bool|string Name vom Device
      */
-    public function GetName(): false|string
+    public function GetName(): bool|string
     {
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData('name', '?'));
         if ($LMSData === null) {
@@ -727,7 +723,7 @@ class SqueezeboxDevice extends IPSModuleStrict
      */
     public function Power(bool $Value): bool
     {
-        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData('power', (int) $Value));
+        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData('power', $Value ? '1' : '0'));
         if ($LMSData === null) {
             return false;
         }
@@ -749,7 +745,7 @@ class SqueezeboxDevice extends IPSModuleStrict
             restore_error_handler();
             return false;
         }
-        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData('sleep', $Seconds));
+        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData('sleep', (string) $Seconds));
         if ($LMSData === null) {
             return false;
         }
@@ -768,7 +764,7 @@ class SqueezeboxDevice extends IPSModuleStrict
      */
     public function SetMute(bool $Value): bool
     {
-        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['mixer', 'muting'], (int) $Value));
+        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['mixer', 'muting'], $Value ? '1' : '0'));
         if ($LMSData === null) {
             return false;
         }
@@ -790,7 +786,7 @@ class SqueezeboxDevice extends IPSModuleStrict
             restore_error_handler();
             return false;
         }
-        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['mixer', 'volume'], $Value));
+        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['mixer', 'volume'], (string) $Value));
         if ($LMSData === null) {
             return false;
         }
@@ -834,7 +830,7 @@ class SqueezeboxDevice extends IPSModuleStrict
      */
     public function SetBass(int $Value): bool
     {
-        if (!$this->ReadPropertyBoolean('enableBass')) {
+        if (!$this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableBass)) {
             set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($this->Translate('bass control not enabled'), E_USER_NOTICE);
             restore_error_handler();
@@ -846,7 +842,7 @@ class SqueezeboxDevice extends IPSModuleStrict
             restore_error_handler();
             return false;
         }
-        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['mixer', 'bass'], $Value));
+        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['mixer', 'bass'], (string) $Value));
         if ($LMSData === null) {
             return false;
         }
@@ -862,7 +858,7 @@ class SqueezeboxDevice extends IPSModuleStrict
      */
     public function SetBassEx(string $Value): bool
     {
-        if (!$this->ReadPropertyBoolean('enableBass')) {
+        if (!$this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableBass)) {
             set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($this->Translate('bass control not enabled'), E_USER_NOTICE);
             restore_error_handler();
@@ -896,7 +892,7 @@ class SqueezeboxDevice extends IPSModuleStrict
      */
     public function SetTreble(int $Value): bool
     {
-        if (!$this->ReadPropertyBoolean('enableTreble')) {
+        if (!$this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableTreble)) {
             set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($this->Translate('treble control not enabled'), E_USER_NOTICE);
             restore_error_handler();
@@ -908,7 +904,7 @@ class SqueezeboxDevice extends IPSModuleStrict
             restore_error_handler();
             return false;
         }
-        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['mixer', 'treble'], $Value));
+        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['mixer', 'treble'], (string) $Value));
         if ($LMSData === null) {
             return false;
         }
@@ -924,7 +920,7 @@ class SqueezeboxDevice extends IPSModuleStrict
      */
     public function SetTrebleEx(string $Value): bool
     {
-        if (!$this->ReadPropertyBoolean('enableTreble')) {
+        if (!$this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableTreble)) {
             set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($this->Translate('treble control not enabled'), E_USER_NOTICE);
             restore_error_handler();
@@ -958,7 +954,7 @@ class SqueezeboxDevice extends IPSModuleStrict
      */
     public function SetPitch(int $Value): bool
     {
-        if (!$this->ReadPropertyBoolean('enablePitch')) {
+        if (!$this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnablePitch)) {
             set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($this->Translate('pitch control not enabled'), E_USER_NOTICE);
             restore_error_handler();
@@ -970,7 +966,7 @@ class SqueezeboxDevice extends IPSModuleStrict
             restore_error_handler();
             return false;
         }
-        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['mixer', 'pitch'], $Value));
+        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['mixer', 'pitch'], (string) $Value));
         if ($LMSData === null) {
             return false;
         }
@@ -986,7 +982,7 @@ class SqueezeboxDevice extends IPSModuleStrict
      */
     public function SetPitchEx(string $Value): bool
     {
-        if (!$this->ReadPropertyBoolean('enablePitch')) {
+        if (!$this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnablePitch)) {
             set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($this->Translate('pitch control not enabled'), E_USER_NOTICE);
             restore_error_handler();
@@ -1088,7 +1084,7 @@ class SqueezeboxDevice extends IPSModuleStrict
      */
     public function PlayEx(int $FadeIn): bool
     {
-        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData('play', (int) $FadeIn));
+        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData('play', (string) $FadeIn));
         if ($LMSData === null) {
             return false;
         }
@@ -1140,7 +1136,7 @@ class SqueezeboxDevice extends IPSModuleStrict
             restore_error_handler();
             return false;
         }
-        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData('time', $Value));
+        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData('time', (string) $Value));
         if ($LMSData === null) {
             return false;
         }
@@ -1233,9 +1229,9 @@ class SqueezeboxDevice extends IPSModuleStrict
     /**
      * GetLinesPerScreen
      *
-     * @return int
+     * @return bool|int
      */
-    public function GetLinesPerScreen(): int
+    public function GetLinesPerScreen(): bool|int
     {
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData('linesperscreen', '?'));
         if ($LMSData === null) {
@@ -1247,9 +1243,9 @@ class SqueezeboxDevice extends IPSModuleStrict
     /**
      * GetDisplayedText
      *
-     * @return string|array
+     * @return bool|array
      */
-    public function GetDisplayedText(): string|array
+    public function GetDisplayedText(): bool|array
     {
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData('display', ['?', '?']));
         if ($LMSData === null) {
@@ -1261,9 +1257,9 @@ class SqueezeboxDevice extends IPSModuleStrict
     /**
      * GetDisplayedNow
      *
-     * @return string|array
+     * @return bool|array
      */
-    public function GetDisplayedNow(): string|array
+    public function GetDisplayedNow(): bool|array
     {
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData('displaynow', ['?', '?']));
         if ($LMSData === null) {
@@ -1286,13 +1282,6 @@ class SqueezeboxDevice extends IPSModuleStrict
         }
         return $ButtonCode == $LMSData->Data[0];
     }
-
-    ///////////////////////////////////////////////////////////////
-    // ENDE PLAYER
-    ///////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////
-    // START PLAYLIST
-    ///////////////////////////////////////////////////////////////
 
     /**
      * PlayUrl
@@ -1475,7 +1464,7 @@ class SqueezeboxDevice extends IPSModuleStrict
     public function DeleteFromPlaylistByIndex(int $Position): bool
     {
         $Position--;
-        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['playlist', 'delete'], $Position));
+        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['playlist', 'delete'], (string) $Position));
         if ($LMSData == null) {
             return false;
         }
@@ -1553,7 +1542,7 @@ class SqueezeboxDevice extends IPSModuleStrict
      */
     public function SaveTempPlaylist(): bool
     {
-        return $this->SavePlaylist('tempplaylist_' . str_replace(':', '', $this->ReadPropertyString('Address')));
+        return $this->SavePlaylist('tempplaylist_' . str_replace(':', '', $this->ReadPropertyString(\SqueezeBox\Device\Property::Address)));
     }
 
     /**
@@ -1593,7 +1582,7 @@ class SqueezeboxDevice extends IPSModuleStrict
      */
     public function LoadTempPlaylist(): bool
     {
-        $Playlist = 'tempplaylist_' . str_replace(':', '', $this->ReadPropertyString('Address'));
+        $Playlist = 'tempplaylist_' . str_replace(':', '', $this->ReadPropertyString(\SqueezeBox\Device\Property::Address));
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['playlist', 'resume'], [$Playlist, 'wipePlaylist:1', 'noplay:0']));
         if ($LMSData === null) {
             return false;
@@ -1955,7 +1944,7 @@ class SqueezeboxDevice extends IPSModuleStrict
      */
     public function AddPlaylistIndexToZappedList(int $Position): bool
     {
-        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['playlist', 'zap'], $Position));
+        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['playlist', 'zap'], (string) $Position));
         if ($LMSData === null) {
             return false;
         }
@@ -1965,16 +1954,16 @@ class SqueezeboxDevice extends IPSModuleStrict
     /**
      * GetPlaylistURL
      *
-     * @return false
+     * @return bool|string
      */
-    public function GetPlaylistURL(): false|string
+    public function GetPlaylistURL(): bool|string
     {
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['playlist', 'playlistsinfo'], ''));
         if ($LMSData === null) {
             return false;
         }
         if (count($LMSData->Data) == 1) {
-            return [];
+            return false;
         }
         $SongInfo = new \SqueezeBox\LMSSongInfo($LMSData->Data);
         return $SongInfo->GetSong()['Url'];
@@ -2064,9 +2053,9 @@ class SqueezeboxDevice extends IPSModuleStrict
     /**
      * GetPlaylistInfo
      *
-     * @return false|array
+     * @return bool|array
      */
-    public function GetPlaylistInfo(): false|array
+    public function GetPlaylistInfo(): bool|array
     {
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['playlist', 'playlistsinfo'], ''));
         if ($LMSData === null) {
@@ -2094,7 +2083,7 @@ class SqueezeboxDevice extends IPSModuleStrict
             restore_error_handler();
             return false;
         }
-        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['playlist', 'index'], $Index - 1));
+        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['playlist', 'index'], (string) ($Index - 1)));
         if ($LMSData === null) {
             return false;
         }
@@ -2149,7 +2138,7 @@ class SqueezeboxDevice extends IPSModuleStrict
             restore_error_handler();
             return false;
         }
-        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['playlist', 'shuffle'], $Value));
+        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['playlist', 'shuffle'], (string) $Value));
         if ($LMSData === null) {
             return false;
         }
@@ -2174,7 +2163,7 @@ class SqueezeboxDevice extends IPSModuleStrict
             restore_error_handler();
             return false;
         }
-        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['playlist', 'repeat'], $Value));
+        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['playlist', 'repeat'], (string) $Value));
         if ($LMSData === null) {
             return false;
         }
@@ -2464,7 +2453,7 @@ class SqueezeboxDevice extends IPSModuleStrict
      * @param int $Index
      *                   $Index für die absolute Position des Titels in der Wiedergabeliste.
      *                   0 für den aktuellen Titel
-     * @return false|array
+     * @return bool|array
      *               ["duration"]=>string
      *               ["id"]=>string
      *               ["title"]=>string
@@ -2476,7 +2465,7 @@ class SqueezeboxDevice extends IPSModuleStrict
      *               ["bitrate"]=>string
      *               ["tracknum"]=>string
      */
-    public function GetSongInfoByTrackIndex(int $Index): false|array
+    public function GetSongInfoByTrackIndex(int $Index): bool|array
     {
         $Index--;
         if ($Index == -1) {
@@ -2499,7 +2488,7 @@ class SqueezeboxDevice extends IPSModuleStrict
      * GetSongInfoOfTilePlaylist
      * Liefert Informationen über alle Songs aus der aktuelle Wiedergabeliste.
      *
-     * @return false|array[index]
+     * @return bool|array[index]
      *                      ["duration"]=>string
      *                      ["id"]=>string
      *                      ["title"]=>string
@@ -2511,7 +2500,7 @@ class SqueezeboxDevice extends IPSModuleStrict
      *                      ["bitrate"]=>string
      *                      ["tracknum"]=>string
      */
-    public function GetSongInfoOfCurrentPlaylist(): false|array
+    public function GetSongInfoOfCurrentPlaylist(): bool|array
     {
         $max = $this->GetValue('Tracks');
         if ($max == 0) {
@@ -2525,13 +2514,6 @@ class SqueezeboxDevice extends IPSModuleStrict
         $SongInfo = new \SqueezeBox\LMSSongInfo($LMSData->Data);
         return $SongInfo->GetAllSongs();
     }
-
-    ///////////////////////////////////////////////////////////////
-    // ENDE PLAYERLIST
-    ///////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////
-    // START RANDOMPLAY
-    ///////////////////////////////////////////////////////////////
 
     /**
      * StartRandomplayOfTracks
@@ -2639,11 +2621,6 @@ class SqueezeboxDevice extends IPSModuleStrict
         }
         return true;
     }
-
-    ///////////////////////////////////////////////////////////////
-    // ENDE RANDOMPLAY
-    ///////////////////////////////////////////////////////////////
-    //################# ActionHandler
 
     /**
      * RequestAction
@@ -2756,7 +2733,7 @@ class SqueezeboxDevice extends IPSModuleStrict
             case 'TilePlaylist':
                 $result = $this->GoToTrack(json_decode($Value, true)['current'] + 1);
                 break;
-            case 'showHTMLPlaylist':
+            case \SqueezeBox\Device\Property::ShowHTMLPlaylist:
                 $this->UpdateFormField('Table', 'enabled', (bool) $Value);
                 $this->UpdateFormField('Columns', 'enabled', (bool) $Value);
                 $this->UpdateFormField('Rows', 'enabled', (bool) $Value);
@@ -2775,7 +2752,6 @@ class SqueezeboxDevice extends IPSModuleStrict
         }
     }
 
-    //################# DataPoints Ankommend von Parent-LMS-Splitter
     /**
      * ReceiveData
      *
@@ -2866,81 +2842,6 @@ class SqueezeboxDevice extends IPSModuleStrict
         if ($this->GoToTrack((int) $_GET['ID'])) {
             echo 'OK';
         }
-    }
-
-    /**
-     * SendDirect
-     * Konvertiert $Data zu einem String und versendet diesen direkt an den LMS.
-     *
-     * @param \SqueezeBox\LMSData $LMSData Zu versendende Daten.
-     * @return null|\SqueezeBox\LMSData Objekt mit der Antwort. NULL im Fehlerfall.
-     */
-    protected function SendDirect(\SqueezeBox\LMSData $LMSData): null|\SqueezeBox\LMSData
-    {
-        if ($this->ReadPropertyString('Address') == '') {
-            return null;
-        }
-
-        try {
-            if (!$this->HasActiveParent()) {
-                throw new Exception($this->Translate('Instance has no active parent.'), E_USER_NOTICE);
-            }
-
-            if (!$this->_isPlayerConnected() && ($LMSData->Command[0] != 'connected')) {
-                throw new Exception($this->Translate('Player not connected'), E_USER_NOTICE);
-            }
-
-            $LMSData->Address = $this->ReadPropertyString('Address');
-            $this->SendDebug('Send Direct', $LMSData, 0);
-
-            if (!$this->Socket) {
-                $SplitterID = IPS_GetInstance($this->InstanceID)['ConnectionID'];
-                $IoID = IPS_GetInstance($SplitterID)['ConnectionID'];
-                $Host = IPS_GetProperty($IoID, 'Host');
-                if ($Host === '') {
-                    return null;
-                }
-                $Host = gethostbyname($Host);
-
-                $Port = IPS_GetProperty($SplitterID, 'Port');
-                $User = IPS_GetProperty($SplitterID, 'User');
-                $Pass = IPS_GetProperty($SplitterID, 'Password');
-
-                $LoginData = (new \SqueezeBox\LMSData('login', [$User, $Pass]))->ToRawStringForLMS();
-                $this->SendDebug('Send Direct', $LoginData, 0);
-                $this->Socket = @stream_socket_client('tcp://' . $Host . ':' . $Port, $errno, $errstr, 2);
-                if (!$this->Socket) {
-                    throw new Exception($this->Translate('No answer from LMS'), E_USER_NOTICE);
-                }
-                stream_set_timeout($this->Socket, 5);
-                fwrite($this->Socket, $LoginData);
-                $answerlogin = stream_get_line($this->Socket, 1024 * 1024 * 2, chr(0x0d));
-                $this->SendDebug('Response Direct', $answerlogin, 0);
-                if ($answerlogin === false) {
-                    throw new Exception($this->Translate('No answer from LMS'), E_USER_NOTICE);
-                }
-            }
-
-            $Data = $LMSData->ToRawStringForLMS();
-            $this->SendDebug('Send Direct', $Data, 0);
-            fwrite($this->Socket, $Data);
-            $answer = stream_get_line($this->Socket, 1024 * 1024 * 2, chr(0x0d));
-            $this->SendDebug('Response Direct', $answer, 0);
-            if ($answer === false) {
-                throw new Exception($this->Translate('No answer from LMS'), E_USER_NOTICE);
-            }
-
-            $ReplyData = new \SqueezeBox\LMSResponse($answer);
-            $LMSData->Data = $ReplyData->Data;
-            $this->SendDebug('Response Direct', $LMSData, 0);
-            return $LMSData;
-        } catch (Exception $exc) {
-            $this->SendDebug('Receive Direct', $exc->getMessage(), 0);
-            set_error_handler([$this, 'ModulErrorHandler']);
-            trigger_error($exc->getMessage(), E_USER_NOTICE);
-            restore_error_handler();
-        }
-        return null;
     }
 
     /**
@@ -3208,7 +3109,6 @@ class SqueezeboxDevice extends IPSModuleStrict
         return true;
     }
 
-    //################# PRIVATE
     /**
      * _isPlayerConnected
      *
@@ -3237,7 +3137,7 @@ class SqueezeboxDevice extends IPSModuleStrict
     private function _StartSubscribe(): void
     {
         if ($this->_isPlayerConnected()) {
-            $this->Send(new \SqueezeBox\LMSData(['status', '-', '1'], 'subscribe:' . $this->ReadPropertyInteger('Interval')), false);
+            $this->Send(new \SqueezeBox\LMSData(['status', '-', '1'], 'subscribe:' . $this->ReadPropertyInteger(\SqueezeBox\Device\Property::Interval), false));
         }
     }
 
@@ -3249,12 +3149,12 @@ class SqueezeboxDevice extends IPSModuleStrict
     private function _StopSubscribe(): void
     {
         if ($this->_isPlayerConnected()) {
-            if ($this->ReadPropertyBoolean('enableSleepTimer')) {
+            if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableSleepTimer)) {
                 if (($this->GetValue('SleepTimer')) != 0) {
                     return;
                 }
             }
-            @$this->Send(new \SqueezeBox\LMSData(['status', '-', '1'], 'subscribe:0'), false);
+            @$this->Send(new \SqueezeBox\LMSData(['status', '-', '1'], 'subscribe:0', false));
         }
     }
 
@@ -3266,7 +3166,7 @@ class SqueezeboxDevice extends IPSModuleStrict
      */
     private function _SetNewName(string $Name): void
     {
-        if (!$this->ReadPropertyBoolean('changeName')) {
+        if (!$this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ChangeName)) {
             return;
         }
         if (IPS_GetName($this->InstanceID) != trim($Name)) {
@@ -3287,10 +3187,10 @@ class SqueezeboxDevice extends IPSModuleStrict
             $this->_SetModeToStop();
             $this->_SetNewSyncMaster(false);
             $this->_SetNewSyncMembers('-');
-            if ($this->ReadPropertyBoolean('showSleepTimeout')) {
+            if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSleepTimeout)) {
                 $this->SetValueString('SleepTimeout', '');
             }
-            if ($this->ReadPropertyBoolean('enableSleepTimer')) {
+            if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableSleepTimer)) {
                 $this->SetValueInteger('SleepTimer', 0);
             }
         }
@@ -3443,7 +3343,7 @@ class SqueezeboxDevice extends IPSModuleStrict
         }
 
         $this->PositionRAW = $Time;
-        if ($this->ReadPropertyBoolean('enableRawPosition')) {
+        if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableRawPosition)) {
             $this->SetValueInteger('PositionRaw', $Time);
         }
         $this->SetValueString('Position', $this->ConvertSeconds($Time));
@@ -3462,7 +3362,7 @@ class SqueezeboxDevice extends IPSModuleStrict
     private function _SetNewDuration(int $Duration): void
     {
         $this->DurationRAW = $Duration;
-        if ($this->ReadPropertyBoolean('enableRawDuration')) {
+        if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableRawDuration)) {
             $this->SetValueInteger('DurationRaw', $Duration);
         }
         if ($Duration == 0) {
@@ -3487,10 +3387,10 @@ class SqueezeboxDevice extends IPSModuleStrict
      */
     private function _SetNewSleepTimeout(int $Value): void
     {
-        if ($this->ReadPropertyBoolean('showSleepTimeout')) {
+        if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSleepTimeout)) {
             $this->SetValueString('SleepTimeout', $this->ConvertSeconds($Value));
         }
-        if ($this->ReadPropertyBoolean('enableSleepTimer')) {
+        if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableSleepTimer)) {
             if ($Value == 0) {
                 $this->SetValueInteger('SleepTimer', 0);
             }
@@ -3505,7 +3405,7 @@ class SqueezeboxDevice extends IPSModuleStrict
      */
     private function _SetNewSyncMaster(bool $isMaster): void
     {
-        if ($this->ReadPropertyBoolean('showSyncMaster')) {
+        if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSyncMaster)) {
             $this->SetValueBoolean('Master', $isMaster);
         }
     }
@@ -3537,13 +3437,13 @@ class SqueezeboxDevice extends IPSModuleStrict
     private function _GetAllPlayers(): array
     {
         $Addresses = [];
-        $AllPlayerIDs = IPS_GetInstanceListByModuleID('{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}');
+        $AllPlayerIDs = IPS_GetInstanceListByModuleID(\SqueezeBox\GUID::Squeezebox);
         foreach ($AllPlayerIDs as $DeviceID) {
             if ($DeviceID == $this->InstanceID) {
                 continue;
             }
             if (IPS_GetInstance($DeviceID)['ConnectionID'] == $this->ParentID) {
-                $Addresses[$DeviceID] = IPS_GetProperty($DeviceID, 'Address');
+                $Addresses[$DeviceID] = IPS_GetProperty($DeviceID, \SqueezeBox\Device\Property::Address);
             }
         }
         return $Addresses;
@@ -3556,7 +3456,7 @@ class SqueezeboxDevice extends IPSModuleStrict
      */
     private function _SetNewSyncProfil(): void
     {
-        if (!$this->ReadPropertyBoolean('showSyncControl')) {
+        if (!$this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSyncControl)) {
             return;
         }
         $SyncMembers = [];
@@ -3617,7 +3517,7 @@ class SqueezeboxDevice extends IPSModuleStrict
         $CurrentIndex = (int) $this->GetValue('Index');
 
         // TilePlaylist
-        if ($this->ReadPropertyBoolean('showTilePlaylist')) {
+        if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowTilePlaylist)) {
             $TilePlaylistData = '';
             if (count($Data)) {
                 $playlistEntries = [];
@@ -3636,7 +3536,7 @@ class SqueezeboxDevice extends IPSModuleStrict
             $this->SetValueString('TilePlaylist', $TilePlaylistData);
         }
         // HTML-Playlist
-        if ($this->ReadPropertyBoolean('showHTMLPlaylist')) {
+        if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowHTMLPlaylist)) {
             $HTML = $this->GetTable($Data, 'SqueezeBoxPlaylist', 'Track', 'Position', $CurrentIndex);
             $this->SetValueString('HTMLPlaylist', $HTML);
         }
@@ -3692,8 +3592,8 @@ class SqueezeboxDevice extends IPSModuleStrict
         if ($this->_isPlayerConnected()) {
             $ParentID = $this->ParentID;
             if ($ParentID > 0) {
-                $Size = $this->ReadPropertyString('CoverSize');
-                $Player = $this->ReadPropertyString('Address');
+                $Size = $this->ReadPropertyString(\SqueezeBox\Device\Property::CoverSize);
+                $Player = $this->ReadPropertyString(\SqueezeBox\Device\Property::Address);
                 $CoverRAW = $this->GetCover('', $Size, $Player);
             }
         }
@@ -3703,7 +3603,6 @@ class SqueezeboxDevice extends IPSModuleStrict
         IPS_SetMediaContent($CoverID, base64_encode($CoverRAW));
     }
 
-    //################# Decode Data
     /**
      * DecodeLMSResponse
      *
@@ -3752,17 +3651,17 @@ class SqueezeboxDevice extends IPSModuleStrict
                         $this->SetValueBoolean('Mute', (bool) $LMSData->Data[0]);
                         break;
                     case 'bass':
-                        if ($this->ReadPropertyBoolean('enableBass')) {
+                        if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableBass)) {
                             $this->_SetNewBass($LMSData->Data[0]);
                         }
                         break;
                     case 'treble':
-                        if ($this->ReadPropertyBoolean('enableTreble')) {
+                        if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableTreble)) {
                             $this->_SetNewTreble($LMSData->Data[0]);
                         }
                         break;
                     case 'pitch':
-                        if ($this->ReadPropertyBoolean('enablePitch')) {
+                        if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnablePitch)) {
                             $this->_SetNewPitch($LMSData->Data[0]);
                         }
                         break;
@@ -3795,7 +3694,7 @@ class SqueezeboxDevice extends IPSModuleStrict
                             $this->SetValueString('Genre', '');
                             $this->SetValueString('Duration', '0:00');
                             $this->DurationRAW = 0;
-                            if ($this->ReadPropertyBoolean('enableRawDuration')) {
+                            if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableRawDuration)) {
                                 $this->SetValueInteger('DurationRaw', 0);
                             }
                             $this->SetValueFloat('Position2', 0);
@@ -3882,13 +3781,13 @@ class SqueezeboxDevice extends IPSModuleStrict
                 break;
             case 'time':
                 $this->PositionRAW = (int) $LMSData->Data[0];
-                if ($this->ReadPropertyBoolean('enableRawPosition')) {
+                if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableRawPosition)) {
                     $this->SetValueInteger('PositionRaw', (int) $LMSData->Data[0]);
                 }
                 $this->SetValueString('Position', $this->ConvertSeconds((int) $LMSData->Data[0]));
                 break;
             case 'signalstrength':
-                if ($this->ReadPropertyBoolean('showSignalstrength')) {
+                if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSignalStrength)) {
                     $this->SetValueInteger('Signalstrength', (int) $LMSData->Data[0]);
                 }
                 break;
@@ -3966,7 +3865,7 @@ class SqueezeboxDevice extends IPSModuleStrict
                             $this->_SetNewPower((int) $Data->Value == 1);
                             break;
                         case 'signalstrength':
-                            if ($this->ReadPropertyBoolean('showSignalstrength')) {
+                            if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSignalStrength)) {
                                 $this->SetValueInteger('Signalstrength', (int) $Data->Value);
                             }
                             break;
@@ -3998,7 +3897,7 @@ class SqueezeboxDevice extends IPSModuleStrict
                             //$this->_SetSeekable((int) $Data->Value != 1);
                             break;
                         case 'sleep':
-                            if ($this->ReadPropertyBoolean('enableSleepTimer')) {
+                            if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableSleepTimer)) {
                                 $this->SetValueInteger('SleepTimer', (int) $Data->Value);
                             }
                             break;
@@ -4007,7 +3906,7 @@ class SqueezeboxDevice extends IPSModuleStrict
                              * ID of the master player in the sync group this player belongs to.
                              * Only if synced.*/
                             $this->SyncMaster = $Data->Value;
-                            $this->_SetNewSyncMaster($Data->Value == $this->ReadPropertyString('Address'));
+                            $this->_SetNewSyncMaster($Data->Value == $this->ReadPropertyString(\SqueezeBox\Device\Property::Address));
                             $isSyncActive = true;
                             break;
                         case 'sync_slaves':
@@ -4024,17 +3923,17 @@ class SqueezeboxDevice extends IPSModuleStrict
                             $this->_SetNewVolume((int) $Data->Value);
                             break;
                         case 'mixer bass':
-                            if ($this->ReadPropertyBoolean('enableBass')) {
+                            if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableBass)) {
                                 $this->_SetNewBass((int) $Data->Value);
                             }
                             break;
                         case 'mixer treble':
-                            if ($this->ReadPropertyBoolean('enableTreble')) {
+                            if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableTreble)) {
                                 $this->_SetNewTreble((int) $Data->Value);
                             }
                             break;
                         case 'mixer pitch':
-                            if ($this->ReadPropertyBoolean('enablePitch')) {
+                            if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnablePitch)) {
                                 $this->_SetNewPitch((int) $Data->Value);
                             }
                             break;
@@ -4100,8 +3999,6 @@ class SqueezeboxDevice extends IPSModuleStrict
         return true;
     }
 
-    //################# Datenaustausch
-
     /**
      * Send
      * Konvertiert $Data zu einem JSONString und versendet diese an den Splitter.
@@ -4111,10 +4008,9 @@ class SqueezeboxDevice extends IPSModuleStrict
      */
     private function Send(\SqueezeBox\LMSData $LMSData): ?\SqueezeBox\LMSData
     {
-        if ($this->ReadPropertyString('Address') == '') {
+        if ($this->ReadPropertyString(\SqueezeBox\Device\Property::Address) == '') {
             return null;
         }
-
         try {
             if (!$this->_isPlayerConnected() && ($LMSData->Command[0] != 'connected')) {
                 throw new Exception($this->Translate('Player not connected'), E_USER_NOTICE);
@@ -4122,26 +4018,55 @@ class SqueezeboxDevice extends IPSModuleStrict
             if (!$this->HasActiveParent()) {
                 throw new Exception($this->Translate('Instance has no active parent.'), E_USER_NOTICE);
             }
-            $LMSData->Address = $this->ReadPropertyString('Address');
-            $this->SendDebug('Send', $LMSData, 0);
-
-            $answer = $this->SendDataToParent($LMSData->ToJSONString('{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}'));
-            if ($answer === false) {
-                $this->SendDebug('Response', 'No valid answer', 0);
-                return null;
-            }
-            $result = unserialize($answer);
-            if ($LMSData->needResponse === false) {
-                return $result;
-            }
-            $LMSData->Data = $result->Data;
-            $this->SendDebug('Response', $LMSData, 0);
-            return $LMSData;
         } catch (Exception $exc) {
             set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($exc->getMessage(), E_USER_NOTICE);
             restore_error_handler();
             return null;
         }
+        $LMSData->Address = $this->ReadPropertyString(\SqueezeBox\Device\Property::Address);
+        return $this->SendToSplitter($LMSData);
+    }
+
+    /**
+     * SendDirect
+     * Konvertiert $Data zu einem String und versendet diesen direkt an den LMS.
+     *
+     * @param \SqueezeBox\LMSData $LMSData Zu versendende Daten.
+     * @return ?\SqueezeBox\LMSData Objekt mit der Antwort. NULL im Fehlerfall.
+     */
+    private function SendDirect(\SqueezeBox\LMSData $LMSData): ?\SqueezeBox\LMSData
+    {
+        if ($this->ReadPropertyString(\SqueezeBox\Device\Property::Address) == '') {
+            return null;
+        }
+        try {
+            if (!$this->HasActiveParent()) {
+                throw new Exception($this->Translate('Instance has no active parent.'), E_USER_NOTICE);
+            }
+            if (!$this->_isPlayerConnected() && ($LMSData->Command[0] != 'connected')) {
+                throw new Exception($this->Translate('Player not connected'), E_USER_NOTICE);
+            }
+        } catch (Exception $exc) {
+            $this->SendDebug('Receive Direct', $exc->getMessage(), 0);
+            set_error_handler([$this, 'ModulErrorHandler']);
+            trigger_error($exc->getMessage(), E_USER_NOTICE);
+            restore_error_handler();
+            return null;
+        }
+        $LMSData->Address = $this->ReadPropertyString(\SqueezeBox\Device\Property::Address);
+        $SplitterID = IPS_GetInstance($this->InstanceID)['ConnectionID'];
+        $IoID = IPS_GetInstance($SplitterID)['ConnectionID'];
+        $Host = IPS_GetProperty($IoID, 'Host');
+        if ($Host === '') {
+            return null;
+        }
+        return $this->SendDirectToLMS(
+            gethostbyname($Host),
+            IPS_GetProperty($SplitterID, \SqueezeBox\Splitter\Property::Port),
+            IPS_GetProperty($SplitterID, \SqueezeBox\Splitter\Property::Username),
+            IPS_GetProperty($SplitterID, \SqueezeBox\Splitter\Property::Password),
+            $LMSData
+        );
     }
 }

@@ -9,14 +9,14 @@
 
 Ermöglicht die Steuerung sowie die Darstellung der Zustände
 von SqueezeBox Geräten in IPS, in Verbindung mit dem
-Logitech Media Server.
+Lyrion Music Server.
 
 ## Inhaltsverzeichnis <!-- omit in toc -->
 
 - [1. Funktionsumfang](#1-funktionsumfang)
   - [Discovery:](#discovery)
   - [Squeezebox Konfigurator:](#squeezebox-konfigurator)
-  - [Logitech Media Server:](#logitech-media-server)
+  - [Lyrion Music Server:](#lyrion-music-server)
   - [SqueezeBox Player:](#squeezebox-player)
   - [Squeezebox Alarm (Wecker):](#squeezebox-alarm-wecker)
   - [Squeezebox Battery:](#squeezebox-battery)
@@ -34,7 +34,7 @@ Logitech Media Server.
 
 ### [Discovery:](LMSDiscovery/)  
 
-- Einfaches Auffinden von Logitech Media Servern im lokalen Netzwerk.  
+- Einfaches Auffinden von Lyrion Music Servern im lokalen Netzwerk.  
 - Einfaches Einrichten von Konfiguratoren für gefundene Server.  
 
 ### [Squeezebox Konfigurator:](LMSConfigurator/)  
@@ -42,7 +42,7 @@ Logitech Media Server.
 - Auslesen und darstellen aller im LMS und IPS bekannten Geräte und Instanzen.  
 - Einfaches Anlegen von neuen Instanzen in IPS.  
 
-### [Logitech Media Server:](LMSSplitter/)  
+### [Lyrion Music Server:](LMSSplitter/)  
 
 - Auslesen un darstellen von Server-Informationen.  
 - Auslesen von Datenbank Informationen.  
@@ -76,7 +76,7 @@ Logitech Media Server.
 ## 2. Voraussetzungen
 
 - Symcon ab Version 8.2
-- Logitech Media Server (getestet ab 7.9.x)
+- Lyrion Music Server
 - kompatible Player
 
 ## 3. Software-Installation
@@ -88,7 +88,7 @@ Logitech Media Server.
 ## 4. Einrichten der Instanzen in IP-Symcon
 
 Nach der Installation über den 'Modul-Store' fragt Symcon ob die enthaltende [Discovery Instanz](LMSDiscovery/) erstellt werden soll.  
-Werden Symcon und der `Logitech Media Server` allerdings nicht im gleichen physikalischen Netzwerk betrieben, wie z.B. Symcon hinter einer NAT, so kann diese Frage verneint werden.  
+Werden Symcon und der `Lyrion Music Server` allerdings nicht im gleichen physikalischen Netzwerk betrieben, wie z.B. Symcon hinter einer NAT, so kann diese Frage verneint werden.  
 Der [Squeezebox Konfigurator](LMSConfigurator/) muss in dieser Konstellation per Hand angelegt und sein dazugehöriger [LMS Splitter](LMSSplitter/) manuell konfiguriert werden.  
 
 Die Einrichtung der Instanzen ist direkt in der Dokumentation der jeweiligen Module beschrieben.  
@@ -97,21 +97,21 @@ Die Einrichtung der Instanzen ist direkt in der Dokumentation der jeweiligen Mod
 
 ### 1. GUID der Module
 
-| Modul             | Typ          | Prefix | GUID                                   |
-| :---------------- | :----------- | :----: | :------------------------------------- |
-| LMSDiscovery      | Discovery    |  LMS   | {28AC8A6C-4E03-43BE-9C3E-B8FEF78D374C} |
-| LMSSplitter       | Splitter     |  LMS   | {96A9AB3A-2538-42C5-A130-FC34205A706A} |
-| LMSConfigurator   | Configurator |  LMC   | {35028918-3F9C-4524-9FB4-DBAF429C6E18} |
-| SqueezeboxDevice  | Device       |  LSQ   | {118189F9-DC7E-4DF4-80E1-9A4DF0882DD7} |
-| SqueezeboxAlarm   | Device       |  LSA   | {E7423083-3502-42C8-B244-2852D0BE41D4} |
-| SqueezeboxBattery | Device       |  LSQB  | {718158BB-B247-4A71-9440-9C2FF1378752} |
+| Modul                            | Typ          | Prefix | GUID                                   |
+| :------------------------------- | :----------- | :----: | :------------------------------------- |
+| Lyrion Music Server Discovery    | Discovery    |  LMS   | {28AC8A6C-4E03-43BE-9C3E-B8FEF78D374C} |
+| Lyrion Music Server              | Splitter     |  LMS   | {96A9AB3A-2538-42C5-A130-FC34205A706A} |
+| Lyrion Music Server Configurator | Configurator |  LMC   | {35028918-3F9C-4524-9FB4-DBAF429C6E18} |
+| Squeezebox                       | Device       |  LSQ   | {118189F9-DC7E-4DF4-80E1-9A4DF0882DD7} |
+| Squeezebox Alarm                 | Device       |  LSA   | {E7423083-3502-42C8-B244-2852D0BE41D4} |
+| Squeezebox Battery               | Device       |  LSQB  | {718158BB-B247-4A71-9440-9C2FF1378752} |
 
 ### 2. Datenaustausch
 
 | Funktion                | GUID                                   |
 | :---------------------- | :------------------------------------- |
-| von Splitter zu Devices | {EDDCCB34-E194-434D-93AD-FFDF1B56EF38} |
-| von Devices zu Splitter | {CB5950B3-593C-4126-9F0F-8655A3944419} |
+| von Splitter zu Devices | {CB5950B3-593C-4126-9F0F-8655A3944419} |
+| von Devices zu Splitter | {EDDCCB34-E194-434D-93AD-FFDF1B56EF38} |
 
 Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:  
 
@@ -125,6 +125,7 @@ Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:
 
 **Version 4.10:**  
 
+- Anpassung an den neuen Namen Lyrion.  
 - Umstellung von Profile auf Variablendarstellungen.  
 
 **Version 4.05:**  

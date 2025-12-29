@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace SqueezeBox;
 
-require_once __DIR__ . '/TimeConvert.php';  // diverse Klassen
+require_once __DIR__ . '/LibraryConsts.php';
+require_once __DIR__ . '/LMSSocket.php';
+require_once __DIR__ . '/TimeConvert.php';
 
 /**
  * @package       Squeezebox
  * @file          SqueezeBoxClass.php
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2024 Michael Tröger
+ * @copyright     2025 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       4.05
+ * @version       4.10
  *
  */
 
@@ -26,12 +28,6 @@ enum DeviceType
     case isIP;
 }
 
-/**
- * Trait mit allen Profilen der Instanz Squeezebox-Device.
- * @method void UnregisterProfile(string $Name)
- * @method void RegisterProfileIntegerEx(string $Name, string $Icon, string $Prefix, string $Suffix, array $Associations, int $MaxValue = -1, float $StepSize = 0)
- * @method void RegisterProfileInteger(string $Name, string $Icon, string $Prefix, string $Suffix, int $MinValue, int $MaxValue, int $StepSize)
- */
 trait LSQProfile
 {
     /**
@@ -98,49 +94,13 @@ trait LSQProfile
 }
 
 /**
- * Trait mit allen Profilen der Instanz Squeezebox-Device.
- */
-trait LMSProfile
-{
-    /**
-     * CreateProfile
-     * Erzeugt alle benötigten Profile.
-     *
-     * @return void
-     */
-    private function CreateProfile(): void
-    {
-        $this->RegisterProfileIntegerEx('LMS.Scanner', 'Gear', '', '', [
-            [0, $this->Translate('standby'), '', -1],
-            [1, $this->Translate('abort'), '', -1],
-            [2, $this->Translate('scan'), '', -1],
-            [3, $this->Translate('only playlists'), '', -1],
-            [4, $this->Translate('completely'), '', -1]
-        ]);
-        $this->RegisterProfileInteger('LMS.PlayerSelect.' . $this->InstanceID, 'Speaker', '', '', 0, 0, 0);
-    }
-
-    /**
-     * DeleteProfile
-     * Löscht alle nicht mehr benötigten Profile.
-     *
-     * @return void
-     */
-    private function DeleteProfile(): void
-    {
-        $this->UnregisterProfile('LMS.PlayerSelect.' . $this->InstanceID);
-        $this->UnregisterProfile('LMS.Scanner');
-    }
-}
-
-/**
  * Definiert eine Datensatz zum Versenden an des LMS.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2024 Michael Tröger
+ * @copyright     2025 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       4.05
+ * @version       4.10
  */
 class LMSData extends \stdClass
 {
@@ -278,16 +238,16 @@ class LMSData extends \stdClass
      * ToJSONString
      * Erzeugt ein JSON-String für den internen Datenaustausch dieses Moduls.
      *
-     * @param string $GUID GUID des Datenpaketes.
      * @return string Der JSON-String.
      */
-    public function ToJSONString(string $GUID): string
+    public function ToJSONString(): string
     {
-        return json_encode(['DataID'       => $GUID,
-            'Address'                      => $this->Address,
-            'Command'                      => $this->Command,
-            'Data'                         => $this->Data,
-            'needResponse'                 => $this->needResponse
+        return json_encode([
+            'DataID'       => \SqueezeBox\GUID::SendToSplitter,
+            'Address'      => $this->Address,
+            'Command'      => $this->Command,
+            'Data'         => $this->Data,
+            'needResponse' => $this->needResponse
         ]);
     }
 }
@@ -296,10 +256,10 @@ class LMSData extends \stdClass
  * Klasse mit den Empfangenen Daten vom LMS.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2024 Michael Tröger
+ * @copyright     2025 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       4.05
+ * @version       4.10
  */
 class LMSResponse extends LMSData
 {
@@ -428,15 +388,15 @@ class LMSResponse extends LMSData
      * ToJSONStringForDevice
      * Erzeugt aus dem Objekt einen JSON-String.
      *
-     * @param string $GUID GUID welche in den JSON-String eingebunden wird.
      * @return string Der JSON-String für den Datenaustausch
      */
-    public function ToJSONStringForDevice(string $GUID): string
+    public function ToJSONStringForDevice(): string
     {
-        return json_encode(['DataID'  => $GUID,
-            'Address'                 => $this->Address,
-            'Command'                 => $this->Command,
-            'Data'                    => $this->Data
+        return json_encode([
+            'DataID'  => \SqueezeBox\GUID::SendToChild,
+            'Address' => $this->Address,
+            'Command' => $this->Command,
+            'Data'    => $this->Data
         ]);
     }
 }
@@ -445,10 +405,10 @@ class LMSResponse extends LMSData
  * Zerlegt einen getaggten Datensatz in Name und Wert.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2024 Michael Tröger
+ * @copyright     2025 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       4.05
+ * @version       4.10
  */
 class LMSTaggingData extends \stdClass
 {
@@ -486,10 +446,10 @@ class LMSTaggingData extends \stdClass
  * Zerlegt einen Array aus getaggten Datensätzen.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2024 Michael Tröger
+ * @copyright     2025 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       4.05
+ * @version       4.10
  */
 class LMSTaggingArray extends \stdClass
 {
@@ -687,10 +647,10 @@ class LMSTaggingArray extends \stdClass
  * Zerlegt einen Array aus getaggten Datensätzen zu SongInfos.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2024 Michael Tröger
+ * @copyright     2025 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       4.05
+ * @version       4.10
  */
 class LMSSongInfo extends \stdClass
 {
@@ -1044,46 +1004,5 @@ sleep(10).then(() => {
         $table = '</tbody>' . PHP_EOL;
         $table .= '</table>' . PHP_EOL;
         return $table;
-    }
-}
-
-/**
- * Trait um ein Cover vom LMS zu laden.
- */
-trait LMSCover
-{
-    /**
-     * GetCover
-     * Liefert die Rohdaten eines Covers, welches vom LMS geladen wurde.
-     *
-     * @param string $CoverID Die ID des Covers.
-     * @param string $Size    Die Größe des Covers in Pixel.
-     * @param string $Player  Die Player-MAC.
-     * @return bool|string Die Rohdaten des Covers, oder false im Fehlerfall.
-     */
-    protected function GetCover(string $CoverID, string $Size, string $Player): bool|string
-    {
-        $SplitterID = IPS_GetInstance($this->InstanceID)['ConnectionID'];
-        $IoID = IPS_GetInstance($SplitterID)['ConnectionID'];
-        $Hostname = IPS_GetProperty($IoID, 'Host');
-        $Webport = IPS_GetProperty($SplitterID, 'Webport');
-        $Login = [
-            'AuthUser' => IPS_GetProperty($SplitterID, 'User'),
-            'AuthPass' => IPS_GetProperty($SplitterID, 'Password'),
-            'Timeout'  => 5000
-        ];
-
-        if ($Hostname === '') {
-            return false;
-        }
-        $Host = gethostbyname($Hostname);
-        $Host .= ':' . $Webport;
-        if ($Player != '') {
-            $Player = '?player=' . rawurlencode($Player);
-            $CoverID = 'current';
-        }
-        $URL = 'http://' . $Host . '/music/' . $CoverID . '/' . $Size . '.png' . $Player;
-        $this->SendDebug('GetCover', $URL, 0);
-        return @Sys_GetURLContentEx($URL, $Login);
     }
 }

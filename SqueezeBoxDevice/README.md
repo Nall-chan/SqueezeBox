@@ -9,7 +9,7 @@
 
 Ermöglicht die Steuerung sowie die Darstellung der Zustände
 von SqueezeBox Geräten in IPS, in Verbindung mit dem
-Logitech Media Server.  
+Lyrion Music Server.  
 
 ## Inhaltsverzeichnis  <!-- omit in toc -->
 
@@ -50,7 +50,7 @@ Logitech Media Server.
 ## 2. Voraussetzungen
 
 - Symcon ab Version 8.2
-- Logitech Media Server (getestet ab 7.9.x)
+- Lyrion Music Server
 - kompatibler Player
 
 ## 3. Software-Installation  
@@ -59,8 +59,8 @@ Dieses Modul ist Bestandteil der [SqueezeBox-Library](../README.md#3-software-in
 
 ## 4. Einrichten der Instanzen in IP-Symcon
 
-Eine einfache Einrichtung ist über den Konfigurator [Logitech Media Server Konfigurator](../LMSConfigurator/README.md) möglich.  
-Bei der manuellen Einrichtung ist die Instanz im Dialog `Instanz hinzufügen` unter dem Hersteller `Logitech` zu finden.  
+Eine einfache Einrichtung ist über den Konfigurator [Lyrion Music Server Konfigurator](../LMSConfigurator/README.md) möglich.  
+Bei der manuellen Einrichtung ist die Instanz im Dialog `Instanz hinzufügen` unter dem Hersteller `Lyrion` zu finden.  
 ![Instanz hinzufügen](imgs/add1.png)  
 
 **Konfigurationsseite:**  

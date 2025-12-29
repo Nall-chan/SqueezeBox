@@ -47,7 +47,7 @@
                     {
                         "name": "ErrorTitle",
                         "type": "Label",
-                        "caption": "No Logitech Media Server was found!"
+                        "caption": "No Lyrion Music Server was found!"
                     },
                     {
                         "name": "ErrorText",

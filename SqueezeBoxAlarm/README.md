@@ -35,9 +35,9 @@ von den in einer SqueezeBox eingerichteten Weckern in IPS.
 ## 2. Voraussetzungen
 
 - Symcon ab Version 8.2
-- Logitech Media Server (getestet ab 7.9.x)
+- Lyrion Music Server
 - kompatibler Player
-- Eingerichtete Splitter Instanz vom Typ `Logitech Media Server` (LMS-Splitter)
+- Eingerichtete Splitter Instanz vom Typ `Lyrion Music Server` (LMS-Splitter)
 
 ## 3. Software-Installation
 
@@ -45,8 +45,8 @@ Dieses Modul ist Bestandteil der [SqueezeBox-Library](../README.md#3-software-in
 
 ## 4. Einrichten der Instanzen in IP-Symcon
 
-Eine einfache Einrichtung ist über den Konfigurator [Logitech Media Server Konfigurator](../LMSConfigurator/README.md) möglich.  
-Bei der manuellen Einrichtung ist die Instanz im Dialog `Instanz hinzufügen` unter dem Hersteller `Logitech` zu finden.  
+Eine einfache Einrichtung ist über den Konfigurator [Lyrion Music Server Konfigurator](../LMSConfigurator/README.md) möglich.  
+Bei der manuellen Einrichtung ist die Instanz im Dialog `Instanz hinzufügen` unter dem Hersteller `Lyrion` zu finden.  
 ![Instanz hinzufügen](imgs/add1.png)  
 
 **Konfigurationsseite:**  

@@ -6,11 +6,13 @@ declare(strict_types=1);
  * @package       Squeezebox
  * @file          module.php
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2024 Michael Tröger
+ * @copyright     2025 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       4.05
+ * @version       4.10
  *
  */
+require_once __DIR__ . '/../libs/LibraryConsts.php';
+require_once __DIR__ . '/../libs/DebugHelper.php';
 eval('declare(strict_types=1);namespace SqueezeboxBattery {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableHelper.php') . '}');
 eval('declare(strict_types=1);namespace SqueezeboxBattery {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableProfileHelper.php') . '}');
 
@@ -46,10 +48,10 @@ class AutoLoaderSqueezeboxBatteryPHPSecLib
  * Erweitert IPSModule.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2024 Michael Tröger
+ * @copyright     2025 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       4.05
+ * @version       4.10
  *
  * @method bool SendDebug(string $Message, mixed $Data, int $Format)
  * @method void RegisterProfileIntegerEx(string $Name, string $Icon, string $Prefix, string $Suffix, array $Associations, int $MaxValue = -1, float $StepSize = 0)
@@ -59,6 +61,9 @@ class AutoLoaderSqueezeboxBatteryPHPSecLib
  * @method void SetValueFloat(string $Ident, float $value)
  * @method void SetValueInteger(string $Ident, int $value)
  * @method void SetValueString(string $Ident, string $value)
+ * @method bool IORequestAction(string $Ident, mixed $Value)
+ * @method void IOMessageSink(int $TimeStamp, int $SenderID, int $Message, array $Data)
+ * @method int IORegisterParent()
  */
 class SqueezeboxBattery extends IPSModuleStrict
 {
@@ -74,13 +79,12 @@ class SqueezeboxBattery extends IPSModuleStrict
     {
         //Never delete this line!
         parent::Create();
-        $this->ConnectParent('{96A9AB3A-2538-42C5-A130-FC34205A706A}');
         $this->SetReceiveDataFilter('.*"Address":"NOTHING".*');
-        $this->RegisterPropertyBoolean('Active', true);
-        $this->RegisterPropertyString('Address', '');
-        $this->RegisterPropertyInteger('Interval', 30);
-        $this->RegisterPropertyString('Password', '1234');
-        $this->RegisterTimer('RequestState', 0, 'LSQB_RequestState($_IPS[\'TARGET\']);');
+        $this->RegisterPropertyBoolean(\SqueezeBox\Battery\Property::Active, true);
+        $this->RegisterPropertyString(\SqueezeBox\Battery\Property::Address, '');
+        $this->RegisterPropertyInteger(\SqueezeBox\Battery\Property::Interval, 30);
+        $this->RegisterPropertyString(\SqueezeBox\Battery\Property::Password, '1234');
+        $this->RegisterTimer(\SqueezeBox\Battery\Timer::RequestState, 0, 'LSQB_RequestState($_IPS[\'TARGET\']);');
     }
 
     /**
@@ -127,35 +131,35 @@ class SqueezeboxBattery extends IPSModuleStrict
         $this->RegisterVariableInteger('BatteryCapacity', $this->Translate('Battery capacity'), 'LSQB.mAh', 10);
 
         // Adresse prüfen
-        $Address = $this->ReadPropertyString('Address');
+        $Address = $this->ReadPropertyString(\SqueezeBox\Battery\Property::Address);
 
         if (trim($Address) == '') {
             $this->SetStatus(IS_INACTIVE);
-            $this->SetTimerInterval('RequestState', 0);
+            $this->SetTimerInterval(\SqueezeBox\Battery\Timer::RequestState, 0);
             $this->SetSummary('(none)');
             return;
         }
         $this->SetSummary($Address);
-        if (!$this->ReadPropertyBoolean('Active')) {
+        if (!$this->ReadPropertyBoolean(\SqueezeBox\Battery\Property::Active)) {
             $this->SetStatus(IS_INACTIVE);
-            $this->SetTimerInterval('RequestState', 0);
+            $this->SetTimerInterval(\SqueezeBox\Battery\Timer::RequestState, 0);
             return;
         }
         if (IPS_GetKernelRunlevel() != KR_READY) {
             $this->RegisterMessage(0, IPS_KERNELSTARTED);
             return;
         }
-        if ($this->ReadPropertyInteger('Interval') >= 30) {
+        if ($this->ReadPropertyInteger(\SqueezeBox\Battery\Property::Interval) >= 30) {
             $this->SetStatus(IS_ACTIVE);
-            $this->SetTimerInterval('RequestState', $this->ReadPropertyInteger('Interval') * 1000);
+            $this->SetTimerInterval(\SqueezeBox\Battery\Timer::RequestState, $this->ReadPropertyInteger(\SqueezeBox\Battery\Property::Interval) * 1000);
             $this->RequestState();
         } else {
-            if ($this->ReadPropertyInteger('Interval') == 0) {
+            if ($this->ReadPropertyInteger(\SqueezeBox\Battery\Property::Interval) == 0) {
                 $this->SetStatus(IS_INACTIVE);
             } else {
                 $this->SetStatus(203);
             }
-            $this->SetTimerInterval('RequestState', 0);
+            $this->SetTimerInterval(\SqueezeBox\Battery\Timer::RequestState, 0);
         }
     }
 
@@ -177,7 +181,6 @@ class SqueezeboxBattery extends IPSModuleStrict
                 break;
         }
     }
-    //################# PUBLIC
 
     /**
      * RequestState
@@ -188,17 +191,17 @@ class SqueezeboxBattery extends IPSModuleStrict
      */
     public function RequestState(): bool
     {
-        if (!$this->ReadPropertyBoolean('Active')) {
+        if (!$this->ReadPropertyBoolean(\SqueezeBox\Battery\Property::Active)) {
             return false;
         }
-        $Address = trim($this->ReadPropertyString('Address'));
+        $Address = trim($this->ReadPropertyString(\SqueezeBox\Battery\Property::Address));
         if ($Address == '') {
             return false;
         }
-        $ssh = new \phpseclib\Net\SSH2($this->ReadPropertyString('Address'));
+        $ssh = new \phpseclib\Net\SSH2($this->ReadPropertyString(\SqueezeBox\Battery\Property::Address));
         try {
             $this->SendDebug('Try to connect', '', 0);
-            $ssh->login('root', $this->ReadPropertyString('Password'));
+            $ssh->login('root', $this->ReadPropertyString(\SqueezeBox\Battery\Property::Password));
         } catch (\Throwable $th) {
             set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($this->Translate('Login failed.'), E_USER_NOTICE);

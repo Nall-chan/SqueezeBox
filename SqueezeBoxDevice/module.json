@@ -1,11 +1,9 @@
 {
     "id": "{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}",
-    "name": "SqueezeboxDevice",
+    "name": "Squeezebox",
     "type": 3,
-    "vendor": "Logitech",
-    "aliases": [
-        "Squeezebox Device"
-    ],
+    "vendor": "Lyrion",
+    "aliases": [],
     "parentRequirements": [
         "{EDDCCB34-E194-434D-93AD-FFDF1B56EF38}"
     ],

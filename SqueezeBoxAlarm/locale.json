@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "Squeezebox Alarm": "Squeezebox Wecker",
             "MAC-Address for SqueezeBox": "MAC-Adresse für Squeezebox",
             "MAC Address": "MAC Adresse",
             "Display button for create new alarm.": "Button anzeigen für Wecker anlegen.",

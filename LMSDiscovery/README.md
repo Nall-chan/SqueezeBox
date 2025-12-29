@@ -5,9 +5,9 @@
 [![Check Style](https://github.com/Nall-chan/SqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/SqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions)  
 [![PayPal.Me](https://img.shields.io/badge/PayPal-Me-lightblue.svg)](#2-spenden)[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#2-spenden)
 
-# Logitech Media Server Discovery  <!-- omit in toc -->  
+# Lyrion Music Server Discovery  <!-- omit in toc -->  
 
-Sucht Logitech Media Server im Netzwerk  
+Sucht Lyrion Music Server im Netzwerk  
 
 ## Inhaltsverzeichnis  <!-- omit in toc -->
 
@@ -26,13 +26,13 @@ Sucht Logitech Media Server im Netzwerk
 
 ## 1. Funktionsumfang
 
-- Einfaches Auffinden von Logitech Media Servern im lokalen Netzwerk.  
+- Einfaches Auffinden von Lyrion Music Servern im lokalen Netzwerk.  
 - Einfaches Einrichten von Konfiguratoren für gefundene Server.  
 
 ## 2. Voraussetzungen
 
 - Symcon ab Version 8.2
-- Logitech Media Server (getestet ab 7.9.x)
+- Lyrion Music Server
 
 ## 3. Software-Installation
 
@@ -42,20 +42,20 @@ Dieses Modul ist Bestandteil der [SqueezeBox-Library](../README.md#3-software-in
 
 <span style="color:red">**Hinweis**</span>  
 
-> Über einen Netzwerk Broadcast wird versucht alle im Netzwerk vorhandenen `Logitech Media Server` aufzufinden.  
+> Über einen Netzwerk Broadcast wird versucht alle im Netzwerk vorhandenen `Lyrion Music Server` aufzufinden.  
 >
-> Werden Symcon und der `Logitech Media Server` allerdings in verschiedenen (gerouteten) Netzwerkren betrieben, oder z.B. Symcon hinter einer NAT, so wird in der Regel kein `Logitech Media Server` gefunden.  
+> Werden Symcon und der `Lyrion Music Server` allerdings in verschiedenen (gerouteten) Netzwerkren betrieben, oder z.B. Symcon hinter einer NAT, so wird in der Regel kein `Lyrion Music Server` gefunden.  
 >
 > Der [Squeezebox Konfigurator](LMSConfigurator/) muss in dieser Konstellation per Hand angelegt und sein dazugehöriger [LMS Splitter](LMSSplitter/) manuell konfiguriert werden.  
 
 Nach der installation des Moduls, erfolgt eine Aufforderung von der Konsole diese `Discovery Instanz` zu erstellen.  
-Bei der manuellen Einrichtung ist die Instanz im Dialog `Instanz hinzufügen` unter dem Hersteller `Logitech` zu finden.  
+Bei der manuellen Einrichtung ist die Instanz im Dialog `Instanz hinzufügen` unter dem Hersteller `Lyrion` zu finden.  
 ![Instanz hinzufügen](imgs/add1.png)  
-Die Instanz `Logitech Media Server Discovery` wird im Objektbaum unter `Discovery Instanzen` einsortiert.  
-Beim dem Öffnen der Instanz, werden alle im Netzwerk gefundenen `Logitech Media Server` aufgelistet.  
+Die Instanz `Lyrion Music Server Discovery` wird im Objektbaum unter `Discovery Instanzen` einsortiert.  
+Beim dem Öffnen der Instanz, werden alle im Netzwerk gefundenen `Lyrion Music Server` aufgelistet.  
 ![Instanz hinzufügen](imgs/conf1.png)  
 
-Über das selektieren eines Servers in der Tabelle und betätigen des dazugehörigen `Erstellen` Button, wird ein entsprechender [Logitech Media Server Konfigurator](../LMSConfigurator/README.md) inklusive `LMS Splitter` und `Client Socket` in IPS angelegt.  
+Über das selektieren eines Servers in der Tabelle und betätigen des dazugehörigen `Erstellen` Button, wird ein entsprechender [Lyrion Music Server Konfigurator](../LMSConfigurator/README.md) inklusive `LMS Splitter` und `Client Socket` in IPS angelegt.  
 Mit dieser `Konfigurator Instanz` können dann die einzelnen `Geräte Instanzen` in IPS erzeugt werden.  
 
 ## 5. Statusvariablen

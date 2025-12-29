@@ -6,24 +6,25 @@ declare(strict_types=1);
  * @package       Squeezebox
  * @file          module.php
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2024 Michael Tröger
+ * @copyright     2025 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       4.05
+ * @version       4.10
  *
  */
-require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
+require_once __DIR__ . '/../libs/LibraryConsts.php';
+require_once __DIR__ . '/../libs/DebugHelper.php';
 
 /**
- * LMSDiscovery Klasse implementiert.
+ * LyrionMusicServerDiscovery Klasse implementiert.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2024 Michael Tröger
+ * @copyright     2025 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       4.05
+ * @version       4.10
  *
  * @property array $Devices
  */
-class LMSDiscovery extends IPSModuleStrict
+class LyrionMusicServerDiscovery extends IPSModuleStrict
 {
     use \SqueezeBox\DebugHelper;
 
@@ -75,7 +76,7 @@ class LMSDiscovery extends IPSModuleStrict
             $AddValue = [
                 'IPAddress'  => $IPAddress,
                 'servername' => $Device['ENAME'],
-                'name'       => 'Logitech Media Server (' . $Device['ENAME'] . ')',
+                'name'       => 'Lyrion Music Server (' . $Device['ENAME'] . ')',
                 'version'    => $Device['VERS'],
                 'instanceID' => 0
             ];
@@ -94,20 +95,20 @@ class LMSDiscovery extends IPSModuleStrict
 
             $AddValue['create'] = [
                 [
-                    'moduleID'      => '{35028918-3F9C-4524-9FB4-DBAF429C6E18}',
+                    'moduleID'      => \SqueezeBox\GUID::Configurator,
                     'configuration' => new stdClass()
                 ],
                 [
-                    'moduleID'      => '{96A9AB3A-2538-42C5-A130-FC34205A706A}',
+                    'moduleID'      => \SqueezeBox\GUID::Splitter,
                     'configuration' => [
-                        'Webport' => (int) $Device['JSON']
+                        \SqueezeBox\Splitter\Property::Webport => (int) $Device['JSON']
                     ]
                 ],
                 [
-                    'moduleID'      => '{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}',
+                    'moduleID'      => \SqueezeBox\GUID::IO,
                     'configuration' => [
-                        'Host' => $AddValue['IPAddress'],
-                        'Port' => 9090
+                        \SqueezeBox\IO\Property::Host => $AddValue['IPAddress'],
+                        \SqueezeBox\IO\Property::Port => 9090
                     ]
                 ]
             ];
@@ -136,14 +137,14 @@ class LMSDiscovery extends IPSModuleStrict
      */
     private function GetIPSInstances(): array
     {
-        $InstanceIDList = IPS_GetInstanceListByModuleID('{35028918-3F9C-4524-9FB4-DBAF429C6E18}');
+        $InstanceIDList = IPS_GetInstanceListByModuleID(\SqueezeBox\GUID::Configurator);
         $Devices = [];
         foreach ($InstanceIDList as $InstanceID) {
             $Splitter = IPS_GetInstance($InstanceID)['ConnectionID'];
             if ($Splitter > 0) {
                 $IO = IPS_GetInstance($Splitter)['ConnectionID'];
                 if ($IO > 0) {
-                    $Devices[$InstanceID] = strtolower(IPS_GetProperty($IO, 'Host'));
+                    $Devices[$InstanceID] = strtolower(IPS_GetProperty($IO, \SqueezeBox\IO\Property::Host));
                 }
             }
         }
@@ -158,7 +159,6 @@ class LMSDiscovery extends IPSModuleStrict
      */
     private function DiscoverDevices(): array
     {
-        $this->SendDebug('Discover', $this->Translate('Background discovery of Logitech Media Servers'), 0);
         $socket = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
         if (!$socket) {
             $this->SendDebug('Discover', $this->Translate('Error on create socket'), 0);
