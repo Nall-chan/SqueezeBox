@@ -36,6 +36,7 @@ eval('declare(strict_types=1);namespace SqueezeboxDevice {?>' . file_get_content
  * @property int $PlayerTracks
  * @property int $PositionRAW
  * @property bool $isSeekable
+ * @property bool $isSubscribed
  * @property int $DurationRAW
  * @property string $SyncMaster
  * @property string $SyncMembers
@@ -115,6 +116,7 @@ class Squeezebox extends IPSModuleStrict
         $this->PlayerTrackIndex = 0;
         $this->DurationRAW = 0;
         $this->isSeekable = false;
+        $this->isSubscribed = false;
         $this->SyncMaster = '';
         $this->SyncMembers = '';
     }
@@ -183,6 +185,7 @@ class Squeezebox extends IPSModuleStrict
         $this->PlayerTrackIndex = 0;
         $this->DurationRAW = 0;
         $this->isSeekable = false;
+        $this->isSubscribed = false;
         $this->SyncMaster = '';
         $this->SyncMembers = '';
         parent::ApplyChanges();
@@ -3421,6 +3424,7 @@ class Squeezebox extends IPSModuleStrict
     private function _StartSubscribe(): void
     {
         if ($this->_isPlayerConnected()) {
+            $this->isSubscribed = true;
             $this->Send(new \SqueezeBox\LMSData(['status', '-', '1'], 'subscribe:' . $this->ReadPropertyInteger(\SqueezeBox\Device\Property::Interval), false));
         }
     }
@@ -3440,6 +3444,7 @@ class Squeezebox extends IPSModuleStrict
             }
             @$this->Send(new \SqueezeBox\LMSData(['status', '-', '1'], 'subscribe:0', false));
         }
+        $this->isSubscribed = false;
     }
 
     /**
@@ -3466,7 +3471,9 @@ class Squeezebox extends IPSModuleStrict
      */
     private function _SetNewPower(bool $Power): void
     {
-        $this->SetValueBoolean('Power', $Power);
+        if ($this->GetValue('Power') != $Power) {
+            $this->SetValueBoolean('Power', $Power);
+        }
         if (!$Power) {
             $this->_SetModeToStop();
             $this->_SetNewSyncMaster(false);
@@ -3540,9 +3547,13 @@ class Squeezebox extends IPSModuleStrict
         if ($Value < 0) {
             $Value = $Value - (2 * $Value);
         } else {
-            $this->SetValueBoolean('Mute', false);
+            if ($this->GetValue('Mute')) {
+                $this->SetValueBoolean('Mute', false);
+            }
         }
-        $this->SetValueInteger('Volume', (int) $Value);
+        if ($this->GetValue('Volume') != (int) $Value) {
+            $this->SetValueInteger('Volume', (int) $Value);
+        }
     }
 
     /**
@@ -3654,9 +3665,11 @@ class Squeezebox extends IPSModuleStrict
         } else {
             if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableDurationText)) {
                 $NewDuration = $this->ConvertSeconds($Duration);
-                $this->SetValueString('DurationText', $NewDuration);
+                if ($this->GetValue('DurationText') != $NewDuration) {
+                    $this->SetValueString('DurationText', $NewDuration);
+                }
             }
-            if (($Duration != $this->DurationRAW) && ($this->isSeekable)) {
+            if ($this->isSeekable) {
                 $this->EnableAction('Position2');
             }
         }
@@ -3691,7 +3704,9 @@ class Squeezebox extends IPSModuleStrict
     private function _SetNewSyncMaster(bool $isMaster): void
     {
         if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSyncMaster)) {
-            $this->SetValueBoolean('Master', $isMaster);
+            if ($this->GetValue('Master') != $isMaster) {
+                $this->SetValueBoolean('Master', $isMaster);
+            }
         }
     }
 
@@ -3934,7 +3949,9 @@ class Squeezebox extends IPSModuleStrict
                         $this->_SetNewVolume($LMSData->Data[0]);
                         break;
                     case 'muting':
-                        $this->SetValueBoolean('Mute', (bool) $LMSData->Data[0]);
+                        if ($this->GetValue('Mute') != (bool) $LMSData->Data[0]) {
+                            $this->SetValueBoolean('Mute', (bool) $LMSData->Data[0]);
+                        }
                         break;
                     case 'bass':
                         if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableBass)) {
@@ -3991,12 +4008,13 @@ class Squeezebox extends IPSModuleStrict
                             $this->SetValueInteger('Tracks', (int) $LMSData->Data[0]);
                         }
                         break;
+                    case 'delete':
                     case 'addtracks':
-                        $this->RequestState('Tracks');
-                        break;
                     case 'load_done':
                     case 'resume':
-                        $this->RequestState('Tracks');
+                        if (!$this->isSubscribed) {
+                            $this->RequestState('Tracks');
+                        }
                         break;
                     case 'shuffle':
                         if ($this->GetValue('Shuffle') != (int) $LMSData->Data[0]) {
@@ -4010,7 +4028,9 @@ class Squeezebox extends IPSModuleStrict
                         } elseif ($Value == 2) {
                             $Value = 1;
                         }
-                        $this->SetValueInteger('Repeat', $Value);
+                        if ($this->GetValue('Repeat') != $Value) {
+                            $this->SetValueInteger('Repeat', $Value);
+                        }
                         break;
                     case 'name':
                         $this->SetValueString('Playlistname', trim((string) $LMSData->Data[0]));
@@ -4027,13 +4047,15 @@ class Squeezebox extends IPSModuleStrict
                         }
                         break;
                     case 'newsong':
-                        $this->SetValueString('Title', trim((string) $LMSData->Data[0]));
+                        $Value = trim((string) (string) $LMSData->Data[0]);
+                        if ($this->GetValue('Title') != $Value) {
+                            $this->SetValueString('Title', $Value);
+                        }
                         if (isset($LMSData->Data[1])) {
                             $this->SetValueInteger('Index', (int) $LMSData->Data[1] + 1);
                         } else {
                             $this->_RefreshPlaylistIndex();
                         }
-
                         $this->RequestState('Playlistname');
                         $this->RequestState('Album');
                         $this->RequestState('Title');
@@ -4042,8 +4064,6 @@ class Squeezebox extends IPSModuleStrict
                         $this->RequestState('Duration');
                         $this->SetCover();
                         break;
-                    case 'clear':
-
                     default:
                         return false;
                 }
@@ -4063,7 +4083,9 @@ class Squeezebox extends IPSModuleStrict
                 $this->SetValueString('Genre', trim((string) $LMSData->Data[0]));
                 break;
             case 'duration':
-                $this->_SetNewDuration((int) $LMSData->Data[0]);
+                if ((int) $LMSData->Data[0] != $this->DurationRAW) {
+                    $this->_SetNewDuration((int) $LMSData->Data[0]);
+                }
                 break;
             case 'time':
                 $this->PositionRAW = (int) $LMSData->Data[0];
@@ -4175,7 +4197,9 @@ class Squeezebox extends IPSModuleStrict
                             $this->_SetNewTime((int) $Data->Value);
                             break;
                         case 'duration':
-                            $this->_SetNewDuration((int) $Data->Value);
+                            if ((int) $Data->Value != $this->DurationRAW) {
+                                $this->_SetNewDuration((int) $Data->Value);
+                            }
                             break;
                         case 'can_seek':
                             $this->_SetSeekable((int) $Data->Value == 1);
@@ -4231,7 +4255,9 @@ class Squeezebox extends IPSModuleStrict
                             } elseif ($Value == 2) {
                                 $Value = 1;
                             }
-                            $this->SetValueInteger('Repeat', $Value);
+                            if ($this->GetValue('Repeat') != $Value) {
+                                $this->SetValueInteger('Repeat', $Value);
+                            }
                             break;
                         case 'playlist shuffle':
                             if ($this->GetValue('Shuffle') != (int) $Data->Value) {
@@ -4260,7 +4286,10 @@ class Squeezebox extends IPSModuleStrict
                         case 'current_title':
                             break;
                         case 'title':
-                            $this->SetValueString('Title', trim((string) $Data->Value));
+                            $Value = trim((string) $Data->Value);
+                            if ($this->GetValue('Title') != $Value) {
+                                $this->SetValueString('Title', $Value);
+                            }
                             break;
                         case 'genre':
                             $this->SetValueString('Genre', trim((string) $Data->Value));
