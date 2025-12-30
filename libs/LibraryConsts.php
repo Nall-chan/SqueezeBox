@@ -90,10 +90,16 @@ namespace SqueezeBox\Presentation{
         public const ColorActive = 'ColorActive';
         public const Color = 'ColorValue';
     }
+
     class HTML
     {
         public const Type = 'HTML_TYPE';
         public const Padding = 'PADDING';
+    }
+
+    class Duration
+    {
+        public const Format = 'FORMAT';
     }
 }
 
@@ -150,6 +156,7 @@ namespace SqueezeBox\Device
         public const ShowSignalStrength = 'showSignalstrength';
         public const ShowTilePlaylist = 'showTilePlaylist';
         public const ShowHTMLPlaylist = 'showHTMLPlaylist';
+        public const ShowTotalPlaytime = 'showTotalPlaytime';
         public const ChangeName = 'changeName';
         public const Table = 'Table';
         public const Columns = 'Columns';

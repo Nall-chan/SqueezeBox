@@ -1618,14 +1618,14 @@ class SqueezeboxAlarm extends IPSModuleStrict
                         [
                             \SqueezeBox\Presentation\Enum::Value      => 1,
                             \SqueezeBox\Presentation\Enum::Caption    => $this->Translate('Title'),
-                            \SqueezeBox\Presentation\Enum::IconActive => false,
+                            \SqueezeBox\Presentation\Enum::IconActive => true,
                             \SqueezeBox\Presentation\Enum::Icon       => 'list-music',
                             \SqueezeBox\Presentation\Enum::Color      => -1
                         ],
                         [
                             \SqueezeBox\Presentation\Enum::Value      => 2,
                             \SqueezeBox\Presentation\Enum::Caption    => $this->Translate('Album'),
-                            \SqueezeBox\Presentation\Enum::IconActive => false,
+                            \SqueezeBox\Presentation\Enum::IconActive => true,
                             \SqueezeBox\Presentation\Enum::Icon       => 'album',
                             \SqueezeBox\Presentation\Enum::Color      => -1
                         ]
@@ -1638,11 +1638,39 @@ class SqueezeboxAlarm extends IPSModuleStrict
         }
         $this->SetValueInteger('AlarmShuffle' . $Alarm->Index, $Alarm->Shufflemode);
 
-        // @todo Profil ~Repeat bleibt noch
         if ($this->RegisterVariableInteger(
             'AlarmRepeat' . $Alarm->Index,
             sprintf($this->Translate('Alarm %d repeat'), $Alarm->Index + 1),
-            '~Repeat',
+            [
+                \SqueezeBox\Presentation::Icon         => 'Repeat',
+                \SqueezeBox\Presentation::Type         => VARIABLE_PRESENTATION_ENUMERATION,
+                \SqueezeBox\Presentation\Enum::Layout  => 0,
+                \SqueezeBox\Presentation\Enum::Options => json_encode(
+                    [
+                        [
+                            \SqueezeBox\Presentation\Enum::Value      => 0,
+                            \SqueezeBox\Presentation\Enum::Caption    => $this->Translate('Off'),
+                            \SqueezeBox\Presentation\Enum::IconActive => true,
+                            \SqueezeBox\Presentation\Enum::Icon       => 'xmark',
+                            \SqueezeBox\Presentation\Enum::Color      => -1
+                        ],
+                        [
+                            \SqueezeBox\Presentation\Enum::Value      => 1,
+                            \SqueezeBox\Presentation\Enum::Caption    => $this->Translate('Playlist'),
+                            \SqueezeBox\Presentation\Enum::IconActive => true,
+                            \SqueezeBox\Presentation\Enum::Icon       => 'list-music',
+                            \SqueezeBox\Presentation\Enum::Color      => -1
+                        ],
+                        [
+                            \SqueezeBox\Presentation\Enum::Value      => 2,
+                            \SqueezeBox\Presentation\Enum::Caption    => $this->Translate('Title'),
+                            \SqueezeBox\Presentation\Enum::IconActive => true,
+                            \SqueezeBox\Presentation\Enum::Icon       => 'file-music',
+                            \SqueezeBox\Presentation\Enum::Color      => -1
+                        ]
+                    ]
+                )
+            ],
             (($Alarm->Index + 1) * 10) + 4
         )) {
             $this->EnableAction('AlarmRepeat' . $Alarm->Index);

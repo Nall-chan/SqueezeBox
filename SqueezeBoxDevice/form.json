@@ -235,6 +235,12 @@
                     "caption": "Show playlist as HTML-Box",
                     "onChange": "IPS_RequestAction($id,'showHTMLPlaylist',$showHTMLPlaylist);",
                     "width": "300px"
+                },
+                {
+                    "name": "showTotalPlaytime",
+                    "type": "CheckBox",
+                    "caption": "Show total runtime of playlist",
+                    "width": "300px"
                 }
             ]
         },

@@ -1836,6 +1836,8 @@ class LyrionMusicServer extends IPSModuleStrict
      */
     protected function IOChangeState(int $State): void
     {
+        // Setzen wir uns auf inactive, weil wir vorher eventuell im Fehlerzustand waren und bei IS_ACTIVE auf jeden fall ein Statuswechsel für die Childs brauchen.
+        $this->SetStatus(IS_INACTIVE);
         if ($State == IS_ACTIVE) {
             if ($this->HasActiveParent()) {
                 if ($this->CheckLogin() !== true) {
@@ -1865,7 +1867,6 @@ class LyrionMusicServer extends IPSModuleStrict
                 return;
             }
         }
-        $this->SetStatus(IS_INACTIVE); // Setzen wir uns auf inactive, weil wir vorher eventuell im Fehlerzustand waren.
         $this->SetTimerInterval(\SqueezeBox\Splitter\Timer::KeepAlive, 0);
         $this->ReloadForm();
     }

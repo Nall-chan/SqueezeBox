@@ -103,6 +103,7 @@ class Squeezebox extends IPSModuleStrict
         $this->RegisterPropertyBoolean(\SqueezeBox\Device\Property::ShowSignalStrength, false);
         $this->RegisterPropertyBoolean(\SqueezeBox\Device\Property::ShowTilePlaylist, true);
         $this->RegisterPropertyBoolean(\SqueezeBox\Device\Property::ShowHTMLPlaylist, false);
+        $this->RegisterPropertyBoolean(\SqueezeBox\Device\Property::ShowTotalPlaytime, true);
         $Style = $this->GenerateHTMLStyleProperty();
         $this->RegisterPropertyString(\SqueezeBox\Device\Property::Table, json_encode($Style['Table']));
         $this->RegisterPropertyString(\SqueezeBox\Device\Property::Columns, json_encode($Style['Columns']));
@@ -201,8 +202,8 @@ class Squeezebox extends IPSModuleStrict
         $this->UnregisterProfile('LSQ.Pitch');
         $this->UnregisterProfile('LSQ.Sync.' . $this->InstanceID);
         //$this->UnregisterProfile('LSQ.Tracklist.' . $this->InstanceID);
+        $this->UnregisterProfile('LSQ.Shuffle');
 
-        //$this->UnregisterProfile('LSQ.Shuffle');
         //$this->UnregisterProfile('LSQ.SleepTimer');
 
         if (preg_match('/\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b/', $Address) !== 1) {
@@ -559,13 +560,86 @@ class Squeezebox extends IPSModuleStrict
             ],
             29
         );
-        $this->RegisterVariableInteger('Shuffle', $this->Translate('Shuffle'), 'LSQ.Shuffle', 9);
+        $this->RegisterVariableInteger(
+            'Shuffle',
+            $this->Translate('Shuffle'),
+            [
+                \SqueezeBox\Presentation::Icon         => 'Shuffle',
+                \SqueezeBox\Presentation::Type         => VARIABLE_PRESENTATION_ENUMERATION,
+                \SqueezeBox\Presentation\Enum::Layout  => 0,
+                \SqueezeBox\Presentation\Enum::Options => json_encode(
+                    [
+                        [
+                            \SqueezeBox\Presentation\Enum::Value      => 0,
+                            \SqueezeBox\Presentation\Enum::Caption    => $this->Translate('Off'),
+                            \SqueezeBox\Presentation\Enum::IconActive => true,
+                            \SqueezeBox\Presentation\Enum::Icon       => 'xmark',
+                            \SqueezeBox\Presentation\Enum::Color      => -1
+                        ],
+                        [
+                            \SqueezeBox\Presentation\Enum::Value      => 1,
+                            \SqueezeBox\Presentation\Enum::Caption    => $this->Translate('Title'),
+                            \SqueezeBox\Presentation\Enum::IconActive => true,
+                            \SqueezeBox\Presentation\Enum::Icon       => 'list-music',
+                            \SqueezeBox\Presentation\Enum::Color      => -1
+                        ],
+                        [
+                            \SqueezeBox\Presentation\Enum::Value      => 2,
+                            \SqueezeBox\Presentation\Enum::Caption    => $this->Translate('Album'),
+                            \SqueezeBox\Presentation\Enum::IconActive => true,
+                            \SqueezeBox\Presentation\Enum::Icon       => 'album',
+                            \SqueezeBox\Presentation\Enum::Color      => -1
+                        ]
+                    ]
+                )
+            ],
+            9
+        );
         $this->PlayerShuffle = $this->FindIDForIdent('Shuffle');
         $this->EnableAction('Shuffle');
         $this->RegisterMessage($this->PlayerShuffle, VM_UPDATE);
-        $this->RegisterVariableInteger('Repeat', $this->Translate('Repeat'), '~Repeat', 10);
+        $this->RegisterVariableInteger(
+            'Repeat',
+            $this->Translate('Repeat'),
+            [
+                \SqueezeBox\Presentation::Icon         => 'Repeat',
+                \SqueezeBox\Presentation::Type         => VARIABLE_PRESENTATION_ENUMERATION,
+                \SqueezeBox\Presentation\Enum::Layout  => 0,
+                \SqueezeBox\Presentation\Enum::Options => json_encode(
+                    [
+                        [
+                            \SqueezeBox\Presentation\Enum::Value      => 0,
+                            \SqueezeBox\Presentation\Enum::Caption    => $this->Translate('Off'),
+                            \SqueezeBox\Presentation\Enum::IconActive => true,
+                            \SqueezeBox\Presentation\Enum::Icon       => 'xmark',
+                            \SqueezeBox\Presentation\Enum::Color      => -1
+                        ],
+                        [
+                            \SqueezeBox\Presentation\Enum::Value      => 1,
+                            \SqueezeBox\Presentation\Enum::Caption    => $this->Translate('Playlist'),
+                            \SqueezeBox\Presentation\Enum::IconActive => true,
+                            \SqueezeBox\Presentation\Enum::Icon       => 'list-music',
+                            \SqueezeBox\Presentation\Enum::Color      => -1
+                        ],
+                        [
+                            \SqueezeBox\Presentation\Enum::Value      => 2,
+                            \SqueezeBox\Presentation\Enum::Caption    => $this->Translate('Title'),
+                            \SqueezeBox\Presentation\Enum::IconActive => true,
+                            \SqueezeBox\Presentation\Enum::Icon       => 'file-music',
+                            \SqueezeBox\Presentation\Enum::Color      => -1
+                        ]
+                    ]
+                )
+            ],
+            10
+        );
         $this->EnableAction('Repeat');
-        $this->RegisterVariableInteger('Tracks', $this->Translate('Tracks in Playlist'), '', 11);
+        $this->RegisterVariableInteger(
+            'Tracks',
+            $this->Translate('Tracks in Playlist'),
+            [],
+            11
+        );
         $this->PlayerTracks = $this->FindIDForIdent('Tracks');
         $this->RegisterMessage($this->PlayerTracks, VM_UPDATE);
         $this->RegisterProfileInteger('LSQ.Tracklist.' . $this->InstanceID, '', '', '', (($this->GetValue('Tracks') == 0) ? 0 : 1), $this->GetValue('Tracks'), 1);
@@ -604,7 +678,19 @@ class Squeezebox extends IPSModuleStrict
         } else {
             $this->UnregisterVariable('HTMLPlaylist');
         }
-
+        if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowTotalPlaytime)) {
+            $this->RegisterVariableInteger(
+                'TotalRuntime',
+                $this->Translate('Runtime'),
+                [
+                    \SqueezeBox\Presentation::Type            => VARIABLE_PRESENTATION_DURATION,
+                    \SqueezeBox\Presentation\Duration::Format => 2
+                ],
+                35
+            );
+        } else {
+            $this->UnregisterVariable('TotalRuntime');
+        }
         // Wenn Kernel nicht bereit, dann warten... wenn unser IO Aktiv wird, holen wir unsere Daten :)
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
@@ -672,6 +758,12 @@ class Squeezebox extends IPSModuleStrict
                 }
                 if ($SenderID == $this->PlayerTrackIndex) {
                     $this->_RefreshPlaylistIndex();
+                    $this->SetCover();
+                    $this->RequestState('Album');
+                    $this->RequestState('Title');
+                    $this->RequestState('Artist');
+                    $this->RequestState('Genre');
+                    $this->RequestState('Duration');
                 }
                 if ($SenderID == $this->PlayerTracks) {
                     if ($Data[0] == 0) {
@@ -735,6 +827,8 @@ class Squeezebox extends IPSModuleStrict
         if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableRandomPlay)) {
             $this->RequestState('Randomplay');
         }
+        $this->SetCover();
+        $this->_RefreshPlaylist();
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['status', '-', 1], ['tags:gladiqrRtueJINpsy', 'subscribe:0']));
         if ($LMSData === null) {
             return false;
@@ -2799,6 +2893,9 @@ class Squeezebox extends IPSModuleStrict
         }
         $LMSData->SliceData();
         $SongInfo = new \SqueezeBox\LMSSongInfo($LMSData->Data);
+        if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowTotalPlaytime)) {
+            $this->SetValueInteger('TotalRuntime', $SongInfo->GetTotalDuration());
+        }
         return $SongInfo->GetAllSongs();
     }
 
@@ -3098,7 +3195,6 @@ class Squeezebox extends IPSModuleStrict
         }
         $this->SetStatus($Value);
         if ($Value == IS_ACTIVE) {
-            $this->_RefreshPlaylist();
             // Erst nach 5 Sekunden, sonst sind beim ModuleReload InstanceInterface Fehler möglich
             IPS_RunScriptText('IPS_Sleep(5000);IPS_RequestAction(' . $this->InstanceID . ', \'_SetNewSyncProfil\', true);');
         }
@@ -4048,21 +4144,20 @@ class Squeezebox extends IPSModuleStrict
                         break;
                     case 'newsong':
                         $Value = trim((string) (string) $LMSData->Data[0]);
-                        if ($this->GetValue('Title') != $Value) {
-                            $this->SetValueString('Title', $Value);
-                        }
+                        $this->SetValueString('Title', $Value);
                         if (isset($LMSData->Data[1])) {
                             $this->SetValueInteger('Index', (int) $LMSData->Data[1] + 1);
-                        } else {
                             $this->_RefreshPlaylistIndex();
+                            $this->SetCover();
+                        } else {
+                            $this->RequestState('Playlistname');
+                            $this->RequestState('Album');
+                            $this->RequestState('Title');
+                            $this->RequestState('Artist');
+                            $this->RequestState('Genre');
+                            $this->RequestState('Duration');
+                            $this->SetCover();
                         }
-                        $this->RequestState('Playlistname');
-                        $this->RequestState('Album');
-                        $this->RequestState('Title');
-                        $this->RequestState('Artist');
-                        $this->RequestState('Genre');
-                        $this->RequestState('Duration');
-                        $this->SetCover();
                         break;
                     default:
                         return false;

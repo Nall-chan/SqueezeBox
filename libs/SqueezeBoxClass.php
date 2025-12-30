@@ -38,12 +38,6 @@ trait LSQProfile
      */
     private function CreateProfile(): void
     {
-        $this->RegisterProfileIntegerEx('LSQ.Shuffle', 'Shuffle', '', '', [
-            [0, $this->Translate('Off'), '', -1],
-            [1, $this->Translate('Title'), '', -1],
-            [2, 'Album', '', -1]
-        ]);
-
         $this->RegisterProfileIntegerEx('LSQ.SleepTimer', 'Gear', '', '', [
             [0, '%d', '', -1],
             [900, '%d', '', -1],
@@ -705,7 +699,7 @@ class LMSSongInfo extends \stdClass
             }
 
             if ($Part->Name == 'duration') {
-                $Duration = +intval($Part->Value);
+                $Duration += (int) $Part->Value;
             }
             if (static::$SongFields[$Index] == 0) {
                 $Songs[$id][$Index] = (bool) ($Part->Value);

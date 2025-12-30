@@ -31,6 +31,7 @@
             "Repeat": "Wiederholen",
             "Show playlist as HTML-Box": "Playlist als HTML-Box anlegen",
             "Enable Tile-Visu Playlist": "Aktiviere Kachel-Visu Playlist",
+            "Show total runtime of playlist": "Zeige Gesamtlaufzeit der Playlist",
             "Playlist design": "Playlist Darstellung",
             "Table design": "Darstellung Tabelle",
             "HTML-Tag": "HTML-Tag",
@@ -111,6 +112,7 @@
             "Signal strength": "Signalstärke",
             "Sleep timer": "Einschlaftimer",
             "Switch off in": "Ausschalten in",
+            "Runtime": "Laufzeit",
             "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"
         }
     }
