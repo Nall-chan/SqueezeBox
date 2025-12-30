@@ -60,6 +60,19 @@ namespace SqueezeBox\Presentation{
         public const Step = 'STEP_SIZE';
         public const Suffix = 'SUFFIX';
         public const Type = 'USAGE_TYPE';
+        public const IntervalMinValue = 'IntervalMinValue';
+        public const IntervalMaxValue = 'IntervalMaxValue';
+        public const ConstantActive = 'ConstantActive';
+        public const ConstantValue = 'ConstantValue';
+        public const ConversionFactor = 'ConversionFactor';
+        public const PrefixActive = 'PrefixActive';
+        public const PrefixValue = 'PrefixValue';
+        public const SuffixActive = 'SuffixActive';
+        public const SuffixValue = 'SuffixValue';
+        public const DigitsActive = 'DigitsActive';
+        public const DigitsValue = 'DigitsValue';
+        public const IconActive = 'IconActive';
+        public const IconValue = 'IconValue';
     }
     class Enum
     {
@@ -84,6 +97,19 @@ namespace SqueezeBox\Presentation{
         public const Intervals = 'INTERVALS';
         public const Options = 'OPTIONS';
         public const Value = 'Value';
+
+        public const IntervalMinValue = 'IntervalMinValue';
+        public const IntervalMaxValue = 'IntervalMaxValue';
+        public const ConstantActive = 'ConstantActive';
+        public const ConstantValue = 'ConstantValue';
+        public const ConversionFactor = 'ConversionFactor';
+        public const PrefixActive = 'PrefixActive';
+        public const PrefixValue = 'PrefixValue';
+        public const SuffixActive = 'SuffixActive';
+        public const SuffixValue = 'SuffixValue';
+        public const DigitsActive = 'DigitsActive';
+        public const DigitsValue = 'DigitsValue';
+
         public const Caption = 'Caption';
         public const IconActive = 'IconActive';
         public const Icon = 'IconValue';

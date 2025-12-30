@@ -28,38 +28,6 @@ enum DeviceType
     case isIP;
 }
 
-trait LSQProfile
-{
-    /**
-     * CreateProfile
-     * Erzeugt alle benötigten Profile.
-     *
-     * @return void
-     */
-    private function CreateProfile(): void
-    {
-        $this->RegisterProfileIntegerEx('LSQ.SleepTimer', 'Gear', '', '', [
-            [0, '%d', '', -1],
-            [900, '%d', '', -1],
-            [1800, '%d', '', -1],
-            [2700, '%d', '', -1],
-            [3600, '%d', '', -1],
-            [5400, '%d', '', -1]
-        ]);
-    }
-
-    /**
-     * DeleteProfile
-     * Löscht alle nicht mehr benötigten Profile.
-     *
-     * @return void
-     */
-    private function DeleteProfile(): void
-    {
-
-    }
-}
-
 /**
  * Definiert eine Datensatz zum Versenden an des LMS.
  *

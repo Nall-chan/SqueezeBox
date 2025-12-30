@@ -76,8 +76,6 @@ Bei der manuellen Einrichtung ist die Instanz im Dialog `Instanz hinzufügen` un
 | Aktiviere Hochtonregler                | enableTreble       | boolean | false        | Statusvariable für Hochtonregler anlegen.                             |
 | Aktiviere Tonhöhenregler               | enablePitch        | boolean | false        | Statusvariable für Tonhöhenregler anlegen.                            |
 | Aktiviere Zufallswiedergabe            | enableRandomplay   | boolean | false        | Statusvariable für Zufallswiedergabe anlegen.                         |
-| Aktiviere Dauer in Sekunden            | enableRawDuration  | boolean | false        | Statusvariable für Dauer in Sekunden anlegen.                         |
-| Aktiviere Spielzeit in Sekunden        | enableRawPosition  | boolean | false        | Statusvariable für aktuelle Position im Track in Sekunden anlegen.    |
 | Aktiviere Einschlaftimer Steuerung     | enablePreset       | boolean | false        | Statusvariable zur Steuerung des Einschlaftimer anlegen.              |
 | Zeige Restzeit Einschlaftimer          | showSleepTimeout   | boolean | false        | Statusvariable für Ablauf des Sleep-Timer anlegen.                    |
 | Aktiviere Preset                       | enableSleepTimer   | boolean | false        | Statusvariable für Presets anlegen.                                   |
@@ -86,11 +84,14 @@ Bei der manuellen Einrichtung ist die Instanz im Dialog `Instanz hinzufügen` un
 | Zeige Steuerung für Sync an            | showSyncControl    | boolean | false        | Statusvariable für Synchronisierung anlegen.                          |
 | Größe Cover                            | CoverSize          | string  | cover        | Größe vom Cover:  cover  cover150x150  cover300x300                   |
 | Update Interval bei Wiedergabe         | Interval           | integer | 2            | Abstand in welchen der LMS aktuelle Daten bei der Wiedergabe liefert. |
+| Zeige Laufzeit der Playlist an         | showTotalPlaytime  | boolean | true         | Die Gesamtzeit der aktuellen Playlist in Sekunden                     |
 | Playlist für Kachel-Visu anlegen       | showTilePlaylist   | boolean | true         | Aktiviert die Darstellung der Playlist für die Kachel-Visu.           |
 | Playlist als HTML-Box anlegen          | showHTMLPlaylist   | boolean | false        | Aktiviert die Darstellung der Playlist als HTML-Box.                  |
 | Playlist Darstellung                   | Table              | string  | Tabelle      | Style Eigenschaften der HTML-Playlist Tabelle.                        |
 | Playlist Spalten                       | Columns            | string  | Tabelle      | Style Eigenschaften der HTML-Playlist (Spalten).                      |
 | Playlist Zeilen                        | Rows               | string  | Tabelle      | Style Eigenschaften der HTML-Playlist (Zeilen).                       |
+| Aktiviere Dauer als Text               | enableDurationText | boolean | false        | Statusvariable für Dauer (als string) anlegen.                        |
+| Aktiviere Spielzeit als Text           | enablePositionText | boolean | false        | Statusvariable für aktuelle Position im Track (als string) anlegen.   |
 
 ## 5. Statusvariablen
 
@@ -98,36 +99,36 @@ Folgende Statusvariablen werden automatisch angelegt.
 
 **Statusvariablen allgemein:**  
 
-| Name                   |   Typ   | Ident          | Beschreibung                                               |
-| :--------------------- | :-----: | :------------- | :--------------------------------------------------------- |
-| Power                  | boolean | Power          | Player ein- oder ausgeschaltet                             |
-| Status                 | integer | Status         | Wiedergabemodus: Play, Pause, Stop                         |
-| Preset                 | integer | Preset         | Aktionsbutton für das WebFront um einen Preset auszurufen  |
-| Mute                   | boolean | Mute           | Stummschaltung aktiv / desaktiv                            |
-| Volume                 | integer | Volume         | Lautstärke                                                 |
-| Bass                   | integer | Bass           | Regler für Bass                                            |
-| Hochtonregler          | integer | Treble         | Regler für Hochton                                         |
-| Pitch                  | integer | Pitch          | Regler für Tonhöhen                                        |
-| Zufallswiedergabe      | integer | Randomplay     | Modus der Zufallswiedergabe                                |
-| Master                 | boolean | Master         | true wenn der Player der Master einer Synchronisierung ist |
-| Synchronisieren        | integer | Sync           | Bedienung für die Synchronisierung aus dem WebFront        |
-| Mischen                | integer | Shuffle        | Aktuelle Playlist mischen                                  |
-| Wiederholen            | integer | Repeat         | Aktuelle Playlist wiederholen                              |
-| Playlist Anzahl Tracks | integer | Tracks         | Aktuelle Anzahl der Tracks in der Playlist                 |
-| Name der Playlist      | string  | Playlistname   | Name der Playlist oder Remote-Stream, sofern vorhanden     |
-| Album                  | string  | Album          | Album des Tracks der aktuellen Wiedergabe                  |
-| Titel                  | string  | Title          | Titel des Tracks der aktuellen Wiedergabe                  |
-| Interpret              | string  | Artist         | Interpret des Tracks der aktuellen Wiedergabe              |
-| Stilrichtung           | string  | Genre          | Stilrichtung des Tracks der aktuellen Wiedergabe           |
-| Dauer                  | string  | Duration       | Spielzeit des Tracks der aktuellen Wiedergabe              |
-| Dauer in Sekunden      | integer | DurationRaw    | Spielzeit des Tracks der aktuellen Wiedergabe in Sekunden  |
-| Spielzeit              | string  | Position       | Aktuelle Postion im Track als Klartext                     |
-| Position               |  float  | Position2      | Aktuelle Postion im Track in Prozent                       |
-| Spielzeit in Sekunden  | integer | PositionRaw    | Aktuelle Position im Track in Sekunden                     |
-| Signalstärke           | integer | Signalstrength | WLAN-Signalstärke des Players                              |
-| Einschlaftimer         | integer | SleepTimer     | Gewählter Zeitraum für Einschlaftimer                      |
-| Ausschalten in         | string  | SleepTimeout   | Zeit bis zum Ausschalten                                   |
-| Playlist               | string  | Playlist       | HTML-Box mit der Playlist des Players                      |
+| Name                    |   Typ   | Ident          | Beschreibung                                                |
+| :---------------------- | :-----: | :------------- | :---------------------------------------------------------- |
+| Power                   | boolean | Power          | Player ein- oder ausgeschaltet                              |
+| Status                  | integer | Status         | Wiedergabemodus: Play, Pause, Stop                          |
+| Preset                  | integer | Preset         | Aktionsbutton für das WebFront um einen Preset auszurufen   |
+| Mute                    | boolean | Mute           | Stummschaltung aktiv / desaktiv                             |
+| Volume                  | integer | Volume         | Lautstärke                                                  |
+| Bass                    | integer | Bass           | Regler für Bass                                             |
+| Hochtonregler           | integer | Treble         | Regler für Hochton                                          |
+| Pitch                   | integer | Pitch          | Regler für Tonhöhen                                         |
+| Zufallswiedergabe       | integer | Randomplay     | Modus der Zufallswiedergabe                                 |
+| Master                  | boolean | Master         | true wenn der Player der Master einer Synchronisierung ist  |
+| Synchronisieren         | integer | Sync           | Bedienung für die Synchronisierung aus dem WebFront         |
+| Mischen                 | integer | Shuffle        | Aktuelle Playlist mischen                                   |
+| Wiederholen             | integer | Repeat         | Aktuelle Playlist wiederholen                               |
+| Playlist Anzahl Tracks  | integer | Tracks         | Aktuelle Anzahl der Tracks in der Playlist                  |
+| Name der Playlist       | string  | Playlistname   | Name der Playlist oder Remote-Stream, sofern vorhanden      |
+| Album                   | string  | Album          | Album des Tracks der aktuellen Wiedergabe                   |
+| Titel                   | string  | Title          | Titel des Tracks der aktuellen Wiedergabe                   |
+| Interpret               | string  | Artist         | Interpret des Tracks der aktuellen Wiedergabe               |
+| Stilrichtung            | string  | Genre          | Stilrichtung des Tracks der aktuellen Wiedergabe            |
+| Dauer                   | integer | Duration       | Spielzeit des Tracks der aktuellen Wiedergabe               |
+| Dauer (abgekündigt)     | string  | DurationText   | Spielzeit des Tracks der aktuellen Wiedergabe  als Klartext |
+| Position                |  float  | Position2      | Aktuelle Position im Track in Prozent                       |
+| Spielzeit in Sekunden   | integer | Position       | Aktuelle Position im Track                                  |
+| Spielzeit (abgekündigt) | string  | PositionText   | Aktuelle Position im Track als Klartext                     |
+| Signalstärke            | integer | Signalstrength | WLAN-Signalstärke des Players                               |
+| Einschlaftimer          | integer | SleepTimer     | Gewählter Zeitraum für Einschlaftimer                       |
+| Ausschalten in          | integer | SleepTimeout   | Zeit bis zum Ausschalten                                    |
+| Playlist                | string  | Playlist       | HTML-Box mit der Playlist des Players                       |
 
 ## 6. Visualisierung
 

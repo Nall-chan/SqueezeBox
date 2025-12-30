@@ -60,7 +60,6 @@ class Squeezebox extends IPSModuleStrict
         \SqueezeBox\LMSHTMLTable,
         \SqueezeBox\LMSSongUrl,
         \SqueezeBox\LMSCover,
-        \SqueezeBox\LSQProfile,
         \SqueezeBox\DebugHelper,
         \SqueezeboxDevice\VariableHelper,
         \SqueezeboxDevice\VariableProfileHelper,
@@ -110,16 +109,18 @@ class Squeezebox extends IPSModuleStrict
         $this->RegisterPropertyString(\SqueezeBox\Device\Property::Rows, json_encode($Style['Rows']));
         $this->RegisterPropertyBoolean(\SqueezeBox\Device\Property::ChangeName, false);
 
-        $this->Multi_Playlist = [];
         $this->ParentID = 0;
+        $this->Multi_Playlist = [];
         $this->PlayerMode = 0;
-        $this->PlayerShuffle = 0;
         $this->PlayerTrackIndex = 0;
-        $this->DurationRAW = 0;
+        $this->PlayerShuffle = 0;
+        $this->PlayerTracks = 0;
         $this->isSeekable = false;
         $this->isSubscribed = false;
+        $this->DurationRAW = 0;
         $this->SyncMaster = '';
         $this->SyncMembers = '';
+        $this->WebHookSecretTrack = '';
     }
 
     /**
@@ -160,6 +161,12 @@ class Squeezebox extends IPSModuleStrict
             if ($vid > 0) { //Migrate PositionRaw Playlist to Position
                 @IPS_SetIdent($vid, 'Position');
             }
+
+            $vid = $this->FindIDForIdent('SleepTimeout');
+            if ($vid > 0) { //Migrate PositionRaw Playlist to Position
+                @IPS_SetIdent($vid, 'SleepTimeoutOld');
+                @IPS_SetName($vid, 'SleepTimeout (old)');
+            }
             $this->UnregisterVariable('Connected');
             $this->SendDebug('Migrate', json_encode($Data), 0);
             $this->LogMessage('Migrated settings:' . json_encode($Data), KL_MESSAGE);
@@ -174,21 +181,28 @@ class Squeezebox extends IPSModuleStrict
      */
     public function ApplyChanges(): void
     {
+        foreach ($this->GetMessageList() as $senderID => $messages) {
+            foreach ($messages as $message) {
+                $this->UnregisterMessage($senderID, $message);
+            }
+        }
         $this->SetReceiveDataFilter('.*"Address":"".*');
         $this->RegisterMessage(0, IPS_KERNELSTARTED);
         $this->RegisterMessage($this->InstanceID, FM_CONNECT);
         $this->RegisterMessage($this->InstanceID, FM_DISCONNECT);
         $this->RegisterMessage($this->InstanceID, IM_CHANGESTATUS);
-        $this->Multi_Playlist = [];
         $this->ParentID = 0;
+        $this->Multi_Playlist = [];
         $this->PlayerMode = 0;
-        $this->PlayerShuffle = 0;
         $this->PlayerTrackIndex = 0;
-        $this->DurationRAW = 0;
+        $this->PlayerShuffle = 0;
+        $this->PlayerTracks = 0;
         $this->isSeekable = false;
         $this->isSubscribed = false;
+        $this->DurationRAW = 0;
         $this->SyncMaster = '';
         $this->SyncMembers = '';
+        $this->WebHookSecretTrack = '';
         parent::ApplyChanges();
         $Address = $this->ReadPropertyString(\SqueezeBox\Device\Property::Address);
         // Adresse als Filter setzen
@@ -203,9 +217,7 @@ class Squeezebox extends IPSModuleStrict
         $this->UnregisterProfile('LSQ.Sync.' . $this->InstanceID);
         //$this->UnregisterProfile('LSQ.Tracklist.' . $this->InstanceID);
         $this->UnregisterProfile('LSQ.Shuffle');
-
-        //$this->UnregisterProfile('LSQ.SleepTimer');
-
+        $this->UnregisterProfile('LSQ.SleepTimer');
         if (preg_match('/\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b/', $Address) !== 1) {
             $this->RegisterVariableBoolean(
                 'Power',
@@ -463,7 +475,7 @@ class Squeezebox extends IPSModuleStrict
             $this->UnregisterVariable('Master');
             $this->UnregisterVariable('Sync');
         }
-        // @todo muss noch Profil bleiben bis Symcon eine Darstellung dafür hat
+        // @todo @Symcon muss noch Profil bleiben bis Symcon eine Darstellung dafür hat
         $this->RegisterVariableInteger(
             'Status',
             $this->Translate('State'),
@@ -647,21 +659,119 @@ class Squeezebox extends IPSModuleStrict
         $this->PlayerTrackIndex = $this->FindIDForIdent('Index');
         $this->EnableAction('Index');
         $this->RegisterMessage($this->PlayerTrackIndex, VM_UPDATE);
-        $this->RegisterVariableString('Playlistname', 'Name of Playlist', '', 19);
-        $this->RegisterVariableString('Album', 'Album', '', 20);
-        $this->RegisterVariableString('Title', $this->Translate('Title'), '~Song', 21);
-        $this->RegisterVariableString('Artist', $this->Translate('Artist'), '~Artist', 22);
-        $this->RegisterVariableString('Genre', $this->Translate('Genre'), '', 23);
-        $this->RegisterVariableFloat('Position2', 'Position', '~Progress', 26);
+        $this->RegisterVariableString(
+            'Playlistname',
+            'Name of Playlist',
+            [],
+            19
+        );
+        $this->RegisterVariableString(
+            'Album',
+            'Album',
+            [],
+            20
+        );
+        // @todo @Symcon muss noch Profil bleiben bis Symcon eine Darstellung dafür hat
+        $this->RegisterVariableString(
+            'Title',
+            $this->Translate('Title'),
+            '~Song',
+            21
+        );
+        // @todo @Symcon muss noch Profil bleiben bis Symcon eine Darstellung dafür hat
+        $this->RegisterVariableString(
+            'Artist',
+            $this->Translate('Artist'),
+            '~Artist',
+            22
+        );
+        // @todo  @Symcon Kommt da noch was?
+        $this->RegisterVariableString(
+            'Genre',
+            $this->Translate('Genre'),
+            [],
+            23
+        );
+        $this->RegisterVariableFloat(
+            'Position2',
+            'Position',
+            // @todo @Symcon Bringt die Media-Kachel zum Absturz.
+            // Und geht mit Dynamischen Variablen-Aktionen (wenn Stream nicht seekable ist) auch nicht.
+            // Lösung?
+            /*[
+               \SqueezeBox\Presentation::Type                 => VARIABLE_PRESENTATION_SLIDER,
+               \SqueezeBox\Presentation::Icon                 => 'bars-progress',
+               \SqueezeBox\Presentation\Slider::Min           => 0,
+               \SqueezeBox\Presentation\Slider::Max           => 100,
+               \SqueezeBox\Presentation\Slider::Step          => 0.1,
+               \SqueezeBox\Presentation\Slider::Digits        => 1,
+               \SqueezeBox\Presentation\Slider::Type          => 5,
+               \SqueezeBox\Presentation\Slider::Percentage    => true,
+               \SqueezeBox\Presentation\Slider::Prefix        => '',
+               \SqueezeBox\Presentation\Slider::Suffix        => $this->Translate(' %'),
+               \SqueezeBox\Presentation\Slider::IntervalsUsed => false,
+               \SqueezeBox\Presentation\Slider::Intervals     => '[]',
+               \SqueezeBox\Presentation\Slider::GradientType  => 0,
+               \SqueezeBox\Presentation\Slider::Gradient      => '[]',
+        ]*/
+            '~Progress',
+            26
+        );
         $this->DisableAction('Position2');
         if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableSleepTimer)) {
-            $this->RegisterVariableInteger('SleepTimer', $this->Translate('Sleep timer'), 'LSQ.SleepTimer', 32);
+            $this->RegisterVariableInteger(
+                'SleepTimer',
+                $this->Translate('Sleep timer'),
+                [
+                    \SqueezeBox\Presentation::Type                 => VARIABLE_PRESENTATION_SLIDER,
+                    \SqueezeBox\Presentation::Icon                 => 'timer',
+                    \SqueezeBox\Presentation\Slider::Min           => 0,
+                    \SqueezeBox\Presentation\Slider::Max           => 5400,
+                    \SqueezeBox\Presentation\Slider::Step          => 60,
+                    \SqueezeBox\Presentation\Slider::Digits        => 0,
+                    \SqueezeBox\Presentation\Slider::Type          => 5,
+                    \SqueezeBox\Presentation\Slider::Percentage    => false,
+                    \SqueezeBox\Presentation\Slider::Prefix        => '',
+                    \SqueezeBox\Presentation\Slider::Suffix        => $this->Translate(' sec'),
+                    \SqueezeBox\Presentation\Slider::IntervalsUsed => true,
+                    \SqueezeBox\Presentation\Slider::Intervals     => json_encode(
+                        [
+                            [
+                                \SqueezeBox\Presentation\Slider::IntervalMinValue => 0,
+                                \SqueezeBox\Presentation\Slider::IntervalMaxValue => 5400,
+                                \SqueezeBox\Presentation\Slider::ConstantActive   => false,
+                                \SqueezeBox\Presentation\Slider::ConstantValue    => '',
+                                \SqueezeBox\Presentation\Slider::ConversionFactor => 60,
+                                \SqueezeBox\Presentation\Slider::PrefixActive     => false,
+                                \SqueezeBox\Presentation\Slider::PrefixValue      => '',
+                                \SqueezeBox\Presentation\Slider::SuffixActive     => true,
+                                \SqueezeBox\Presentation\Slider::SuffixValue      => $this->Translate(' min'),
+                                \SqueezeBox\Presentation\Slider::DigitsActive     => false,
+                                \SqueezeBox\Presentation\Slider::DigitsValue      => 0,
+                                \SqueezeBox\Presentation\Slider::IconActive       => false,
+                                \SqueezeBox\Presentation\Slider::IconValue        => '',
+                            ]
+                        ]
+                    ),
+                    \SqueezeBox\Presentation\Slider::GradientType  => 0,
+                    \SqueezeBox\Presentation\Slider::Gradient      => '[]'
+                ],
+                32
+            );
             $this->EnableAction('SleepTimer');
         } else {
             $this->UnregisterVariable('SleepTimer');
         }
         if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSleepTimeout)) {
-            $this->RegisterVariableString('SleepTimeout', $this->Translate('Switch off in'), '', 33);
+            $this->RegisterVariableInteger(
+                'SleepTimeout',
+                $this->Translate('Switch off in'),
+                [
+                    \SqueezeBox\Presentation::Icon => 'face-sleeping', // Warum kein Icon bei Dauer?
+                    \SqueezeBox\Presentation::Type => VARIABLE_PRESENTATION_DURATION,
+                ],
+                33
+            );
         } else {
             $this->UnregisterVariable('SleepTimeout');
         }
@@ -746,33 +856,35 @@ class Squeezebox extends IPSModuleStrict
                 if (($this->ReadPropertyString(\SqueezeBox\Device\Property::Address) == '') || ($this->GetStatus() != IS_ACTIVE)) {
                     return;
                 }
-                if ($SenderID == $this->PlayerMode) {
-                    if ($Data[0] == 2) {
-                        $this->_StartSubscribe();
-                    } else {
-                        $this->_StopSubscribe();
-                    }
-                }
-                if ($SenderID == $this->PlayerShuffle) {
-                    $this->_RefreshPlaylist();
-                }
-                if ($SenderID == $this->PlayerTrackIndex) {
-                    $this->_RefreshPlaylistIndex();
-                    $this->SetCover();
-                    $this->RequestState('Album');
-                    $this->RequestState('Title');
-                    $this->RequestState('Artist');
-                    $this->RequestState('Genre');
-                    $this->RequestState('Duration');
-                }
-                if ($SenderID == $this->PlayerTracks) {
-                    if ($Data[0] == 0) {
-                        $this->RegisterProfileInteger('LSQ.Tracklist.' . $this->InstanceID, '', '', '', 0, 0, 1);
-                        $this->_RefreshPlaylist(true);
-                    } else {
-                        $this->RegisterProfileInteger('LSQ.Tracklist.' . $this->InstanceID, '', '', '', 1, $Data[0], 1);
+                switch ($SenderID) {
+                    case $this->PlayerMode:
+                        if ($Data[0] == 2) {
+                            $this->_StartSubscribe();
+                        } else {
+                            $this->_StopSubscribe();
+                        }
+                        break;
+                    case $this->PlayerShuffle:
                         $this->_RefreshPlaylist();
-                    }
+                        break;
+                    case $this->PlayerTrackIndex:
+                        $this->_RefreshPlaylistIndex();
+                        $this->SetCover();
+                        $this->RequestState('Album');
+                        $this->RequestState('Title');
+                        $this->RequestState('Artist');
+                        $this->RequestState('Genre');
+                        $this->RequestState('Duration');
+                        break;
+                    case $this->PlayerTracks:
+                        if ($Data[0] == 0) {
+                            $this->RegisterProfileInteger('LSQ.Tracklist.' . $this->InstanceID, '', '', '', 0, 0, 1);
+                            $this->_RefreshPlaylist(true);
+                        } else {
+                            $this->RegisterProfileInteger('LSQ.Tracklist.' . $this->InstanceID, '', '', '', 1, $Data[0], 1);
+                            $this->_RefreshPlaylist();
+                        }
+                        break;
                 }
                 break;
         }
@@ -3193,10 +3305,19 @@ class Squeezebox extends IPSModuleStrict
                 $Value = ($LMSResponse->Data[0] == '1') ? IS_ACTIVE : IS_INACTIVE;
             }
         }
+        $OldState = $this->GetStatus();
         $this->SetStatus($Value);
         if ($Value == IS_ACTIVE) {
+            if ($OldState == $Value) { // Kein Trigger durch IM_CHANGESTATUS, also selber loslegen
+                $this->RequestAllState();
+            }
             // Erst nach 5 Sekunden, sonst sind beim ModuleReload InstanceInterface Fehler möglich
             IPS_RunScriptText('IPS_Sleep(5000);IPS_RequestAction(' . $this->InstanceID . ', \'_SetNewSyncProfil\', true);');
+        } else {
+            if ($OldState == $Value) { // Kein Trigger durch IM_CHANGESTATUS, also selber loslegen
+                $this->_SetNewPower(false);
+                $this->SetCover();
+            }
         }
     }
 
@@ -3569,16 +3690,17 @@ class Squeezebox extends IPSModuleStrict
     {
         if ($this->GetValue('Power') != $Power) {
             $this->SetValueBoolean('Power', $Power);
-        }
-        if (!$Power) {
-            $this->_SetModeToStop();
-            $this->_SetNewSyncMaster(false);
-            $this->_SetNewSyncMembers('-');
-            if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSleepTimeout)) {
-                $this->SetValueString('SleepTimeout', '');
-            }
-            if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableSleepTimer)) {
-                $this->SetValueInteger('SleepTimer', 0);
+            if (!$Power) {
+                $this->_SetModeToStop();
+                if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSleepTimeout)) {
+                    $this->SetValueInteger('SleepTimeout', 0);
+                }
+                if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableSleepTimer)) {
+                    $this->SetValueInteger('SleepTimer', 0);
+                }
+                if ($this->isSubscribed) {
+                    $this->_StopSubscribe();
+                }
             }
         }
     }
@@ -3620,7 +3742,24 @@ class Squeezebox extends IPSModuleStrict
         if ($this->GetValue('Status') != 1) {
             $this->SetValueInteger('Status', 1);
             $this->_SetNewTime(0);
+            if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSleepTimeout)) {
+                $this->SetValueInteger('SleepTimeout', 0);
+            }
+            if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableSleepTimer)) {
+                $this->SetValueInteger('SleepTimer', 0);
+            }
+        } else {
+            if ($this->isSubscribed) {
+                if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSleepTimeout)) {
+                    $this->SetValueInteger('SleepTimeout', 0);
+                }
+                if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableSleepTimer)) {
+                    $this->SetValueInteger('SleepTimer', 0);
+                }
+                $this->_StopSubscribe();
+            }
         }
+
     }
 
     /**
@@ -3782,7 +3921,13 @@ class Squeezebox extends IPSModuleStrict
     private function _SetNewSleepTimeout(int $Value): void
     {
         if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSleepTimeout)) {
-            $this->SetValueString('SleepTimeout', $this->ConvertSeconds($Value));
+            $this->SetValueInteger('SleepTimeout', $Value);
+            if ($Value == 0 && $this->GetValue('Status') != 2) {
+                $this->_StopSubscribe();
+            }
+            if ($Value != 0 && !$this->isSubscribed) {
+                $this->_StartSubscribe();
+            }
         }
         if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableSleepTimer)) {
             if ($Value == 0) {
@@ -4304,7 +4449,9 @@ class Squeezebox extends IPSModuleStrict
                             break;
                         case 'sleep':
                             if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableSleepTimer)) {
-                                $this->SetValueInteger('SleepTimer', (int) $Data->Value);
+                                if ($this->GetValue('SleepTimer') != (int) $Data->Value) {
+                                    $this->SetValueInteger('SleepTimer', (int) $Data->Value);
+                                }
                             }
                             break;
                         case 'sync_master':
