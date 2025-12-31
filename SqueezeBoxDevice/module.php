@@ -134,9 +134,6 @@ class Squeezebox extends IPSModuleStrict
         $Data = json_decode($JSONData);
         if (property_exists($Data->configuration, 'showPlaylist')) {
             $Data->configuration->showHTMLPlaylist = $Data->configuration->showPlaylist;
-
-            $Data->configuration->enableDurationText = true;
-            $Data->configuration->enablePositionText = true;
             $vid = $this->FindIDForIdent('Interpret');
             if ($vid > 0) { //Migrate Statusvariable Interpret to Artist
                 @IPS_SetIdent($vid, 'Artist');
@@ -145,6 +142,9 @@ class Squeezebox extends IPSModuleStrict
             if ($vid > 0) { //Migrate Statusvariable Playlist to HTMLPlaylist
                 @IPS_SetIdent($vid, 'HTMLPlaylist');
             }
+        }
+        if (!property_exists($Data->configuration, 'enableDurationText')) {
+            $Data->configuration->enableDurationText = true;
             $vid = $this->FindIDForIdent('Duration');
             if ($vid > 0) { //Migrate Statusvariable Duration to DurationOld
                 @IPS_SetIdent($vid, 'DurationText');
@@ -153,6 +153,9 @@ class Squeezebox extends IPSModuleStrict
             if ($vid > 0) { //Migrate DurationRaw Playlist to Duration
                 @IPS_SetIdent($vid, 'Duration');
             }
+        }
+        if (!property_exists($Data->configuration, 'enablePositionText')) {
+            $Data->configuration->enablePositionText = true;
             $vid = $this->FindIDForIdent('Position');
             if ($vid > 0) { //Migrate Statusvariable Position to PositionText
                 @IPS_SetIdent($vid, 'PositionText');
@@ -162,15 +165,15 @@ class Squeezebox extends IPSModuleStrict
                 @IPS_SetIdent($vid, 'Position');
             }
 
-            $vid = $this->FindIDForIdent('SleepTimeout');
-            if ($vid > 0) { //Migrate PositionRaw Playlist to Position
-                @IPS_SetIdent($vid, 'SleepTimeoutOld');
-                @IPS_SetName($vid, 'SleepTimeout (old)');
-            }
-            $this->UnregisterVariable('Connected');
-            $this->SendDebug('Migrate', json_encode($Data), 0);
-            $this->LogMessage('Migrated settings:' . json_encode($Data), KL_MESSAGE);
         }
+        $vid = $this->FindIDForIdent('SleepTimeout');
+        if ($vid > 0) { //Migrate PositionRaw Playlist to Position
+            @IPS_SetIdent($vid, 'SleepTimeoutOld');
+            @IPS_SetName($vid, 'SleepTimeout (old)');
+        }
+        $this->UnregisterVariable('Connected');
+        $this->SendDebug('Migrate', json_encode($Data), 0);
+        $this->LogMessage('Migrated settings:' . json_encode($Data), KL_MESSAGE);
         return json_encode($Data);
     }
 
