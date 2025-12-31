@@ -54,8 +54,6 @@ class AutoLoaderSqueezeboxBatteryPHPSecLib
  * @version       4.10
  *
  * @method bool SendDebug(string $Message, mixed $Data, int $Format)
- * @method void RegisterProfileIntegerEx(string $Name, string $Icon, string $Prefix, string $Suffix, array $Associations, int $MaxValue = -1, float $StepSize = 0)
- * @method void RegisterProfileInteger(string $Name, string $Icon, string $Prefix, string $Suffix, int $MinValue, int $MaxValue, int $StepSize)
  * @method void UnregisterProfile(string $Name)
  * @method void SetValueBoolean(string $Ident, bool $value)
  * @method void SetValueFloat(string $Ident, float $value)
@@ -95,44 +93,365 @@ class SqueezeboxBattery extends IPSModuleStrict
     public function ApplyChanges(): void
     {
         $this->SetReceiveDataFilter('.*"Address":"NOTHING".*');
-
         //Never delete this line!
         parent::ApplyChanges();
-
-        // Profile anlegen
-        $this->RegisterProfileIntegerEx('LSQB.Power', 'Information', '', '', [
-            [0, $this->Translate('offline'), '', -1],
-            [3, $this->Translate('on main'), '', -1],
-            [5, $this->Translate('on battery'), '', -1],
-            [7, $this->Translate('on main and battery'), '', -1]
-        ]);
-
-        $this->RegisterProfileIntegerEx('LSQB.Charge', 'Battery', '', '', [
-            [1, $this->Translate('not installed'), '', -1],
-            [2, $this->Translate('standby'), '', -1],
-            [3, $this->Translate('discharging'), '', -1],
-            [8, $this->Translate('charging'), '', -1],
-            [24, $this->Translate('load cycle wait state'), '', -1],
-            [35, $this->Translate('warning'), '', -1]
-        ]);
-
-        $this->RegisterProfileInteger('LSQB.mAh', 'Intensity', '', ' mAh', 0, 0, 0);
-
         //Status-Variablen anlegen
-        $this->RegisterVariableInteger('State', $this->Translate('State'), 'LSQB.Power', 1);
-        $this->RegisterVariableFloat('SysVoltage', $this->Translate('Device voltage'), '~Volt', 2);
-        $this->RegisterVariableFloat('WallVoltage', $this->Translate('Line voltage'), '~Volt', 3);
-        $this->RegisterVariableInteger('ChargeState', $this->Translate('Charge state'), 'LSQB.Charge', 4);
-        $this->RegisterVariableFloat('BatteryLevel', $this->Translate('Battery level'), '~Intensity.1', 5);
-        $this->RegisterVariableFloat('BatteryTemperature', $this->Translate('Battery temperature'), '~Temperature', 6);
-        $this->RegisterVariableFloat('BatteryVoltage', $this->Translate('Battery voltage total'), '~Volt', 7);
-        $this->RegisterVariableFloat('BatteryVMon1', $this->Translate('Battery voltage 1'), '~Volt', 8);
-        $this->RegisterVariableFloat('BatteryVMon2', $this->Translate('Battery voltage 2'), '~Volt', 9);
-        $this->RegisterVariableInteger('BatteryCapacity', $this->Translate('Battery capacity'), 'LSQB.mAh', 10);
-
+        $this->RegisterVariableInteger(
+            'State',
+            $this->Translate('State'),
+            [
+                \SqueezeBox\Presentation::Icon                => 'plug',
+                \SqueezeBox\Presentation::Type                => VARIABLE_PRESENTATION_VALUE_PRESENTATION,
+                \SqueezeBox\Presentation\Value::Digits        => 0,
+                \SqueezeBox\Presentation\Value::Prefix        => '',
+                \SqueezeBox\Presentation\Value::Suffix        => '',
+                \SqueezeBox\Presentation\Value::IntervalsUsed => true,
+                \SqueezeBox\Presentation\Value::Intervals     => json_encode([
+                    [
+                        \SqueezeBox\Presentation\Value::IntervalMinValue => 0,
+                        \SqueezeBox\Presentation\Value::IntervalMaxValue => 2,
+                        \SqueezeBox\Presentation\Value::ConstantActive   => true,
+                        \SqueezeBox\Presentation\Value::ConstantValue    => $this->Translate('offline'),
+                        \SqueezeBox\Presentation\Value::ConversionFactor => 1,
+                        \SqueezeBox\Presentation\Value::IconActive       => true,
+                        \SqueezeBox\Presentation\Value::Icon             => 'plug-circle-minus',
+                        \SqueezeBox\Presentation\Value::PrefixActive     => false,
+                        \SqueezeBox\Presentation\Value::PrefixValue      => '',
+                        \SqueezeBox\Presentation\Value::SuffixActive     => false,
+                        \SqueezeBox\Presentation\Value::SuffixValue      => '',
+                        \SqueezeBox\Presentation\Value::DigitsActive     => false,
+                        \SqueezeBox\Presentation\Value::DigitsValue      => 0,
+                        \SqueezeBox\Presentation\Value::ColorActive      => false,
+                        \SqueezeBox\Presentation\Value::Color            => -1
+                    ],
+                    [
+                        \SqueezeBox\Presentation\Value::IntervalMinValue => 3,
+                        \SqueezeBox\Presentation\Value::IntervalMaxValue => 4,
+                        \SqueezeBox\Presentation\Value::ConstantActive   => true,
+                        \SqueezeBox\Presentation\Value::ConstantValue    => $this->Translate('on main'),
+                        \SqueezeBox\Presentation\Value::ConversionFactor => 1,
+                        \SqueezeBox\Presentation\Value::IconActive       => true,
+                        \SqueezeBox\Presentation\Value::Icon             => 'plug-circle-bolt',
+                        \SqueezeBox\Presentation\Value::PrefixActive     => false,
+                        \SqueezeBox\Presentation\Value::PrefixValue      => '',
+                        \SqueezeBox\Presentation\Value::SuffixActive     => false,
+                        \SqueezeBox\Presentation\Value::SuffixValue      => '',
+                        \SqueezeBox\Presentation\Value::DigitsActive     => false,
+                        \SqueezeBox\Presentation\Value::DigitsValue      => 0,
+                        \SqueezeBox\Presentation\Value::ColorActive      => false,
+                        \SqueezeBox\Presentation\Value::Color            => -1
+                    ],
+                    [
+                        \SqueezeBox\Presentation\Value::IntervalMinValue => 5,
+                        \SqueezeBox\Presentation\Value::IntervalMaxValue => 6,
+                        \SqueezeBox\Presentation\Value::ConstantActive   => true,
+                        \SqueezeBox\Presentation\Value::ConstantValue    => $this->Translate('on battery'),
+                        \SqueezeBox\Presentation\Value::ConversionFactor => 1,
+                        \SqueezeBox\Presentation\Value::IconActive       => true,
+                        \SqueezeBox\Presentation\Value::Icon             => 'battery-full',
+                        \SqueezeBox\Presentation\Value::PrefixActive     => false,
+                        \SqueezeBox\Presentation\Value::PrefixValue      => '',
+                        \SqueezeBox\Presentation\Value::SuffixActive     => false,
+                        \SqueezeBox\Presentation\Value::SuffixValue      => '',
+                        \SqueezeBox\Presentation\Value::DigitsActive     => false,
+                        \SqueezeBox\Presentation\Value::DigitsValue      => 0,
+                        \SqueezeBox\Presentation\Value::ColorActive      => false,
+                        \SqueezeBox\Presentation\Value::Color            => -1
+                    ],
+                    [
+                        \SqueezeBox\Presentation\Value::IntervalMinValue => 7,
+                        \SqueezeBox\Presentation\Value::IntervalMaxValue => 7,
+                        \SqueezeBox\Presentation\Value::ConstantActive   => true,
+                        \SqueezeBox\Presentation\Value::ConstantValue    => $this->Translate('on main and battery'),
+                        \SqueezeBox\Presentation\Value::ConversionFactor => 1,
+                        \SqueezeBox\Presentation\Value::IconActive       => true,
+                        \SqueezeBox\Presentation\Value::Icon             => 'charging-station',
+                        \SqueezeBox\Presentation\Value::PrefixActive     => false,
+                        \SqueezeBox\Presentation\Value::PrefixValue      => '',
+                        \SqueezeBox\Presentation\Value::SuffixActive     => false,
+                        \SqueezeBox\Presentation\Value::SuffixValue      => '',
+                        \SqueezeBox\Presentation\Value::DigitsActive     => false,
+                        \SqueezeBox\Presentation\Value::DigitsValue      => 0,
+                        \SqueezeBox\Presentation\Value::ColorActive      => false,
+                        \SqueezeBox\Presentation\Value::Color            => -1
+                    ]
+                ])
+            ],
+            1
+        );
+        $this->RegisterVariableFloat(
+            'SysVoltage',
+            $this->Translate('Device voltage'),
+            [
+                \SqueezeBox\Presentation::Icon                => 'Electricity',
+                \SqueezeBox\Presentation::Type                => VARIABLE_PRESENTATION_VALUE_PRESENTATION,
+                \SqueezeBox\Presentation\Value::Min           => 0,
+                \SqueezeBox\Presentation\Value::Max           => 0,
+                \SqueezeBox\Presentation\Value::Digits        => 1,
+                \SqueezeBox\Presentation\Value::Prefix        => '',
+                \SqueezeBox\Presentation\Value::Suffix        => ' V',
+                \SqueezeBox\Presentation\Value::IntervalsUsed => false,
+                \SqueezeBox\Presentation\Value::Intervals     => '[]',
+                \SqueezeBox\Presentation\Value::Percentage    => false,
+                \SqueezeBox\Presentation\Value::Type          => 0
+            ],
+            2
+        );
+        $this->RegisterVariableFloat(
+            'WallVoltage',
+            $this->Translate('Line voltage'),
+            [
+                \SqueezeBox\Presentation::Icon                => 'Electricity',
+                \SqueezeBox\Presentation::Type                => VARIABLE_PRESENTATION_VALUE_PRESENTATION,
+                \SqueezeBox\Presentation\Value::Min           => 0,
+                \SqueezeBox\Presentation\Value::Max           => 0,
+                \SqueezeBox\Presentation\Value::Digits        => 1,
+                \SqueezeBox\Presentation\Value::Prefix        => '',
+                \SqueezeBox\Presentation\Value::Suffix        => ' V',
+                \SqueezeBox\Presentation\Value::IntervalsUsed => false,
+                \SqueezeBox\Presentation\Value::Intervals     => '[]',
+                \SqueezeBox\Presentation\Value::Percentage    => false,
+                \SqueezeBox\Presentation\Value::Type          => 0
+            ],
+            3
+        );
+        $this->RegisterVariableInteger(
+            'ChargeState',
+            $this->Translate('Charge state'),
+            [
+                \SqueezeBox\Presentation::Icon                => 'Battery',
+                \SqueezeBox\Presentation::Type                => VARIABLE_PRESENTATION_VALUE_PRESENTATION,
+                \SqueezeBox\Presentation\Value::Min           => 1,
+                \SqueezeBox\Presentation\Value::Max           => 35,
+                \SqueezeBox\Presentation\Value::Digits        => 0,
+                \SqueezeBox\Presentation\Value::Prefix        => '',
+                \SqueezeBox\Presentation\Value::Suffix        => '',
+                \SqueezeBox\Presentation\Value::Percentage    => false,
+                \SqueezeBox\Presentation\Value::Type          => 0,
+                \SqueezeBox\Presentation\Value::IntervalsUsed => true,
+                \SqueezeBox\Presentation\Value::Intervals     => json_encode(
+                    [
+                        [
+                            \SqueezeBox\Presentation\Value::IntervalMinValue => 1,
+                            \SqueezeBox\Presentation\Value::IntervalMaxValue => 1,
+                            \SqueezeBox\Presentation\Value::ConstantActive   => true,
+                            \SqueezeBox\Presentation\Value::ConstantValue    => $this->Translate('not installed'),
+                            \SqueezeBox\Presentation\Value::ConversionFactor => 1,
+                            \SqueezeBox\Presentation\Value::IconActive       => true,
+                            \SqueezeBox\Presentation\Value::Icon             => 'xmark',
+                            \SqueezeBox\Presentation\Value::PrefixActive     => false,
+                            \SqueezeBox\Presentation\Value::PrefixValue      => '',
+                            \SqueezeBox\Presentation\Value::SuffixActive     => false,
+                            \SqueezeBox\Presentation\Value::SuffixValue      => '',
+                            \SqueezeBox\Presentation\Value::DigitsActive     => false,
+                            \SqueezeBox\Presentation\Value::DigitsValue      => 0,
+                            \SqueezeBox\Presentation\Value::ColorActive      => false,
+                            \SqueezeBox\Presentation\Value::Color            => -1
+                        ],
+                        [
+                            \SqueezeBox\Presentation\Value::IntervalMinValue => 2,
+                            \SqueezeBox\Presentation\Value::IntervalMaxValue => 2,
+                            \SqueezeBox\Presentation\Value::ConstantActive   => true,
+                            \SqueezeBox\Presentation\Value::ConstantValue    => $this->Translate('standby'),
+                            \SqueezeBox\Presentation\Value::ConversionFactor => 1,
+                            \SqueezeBox\Presentation\Value::IconActive       => true,
+                            \SqueezeBox\Presentation\Value::Icon             => 'battery-full',
+                            \SqueezeBox\Presentation\Value::PrefixActive     => false,
+                            \SqueezeBox\Presentation\Value::PrefixValue      => '',
+                            \SqueezeBox\Presentation\Value::SuffixActive     => false,
+                            \SqueezeBox\Presentation\Value::SuffixValue      => '',
+                            \SqueezeBox\Presentation\Value::DigitsActive     => false,
+                            \SqueezeBox\Presentation\Value::DigitsValue      => 0,
+                            \SqueezeBox\Presentation\Value::ColorActive      => false,
+                            \SqueezeBox\Presentation\Value::Color            => -1
+                        ],
+                        [
+                            \SqueezeBox\Presentation\Value::IntervalMinValue => 3,
+                            \SqueezeBox\Presentation\Value::IntervalMaxValue => 7,
+                            \SqueezeBox\Presentation\Value::ConstantActive   => true,
+                            \SqueezeBox\Presentation\Value::ConstantValue    => $this->Translate('discharging'),
+                            \SqueezeBox\Presentation\Value::ConversionFactor => 1,
+                            \SqueezeBox\Presentation\Value::IconActive       => true,
+                            \SqueezeBox\Presentation\Value::Icon             => 'battery-half',
+                            \SqueezeBox\Presentation\Value::PrefixActive     => false,
+                            \SqueezeBox\Presentation\Value::PrefixValue      => '',
+                            \SqueezeBox\Presentation\Value::SuffixActive     => false,
+                            \SqueezeBox\Presentation\Value::SuffixValue      => '',
+                            \SqueezeBox\Presentation\Value::DigitsActive     => false,
+                            \SqueezeBox\Presentation\Value::DigitsValue      => 0,
+                            \SqueezeBox\Presentation\Value::ColorActive      => false,
+                            \SqueezeBox\Presentation\Value::Color            => -1
+                        ],
+                        [
+                            \SqueezeBox\Presentation\Value::IntervalMinValue => 8,
+                            \SqueezeBox\Presentation\Value::IntervalMaxValue => 24,
+                            \SqueezeBox\Presentation\Value::ConstantActive   => true,
+                            \SqueezeBox\Presentation\Value::ConstantValue    => $this->Translate('charging'),
+                            \SqueezeBox\Presentation\Value::ConversionFactor => 1,
+                            \SqueezeBox\Presentation\Value::IconActive       => true,
+                            \SqueezeBox\Presentation\Value::Icon             => 'charging-station',
+                            \SqueezeBox\Presentation\Value::PrefixActive     => false,
+                            \SqueezeBox\Presentation\Value::PrefixValue      => '',
+                            \SqueezeBox\Presentation\Value::SuffixActive     => false,
+                            \SqueezeBox\Presentation\Value::SuffixValue      => '',
+                            \SqueezeBox\Presentation\Value::DigitsActive     => false,
+                            \SqueezeBox\Presentation\Value::DigitsValue      => 0,
+                            \SqueezeBox\Presentation\Value::ColorActive      => false,
+                            \SqueezeBox\Presentation\Value::Color            => -1
+                        ],
+                        [
+                            \SqueezeBox\Presentation\Value::IntervalMinValue => 25,
+                            \SqueezeBox\Presentation\Value::IntervalMaxValue => 34,
+                            \SqueezeBox\Presentation\Value::ConstantActive   => true,
+                            \SqueezeBox\Presentation\Value::ConstantValue    => $this->Translate('load cycle wait state'),
+                            \SqueezeBox\Presentation\Value::ConversionFactor => 1,
+                            \SqueezeBox\Presentation\Value::IconActive       => true,
+                            \SqueezeBox\Presentation\Value::Icon             => 'battery-full',
+                            \SqueezeBox\Presentation\Value::PrefixActive     => false,
+                            \SqueezeBox\Presentation\Value::PrefixValue      => '',
+                            \SqueezeBox\Presentation\Value::SuffixActive     => false,
+                            \SqueezeBox\Presentation\Value::SuffixValue      => '',
+                            \SqueezeBox\Presentation\Value::DigitsActive     => false,
+                            \SqueezeBox\Presentation\Value::DigitsValue      => 0,
+                            \SqueezeBox\Presentation\Value::ColorActive      => false,
+                            \SqueezeBox\Presentation\Value::Color            => -1
+                        ],
+                        [
+                            \SqueezeBox\Presentation\Value::IntervalMinValue => 35,
+                            \SqueezeBox\Presentation\Value::IntervalMaxValue => 35,
+                            \SqueezeBox\Presentation\Value::ConstantActive   => true,
+                            \SqueezeBox\Presentation\Value::ConstantValue    => $this->Translate('warning'),
+                            \SqueezeBox\Presentation\Value::ConversionFactor => 1,
+                            \SqueezeBox\Presentation\Value::IconActive       => true,
+                            \SqueezeBox\Presentation\Value::Icon             => 'battery-empty',
+                            \SqueezeBox\Presentation\Value::PrefixActive     => false,
+                            \SqueezeBox\Presentation\Value::PrefixValue      => '',
+                            \SqueezeBox\Presentation\Value::SuffixActive     => false,
+                            \SqueezeBox\Presentation\Value::SuffixValue      => '',
+                            \SqueezeBox\Presentation\Value::DigitsActive     => false,
+                            \SqueezeBox\Presentation\Value::DigitsValue      => 0,
+                            \SqueezeBox\Presentation\Value::ColorActive      => false,
+                            \SqueezeBox\Presentation\Value::Color            => -1
+                        ]
+                    ]
+                )
+            ],
+            4
+        );
+        $this->RegisterVariableFloat(
+            'BatteryLevel',
+            $this->Translate('Battery level'),
+            [
+                \SqueezeBox\Presentation::Icon                => 'Battery',
+                \SqueezeBox\Presentation::Type                => VARIABLE_PRESENTATION_VALUE_PRESENTATION,
+                \SqueezeBox\Presentation\Value::Min           => 0,
+                \SqueezeBox\Presentation\Value::Max           => 1,
+                \SqueezeBox\Presentation\Value::Digits        => 0,
+                \SqueezeBox\Presentation\Value::Prefix        => '',
+                \SqueezeBox\Presentation\Value::Suffix        => ' %',
+                \SqueezeBox\Presentation\Value::IntervalsUsed => false,
+                \SqueezeBox\Presentation\Value::Intervals     => '[]',
+                \SqueezeBox\Presentation\Value::Percentage    => true,
+                \SqueezeBox\Presentation\Value::Type          => 0
+            ],
+            5
+        );
+        $this->RegisterVariableFloat(
+            'BatteryTemperature',
+            $this->Translate('Battery temperature'),
+            [
+                \SqueezeBox\Presentation::Icon                => 'Temperature',
+                \SqueezeBox\Presentation::Type                => VARIABLE_PRESENTATION_VALUE_PRESENTATION,
+                \SqueezeBox\Presentation\Value::Min           => -30,
+                \SqueezeBox\Presentation\Value::Max           => 70,
+                \SqueezeBox\Presentation\Value::Digits        => 1,
+                \SqueezeBox\Presentation\Value::Prefix        => '',
+                \SqueezeBox\Presentation\Value::Suffix        => ' °C',
+                \SqueezeBox\Presentation\Value::IntervalsUsed => false,
+                \SqueezeBox\Presentation\Value::Intervals     => '[]',
+                \SqueezeBox\Presentation\Value::Percentage    => false,
+                \SqueezeBox\Presentation\Value::Type          => 1
+            ],
+            6
+        );
+        $this->RegisterVariableFloat(
+            'BatteryVoltage',
+            $this->Translate('Battery voltage total'),
+            [
+                \SqueezeBox\Presentation::Icon                => 'Electricity',
+                \SqueezeBox\Presentation::Type                => VARIABLE_PRESENTATION_VALUE_PRESENTATION,
+                \SqueezeBox\Presentation\Value::Min           => 0,
+                \SqueezeBox\Presentation\Value::Max           => 0,
+                \SqueezeBox\Presentation\Value::Digits        => 1,
+                \SqueezeBox\Presentation\Value::Prefix        => '',
+                \SqueezeBox\Presentation\Value::Suffix        => ' V',
+                \SqueezeBox\Presentation\Value::IntervalsUsed => false,
+                \SqueezeBox\Presentation\Value::Intervals     => '[]',
+                \SqueezeBox\Presentation\Value::Percentage    => false,
+                \SqueezeBox\Presentation\Value::Type          => 0
+            ],
+            7
+        );
+        $this->RegisterVariableFloat(
+            'BatteryVMon1',
+            $this->Translate('Battery voltage 1'),
+            [
+                \SqueezeBox\Presentation::Icon                => 'Electricity',
+                \SqueezeBox\Presentation::Type                => VARIABLE_PRESENTATION_VALUE_PRESENTATION,
+                \SqueezeBox\Presentation\Value::Min           => 0,
+                \SqueezeBox\Presentation\Value::Max           => 0,
+                \SqueezeBox\Presentation\Value::Digits        => 1,
+                \SqueezeBox\Presentation\Value::Prefix        => '',
+                \SqueezeBox\Presentation\Value::Suffix        => ' V',
+                \SqueezeBox\Presentation\Value::IntervalsUsed => false,
+                \SqueezeBox\Presentation\Value::Intervals     => '[]',
+                \SqueezeBox\Presentation\Value::Percentage    => false,
+                \SqueezeBox\Presentation\Value::Type          => 0
+            ],
+            8
+        );
+        $this->RegisterVariableFloat(
+            'BatteryVMon2',
+            $this->Translate('Battery voltage 2'),
+            [
+                \SqueezeBox\Presentation::Icon                => 'Electricity',
+                \SqueezeBox\Presentation::Type                => VARIABLE_PRESENTATION_VALUE_PRESENTATION,
+                \SqueezeBox\Presentation\Value::Min           => 0,
+                \SqueezeBox\Presentation\Value::Max           => 0,
+                \SqueezeBox\Presentation\Value::Digits        => 1,
+                \SqueezeBox\Presentation\Value::Prefix        => '',
+                \SqueezeBox\Presentation\Value::Suffix        => ' V',
+                \SqueezeBox\Presentation\Value::IntervalsUsed => false,
+                \SqueezeBox\Presentation\Value::Intervals     => '[]',
+                \SqueezeBox\Presentation\Value::Percentage    => false,
+                \SqueezeBox\Presentation\Value::Type          => 0
+            ],
+            9
+        );
+        $this->RegisterVariableInteger(
+            'BatteryCapacity',
+            $this->Translate('Battery capacity'),
+            [
+                \SqueezeBox\Presentation::Icon                => 'Intensity',
+                \SqueezeBox\Presentation::Type                => VARIABLE_PRESENTATION_VALUE_PRESENTATION,
+                \SqueezeBox\Presentation\Value::Min           => 0,
+                \SqueezeBox\Presentation\Value::Max           => 0,
+                \SqueezeBox\Presentation\Value::Digits        => 0,
+                \SqueezeBox\Presentation\Value::Prefix        => '',
+                \SqueezeBox\Presentation\Value::Suffix        => ' mAh',
+                \SqueezeBox\Presentation\Value::IntervalsUsed => false,
+                \SqueezeBox\Presentation\Value::Intervals     => '[]',
+                \SqueezeBox\Presentation\Value::Percentage    => false,
+                \SqueezeBox\Presentation\Value::Type          => 0
+            ],
+            10
+        );
+        // Profile entfernen
+        $this->UnregisterProfile('LSQB.Power');
+        $this->UnregisterProfile('LSQB.mAh');
+        $this->UnregisterProfile('LSQB.Charge');
         // Adresse prüfen
         $Address = $this->ReadPropertyString(\SqueezeBox\Battery\Property::Address);
-
         if (trim($Address) == '') {
             $this->SetStatus(IS_INACTIVE);
             $this->SetTimerInterval(\SqueezeBox\Battery\Timer::RequestState, 0);

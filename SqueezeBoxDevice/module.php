@@ -208,16 +208,6 @@ class Squeezebox extends IPSModuleStrict
         // Adresse als Filter setzen
         $this->SetReceiveDataFilter('.*"Address":"' . $Address . '".*');
         $this->SetSummary($Address);
-        $this->UnregisterProfile('LSQ.Status');
-        $this->UnregisterProfile('LSQ.Volume');
-        $this->UnregisterProfile('LSQ.Intensity');
-        $this->UnregisterProfile('LSQ.Repeat');
-        $this->UnregisterProfile('LSQ.Preset');
-        $this->UnregisterProfile('LSQ.Pitch');
-        $this->UnregisterProfile('LSQ.Sync.' . $this->InstanceID);
-        //$this->UnregisterProfile('LSQ.Tracklist.' . $this->InstanceID);
-        $this->UnregisterProfile('LSQ.Shuffle');
-        $this->UnregisterProfile('LSQ.SleepTimer');
         if (preg_match('/\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b/', $Address) !== 1) {
             $this->RegisterVariableBoolean(
                 'Power',
@@ -435,11 +425,7 @@ class Squeezebox extends IPSModuleStrict
                 $this->UnregisterVariable('Master');
             }
             if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSyncControl)) {
-                $this->RegisterProfileIntegerEx('LSQ.Sync.' . $this->InstanceID, 'Speaker-100', '', '', [
-                    [0, $this->Translate('Off'), '', -1],
-                    [100, $this->Translate('On'), '', 0x00ff00]
-                ]);
-                $this->RegisterVariableInteger('Sync', $this->Translate('Synchronize'), 'LSQ.Sync.' . $this->InstanceID, 15);
+                $this->_SetNewSyncPresentation();
                 $this->EnableAction('Sync');
             } else {
                 $this->UnregisterVariable('Sync');
@@ -649,13 +635,19 @@ class Squeezebox extends IPSModuleStrict
         $this->RegisterVariableInteger(
             'Tracks',
             $this->Translate('Tracks in Playlist'),
-            [],
+            [
+                \SqueezeBox\Presentation::Icon                => 'list-music',
+                \SqueezeBox\Presentation::Type                => VARIABLE_PRESENTATION_VALUE_PRESENTATION,
+                \SqueezeBox\Presentation\Value::Digits        => 0,
+                \SqueezeBox\Presentation\Value::Prefix        => '',
+                \SqueezeBox\Presentation\Value::Suffix        => ' #',
+                \SqueezeBox\Presentation\Value::IntervalsUsed => false
+            ],
             11
         );
         $this->PlayerTracks = $this->FindIDForIdent('Tracks');
         $this->RegisterMessage($this->PlayerTracks, VM_UPDATE);
-        $this->RegisterProfileInteger('LSQ.Tracklist.' . $this->InstanceID, '', '', '', (($this->GetValue('Tracks') == 0) ? 0 : 1), $this->GetValue('Tracks'), 1);
-        $this->RegisterVariableInteger('Index', $this->Translate('Playlist current position'), 'LSQ.Tracklist.' . $this->InstanceID, 12);
+        $this->_SetNewTrackPresentation($this->GetValue('Tracks'));
         $this->PlayerTrackIndex = $this->FindIDForIdent('Index');
         $this->EnableAction('Index');
         $this->RegisterMessage($this->PlayerTrackIndex, VM_UPDATE);
@@ -776,15 +768,29 @@ class Squeezebox extends IPSModuleStrict
             $this->UnregisterVariable('SleepTimeout');
         }
 
-        // Playlist
+        // @todo @Symcon Tile-Playlist muss noch Profil bleiben bis Symcon eine Darstellung dafür hat
         if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowTilePlaylist)) {
-            $this->RegisterVariableString('TilePlaylist', 'Playlist', '~Playlist', 34);
+            $this->RegisterVariableString(
+                'TilePlaylist',
+                'Playlist',
+                '~Playlist',
+                34
+            );
             $this->EnableAction('TilePlaylist');
         } else {
             $this->UnregisterVariable('TilePlaylist');
         }
         if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowHTMLPlaylist)) {
-            $this->RegisterVariableString('HTMLPlaylist', 'Playlist', '~HTMLBox', 30);
+            $this->RegisterVariableString(
+                'HTMLPlaylist',
+                'Playlist',
+                [
+                    \SqueezeBox\Presentation::Type         => VARIABLE_PRESENTATION_WEB_CONTENT,
+                    \SqueezeBox\Presentation\HTML::Type    => 0,
+                    \SqueezeBox\Presentation\HTML::Padding => true
+                ],
+                30
+            );
         } else {
             $this->UnregisterVariable('HTMLPlaylist');
         }
@@ -801,11 +807,23 @@ class Squeezebox extends IPSModuleStrict
         } else {
             $this->UnregisterVariable('TotalRuntime');
         }
+
+        // Alte Profile löschen
+        $this->UnregisterProfile('LSQ.Status');
+        $this->UnregisterProfile('LSQ.Volume');
+        $this->UnregisterProfile('LSQ.Intensity');
+        $this->UnregisterProfile('LSQ.Repeat');
+        $this->UnregisterProfile('LSQ.Preset');
+        $this->UnregisterProfile('LSQ.Pitch');
+        $this->UnregisterProfile('LSQ.Sync.' . $this->InstanceID);
+        $this->UnregisterProfile('LSQ.Tracklist.' . $this->InstanceID);
+        $this->UnregisterProfile('LSQ.Shuffle');
+        $this->UnregisterProfile('LSQ.SleepTimer');
+
         // Wenn Kernel nicht bereit, dann warten... wenn unser IO Aktiv wird, holen wir unsere Daten :)
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
-
         // Playlist
         if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowHTMLPlaylist)) {
             $this->RegisterHook('SqueezeBoxPlaylist' . $this->InstanceID);
@@ -877,13 +895,8 @@ class Squeezebox extends IPSModuleStrict
                         $this->RequestState('Duration');
                         break;
                     case $this->PlayerTracks:
-                        if ($Data[0] == 0) {
-                            $this->RegisterProfileInteger('LSQ.Tracklist.' . $this->InstanceID, '', '', '', 0, 0, 1);
-                            $this->_RefreshPlaylist(true);
-                        } else {
-                            $this->RegisterProfileInteger('LSQ.Tracklist.' . $this->InstanceID, '', '', '', 1, $Data[0], 1);
-                            $this->_RefreshPlaylist();
-                        }
+                        $this->_SetNewTrackPresentation($Data[0]);
+                        $this->_RefreshPlaylist($Data[0] == 0);
                         break;
                 }
                 break;
@@ -3131,8 +3144,8 @@ class Squeezebox extends IPSModuleStrict
             return;
         }
         switch ($Ident) {
-            case '_SetNewSyncProfil':
-                $this->_SetNewSyncProfil();
+            case '_SetNewSyncPresentation':
+                $this->_SetNewSyncPresentation();
                 return;
             case 'Status':
                 switch ((int) $Value) {
@@ -3312,7 +3325,7 @@ class Squeezebox extends IPSModuleStrict
                 $this->RequestAllState();
             }
             // Erst nach 5 Sekunden, sonst sind beim ModuleReload InstanceInterface Fehler möglich
-            IPS_RunScriptText('IPS_Sleep(5000);IPS_RequestAction(' . $this->InstanceID . ', \'_SetNewSyncProfil\', true);');
+            IPS_RunScriptText('IPS_Sleep(5000);IPS_RequestAction(' . $this->InstanceID . ', \'_SetNewSyncPresentation\', true);');
         } else {
             if ($OldState == $Value) { // Kein Trigger durch IM_CHANGESTATUS, also selber loslegen
                 $this->_SetNewPower(false);
@@ -3966,7 +3979,7 @@ class Squeezebox extends IPSModuleStrict
         }
         if ($this->SyncMembers != $PlayerMACs) {
             $this->SyncMembers = $PlayerMACs;
-            $this->_SetNewSyncProfil();
+            $this->_SetNewSyncPresentation();
         }
     }
 
@@ -3992,11 +4005,40 @@ class Squeezebox extends IPSModuleStrict
     }
 
     /**
-     * _SetNewSyncProfil
+     * _SetNewTrackPresentation
+     *
+     * @param  int $Tracks
+     * @return void
+     */
+    private function _SetNewTrackPresentation(int $Tracks): void
+    {
+        $this->RegisterVariableInteger(
+            'Index',
+            $this->Translate('Playlist current position'),
+            [
+                \SqueezeBox\Presentation::Type                 => VARIABLE_PRESENTATION_SLIDER,
+                \SqueezeBox\Presentation::Icon                 => 'list-radio',
+                \SqueezeBox\Presentation\Slider::Min           => $Tracks ? 1 : 0,
+                \SqueezeBox\Presentation\Slider::Max           => $Tracks,
+                \SqueezeBox\Presentation\Slider::Step          => 1,
+                \SqueezeBox\Presentation\Slider::Digits        => 0,
+                \SqueezeBox\Presentation\Slider::Type          => 5,
+                \SqueezeBox\Presentation\Slider::Percentage    => false,
+                \SqueezeBox\Presentation\Slider::Prefix        => '',
+                \SqueezeBox\Presentation\Slider::Suffix        => ' #',
+                \SqueezeBox\Presentation\Slider::IntervalsUsed => false,
+                \SqueezeBox\Presentation\Slider::Intervals     => '[]',
+            ],
+            12
+        );
+    }
+
+    /**
+     * _SetNewSyncPresentation
      *
      * @return void
      */
-    private function _SetNewSyncProfil(): void
+    private function _SetNewSyncPresentation(): void
     {
         if (!$this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSyncControl)) {
             return;
@@ -4006,6 +4048,22 @@ class Squeezebox extends IPSModuleStrict
             $SyncMembers = explode(',', $this->SyncMembers);
         }
         $Addresses = $this->_GetAllPlayers();
+        $Options = [
+            [
+                \SqueezeBox\Presentation\Enum::Value           => 0,
+                \SqueezeBox\Presentation\Enum::Caption         => $this->Translate('Off'),
+                \SqueezeBox\Presentation\Enum::IconActive      => false,
+                \SqueezeBox\Presentation\Enum::Icon            => '',
+                \SqueezeBox\Presentation\Enum::Color           => -1
+            ],
+            [
+                \SqueezeBox\Presentation\Enum::Value           => 100,
+                \SqueezeBox\Presentation\Enum::Caption         => $this->Translate('On'),
+                \SqueezeBox\Presentation\Enum::IconActive      => false,
+                \SqueezeBox\Presentation\Enum::Icon            => '',
+                \SqueezeBox\Presentation\Enum::Color           => 0xff0000
+            ]
+        ];
         $Assoziation = [
             [0, $this->Translate('Off'), '', -1],
             [100, $this->Translate('On'), '', 0x00ff00]
@@ -4016,13 +4074,24 @@ class Squeezebox extends IPSModuleStrict
             } else {
                 $Color = -1;
             }
-            $Assoziation[] = [
-                $InstanceID,
-                IPS_GetName($InstanceID),
-                '',
-                $Color];
+            $Options[] = [
+                \SqueezeBox\Presentation\Enum::Value           => $InstanceID,
+                \SqueezeBox\Presentation\Enum::Caption         => IPS_GetName($InstanceID),
+                \SqueezeBox\Presentation\Enum::IconActive      => false,
+                \SqueezeBox\Presentation\Enum::Icon            => '',
+                \SqueezeBox\Presentation\Enum::Color           => $Color
+            ];
         }
-        $this->RegisterProfileIntegerEx('LSQ.Sync.' . $this->InstanceID, 'Speaker-100', '', '', $Assoziation);
+        $this->RegisterVariableInteger(
+            'Sync',
+            $this->Translate('Synchronize'),
+            [
+                \SqueezeBox\Presentation::Icon              => 'Speaker',
+                \SqueezeBox\Presentation::Type              => VARIABLE_PRESENTATION_ENUMERATION,
+                \SqueezeBox\Presentation\Enum::Options      => json_encode($Options)
+            ],
+            15
+        );
         $this->SetValueInteger('Sync', count($SyncMembers) == 0 ? 0 : 100);
     }
 

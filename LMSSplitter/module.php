@@ -147,9 +147,6 @@ class LyrionMusicServer extends IPSModuleStrict
         // Buffer leeren
         $this->ReplyLMSData = [];
         $this->Buffer = '';
-        // Alte Profile aufräumen
-        $this->UnregisterProfile('LMS.PlayerSelect.' . $this->InstanceID);
-        $this->UnregisterProfile('LMS.Scanner');
         // Eigene Variablen
         $this->RegisterVariableString('Version', 'Version', [], 0);
         $this->RegisterVariableInteger(
@@ -331,6 +328,10 @@ class LyrionMusicServer extends IPSModuleStrict
             $this->UnregisterMessage($this->InstanceID, FM_CHILDADDED);
             $this->UnregisterMessage($this->InstanceID, FM_CHILDREMOVED);
         }
+
+        // Alte Profile entfernen
+        $this->UnregisterProfile('LMS.PlayerSelect.' . $this->InstanceID);
+        $this->UnregisterProfile('LMS.Scanner');
 
         // Wenn Kernel nicht bereit, dann warten... KR_READY kommt ja gleich
         if (IPS_GetKernelRunlevel() != KR_READY) {
@@ -2051,7 +2052,7 @@ class LyrionMusicServer extends IPSModuleStrict
                 \SqueezeBox\Presentation\Enum::Caption         => $this->Translate('None'),
                 \SqueezeBox\Presentation\Enum::IconActive      => false,
                 \SqueezeBox\Presentation\Enum::Icon            => '',
-                \SqueezeBox\Presentation\Enum::Color           => 0x00ff00
+                \SqueezeBox\Presentation\Enum::Color           => -1
             ],
             [
                 \SqueezeBox\Presentation\Enum::Value           => 100,

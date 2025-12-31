@@ -97,7 +97,7 @@ namespace SqueezeBox\Presentation{
         public const Intervals = 'INTERVALS';
         public const Options = 'OPTIONS';
         public const Value = 'Value';
-
+        public const Percentage = 'PERCENTAGE';
         public const IntervalMinValue = 'IntervalMinValue';
         public const IntervalMaxValue = 'IntervalMaxValue';
         public const ConstantActive = 'ConstantActive';

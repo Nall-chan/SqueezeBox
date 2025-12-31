@@ -127,6 +127,17 @@ Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:
 
 - Anpassung an den neuen Namen Lyrion.  
 - Umstellung von Profile auf Variablendarstellungen.  
+- optionale Variablen von Dauer und Fortschritt (als Integer) sind jetzt Standard. und die String Variablen optional.  
+- Die ehemaligen Klartext (String) Variablen von Dauer und Fortschritt sind ab sofort optional und werden in einem künftigen Release entfernt.  
+- Die "Ausschalten in" (SleepTimeout) Variable wird als Integer neu erstellt.  
+- Die Variablen "Einschlaftimer"  und "Ausschalten in" wurde teilweise nicht aktualisiert, oder mit falschen Werten beschrieben.  
+- Laufzeit der Playlisten wurde falsch berechnet.  
+- Neue optionale Variable für Laufzeit der aktuellen Playlist in der Player Instanz.  
+- Bei aktiver Synchronisation konnten Variablen eines Slave-Players falsche Werte anzeigen.  
+- Fix für Fehlermeldung beim Modul Reload, wenn ein Sync von Playern aktiv war.  
+- Laden der Playlist und Cover der Player-Instanzen verbessert.  
+- Variablen werden nur bei neuen Werten aktualisiert.  
+- Redundanten Code entfernt und optimiert.  
 
 **Version 4.05:**  
 

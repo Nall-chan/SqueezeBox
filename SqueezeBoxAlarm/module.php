@@ -471,15 +471,6 @@ class SqueezeboxAlarm extends IPSModuleStrict
 
         $this->SetSummary($Address);
 
-        // Profile löschen
-        $this->UnregisterProfile('LSA.Intensity');
-        $this->UnregisterProfile('LSA.Timeout');
-        $this->UnregisterProfile('LSA.Snooze');
-        $this->UnregisterProfile('LSA.Shuffle');
-        $this->UnregisterProfile('LSA.Add');
-        $this->UnregisterProfile('LSA.State');
-        $this->UnregisterProfile('LSA.Del.' . $this->InstanceID);
-
         //Status-Variablen anlegen
         $this->RegisterVariableBoolean(
             'EnableAll',
@@ -613,6 +604,15 @@ class SqueezeboxAlarm extends IPSModuleStrict
                 $this->UnregisterVariable('AlarmHTMLPlaylist' . $AlarmIndex);
             }
         }
+        // Profile löschen
+        $this->UnregisterProfile('LSA.Intensity');
+        $this->UnregisterProfile('LSA.Timeout');
+        $this->UnregisterProfile('LSA.Snooze');
+        $this->UnregisterProfile('LSA.Shuffle');
+        $this->UnregisterProfile('LSA.Add');
+        $this->UnregisterProfile('LSA.State');
+        $this->UnregisterProfile('LSA.Del.' . $this->InstanceID);
+
         // Wenn Kernel nicht bereit, dann warten... wenn unser IO Aktiv wird, holen wir unsere Daten :)
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
