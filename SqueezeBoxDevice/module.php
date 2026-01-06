@@ -599,10 +599,12 @@ class Squeezebox extends IPSModuleStrict
         $this->PlayerShuffle = $this->FindIDForIdent('Shuffle');
         $this->EnableAction('Shuffle');
         $this->RegisterMessage($this->PlayerShuffle, VM_UPDATE);
+        // @todo @Symcon muss noch Profil bleiben bis Symcon eine Darstellung dafür hat
         $this->RegisterVariableInteger(
             'Repeat',
             $this->Translate('Repeat'),
-            [
+            '~Repeat',
+            /*[
                 \SqueezeBox\Presentation::Icon         => 'Repeat',
                 \SqueezeBox\Presentation::Type         => VARIABLE_PRESENTATION_ENUMERATION,
                 \SqueezeBox\Presentation\Enum::Layout  => 0,
@@ -631,7 +633,7 @@ class Squeezebox extends IPSModuleStrict
                         ]
                     ]
                 )
-            ],
+            ],*/
             10
         );
         $this->EnableAction('Repeat');
@@ -830,6 +832,8 @@ class Squeezebox extends IPSModuleStrict
         // Playlist
         if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowHTMLPlaylist)) {
             $this->RegisterHook('SqueezeBoxPlaylist' . $this->InstanceID);
+        } else {
+            //$this->UnregisterHook('SqueezeBoxPlaylist' . $this->InstanceID);
         }
         // Wenn Parent aktiv, dann Anmeldung an der Hardware bzw. Datenabgleich starten
         $this->RegisterParent();

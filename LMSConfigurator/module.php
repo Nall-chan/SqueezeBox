@@ -137,8 +137,6 @@ class LyrionMusicServerConfigurator extends IPSModuleStrict
             $this->SendDebug('FORM', json_last_error_msg(), 0);
             return json_encode($Form);
         }
-        $Splitter = IPS_GetInstance($this->InstanceID)['ConnectionID'];
-        $IO = IPS_GetInstance($Splitter)['ConnectionID'];
         $FoundPlayers = $this->GetDeviceInfo();
         $FoundAlarms = array_filter($FoundPlayers, [$this, 'FilterAlarms']);
         $FoundBattery = array_filter($FoundPlayers, [$this, 'FilterBattery']);

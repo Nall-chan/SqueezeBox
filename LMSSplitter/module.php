@@ -341,6 +341,8 @@ class LyrionMusicServer extends IPSModuleStrict
         // ServerPlaylisten
         if ($this->ReadPropertyBoolean(\SqueezeBox\Splitter\Property::ShowHTMLPlaylist)) {
             $this->RegisterHook('LMSPlaylist' . $this->InstanceID);
+        } else {
+            //$this->UnregisterHook('LMSPlaylist' . $this->InstanceID);
         }
 
         // Config prüfen

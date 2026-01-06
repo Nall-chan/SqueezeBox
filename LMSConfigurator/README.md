@@ -43,7 +43,7 @@ Dieses Modul ist Bestandteil der [SqueezeBox-Library](../README.md#3-software-in
 
 Eine einfache Einrichtung ist über die im Objektbaum unter `Discovery Instanzen` zu findende Instanz [Lyrion Music Server Discovery](../LMSDiscovery/readme.md) möglich.  
 
-Bei der manuellen Einrichtung ist das Modul ist im Dialog `Instanz hinzufügen` unter dem Hersteller `Lyrion` zu finden.  
+Bei der manuellen Einrichtung ist das Modul im Dialog `Instanz hinzufügen` unter dem Hersteller `Lyrion` zu finden.  
 ![Instanz hinzufügen](imgs/add1.png)  
 
 Es wird automatisch eine LMSSplitter Instanz erzeugt, wenn noch keine vorhanden ist.  
