@@ -45,6 +45,7 @@ eval('declare(strict_types=1);namespace LyrionMusicServer {?>' . file_get_conten
  * @method bool lock(string $ident)
  * @method void unlock(string $ident)
  * @method bool RegisterHook(string $WebHook)
+ * @method bool UnregisterHook(string $WebHook)
  * @method void SetValueBoolean(string $Ident, bool $value)
  * @method void SetValueFloat(string $Ident, float $value)
  * @method void SetValueInteger(string $Ident, int $value)
@@ -342,7 +343,7 @@ class LyrionMusicServer extends IPSModuleStrict
         if ($this->ReadPropertyBoolean(\SqueezeBox\Splitter\Property::ShowHTMLPlaylist)) {
             $this->RegisterHook('LMSPlaylist' . $this->InstanceID);
         } else {
-            //$this->UnregisterHook('LMSPlaylist' . $this->InstanceID);
+            $this->UnregisterHook('LMSPlaylist' . $this->InstanceID);
         }
 
         // Config prüfen

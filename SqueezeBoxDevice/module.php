@@ -43,6 +43,7 @@ eval('declare(strict_types=1);namespace SqueezeboxDevice {?>' . file_get_content
  * @property string $WebHookSecretTrack
  * @property resource|bool $Socket
  * @method bool RegisterHook(string $WebHook)
+ * @method bool UnregisterHook(string $WebHook)
  * @method void SetValueBoolean(string $Ident, bool $value)
  * @method void SetValueFloat(string $Ident, float $value)
  * @method void SetValueInteger(string $Ident, int $value)
@@ -833,7 +834,7 @@ class Squeezebox extends IPSModuleStrict
         if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowHTMLPlaylist)) {
             $this->RegisterHook('SqueezeBoxPlaylist' . $this->InstanceID);
         } else {
-            //$this->UnregisterHook('SqueezeBoxPlaylist' . $this->InstanceID);
+            $this->UnregisterHook('SqueezeBoxPlaylist' . $this->InstanceID);
         }
         // Wenn Parent aktiv, dann Anmeldung an der Hardware bzw. Datenabgleich starten
         $this->RegisterParent();

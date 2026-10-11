@@ -365,6 +365,7 @@ class LSA_AlarmList
  * @property LSA_AlarmList $Alarms Alle Wecker als Objekt.
  * @property resource|bool $Socket
  * @method bool RegisterHook(string $WebHook)
+ * @method bool UnregisterHook(string $WebHook)
  * @method void SetValueBoolean(string $Ident, bool $value)
  * @method void SetValueFloat(string $Ident, float $value)
  * @method void SetValueInteger(string $Ident, int $value)
@@ -620,7 +621,7 @@ class SqueezeboxAlarm extends IPSModuleStrict
         if ($this->ReadPropertyBoolean(\SqueezeBox\Alarm\Property::ShowAlarmHTMLPlaylist)) {
             $this->RegisterHook('LSAPlaylist' . $this->InstanceID);
         } else {
-            //$this->UnregisterHook('LSAPlaylist' . $this->InstanceID);
+            $this->UnregisterHook('LSAPlaylist' . $this->InstanceID);
         }
         $this->RegisterParent();
         if ($this->HasActiveParent() && (trim($Address) != '')) {
@@ -1496,6 +1497,9 @@ class SqueezeboxAlarm extends IPSModuleStrict
      */
     private function RefreshDeleteVariable(int $Count): void
     {
+        if (!$this->ReadPropertyBoolean(\SqueezeBox\Alarm\Property::ShowDelete)) {
+            return;
+        }
         $Options = [];
         for ($index = 0; $index < $Count; $index++) {
             $Options[] = [
