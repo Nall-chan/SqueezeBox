@@ -147,6 +147,7 @@ Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:
 **Fehlerbehebungen**  
 
 - Batterie: Die Abfrage brach mit einem Fehler ab, bei falschem Passwort wurden alle Werte auf 0 gesetzt.  
+- Batterie: Die eingebundene Bibliothek [phpseclib](https://github.com/phpseclib/phpseclib) für die SSH-Verbindung wurde von Version 2.0.50 auf 2.0.55 aktualisiert. Damit sind bekannte Sicherheitslücken behoben (u.a. CVE-2026-32935, CVE-2026-44167).  
 - Wecker: Schlug eine Abfrage beim Start fehl, wurden die Wecker nicht geladen.  
 - Wecker: Ein Wecker ohne ausgewählte Wochentage führte zu einem Fehler.  
 - Wecker: Die Auswahl in der HTML-Playlist schlug bei Datei-URLs mit Leer- oder Sonderzeichen mit `Access denied` fehl.  
