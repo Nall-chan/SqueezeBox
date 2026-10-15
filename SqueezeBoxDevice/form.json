@@ -468,11 +468,6 @@
             "code": 202,
             "icon": "error",
             "caption": "MAC/IP address invalid."
-        },
-        {
-            "code": 203,
-            "icon": "error",
-            "caption": "Not connected to LMS."
         }
     ]
 }

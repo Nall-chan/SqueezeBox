@@ -149,6 +149,8 @@ class LibraryClassesTest extends TestCase
         $this->assertSame([], $Artists->DataArray());
         // Einzelne Datensätze ohne Id bleiben erhalten.
         $this->assertSame(['Count' => 0, 'Volume' => 20], (new \SqueezeBox\LMSTaggingArray(['count:0', 'volume:20']))->DataArray());
+        // Antwort von playlistcontrol: nur die Anzahl der geladenen Titel.
+        $this->assertSame(['Count' => 56], (new \SqueezeBox\LMSTaggingArray(['count:56']))->DataArray());
     }
 
     /** B40: Bei Dateien antwortet der LMS auf playlist play/add/deleteitem mit dem lokalen Pfad statt der URL. */
@@ -293,5 +295,27 @@ class LibraryClassesTest extends TestCase
         $List->Remove('ba83a018');
         $this->assertCount(3, $List->Items);
         $this->assertSame('5cd4aa32', $List->GetByIndex(1)->Id);
+    }
+
+    /** B32 */
+    public function testIsValidAddress(): void
+    {
+        $this->assertTrue(\SqueezeBox\LMSData::IsValidAddress('00:04:20:2e:57:ee'));
+        $this->assertTrue(\SqueezeBox\LMSData::IsValidAddress('00:04:20:2E:57:EE'));
+        $this->assertTrue(\SqueezeBox\LMSData::IsValidAddress('192.168.201.20'));
+        $this->assertFalse(\SqueezeBox\LMSData::IsValidAddress('00:04:20:2e:57'));
+        $this->assertFalse(\SqueezeBox\LMSData::IsValidAddress('00-04-20-2e-57-ee'));
+        $this->assertFalse(\SqueezeBox\LMSData::IsValidAddress('192.168.201.300'));
+        $this->assertFalse(\SqueezeBox\LMSData::IsValidAddress('Micha'));
+    }
+
+    /** E7: Das Passwort eines login-Befehls erscheint nicht im Debug. */
+    public function testLoginMasked(): void
+    {
+        $Login = new \SqueezeBox\LMSData('login', ['Micha', 'geheim 1']);
+        $this->assertSame("login Micha ******\r", $Login->Masked()->ToRawStringForLMS());
+        $this->assertSame("login Micha geheim%201\r", $Login->ToRawStringForLMS());
+        $Other = new \SqueezeBox\LMSData(['playlist', 'play'], ['geheim']);
+        $this->assertSame($Other->ToRawStringForLMS(), $Other->Masked()->ToRawStringForLMS());
     }
 }

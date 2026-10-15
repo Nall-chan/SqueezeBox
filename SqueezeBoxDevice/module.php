@@ -3296,6 +3296,11 @@ class Squeezebox extends IPSModuleStrict
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
+        $Address = $this->ReadPropertyString(\SqueezeBox\Device\Property::Address);
+        if (($Address !== '') && !\SqueezeBox\LMSData::IsValidAddress($Address)) {
+            $this->SetStatus(IS_EBASE + 2);
+            return;
+        }
         $Value = IS_INACTIVE;
         if ($State == IS_ACTIVE) {
             $LMSResponse = $this->SendDirect(new \SqueezeBox\LMSData('connected', '?'));
@@ -3331,8 +3336,10 @@ class Squeezebox extends IPSModuleStrict
             echo $this->Translate('Bad Request');
             return;
         }
-        $CalcSecret = base64_encode(sha1($this->WebHookSecretTrack . '0' . $_GET['ID'], true));
-        if ($CalcSecret != rawurldecode($_GET['Secret'])) {
+        // Ohne erzeugte HTML-Playlist gibt es kein Secret; der Hash wäre sonst ohne Geheimnis berechenbar.
+        $MySecret = (string) $this->WebHookSecretTrack;
+        $CalcSecret = base64_encode(sha1($MySecret . '0' . $_GET['ID'], true));
+        if (($MySecret === '') || ($CalcSecret != rawurldecode($_GET['Secret']))) {
             echo $this->Translate('Access denied');
             return;
         }
@@ -3667,6 +3674,10 @@ class Squeezebox extends IPSModuleStrict
      */
     private function _isPlayerOn(): bool
     {
+        // Player mit IP-Adresse haben keine Variable Power und lassen sich nicht ausschalten.
+        if ($this->FindIDForIdent('Power') == 0) {
+            return true;
+        }
         return (bool) $this->GetValue('Power');
     }
 
@@ -3725,6 +3736,10 @@ class Squeezebox extends IPSModuleStrict
      */
     private function _SetNewPower(bool $Power): void
     {
+        // Player mit IP-Adresse haben keine Variable Power.
+        if ($this->FindIDForIdent('Power') == 0) {
+            return;
+        }
         if ($this->GetValue('Power') != $Power) {
             $this->SetValueBoolean('Power', $Power);
             if (!$Power) {
@@ -4360,10 +4375,22 @@ class Squeezebox extends IPSModuleStrict
                         break;
                     case 'delete':
                     case 'addtracks':
-                    case 'load_done':
-                    case 'resume':
+                        // Die Anzahl ändert sich immer; VM_UPDATE von Tracks lädt die Playlist.
                         if (!$this->isSubscribed) {
                             $this->RequestState('Tracks');
+                        }
+                        break;
+                    case 'play':
+                    case 'load_done':
+                    case 'resume':
+                    case 'move':
+                    case 'playtracks':
+                    case 'loadtracks':
+                        // Neue oder umsortierte Playlist. Ändert sich die Anzahl der Titel, lädt VM_UPDATE von Tracks die Playlist; sonst hier neu laden (auch bei laufendem Abo).
+                        $Tracks = $this->GetValue('Tracks');
+                        $this->RequestState('Tracks');
+                        if ($this->GetValue('Tracks') == $Tracks) {
+                            $this->_RefreshPlaylist();
                         }
                         break;
                     case 'shuffle':
@@ -4503,6 +4530,7 @@ class Squeezebox extends IPSModuleStrict
             case 'status':
                 $isSyncActive = false;
                 $HasDuration = false;
+                $HasPlaylistName = false;
                 $NewTime = null;
                 $Mode = '';
                 foreach ($LMSData->Data as $TaggedDataLine) {
@@ -4632,6 +4660,7 @@ class Squeezebox extends IPSModuleStrict
                             }
                             break;
                         case 'playlist_name':
+                            $HasPlaylistName = true;
                             $this->SetValueString('Playlistname', trim((string) $Data->Value));
                             break;
                             //playlist_timestamp:1474744498.14079
@@ -4661,6 +4690,10 @@ class Squeezebox extends IPSModuleStrict
                 }
                 if ($NewTime !== null) {
                     $this->_SetNewTime($NewTime);
+                }
+                // playlist_name fehlt, wenn die aktuelle Playlist keine gespeicherte ist (z.B. nach PlayUrl).
+                if (!$HasPlaylistName && ($this->GetValue('Playlistname') !== '')) {
+                    $this->SetValueString('Playlistname', '');
                 }
                 if (!$isSyncActive) {
                     $this->_SetNewSyncMaster(false);

@@ -140,6 +140,8 @@ Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:
 - Player: Die Lautstärke wurde bei der Statusabfrage nie gelesen.  
 - Player: Beim Leeren der Playlist wurden `Position` und `Position als Text` nicht zurückgesetzt.  
 - Player: Bei Streams ohne Laufzeit wurde eine Position angezeigt und der Fortschritt war teilweise bedienbar. Position und Fortschritt stehen bei Streams jetzt auf 0 und sind nicht bedienbar.  
+- Player: JSON- und HTML-Playlist wurden nicht aktualisiert, wenn sich die Anzahl der Titel nicht änderte (z.B. Wechsel von einem Stream auf einen Favoriten oder Verschieben eines Titels).  
+- Player: `Playlistname` behielt den Namen der zuletzt geladenen gespeicherten Playlist, auch wenn danach z.B. ein Stream lief.  
 - Wecker: Beim Löschen eines oder aller Wecker wurden Variablen und Ereignisse teilweise nicht zurückgesetzt bzw. gelöscht.  
 - Wecker: Wecker mit rein numerischer Id wurden nicht aktualisiert.  
 - Spielzeiten von genau einer Stunde wurden als `00:00` angezeigt.  
@@ -147,6 +149,11 @@ Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:
 **Fehlerbehebungen**  
 
 - Batterie: Die Abfrage brach mit einem Fehler ab, bei falschem Passwort wurden alle Werte auf 0 gesetzt.  
+- Splitter: Bei falschem Benutzernamen oder Passwort meldete der Splitter `Keine Antwort vom LMS` statt eines Anmeldefehlers.  
+- Das Passwort für den LMS erschien im Klartext in den Debug-Ausgaben von Splitter, Player und Wecker.  
+- Die Webhooks der HTML-Playlisten nahmen Aufrufe auch an, bevor eine Playlist erzeugt und damit ein Geheimnis vergeben war.  
+- Player und Wecker: Eine ungültige MAC-/IP-Adresse wurde nicht erkannt. Die Instanz meldet jetzt `MAC/IP-Adresse ungültig.`  
+- Player mit IP-Adresse: War der Player nicht verbunden, erschien die Warnung `Object with ident Power could not be found` im Log.  
 - Batterie: Die eingebundene Bibliothek [phpseclib](https://github.com/phpseclib/phpseclib) für die SSH-Verbindung wurde von Version 2.0.50 auf 2.0.55 aktualisiert. Damit sind bekannte Sicherheitslücken behoben (u.a. CVE-2026-32935, CVE-2026-44167).  
 - Wecker: Schlug eine Abfrage beim Start fehl, wurden die Wecker nicht geladen.  
 - Wecker: Ein Wecker ohne ausgewählte Wochentage führte zu einem Fehler.  

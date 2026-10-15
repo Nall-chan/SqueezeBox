@@ -91,6 +91,61 @@ class DeviceTest extends ModuleTestCase
         $this->assertNoPhpErrors();
     }
 
+    /** B32: Ungültige Adresse ergibt Status 202, leere Adresse bleibt inaktiv. */
+    public function testInvalidAddress(): void
+    {
+        $Invalid = $this->createInstance(self::DeviceID, ['Address' => '00:04:20:00:00']);
+        $this->assertSame(202, IPS_GetInstance($Invalid)['InstanceStatus']);
+        $Empty = $this->createInstance(self::DeviceID, ['Address' => '']);
+        $this->assertNotSame(202, IPS_GetInstance($Empty)['InstanceStatus']);
+        $this->assertNotSame(202, IPS_GetInstance($this->iid)['InstanceStatus']);
+        $this->assertNoPhpErrors();
+    }
+
+    /** B45: Player mit IP-Adresse haben keine Variable Power. */
+    public function testIPPlayerWithoutPower(): void
+    {
+        $IPPlayer = $this->createInstance(self::DeviceID, ['Address' => '192.168.201.99']);
+        $this->assertFalse(@IPS_GetObjectIDByIdent('Power', $IPPlayer));
+        IPS_ApplyChanges($IPPlayer);
+        $this->assertNoPhpErrors();
+    }
+
+    /** B44: Ohne playlist_name in der Statusmeldung (z.B. Stream per URL) wird der Name geleert. */
+    public function testPlaylistNameCleared(): void
+    {
+        $this->receive($this->iid, str_replace('playlist_cur_index', 'playlist_name%3AMeine%20Liste playlist_cur_index', self::$Responses['status']));
+        $this->assertSame('Meine Liste', $this->values($this->iid)['Playlistname']);
+        $this->receive($this->iid, self::$Responses['statusStream']);
+        $this->assertSame('', $this->values($this->iid)['Playlistname']);
+        $this->assertNoPhpErrors();
+    }
+
+    /** B43: Laden, Fortsetzen und Verschieben laden die Playlist neu, auch wenn die Anzahl gleich bleibt (auch im Abo). */
+    public function testPlaylistEventsRefresh(): void
+    {
+        $this->receive($this->iid, self::$Responses['status']);
+        // Ohne LMS schlägt das Laden fehl und meldet 'Error on read playlist'; daran ist der Versuch erkennbar.
+        foreach (['play http%3A%2F%2Fradio.example%2Fstream.mp3', 'load_done', 'resume tempplaylist_000420000001 wipePlaylist%3A1 noplay%3A0', 'move 1 2', 'playtracks listRef ARRAY(0x1) %20 %20 index%3A0'] as $Event) {
+            $this->receive($this->iid, '00%3A04%3A20%3A00%3A00%3A01 playlist ' . $Event);
+            $this->assertStringContainsString('Error on read playlist', $this->Output, $Event);
+        }
+        $this->assertNoPhpErrors();
+    }
+
+    /** E8: Ohne erzeugte HTML-Playlist ist das Secret leer; ein damit berechneter Hash wird abgewiesen. */
+    public function testWebhookWithoutSecret(): void
+    {
+        $_GET = ['ID' => '1', 'Type' => 'Track', 'Secret' => base64_encode(sha1('' . '0' . '1', true))];
+        $Hook = new ReflectionMethod(IPS\InstanceManager::getInstanceInterface($this->iid), 'ProcessHookData');
+        ob_start();
+        $Hook->invoke(IPS\InstanceManager::getInstanceInterface($this->iid));
+        $Output = (string) ob_get_clean();
+        $_GET = [];
+        $this->assertSame('Access denied', $Output);
+        $this->assertNoPhpErrors();
+    }
+
     /** B13 */
     public function testSearchWithoutGenre(): void
     {

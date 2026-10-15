@@ -1894,8 +1894,10 @@ class LyrionMusicServer extends IPSModuleStrict
             echo $this->Translate('Bad Request');
             return;
         }
-        $CalcSecret = base64_encode(sha1($this->WebHookSecretPlaylist . '0' . $_GET['ID'], true));
-        if ($CalcSecret != rawurldecode($_GET['Secret'])) {
+        // Ohne erzeugte HTML-Playlist gibt es kein Secret; der Hash wäre sonst ohne Geheimnis berechenbar.
+        $MySecret = (string) $this->WebHookSecretPlaylist;
+        $CalcSecret = base64_encode(sha1($MySecret . '0' . $_GET['ID'], true));
+        if (($MySecret === '') || ($CalcSecret != rawurldecode($_GET['Secret']))) {
             echo $this->Translate('Access denied');
             return;
         }
@@ -2396,7 +2398,8 @@ class LyrionMusicServer extends IPSModuleStrict
         $Port = $this->ReadPropertyInteger(\SqueezeBox\Splitter\Property::Port);
         $User = $this->ReadPropertyString(\SqueezeBox\Splitter\Property::Username);
         $Pass = $this->ReadPropertyString(\SqueezeBox\Splitter\Property::Password);
-        $LoginData = (new \SqueezeBox\LMSData('login', [$User, $Pass]))->ToRawStringForLMS();
+        $Login = new \SqueezeBox\LMSData('login', [$User, $Pass]);
+        $LoginData = $Login->ToRawStringForLMS();
         $CheckData = (new \SqueezeBox\LMSData('can', 'login'))->ToRawStringForLMS();
         try {
             $fp = @stream_socket_client('tcp://' . $this->Host . ':' . $Port, $errno, $errstr, 2);
@@ -2406,13 +2409,14 @@ class LyrionMusicServer extends IPSModuleStrict
                 throw new Exception($this->Translate('No answer from LMS') . ' ' . $errstr, E_USER_NOTICE);
             } else {
                 stream_set_timeout($fp, 5);
-                $this->SendDebug('Check login', $LoginData, 0);
+                $this->SendDebug('Check login', $Login->Masked()->ToRawStringForLMS(), 0);
                 fwrite($fp, $LoginData);
                 $answerlogin = stream_get_line($fp, 1024 * 1024 * 2, chr(0x0d));
                 $this->SendDebug('Receive login', $answerlogin, 0);
                 $this->SendDebug('Connection check', $CheckData, 0);
                 fwrite($fp, $CheckData);
                 $answer = stream_get_line($fp, 1024 * 1024 * 2, chr(0x0d));
+                $Closed = feof($fp);
                 fclose($fp);
                 $this->SendDebug('Receive check', $answer, 0);
             }
@@ -2420,7 +2424,8 @@ class LyrionMusicServer extends IPSModuleStrict
                 throw new Exception($this->Translate('No answer from LMS'), E_USER_NOTICE);
             }
             if ($answer === false) {
-                throw new Exception($this->Translate('No answer from LMS'), E_USER_NOTICE);
+                // Bei falschen Zugangsdaten bestätigt der LMS den login-Befehl und trennt beim nächsten Befehl die Verbindung.
+                throw new Exception($this->Translate($Closed ? 'Login to LMS failed. Check username and password.' : 'No answer from LMS'), E_USER_NOTICE);
             }
         } catch (Exception $ex) {
             echo $ex->getMessage();
@@ -2446,7 +2451,7 @@ class LyrionMusicServer extends IPSModuleStrict
                 throw new Exception($this->Translate('Instance has no active parent.'), E_USER_NOTICE);
             }
             if ($LMSData->needResponse) {
-                $this->SendDebug('Send CS', $LMSData, 0);
+                $this->SendDebug('Send CS', $LMSData->Masked(), 0);
                 $this->SendQueuePush($LMSData);
                 $this->SendDataToParent($LMSData->ToJSONStringForLMS('{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}'));
                 $ReplyDataArray = $this->WaitForResponse($LMSData);
@@ -2457,7 +2462,7 @@ class LyrionMusicServer extends IPSModuleStrict
                 $this->SendDebug('Response CS', $LMSData, 0);
                 return $LMSData;
             } else { // ohne Response, also ohne warten raussenden,
-                $this->SendDebug('SendFaF CS', $LMSData, 0);
+                $this->SendDebug('SendFaF CS', $LMSData->Masked(), 0);
                 $this->SendDataToParent($LMSData->ToJSONStringForLMS('{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}'));
                 return null;
             }

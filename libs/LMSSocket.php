@@ -51,8 +51,9 @@ trait LMSSocket
                 if ($Host === '') {
                     return null;
                 }
-                $LoginData = (new \SqueezeBox\LMSData('login', [$Username, $Password]))->ToRawStringForLMS();
-                $this->SendDebug('Send Direct', $LoginData, 0);
+                $Login = new \SqueezeBox\LMSData('login', [$Username, $Password]);
+                $LoginData = $Login->ToRawStringForLMS();
+                $this->SendDebug('Send Direct', $Login->Masked()->ToRawStringForLMS(), 0);
                 $this->Socket = @stream_socket_client('tcp://' . $Host . ':' . $Port, $errno, $errstr, 2);
                 if (!$this->Socket) {
                     throw new \Exception($this->Translate('No answer from LMS'), E_USER_NOTICE);
@@ -71,7 +72,11 @@ trait LMSSocket
             $answer = stream_get_line($this->Socket, 1024 * 1024 * 2, chr(0x0d));
             $this->SendDebug('Response Direct', $answer, 0);
             if ($answer === false) {
-                throw new \Exception($this->Translate('No answer from LMS'), E_USER_NOTICE);
+                // Bei falschen Zugangsdaten bestätigt der LMS den login-Befehl und trennt beim nächsten Befehl die Verbindung.
+                $Closed = feof($this->Socket);
+                fclose($this->Socket);
+                $this->Socket = false;
+                throw new \Exception($this->Translate($Closed ? 'Login to LMS failed. Check username and password.' : 'No answer from LMS'), E_USER_NOTICE);
             }
             $ReplyData = new \SqueezeBox\LMSResponse($answer);
             $LMSData->Data = $ReplyData->Data;

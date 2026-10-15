@@ -262,12 +262,7 @@
         {
             "code": 202,
             "icon": "error",
-            "caption": "MAC address invalid."
-        },
-        {
-            "code": 203,
-            "icon": "error",
-            "caption": "Not connected to LMS."
+            "caption": "MAC/IP address invalid."
         }
     ]
 }

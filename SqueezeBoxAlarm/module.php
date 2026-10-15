@@ -962,6 +962,11 @@ class SqueezeboxAlarm extends IPSModuleStrict
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
+        $Address = $this->ReadPropertyString(\SqueezeBox\Alarm\Property::Address);
+        if (($Address !== '') && !\SqueezeBox\LMSData::IsValidAddress($Address)) {
+            $this->SetStatus(IS_EBASE + 2);
+            return;
+        }
         $Value = IS_INACTIVE;
         if ($State == IS_ACTIVE) {
             $LMSResponse = $this->SendDirect(new \SqueezeBox\LMSData('connected', '?'));
@@ -997,7 +1002,8 @@ class SqueezeboxAlarm extends IPSModuleStrict
         // $_GET ist bereits dekodiert; die ID ist die URL so wie sie in GetTable signiert wurde.
         $MySecret = (string) $this->{'WebHookSecretAlarmHTMLPlaylist' . $AlarmIndex};
         $CalcSecret = base64_encode(sha1($MySecret . '0' . $_GET['ID'], true));
-        if ($CalcSecret != $_GET['Secret']) {
+        // Ohne erzeugte HTML-Playlist gibt es kein Secret; der Hash wäre sonst ohne Geheimnis berechenbar.
+        if (($MySecret === '') || ($CalcSecret != $_GET['Secret'])) {
             echo $this->Translate('Access denied');
             return;
         }

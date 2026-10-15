@@ -73,6 +73,7 @@
             "Instance inactive.": "Instanz inaktiv.",
             "Instance has no active parent.": "Instanz hat keinen aktiven Parent.",
             "No answer from LMS": "Keine Antwort vom LMS",
+            "Login to LMS failed. Check username and password.": "Anmeldung am LMS fehlgeschlagen. Benutzername und Passwort prüfen.",
             "ReplyLMSData is locked": "ReplyLMSData ist gesperrt",
             "Rescan state": "Rescan Status",
             "Rescan progress": "Rescan Fortschritt",

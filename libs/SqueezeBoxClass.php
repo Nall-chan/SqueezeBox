@@ -99,6 +99,36 @@ class LMSData extends \stdClass
     }
 
     /**
+     * IsValidAddress
+     * Prüft die Adresse eines Players: MAC-Adresse (xx:xx:xx:xx:xx:xx) oder IPv4-Adresse.
+     *
+     * @param string $Address Die Adresse.
+     * @return bool True, wenn das Format gültig ist.
+     */
+    public static function IsValidAddress(string $Address): bool
+    {
+        if (preg_match('/^[0-9a-f]{2}(:[0-9a-f]{2}){5}$/i', $Address) === 1) {
+            return true;
+        }
+        return filter_var($Address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false;
+    }
+
+    /**
+     * Masked
+     * Liefert eine Kopie für Debug-Ausgaben, in der das Passwort eines login-Befehls maskiert ist.
+     *
+     * @return LMSData Die Kopie.
+     */
+    public function Masked(): self
+    {
+        $Masked = clone $this;
+        if (($this->Command[0] === 'login') && is_array($this->Data) && isset($this->Data[1])) {
+            $Masked->Data[1] = '******';
+        }
+        return $Masked;
+    }
+
+    /**
      * ToJSONStringForLMS
      * Erzeugt einen String für den Datenaustausch mit einer IO-Instanz.
      *
@@ -527,7 +557,8 @@ class LMSTaggingArray extends \stdClass
         if (isset($DataArray[-1])) {
             if (count($DataArray) == 1) {
                 // Eine Liste ohne Treffer besteht nur aus 'count:0' und ergibt ein leeres Array.
-                $DataArray = (array_keys($DataArray[-1]) === ['Count']) ? [] : $DataArray[-1];
+                // Andere Antworten mit nur count (z.B. playlistcontrol 'count:56') bleiben erhalten.
+                $DataArray = ($DataArray[-1] === ['Count' => 0]) ? [] : $DataArray[-1];
             } else {
                 unset($DataArray[-1]);
             }
