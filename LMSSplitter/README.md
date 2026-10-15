@@ -196,6 +196,11 @@ Im Fehlerfall wird `false` zurückgegeben.
   
 ### 2. Datenbank-Scanner
 
+Der Scanner kann auch über die Statusvariable `Scanner` (Ident `RescanState`) gesteuert werden: `1` = abbrechen, `2` = Scan, `3` = nur Playlisten, `4` = vollständig (Cache löschen).  
+
+> [!IMPORTANT]
+> Der Wert `0` (`Standby`) ist nur eine Anzeige. Wird er ausgewählt, sendet die Instanz keinen Befehl und die Anzeige bleibt unverändert. Bis Version 4.10 wurde die Anzeige dabei auf `Standby` gesetzt, auch wenn ein Scan lief. Zum Beenden eines Scans ist `1` (abbrechen) zu verwenden.
+
 ```php
 bool LMS_Rescan(int $InstanzID)
 ```
@@ -507,7 +512,10 @@ bool LMS_DeletePlaylist (int $InstanzID, int $PlaylistId)
 ```
 
 Löscht die in `$PlaylistId` übergebene Playlist.  
-Liefert `true` bei Erfolg, sonst `false`.  
+Liefert `true`, wenn der Befehl an den LMS gesendet wurde, sonst `false`.  
+
+> [!IMPORTANT]
+> Der LMS bestätigt das Löschen nicht. `true` bedeutet nur, dass der Befehl übertragen wurde, nicht dass die Playlist existierte und gelöscht wurde.
 
 ---
 

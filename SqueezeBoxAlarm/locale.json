@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "Maximum of 10 alarms reached.": "Es sind maximal 10 Wecker möglich.",
             "Squeezebox Alarm": "Squeezebox Wecker",
             "MAC-Address for SqueezeBox": "MAC-Adresse für Squeezebox",
             "MAC Address": "MAC Adresse",

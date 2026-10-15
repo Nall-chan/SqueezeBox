@@ -10,7 +10,7 @@ declare(strict_types=1);
  *
  * @version       4.10
  */
-function LSQ_GetSync(int $InstanzID): array
+function LSQ_GetSync(int $InstanzID): bool|array
 {
     return [];
 }

@@ -98,12 +98,13 @@ trait LMSSocket
         try {
             $this->SendDebug('Send', $LMSData, 0);
             $answer = $this->SendDataToParent($LMSData->ToJSONString());
-            if ($answer === false) {
-                $this->SendDebug('Response', 'No valid answer', 0);
+            if ($LMSData->needResponse === false) {
                 return null;
             }
-            $result = unserialize($answer);
-            if ($LMSData->needResponse === false) {
+            // Der Splitter liefert bei einem Fehler einen leeren String und hat den Fehler bereits gemeldet.
+            $result = ($answer === '') ? false : @unserialize($answer, ['allowed_classes' => [\SqueezeBox\LMSData::class]]);
+            if (!($result instanceof \SqueezeBox\LMSData)) {
+                $this->SendDebug('Response', 'No valid answer', 0);
                 return null;
             }
             $LMSData->Data = $result->Data;

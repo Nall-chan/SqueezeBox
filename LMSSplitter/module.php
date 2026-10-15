@@ -466,16 +466,26 @@ class LyrionMusicServer extends IPSModuleStrict
                 $this->RefreshPlayerList();
                 break;
             case 'RescanState':
-                if ($Value == 1) {
-                    $ret = $this->AbortScan();
-                } elseif ($Value == 2) {
-                    $ret = $this->Rescan();
-                } elseif ($Value == 3) {
-                    $ret = $this->RescanPlaylists();
-                } elseif ($Value == 4) {
-                    $ret = $this->WipeCache();
+                switch ((int) $Value) {
+                    case 0: // Standby ist nur eine Anzeige, kein Befehl
+                        return;
+                    case 1:
+                        $ret = $this->AbortScan();
+                        break;
+                    case 2:
+                        $ret = $this->Rescan();
+                        break;
+                    case 3:
+                        $ret = $this->RescanPlaylists();
+                        break;
+                    case 4:
+                        $ret = $this->WipeCache();
+                        break;
+                    default:
+                        echo $this->Translate('Value invalid.');
+                        return;
                 }
-                if (($Value != 0) && (($ret === null) || ($ret === false))) {
+                if (!$ret) {
                     echo $this->Translate('Error on send scanner-command');
                     return;
                 }
@@ -544,6 +554,9 @@ class LyrionMusicServer extends IPSModuleStrict
         }
         $LMSData = new \SqueezeBox\LMSData($Command, $Data);
         $ret = $this->SendDirect($LMSData);
+        if ($ret === null) {
+            return false;
+        }
         return $ret->Data;
     }
 
@@ -641,19 +654,20 @@ class LyrionMusicServer extends IPSModuleStrict
             return false;
         }
 
-        if (count($LMSData->Data) == 0) {
-            return [];
-        }
         $AllPlayerIDs = IPS_GetInstanceListByModuleID(\SqueezeBox\GUID::Squeezebox);
         $Addresses = [];
         $ret = [];
         foreach ($AllPlayerIDs as $DeviceID) {
             $Addresses[$DeviceID] = IPS_GetProperty($DeviceID, \SqueezeBox\Device\Property::Address);
         }
-        $Data = array_chunk($LMSData->Data, 2);
-        foreach ($Data as $Group) {
+        // Je Gruppe liefert der LMS sync_members und sync_member_names; ohne Gruppen eine leere Antwort.
+        foreach ($LMSData->Data as $Line) {
+            $Group = new \SqueezeBox\LMSTaggingData($Line);
+            if (($Group->Name != 'sync_members') || ($Group->Value == '')) {
+                continue;
+            }
             $FoundInstanzIDs = [];
-            $Search = explode(',', (new \SqueezeBox\LMSTaggingData($Group[0]))->Value);
+            $Search = explode(',', $Group->Value);
             foreach ($Search as $Value) {
                 if (array_search($Value, $Addresses) !== false) {
                     $FoundInstanzIDs[] = array_search($Value, $Addresses);
@@ -811,7 +825,7 @@ class LyrionMusicServer extends IPSModuleStrict
     {
         $Data = [0, 100000];
         if ($Search != '') {
-            $Data[] = 'search:' . urlencode($Search);
+            $Data[] = 'search:' . $Search;
         }
 
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData('genres', $Data));
@@ -846,7 +860,7 @@ class LyrionMusicServer extends IPSModuleStrict
     {
         $Data = [0, 100000];
         if ($Search != '') {
-            $Data[] = 'search:' . urlencode($Search);
+            $Data[] = 'search:' . $Search;
         }
 
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData('artists', $Data));
@@ -881,7 +895,7 @@ class LyrionMusicServer extends IPSModuleStrict
     {
         $Data = [0, 100000];
         if ($Search != '') {
-            $Data[] = 'search:' . urlencode($Search);
+            $Data[] = 'search:' . $Search;
         }
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData('albums', $Data));
         if ($LMSData === null) {
@@ -931,7 +945,7 @@ class LyrionMusicServer extends IPSModuleStrict
             restore_error_handler();
             return false;
         } else {
-            $Data = ['0', 100000, 'tags:uc', 'folder_id:' . $FolderID];
+            $Data = ['0', 100000, 'recursive:1', 'tags:uc', 'folder_id:' . $FolderID];
         }
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData('mediafolder', $Data));
         if ($LMSData == null) {
@@ -1008,7 +1022,7 @@ class LyrionMusicServer extends IPSModuleStrict
     public function GetPlaylistsEx(string $Search): bool|array
     {
         if ($Search != '') {
-            $Data = [0, 100000, 'search:' . urlencode($Search), 'tags:u'];
+            $Data = [0, 100000, 'search:' . $Search, 'tags:u'];
         } else {
             return $this->Multi_Playlists;
         }
@@ -1140,17 +1154,9 @@ class LyrionMusicServer extends IPSModuleStrict
      */
     public function DeletePlaylist(int $PlaylistId): bool
     {
+        // Der LMS bestätigt das Löschen nicht; die Antwort enthält nur das Echo des Befehls.
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['playlists', 'delete'], 'playlist_id:' . $PlaylistId));
-        if ($LMSData === null) {
-            return false;
-        }
-        if (strpos($LMSData->Data[0], 'playlist_id') === 0) {
-            return $PlaylistId === (int) (new \SqueezeBox\LMSTaggingData($LMSData->Data[0]))->Value;
-        }
-        set_error_handler([$this, 'ModulErrorHandler']);
-        trigger_error($this->Translate('Error deleting Playlist.'), E_USER_NOTICE);
-        restore_error_handler();
-        return false;
+        return $LMSData !== null;
     }
 
     /**
@@ -1188,7 +1194,7 @@ class LyrionMusicServer extends IPSModuleStrict
             return false;
         }
 
-        if (strpos($LMSData->Data[2], 'url') === 0) {
+        if (isset($LMSData->Data[2]) && (strpos($LMSData->Data[2], 'url') === 0)) {
             if ($SongURL != (new \SqueezeBox\LMSTaggingData($LMSData->Data[2]))->Value) {
                 set_error_handler([$this, 'ModulErrorHandler']);
                 trigger_error($this->Translate('Error on add SongURL to playlist.'), E_USER_NOTICE);
@@ -1216,7 +1222,8 @@ class LyrionMusicServer extends IPSModuleStrict
             restore_error_handler();
             return false;
         }
-        return $this->MoveSongInPlaylist($PlaylistId, (int) $OldPosition->Value - 1, $Position);
+        // Der neue Song steht am Ende; seine Position (1 = 1.Eintrag) entspricht der Anzahl der Songs.
+        return $this->MoveSongInPlaylist($PlaylistId, (int) $OldPosition->Value, $Position);
     }
 
     /**
@@ -1283,7 +1290,7 @@ class LyrionMusicServer extends IPSModuleStrict
      */
     public function GetSongInfoByFileID(int $SongID): bool|array
     {
-        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData('songinfo', ['0', '20', 'track_id:' . $SongID, 'tags:gladiqrRtueJINpsy']));
+        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData('songinfo', ['0', '100', 'track_id:' . $SongID, 'tags:gladiqrRtueJINpsy']));
         if ($LMSData === null) {
             return false;
         }
@@ -1312,7 +1319,7 @@ class LyrionMusicServer extends IPSModuleStrict
         if ($this->GetValidSongURL($SongURL) == false) {
             return false;
         }
-        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData('songinfo', ['0', '20', 'url:' . $SongURL, 'tags:gladiqrRtueJINpsy']));
+        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData('songinfo', ['0', '100', 'url:' . $SongURL, 'tags:gladiqrRtueJINpsy']));
         if ($LMSData === null) {
             return false;
         }
@@ -1353,7 +1360,7 @@ class LyrionMusicServer extends IPSModuleStrict
     {
         $Data = [0, 100000, 'tags:gladiqrRtueJINpsy', 'genre_id:' . $GenreId];
         if ($Search != '') {
-            $Data[] = 'search:' . urlencode($Search);
+            $Data[] = 'search:' . $Search;
         }
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData('songs', $Data));
         if ($LMSData === null) {
@@ -1386,7 +1393,7 @@ class LyrionMusicServer extends IPSModuleStrict
     {
         $Data = [0, 100000, 'tags:gladiqrRtueJINpsy', 'artist_id:' . $ArtistId];
         if ($Search != '') {
-            $Data[] = 'search:' . urlencode($Search);
+            $Data[] = 'search:' . $Search;
         }
 
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData('songs', $Data));
@@ -1418,9 +1425,9 @@ class LyrionMusicServer extends IPSModuleStrict
      */
     public function GetSongsByAlbumEx(int $AlbumId, string $Search): bool|array
     {
-        $Data = [0, 100000, 'tags:gladiqrRtueJINpsy', 'artist_id:' . $AlbumId];
+        $Data = [0, 100000, 'tags:gladiqrRtueJINpsy', 'album_id:' . $AlbumId];
         if ($Search != '') {
-            $Data[] = 'search:' . urlencode($Search);
+            $Data[] = 'search:' . $Search;
         }
 
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData('songs', $Data));
@@ -1446,7 +1453,7 @@ class LyrionMusicServer extends IPSModuleStrict
             restore_error_handler();
             return false;
         }
-        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData('search', [0, 100000, 'term:' . rawurlencode($Value)]));
+        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData('search', [0, 100000, 'term:' . $Value]));
         if ($LMSData === null) {
             return false;
         }
@@ -1488,7 +1495,7 @@ class LyrionMusicServer extends IPSModuleStrict
         if ($FavoriteID == '') {
             $Data = [0, 100000, 'want_url:1', 'item_id:.'];
         } else {
-            $Data = [0, 100000, 'want_url:1', 'item_id:' . rawurlencode($FavoriteID)];
+            $Data = [0, 100000, 'want_url:1', 'item_id:' . $FavoriteID];
         }
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['favorites', 'items'], $Data));
         if ($LMSData === null) {
@@ -1520,7 +1527,7 @@ class LyrionMusicServer extends IPSModuleStrict
             $ParentFavoriteID .= '.10000';
         }
 
-        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['favorites', 'add'], ['item_id:' . $ParentFavoriteID, 'title:' . $Title, 'url:' . rawurlencode($URL)]));
+        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['favorites', 'add'], ['item_id:' . $ParentFavoriteID, 'title:' . $Title, 'url:' . $URL]));
         if ($LMSData === null) {
             return false;
         }
@@ -1713,11 +1720,11 @@ class LyrionMusicServer extends IPSModuleStrict
         if ($FolderID == '') {
             $Data[] = 'item_id:.';
         } else {
-            $Data[] = 'item_id:' . rawurlencode($FolderID);
+            $Data[] = 'item_id:' . $FolderID;
         }
 
         if ($Search != '') {
-            $Data[] = 'search:' . rawurlencode($Search);
+            $Data[] = 'search:' . $Search;
         }
 
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData([$Cmd, 'items'], $Data));
@@ -1892,28 +1899,33 @@ class LyrionMusicServer extends IPSModuleStrict
             echo $this->Translate('Access denied');
             return;
         }
-        $this->LoadPlaylistforPlayers($_GET['Type'], $_GET['ID']);
-        echo 'OK';
+        if ($this->LoadPlaylistforPlayers($_GET['Type'], $_GET['ID'])) {
+            echo 'OK';
+        }
     }
 
     /**
      * LoadPlaylistforPlayers
+     * Synchronisiert die ausgewählten Player und lädt die Playlist bzw. den Favoriten auf dem ersten Player.
      *
-     * @param  string $Type
+     * @param  string $Type 'Playlist' oder 'Favorite'
      * @param  int|string $PlaylistId
-     * @return void
+     * @return bool True wenn die Playlist geladen wurde.
      */
-    protected function LoadPlaylistforPlayers(string $Type, int|string $PlaylistId): void
+    protected function LoadPlaylistforPlayers(string $Type, int|string $PlaylistId): bool
     {
-        $Value = $this->GetValue('PlayerSelect');
-        if ($Value == 0) {
+        // Nur Player berücksichtigen, die (noch) mit diesem Splitter verbunden sind.
+        $SelectedPlayers = array_values(array_intersect($this->SelectedPlayers, $this->GetAllPlayers()));
+        if (count($SelectedPlayers) == 0) {
             echo $this->Translate('No Player selected');
-            return;
+            return false;
         }
-        $SelectedPlayers = $this->SelectedPlayers;
         $MasterId = 0;
         foreach ($SelectedPlayers as $PlayerInstanceId) {
             $OldActiveSync = LSQ_GetSync($PlayerInstanceId);
+            if ($OldActiveSync === false) {
+                continue;
+            }
             $this->SendDebug('OldActiveSync:' . $PlayerInstanceId, $OldActiveSync, 0);
             foreach (array_diff($OldActiveSync, $SelectedPlayers) as $UnSyncId) {
                 $this->SendDebug('SetUnSync', $UnSyncId, Format: 0);
@@ -1929,12 +1941,18 @@ class LyrionMusicServer extends IPSModuleStrict
                 LSQ_SetSync($MasterId, $PlayerInstanceId);
             }
         }
-        if ($Type == 'Playlist') {
-            LSQ_LoadPlaylistByPlaylistID($MasterId, (int) $PlaylistId);
+        if ($MasterId == 0) {
+            // Kein ausgewählter Player war erreichbar; LSQ_GetSync hat den Fehler bereits gemeldet.
+            return false;
         }
-        if ($Type == 'Favorite') {
-            LSQ_LoadPlaylistByFavoriteID($MasterId, (string) $PlaylistId);
+        switch ($Type) {
+            case 'Playlist':
+                return LSQ_LoadPlaylistByPlaylistID($MasterId, (int) $PlaylistId);
+            case 'Favorite':
+                return LSQ_LoadPlaylistByFavoriteID($MasterId, (string) $PlaylistId);
         }
+        echo $this->Translate('Bad Request');
+        return false;
     }
 
     /**
@@ -2131,7 +2149,6 @@ class LyrionMusicServer extends IPSModuleStrict
                 set_error_handler([$this, 'ModulErrorHandler']);
                 trigger_error(sprintf($this->Translate('Error read Playlist %d .'), $Key), E_USER_NOTICE);
                 restore_error_handler();
-                $Playlist['Playlist'] = $Playlists['Playlist'];
                 continue;
             }
             $LMSSongData->SliceData();
@@ -2189,9 +2206,6 @@ class LyrionMusicServer extends IPSModuleStrict
      */
     private function DecodeLMSResponse(\SqueezeBox\LMSData $LMSData): bool
     {
-        if ($LMSData == null) {
-            return false;
-        }
         $this->SendDebug('Decode', $LMSData, 0);
         switch ($LMSData->Command[0]) {
             case 'listen':
@@ -2291,7 +2305,7 @@ class LyrionMusicServer extends IPSModuleStrict
                         case 'new':
                             $Playlists[$PlaylistData['Playlist_id']]['Playlist'] = $PlaylistData['Name'];
                             $Playlists[$PlaylistData['Playlist_id']]['Id'] = $PlaylistData['Playlist_id'];
-                            $LMSSongData = $this->SendDirect(new \SqueezeBox\LMSData('songinfo', ['0', '20', 'track_id:' . $PlaylistData['Playlist_id'], 'tags:u']));
+                            $LMSSongData = $this->SendDirect(new \SqueezeBox\LMSData('songinfo', ['0', '100', 'track_id:' . $PlaylistData['Playlist_id'], 'tags:u']));
                             if ($LMSSongData === null) {
                                 set_error_handler([$this, 'ModulErrorHandler']);
                                 trigger_error(sprintf($this->Translate('Error read Playlist %d .'), $PlaylistData['Playlist_id']), E_USER_NOTICE);

@@ -18,10 +18,9 @@ trait TimeConvert
      */
     protected function ConvertSeconds(int $Time): string
     {
-        if ($Time > 3600) {
-            return sprintf('%02d:%02d:%02d', ($Time / 3600), ($Time / 60 % 60), $Time % 60);
-        } else {
-            return sprintf('%02d:%02d', ($Time / 60 % 60), $Time % 60);
+        if ($Time >= 3600) {
+            return sprintf('%02d:%02d:%02d', intdiv($Time, 3600), intdiv($Time, 60) % 60, $Time % 60);
         }
+        return sprintf('%02d:%02d', intdiv($Time, 60), $Time % 60);
     }
 }

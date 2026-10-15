@@ -13,3 +13,6 @@ url=https://github.com/Nall-chan/SymconVSCTasks.git
 [submodule "libs/phpseclib"]
 	path = libs/phpseclib
 	url = https://github.com/phpseclib/phpseclib
+[submodule ".claude-rules"]
+	path = .claude-rules
+	url = https://github.com/Nall-chan/symcon-module-rules.git

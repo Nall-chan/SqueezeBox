@@ -265,7 +265,7 @@ class LMSResponse extends LMSData
                         break;
                     case 'shoutcast':
                         $this->Command[1] = array_shift($array);
-                        if (in_array($array[0], ['play', 'load', 'insert', 'add'])) {
+                        if (isset($array[0]) && in_array($array[0], ['play', 'load', 'insert', 'add'])) {
                             $this->Command[2] = array_shift($array);
                         }
 
@@ -293,7 +293,6 @@ class LMSResponse extends LMSData
                     case 'title':
                     case 'duration':
                     case 'remote':
-                    case 'status':
                     case 'newmetadata':
                     case 'playlistcontrol':
                     case 'sync':
@@ -353,9 +352,9 @@ class LMSTaggingData extends \stdClass
     public string $Name;
 
     /**
-     * @var string Der Inhalt des Datensatz.
+     * @var string Der Inhalt des Datensatz. Leer, wenn die Zeile keinen Doppelpunkt enthält.
      */
-    public string $Value;
+    public string $Value = '';
 
     /**
      * __construct
@@ -473,6 +472,7 @@ class LMSTaggingArray extends \stdClass
     {
         $id = -1;
         $DataArray = [];
+        $UseIDs = false;
         if (count($TaggedData) > 0) {
             $UseIDs = ((new LMSTaggingData($TaggedData[0]))->Name == 'id') ? true : false;
             if ($UsedIdIndex === '') {
@@ -486,7 +486,7 @@ class LMSTaggingArray extends \stdClass
                     if (strpos($Part->Value, '.') === false) {
                         $id = (int) $Part->Value;
                     } else {
-                        $id = rawurldecode($Part->Value);
+                        $id = $Part->Value;
                     }
                     continue;
                 }
@@ -510,20 +510,24 @@ class LMSTaggingArray extends \stdClass
                     $DataArray[$id][$Index] = (bool) ($Part->Value);
                     break;
                 case 1:
-                    if (is_numeric($Part->Value)) {
+                    // Nur echte Dezimalzahlen wandeln (Nachkommastellen werden abgeschnitten).
+                    // Werte wie '1e512345' oder '01234567' sind z.B. Wecker-Ids und bleiben Strings.
+                    if (preg_match('/^-?(0|[1-9]\d*)(\.\d+)?$/', $Part->Value)) {
                         $DataArray[$id][$Index] = (int) $Part->Value;
                     } else {
-                        $DataArray[$id][$Index] = (string) rawurldecode((string) $Part->Value);
+                        $DataArray[$id][$Index] = $Part->Value;
                     }
                     break;
                 default:
-                    $DataArray[$id][$Index] = rawurldecode((string) $Part->Value);
+                    // Die Werte sind bereits von LMSResponse dekodiert. URLs enthalten z.B. %20 als Teil der URL.
+                    $DataArray[$id][$Index] = $Part->Value;
                     break;
             }
         }
         if (isset($DataArray[-1])) {
             if (count($DataArray) == 1) {
-                $DataArray = $DataArray[-1];
+                // Eine Liste ohne Treffer besteht nur aus 'count:0' und ergibt ein leeres Array.
+                $DataArray = (array_keys($DataArray[-1]) === ['Count']) ? [] : $DataArray[-1];
             } else {
                 unset($DataArray[-1]);
             }
@@ -550,7 +554,14 @@ class LMSTaggingArray extends \stdClass
      */
     public function Compact(string $Index): void
     {
-        array_walk($this->DataArray, [$this, 'FlatDataArray'], $Index);
+        $Compacted = [];
+        foreach ($this->DataArray as $Key => $Item) {
+            // Einzelwerte (z.B. Count) sind keine Datensätze und entfallen.
+            if (is_array($Item)) {
+                $Compacted[$Key] = $Item[$Index] ?? '';
+            }
+        }
+        $this->DataArray = $Compacted;
     }
 
     /**
@@ -562,19 +573,6 @@ class LMSTaggingArray extends \stdClass
     public function Count(): int
     {
         return count($this->DataArray);
-    }
-
-    /**
-     * FlatDataArray
-     * Callback-Funktion für Compact.
-     *
-     * @param mixed $Item Das aktuelle Item.
-     * @param mixed Der übergeben Index von Item.
-     * @param string $Index Der Index aus Item der hochkopiert wird.
-     */
-    protected function FlatDataArray(&$Item, $Key, $Index): void
-    {
-        $Item = $Item[$Index];
     }
 }
 
@@ -645,7 +643,7 @@ class LMSSongInfo extends \stdClass
         $id = -1;
         $Songs = [];
         $Duration = 0;
-        $Playlist = ((new LMSTaggingData($TaggedData[0]))->Name == 'playlist index') ? true : false;
+        $Playlist = (count($TaggedData) > 0) && ((new LMSTaggingData((string) $TaggedData[0]))->Name == 'playlist index');
         foreach ($TaggedData as $Line) {
             $Part = new LMSTaggingData($Line);
             if ($Playlist) {
@@ -674,13 +672,10 @@ class LMSSongInfo extends \stdClass
             } elseif (static::$SongFields[$Index] == 1) {
                 $Songs[$id][$Index] = intval($Part->Value);
             } else {
-                if (is_string($Part->Value)) {
-                    $Songs[$id][$Index] = rawurldecode($Part->Value);
-                    if ($Index == 'Remote_title') {
-                        $Songs[$id]['Title'] = $Songs[$id]['Remote_title'];
-                    }
-                } else {
-                    $Songs[$id][$Index] = $Part->Value;
+                // Die Werte sind bereits von LMSResponse dekodiert.
+                $Songs[$id][$Index] = $Part->Value;
+                if ($Index == 'Remote_title') {
+                    $Songs[$id]['Title'] = $Songs[$id]['Remote_title'];
                 }
             }
         }
@@ -695,11 +690,11 @@ class LMSSongInfo extends \stdClass
      * GetSong
      * Liefert den ersten Datensatz der Songs.
      *
-     * @return array Der Datensatz des Songs.
+     * @return array Der Datensatz des Songs, ein leeres Array wenn keine Songs vorhanden sind.
      */
     public function GetSong(): array
     {
-        return array_shift($this->SongArray);
+        return array_shift($this->SongArray) ?? [];
     }
 
     /**
@@ -750,10 +745,6 @@ trait LMSSongURL
      */
     protected function GetValidSongURL(string &$SongURL): bool
     {
-        if (!is_string($SongURL)) {
-            trigger_error(sprintf($this->Translate('%s must be string.'), 'URL'), E_USER_NOTICE);
-            return false;
-        }
         $valid = strpos($SongURL, '://');
         if ($valid === false) {
             trigger_error(sprintf($this->Translate('%s not valid.'), 'URL'), E_USER_NOTICE);
@@ -761,6 +752,35 @@ trait LMSSongURL
         }
         $SongURL = str_replace('\\', '/', $SongURL);
         return true;
+    }
+
+    /**
+     * IsSameSongURL
+     * Vergleicht eine gesendete URL mit dem Echo des LMS.
+     * Bei Dateien antwortet der LMS mit dem lokalen Pfad (z.B. E:\Musik\Die Ärzte\Lied.mp3) statt mit der URL
+     * (file:///E:/Musik/Die%20%C4rzte/Lied.mp3); Pfade in der URL können Latin-1 kodiert sein.
+     *
+     * @param string $SongURL Die gesendete URL.
+     * @param string $Echo    Die Antwort des LMS.
+     * @return bool True, wenn das Echo zur URL passt.
+     */
+    protected static function IsSameSongURL(string $SongURL, string $Echo): bool
+    {
+        $Echo = str_replace('\\', '/', $Echo);
+        if ($Echo === '') {
+            return false;
+        }
+        if (strpos($SongURL, $Echo) !== false) {
+            return true;
+        }
+        if (stripos($SongURL, 'file://') !== 0) {
+            return false;
+        }
+        $Path = rawurldecode(substr($SongURL, 7));
+        if (!mb_check_encoding($Path, 'UTF-8')) {
+            $Path = mb_convert_encoding($Path, 'UTF-8', 'ISO-8859-1');
+        }
+        return str_ends_with($Path, $Echo);
     }
 }
 
@@ -886,42 +906,45 @@ sleep(10).then(() => {
                 $Line['Position'] = $pos + 1;
 
                 if (array_key_exists('Duration', $Line)) {
-                    $Line['Duration'] = $this->ConvertSeconds($Line['Duration']);
+                    $Line['Duration'] = $this->ConvertSeconds((int) $Line['Duration']);
                 } else {
                     $Line['Duration'] = '---';
                 }
 
-                $Line['Play'] = ($Line['Position'] == $CurrentLine ? '<div class="iconMediumSpinner ipsIconArrowRight" style="width: 100%; background-position: center center;"></div>' : '');
-
-                $LineSecret = rawurlencode(base64_encode(sha1($NewSecret . '0' . $Line[$HookId], true)));
+                $HookValue = (string) ($Line[$HookId] ?? '');
+                $LineSecret = rawurlencode(base64_encode(sha1($NewSecret . '0' . $HookValue, true)));
                 $LineIndex = ($Line['Position'] == $CurrentLine ? 'active' : ($pos % 2 ? 'odd' : 'even'));
                 $TrStyle = [];
-                if ($Config_Rows_BgColor[$LineIndex] >= 0) {
+                if (($Config_Rows_BgColor[$LineIndex] ?? -1) >= 0) {
                     $TrStyle[] = 'background-color:#' . substr('000000' . dechex($Config_Rows_BgColor[$LineIndex]), -6);
                 }
-                if ($Config_Rows_Color[$LineIndex] >= 0) {
+                if (($Config_Rows_Color[$LineIndex] ?? -1) >= 0) {
                     $TrStyle[] = 'color:#' . substr('000000' . dechex($Config_Rows_Color[$LineIndex]), -6);
                 }
-                $TdStyle[] = $Config_Rows_Style[$LineIndex];
-                $HTMLData .= '<tr style="' . implode(';', $TrStyle) . ';" onclick="eval(document.getElementById(\'script' . $this->InstanceID . '\').innerHTML.toString()); window.xhrGet' . $this->InstanceID . '({ url: \'hook/' . $HookPrefix . $this->InstanceID . '?Type=' . $HookType . '&ID=' . ($HookId == 'Url' ? rawurlencode($Line[$HookId]) : $Line[$HookId]) . '&Secret=' . $LineSecret . '\' });">';
+                if (($Config_Rows_Style[$LineIndex] ?? '') != '') {
+                    $TrStyle[] = $Config_Rows_Style[$LineIndex];
+                }
+                // Die ID wird einmal URL-kodiert übertragen; der Webhook erhält sie über $_GET wieder dekodiert.
+                $HTMLData .= '<tr style="' . htmlspecialchars(implode(';', $TrStyle)) . ';" onclick="eval(document.getElementById(\'script' . $this->InstanceID . '\').innerHTML.toString()); window.xhrGet' . $this->InstanceID . '({ url: \'hook/' . $HookPrefix . $this->InstanceID . '?Type=' . rawurlencode($HookType) . '&ID=' . rawurlencode($HookValue) . '&Secret=' . $LineSecret . '\' });">';
 
                 $td = [];
                 foreach ($Config_Columns as $Column) {
                     if ($Column['show'] !== true) {
                         continue;
                     }
-                    if (!array_key_exists($Column['key'], $Line)) {
-                        $Line[$Column['key']] = '';
+                    if ($Column['key'] == 'Play') {
+                        $Content = ($Line['Position'] == $CurrentLine ? '<div class="iconMediumSpinner ipsIconArrowRight" style="width: 100%; background-position: center center;"></div>' : '');
+                    } else {
+                        $Content = htmlspecialchars((string) ($Line[$Column['key']] ?? ''), ENT_QUOTES);
                     }
                     $TdStyle = [];
                     $TdStyle[] = 'text-align:' . $Column['align'];
                     $TdStyle[] = $Column['style'];
 
-                    $td[$Column['index']] = '<td style="' . implode(';', $TdStyle) . ';">' . (string) $Line[$Column['key']] . '</td>';
+                    $td[$Column['index']] = '<td style="' . htmlspecialchars(implode(';', $TdStyle)) . ';">' . $Content . '</td>';
                 }
                 ksort($td);
-                $HTMLData .= implode('', $td) . '</tr>';
-                $HTMLData .= '</tr>' . PHP_EOL;
+                $HTMLData .= implode('', $td) . '</tr>' . PHP_EOL;
                 $pos++;
             }
         }

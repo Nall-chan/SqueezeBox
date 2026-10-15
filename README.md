@@ -123,6 +123,52 @@ Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:
 
 ### 3. Changelog
 
+**Version 4.11:**  
+
+> [!IMPORTANT]
+> Geänderte Rückgabewerte und geändertes Verhalten, bitte eigene Skripte prüfen:
+>
+> - `LSQ_GetSync` liefert im Fehlerfall `false` statt eines Arrays. Player ohne Instanz in Symcon sind nicht mehr als `false` im Array enthalten.
+> - `LSQ_GetSongInfoByTrackIndex` bricht bei einem ungültigen Index das Skript nicht mehr mit einer Exception ab, sondern erzeugt einen Hinweis und liefert `false`.
+> - `LMS_DeletePlaylist` liefert `true`, sobald der Befehl gesendet wurde. Der LMS bestätigt das Löschen nicht.
+> - `LMS_GetGenresEx`, `LMS_GetArtistsEx`, `LMS_GetAlbumsEx` und `LMS_GetPlaylistsEx` liefern ohne Treffer ein leeres Array statt `false`.
+> - URLs in den Rückgabewerten (z.B. von `LMS_GetFavorites`, `LMS_GetDirectoryByID` oder den Songinfos) behalten ihre Kodierung, z.B. `%20` statt eines Leerzeichens. Sie können unverändert an andere Funktionen übergeben werden.
+> - Die Auswahl `Standby` der Variable `Scanner` sendet keinen Befehl mehr und setzt die Anzeige nicht zurück.
+
+**Behobene falsche Werte in Statusvariablen**  
+
+- Player: Die Lautstärke wurde bei der Statusabfrage nie gelesen.  
+- Player: Beim Leeren der Playlist wurden `Position` und `Position als Text` nicht zurückgesetzt.  
+- Player: Bei Streams ohne Laufzeit wurde eine Position angezeigt und der Fortschritt war teilweise bedienbar. Position und Fortschritt stehen bei Streams jetzt auf 0 und sind nicht bedienbar.  
+- Wecker: Beim Löschen eines oder aller Wecker wurden Variablen und Ereignisse teilweise nicht zurückgesetzt bzw. gelöscht.  
+- Wecker: Wecker mit rein numerischer Id wurden nicht aktualisiert.  
+- Spielzeiten von genau einer Stunde wurden als `00:00` angezeigt.  
+
+**Fehlerbehebungen**  
+
+- Batterie: Die Abfrage brach mit einem Fehler ab, bei falschem Passwort wurden alle Werte auf 0 gesetzt.  
+- Wecker: Schlug eine Abfrage beim Start fehl, wurden die Wecker nicht geladen.  
+- Wecker: Ein Wecker ohne ausgewählte Wochentage führte zu einem Fehler.  
+- Wecker: Die Auswahl in der HTML-Playlist schlug bei Datei-URLs mit Leer- oder Sonderzeichen mit `Access denied` fehl.  
+- `LMS_Search`, `LMS_Get…Ex` und `LMS_GetSongsBy…Ex` fanden bei Suchbegriffen mit Umlauten oder Sonderzeichen nichts.  
+- Favoriten-Funktionen haben Ids und URLs doppelt kodiert.  
+- Antworten des LMS wurden doppelt dekodiert: URLs kamen verfälscht an und wurden so auch in Wecker übernommen. `LMS_GetDirectoryByID` lieferte bei Ordnern mit Umlauten im Pfad `false`.  
+- `LMS_GetGenresEx`, `LMS_GetArtistsEx`, `LMS_GetAlbumsEx` und `LMS_GetPlaylistsEx` erzeugten ohne Treffer eine Warnung bzw. einen Fehler.  
+- `LMS_GetSongsByAlbum(Ex)` lieferte die Songs eines Künstlers statt des Albums.  
+- `LMS_GetDirectoryByIDRecursive` war nicht rekursiv.  
+- `LMS_AddSongToPlaylistEx` hat den falschen Song verschoben.  
+- `LSQ_LoadPlaylistBySearch`, `LSQ_AddToPlaylistBySearch`, `LSQ_InsertInPlaylistBySearch` und `LSQ_DeleteFromPlaylistBySearch` lehnten eine Suche ohne Genre ab.  
+- `LSQ_DeleteFromPlaylistByIndex` lieferte immer `false`.  
+- `LSQ_PlayUrl`, `LSQ_AddToPlaylistByUrl` und `LSQ_DeleteFromPlaylistByUrl` lieferten bei Dateien mit Umlauten im Pfad `false`, obwohl der Befehl ausgeführt wurde.  
+- Player: Bei einer Playlist mit 0 oder 1 Titel erschien die Warnung `Maximum Value must be higher than Minimum Value` im Log.  
+- `LSQ_DisplayText` ignorierte die Anzeigedauer.  
+- `LSQ_SetVolumeEx`, `LSQ_SetBassEx`, `LSQ_SetTrebleEx` und `LSQ_SetPitchEx` erzeugten bei leerem Wert eine Warnung.  
+- `LMS_SendSpecial`, `LSQ_SetSync`, `LSQ_SetUnSync` und `LMS_GetSyncGroups` erzeugten bei fehlender Verbindung bzw. ohne Sync-Gruppen PHP-Fehler.  
+- HTML-Playlisten: Der Zeilenstil wurde nicht angewendet.  
+- HTML-Playlisten: Sonderzeichen wie `<` oder `'` in Titeln wurden nicht maskiert und zerstörten die Darstellung bzw. die Auswahl.  
+- Splitter: Das Laden einer Playlist auf die ausgewählten Player meldete auch im Fehlerfall Erfolg und berücksichtigte gelöschte Player.  
+- Konfigurator: PHP-Fehler beim Aufbau der Liste, wenn eine Antwort des LMS fehlte.  
+
 **Version 4.10:**  
 
 - Anpassung an den neuen Namen Lyrion.  

@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "Value invalid.": "Wert ungültig.",
             "Connected to LMS": "Verbunden mit LMS",
             "Version of LMS:": "Version des LMS:",
             "Connected Players to LMS:": "Mit LMS verbundene Player:",

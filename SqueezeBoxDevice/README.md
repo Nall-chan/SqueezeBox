@@ -671,11 +671,15 @@ Playlisten welche mit ihrem Namen über `LSQ_LoadPlaylist` geladen wurden, liefe
 ---
 
 ```php
-array LSQ_GetSongInfoByTrackIndex(int $InstanzID, int $Index)
+array|bool LSQ_GetSongInfoByTrackIndex(int $InstanzID, int $Index)
 ```
 
 Liefert Informationen über den Song mit dem `$Index` der aktuellen Playlist.  
 Wird als `$Index` 0 übergeben, so wird der aktuelle Song genutzt.  
+Bei einem ungültigen `$Index` wird ein Hinweis erzeugt und `false` zurückgegeben.  
+
+> [!IMPORTANT]
+> Bis Version 4.10 brach `LSQ_GetSongInfoByTrackIndex` bei einem ungültigen Index das Skript mit einer Exception ab. Ein `try`/`catch` im Skript greift nicht mehr, stattdessen ist der Rückgabewert auf `false` zu prüfen.
 
 **Array:**  
 
@@ -786,10 +790,16 @@ Liefert `true` bei Erfolg, sonst `false`.
 ---
 
 ```php
-array LSQ_GetSync(int $InstanzID)
+array|bool LSQ_GetSync(int $InstanzID)
 ```
 
 Liefert ein Array über alle InstanzIDs welche mit dieser `$InstanzID` synchronisiert sind.  
+Player, für die in Symcon keine Instanz existiert, sind nicht enthalten.  
+Ist die Instanz nicht synchronisiert, wird ein leeres Array zurückgegeben.  
+Im Fehlerfall (z.B. Player nicht verbunden) wird `false` zurückgegeben.  
+
+> [!IMPORTANT]
+> Bis Version 4.10 lieferte `LSQ_GetSync` im Fehlerfall ein Array mit dem Wert `false`. Skripte, welche das Ergebnis direkt mit Array-Funktionen weiterverarbeiten, müssen jetzt auf `false` prüfen.
 
 ---
 

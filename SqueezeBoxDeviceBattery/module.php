@@ -65,6 +65,7 @@ class AutoLoaderSqueezeboxBatteryPHPSecLib
  */
 class SqueezeboxBattery extends IPSModuleStrict
 {
+    use \SqueezeBox\DebugHelper;
     use \SqueezeboxBattery\VariableProfileHelper;
     use \SqueezeboxBattery\VariableHelper;
 
@@ -517,14 +518,20 @@ class SqueezeboxBattery extends IPSModuleStrict
         if ($Address == '') {
             return false;
         }
-        $ssh = new \phpseclib\Net\SSH2($this->ReadPropertyString(\SqueezeBox\Battery\Property::Address));
+        $ssh = new \phpseclib\Net\SSH2($Address);
         try {
-            $this->SendDebug('Try to connect', '', 0);
-            $ssh->login('root', $this->ReadPropertyString(\SqueezeBox\Battery\Property::Password));
+            $this->SendDebug('Try to connect', $Address, 0);
+            $LoggedIn = $ssh->login('root', $this->ReadPropertyString(\SqueezeBox\Battery\Property::Password));
         } catch (\Throwable $th) {
+            $this->SendDebug('Login', $th->getMessage(), 0);
+            $LoggedIn = false;
+        }
+        if (!$LoggedIn) {
+            // Bei fehlgeschlagener Anmeldung behalten die Variablen ihren letzten Wert.
+            $this->SendDebug('Login', 'ERROR', 0);
             set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($this->Translate('Login failed.'), E_USER_NOTICE);
-            $this->SendDebug('Login', 'ERROR', 0);
+            restore_error_handler();
             return false;
         }
         $PowerMode = (int) $ssh->exec('cat /sys/class/i2c-adapter/i2c-1/1-0010/power_mode');

@@ -45,7 +45,6 @@ class LyrionMusicServerDiscovery extends IPSModuleStrict
      */
     public function ApplyChanges(): void
     {
-        $this->RegisterMessage(0, IPS_KERNELSTARTED);
         parent::ApplyChanges();
     }
 
@@ -73,6 +72,8 @@ class LyrionMusicServerDiscovery extends IPSModuleStrict
         $Values = [];
 
         foreach ($Devices as $IPAddress => $Device) {
+            // Nicht jede Antwort enthält alle Felder
+            $Device += ['ENAME' => '', 'VERS' => '', 'JSON' => '9000', 'Host' => (string) $IPAddress];
             $AddValue = [
                 'IPAddress'  => $IPAddress,
                 'servername' => $Device['ENAME'],

@@ -325,32 +325,34 @@ class LyrionMusicServerConfigurator extends IPSModuleStrict
     private function GetDeviceInfo(): array
     {
         $Count = $this->Send(new \SqueezeBox\LMSData(['player', 'count'], '?'));
-        if (($Count === false) || ($Count === null)) {
+        if ($Count === null) {
             return [];
         }
         $Players = [];
-        for ($i = 0; $i < $Count->Data[0]; $i++) {
+        for ($i = 0; $i < (int) $Count->Data[0]; $i++) {
             $PlayerId = $this->Send(new \SqueezeBox\LMSData(['player', 'id'], [$i, '?']));
-            if ($PlayerId === false) {
+            if (($PlayerId === null) || !isset($PlayerId->Data[1])) {
                 continue;
             }
-            $Id = strtolower(rawurldecode($PlayerId->Data[1]));
+            $Id = strtolower($PlayerId->Data[1]);
 
             $PlayerIP = $this->Send(new \SqueezeBox\LMSData(['player', 'ip'], [$i, '?']));
-            if ($PlayerIP === false) {
+            if (($PlayerIP === null) || !isset($PlayerIP->Data[1])) {
                 continue;
             }
-            $Players[$Id]['ip'] = rawurldecode(explode(':', $PlayerIP->Data[1])[0]);
+            $Player = [];
+            $Player['ip'] = explode(':', $PlayerIP->Data[1])[0];
             $PlayerName = $this->Send(new \SqueezeBox\LMSData(['player', 'name'], [$i, '?']));
-            if ($PlayerName === false) {
+            if (($PlayerName === null) || !isset($PlayerName->Data[1])) {
                 continue;
             }
-            $Players[$Id]['name'] = rawurldecode($PlayerName->Data[1]);
+            $Player['name'] = $PlayerName->Data[1];
             $PlayerModel = $this->Send(new \SqueezeBox\LMSData(['player', 'model'], [$i, '?']));
-            if ($PlayerModel === false) {
+            if (($PlayerModel === null) || !isset($PlayerModel->Data[1])) {
                 continue;
             }
-            $Players[$Id]['model'] = rawurldecode($PlayerModel->Data[1]);
+            $Player['model'] = $PlayerModel->Data[1];
+            $Players[$Id] = $Player;
         }
         return $Players;
     }
@@ -429,11 +431,11 @@ class LyrionMusicServerConfigurator extends IPSModuleStrict
         try {
             $JSONData = $LMSData->ToJSONString();
             $answer = @$this->SendDataToParent($JSONData);
-            if ($answer == false) {
+            if ($answer === '') {
                 return null;
             }
-            $result = @unserialize($answer);
-            if ($result === null) {
+            $result = @unserialize($answer, ['allowed_classes' => [\SqueezeBox\LMSData::class]]);
+            if (!($result instanceof \SqueezeBox\LMSData)) {
                 return null;
             }
             $LMSData->Data = $result->Data;
