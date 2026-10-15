@@ -1,6 +1,10 @@
 {
     "translations": {
         "de": {
+            "Alarm": "Wecker",
+            "Model": "Modell",
+            "Name": "Name",
+            "%s not valid.": "%s nicht gültig.",
             "Lyrion Music Server Configurator": "Lyrion Music Server Konfigurator",
             "Players": "Player",
             "Alarms": "Wecker",

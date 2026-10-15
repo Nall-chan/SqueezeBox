@@ -88,7 +88,7 @@ Wird ein Wecker in der SqueezeBox gelöscht, so werden bei konfigurierten Auto-L
 | Wecker X Weckzeit                |  event  | AlarmTimeX         | tägliches Ereignis welches die Wochentage und Weckzeit des Weckers enthält |
 | Wecker X Status                  | integer | AlarmStateX        | Der aktuelle Alarm-Status des Weckers                                      |
 | Wecker X Wiedergabeliste         | string  | AlarmPlaylistNameX | Der Name der gewählten Playlist des Weckers.                               |
-| Wecker X wiederholen             | boolean | AlarmRepeatX       | Alarmwiederholung ja / nein                                                |
+| Wecker X wiederholen             | integer | AlarmRepeatX       | Wöchentliche Wiederholung: 0 = Aus, 1 = An                                 |
 | Wecker X Lautstärke              | integer | AlarmVolumeX       | Lautstärke des Weckers                                                     |
 | Wecker X Wiedergabeliste mischen | integer | AlarmShuffleX      | Zufallsmodus des Weckers                                                   |
 | Wecker X Wiedergabeliste wählen  | string  | AlarmHTMLPlaylistX | HTML-Box mit allen verfügbaren Alarm-Playlisten                            |
@@ -107,7 +107,8 @@ Beispiel mit einer Popup-Instanz und Links, dazu wurde alle Statusvariablen von 
 
 ## 7. PHP-Befehlsreferenz
 
-Für alle Befehle gilt: Tritt ein Fehler auf, wird eine Warnung erzeugt.
+Für alle Befehle gilt:  
+Tritt ein Fehler auf, erzeugt der Befehl einen Hinweis (Notice) mit der Fehlermeldung und liefert `false`. Das aufrufende Skript läuft weiter.  
 Dies gilt auch wenn ein übergebender Wert für einen Parameter nicht gültig ist, oder außerhalb seines zulässigen Bereiches liegt.  
 
 ### 1. Allgemeine Befehle

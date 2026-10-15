@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
 require_once __DIR__ . '/../libs/SqueezeBoxClass.php';  // diverse Klassen
+require_once __DIR__ . '/../libs/ActionErrorHandler.php';  // Meldungen bei Bedienaktionen
 eval('declare(strict_types=1);namespace LyrionMusicServer {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
 eval('declare(strict_types=1);namespace LyrionMusicServer {?>' . file_get_contents(__DIR__ . '/../libs/helper/ParentIOHelper.php') . '}');
 eval('declare(strict_types=1);namespace LyrionMusicServer {?>' . file_get_contents(__DIR__ . '/../libs/helper/SemaphoreHelper.php') . '}');
@@ -59,6 +60,7 @@ eval('declare(strict_types=1);namespace LyrionMusicServer {?>' . file_get_conten
 class LyrionMusicServer extends IPSModuleStrict
 {
     use \SqueezeBox\LMSSocket,
+        \SqueezeBox\ActionErrorHandler,
         \SqueezeBox\LMSHTMLTable,
         \SqueezeBox\LMSSongURL,
         \SqueezeBox\DebugHelper,
@@ -97,6 +99,7 @@ class LyrionMusicServer extends IPSModuleStrict
         $this->RegisterPropertyString(\SqueezeBox\Splitter\Property::Columns, json_encode($Style['Columns']));
         $this->RegisterPropertyString(\SqueezeBox\Splitter\Property::Rows, json_encode($Style['Rows']));
         $this->RegisterTimer(\SqueezeBox\Splitter\Timer::KeepAlive, 0, 'LMS_KeepAlive($_IPS["TARGET"]);');
+        $this->RegisterTimer(\SqueezeBox\Splitter\Timer::RefreshPlayerList, 0, 'IPS_RequestAction($_IPS["TARGET"], "RefreshPlayerList", 0);');
         if (IPS_GetKernelRunlevel() != KR_READY) {
             $this->RegisterMessage(0, IPS_KERNELSTARTED);
         }
@@ -395,8 +398,8 @@ class LyrionMusicServer extends IPSModuleStrict
                 break;
             case FM_CHILDADDED:
             case FM_CHILDREMOVED:
-                // In neuen Script-Thread kurz warten, sonst hat eine neue Instanz noch keinen Namen :(
-                IPS_RunScriptText('IPS_Sleep(5000);IPS_RequestAction(' . $this->InstanceID . ',\'RefreshPlayerList\',0);');
+                // Verzögert aktualisieren, sonst hat eine neue Instanz noch keinen Namen.
+                $this->SetTimerInterval(\SqueezeBox\Splitter\Timer::RefreshPlayerList, 5000);
                 break;
         }
     }
@@ -440,72 +443,7 @@ class LyrionMusicServer extends IPSModuleStrict
      */
     public function RequestAction(string $Ident, mixed $Value): void
     {
-        if ($this->IORequestAction($Ident, $Value)) {
-            return;
-        }
-        switch ($Ident) {
-            case 'PlayerSelect':
-                switch ($Value) {
-                    case 0: //keiner
-                        $this->SelectedPlayers = [];
-                        break;
-                    case 100: //alle
-                        $this->SelectedPlayers = $this->GetAllPlayers();
-                        break;
-                    default:
-                        $SelectedPlayers = $this->SelectedPlayers;
-                        $Index = array_search((int) $Value, $SelectedPlayers);
-                        if ($Index === false) {
-                            array_push($SelectedPlayers, (int) $Value);
-                        } else {
-                            unset($SelectedPlayers[$Index]);
-                        }
-                        $this->SelectedPlayers = $SelectedPlayers;
-                        break;
-                }
-                $this->RefreshPlayerList();
-                break;
-            case 'RescanState':
-                switch ((int) $Value) {
-                    case 0: // Standby ist nur eine Anzeige, kein Befehl
-                        return;
-                    case 1:
-                        $ret = $this->AbortScan();
-                        break;
-                    case 2:
-                        $ret = $this->Rescan();
-                        break;
-                    case 3:
-                        $ret = $this->RescanPlaylists();
-                        break;
-                    case 4:
-                        $ret = $this->WipeCache();
-                        break;
-                    default:
-                        echo $this->Translate('Value invalid.');
-                        return;
-                }
-                if (!$ret) {
-                    echo $this->Translate('Error on send scanner-command');
-                    return;
-                }
-                if ($this->GetValue('RescanState') != $Value) {
-                    $this->SetValueInteger('RescanState', $Value);
-                }
-                break;
-            case 'RefreshPlayerList':
-                $this->RefreshPlayerList();
-                break;
-            case 'showHTMLPlaylist':
-                $this->UpdateFormField('Table', 'enabled', (bool) $Value);
-                $this->UpdateFormField('Columns', 'enabled', (bool) $Value);
-                $this->UpdateFormField('Rows', 'enabled', (bool) $Value);
-                $this->UpdateFormField('HTMLExpansionPanel', 'expanded', (bool) $Value);
-                return;
-            default:
-                echo $this->Translate('Invalid Ident');
-                break;
-        }
+        $this->ExecuteWithMessages(fn (): bool => $this->ExecuteAction($Ident, $Value));
     }
 
     /**
@@ -520,17 +458,13 @@ class LyrionMusicServer extends IPSModuleStrict
         $Data = new \SqueezeBox\LMSData('listen', '1');
         $ret = @$this->Send($Data);
         if ($ret === null) {
-            set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($this->Translate('Error on keepalive to LMS.'), E_USER_NOTICE);
-            restore_error_handler();
             return false;
         }
         if ($ret->Data[0] == '1') {
             return true;
         }
-        set_error_handler([$this, 'ModulErrorHandler']);
         trigger_error($this->Translate('Error on keepalive to LMS.'), E_USER_NOTICE);
-        restore_error_handler();
         return false;
     }
 
@@ -547,9 +481,7 @@ class LyrionMusicServer extends IPSModuleStrict
     {
         $Data = json_decode($Value, true);
         if ($Data === null) {
-            set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($this->Translate('Value ist not valid JSON.'), E_USER_NOTICE);
-            restore_error_handler();
             return false;
         }
         $LMSData = new \SqueezeBox\LMSData($Command, $Data);
@@ -582,9 +514,7 @@ class LyrionMusicServer extends IPSModuleStrict
     public function RequestState(string $Ident): bool
     {
         if ($Ident == '') {
-            set_error_handler([$this, 'ModulErrorHandler']);
-            trigger_error($this->Translate('Invalid Ident'));
-            restore_error_handler();
+            trigger_error($this->Translate('Invalid Ident'), E_USER_NOTICE);
             return false;
         }
         switch ($Ident) {
@@ -598,9 +528,7 @@ class LyrionMusicServer extends IPSModuleStrict
                 $this->RefreshPlaylistBuffer();
                 return true;
             default:
-                set_error_handler([$this, 'ModulErrorHandler']);
-                trigger_error($this->Translate('Invalid Ident'));
-                restore_error_handler();
+                trigger_error($this->Translate('Invalid Ident'), E_USER_NOTICE);
                 return false;
         }
         $LMSResponse = $this->SendDirect($LMSResponse);
@@ -700,9 +628,7 @@ class LyrionMusicServer extends IPSModuleStrict
         $LMSData->SliceData();
         $ret = (new \SqueezeBox\LMSTaggingArray($LMSData->Data))->DataArray();
         if (!isset($ret['Playerid'])) {
-            set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($this->Translate('Invalid index'), E_USER_NOTICE);
-            restore_error_handler();
             return false;
         }
         $DevicesIDs = IPS_GetInstanceListByModuleID(\SqueezeBox\GUID::Squeezebox);
@@ -940,9 +866,7 @@ class LyrionMusicServer extends IPSModuleStrict
     public function GetDirectoryByIDRecursive(int $FolderID): bool|array
     {
         if ($FolderID == 0) {
-            set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($this->Translate('Search root recursive is not supported'), E_USER_NOTICE);
-            restore_error_handler();
             return false;
         } else {
             $Data = ['0', 100000, 'recursive:1', 'tags:uc', 'folder_id:' . $FolderID];
@@ -1039,9 +963,7 @@ class LyrionMusicServer extends IPSModuleStrict
             $Playlists[$Key]['Duration'] = 0;
             $LMSSongData = $this->SendDirect(new \SqueezeBox\LMSData(['playlists', 'tracks'], [0, 100000, 'playlist_id:' . $Key, 'tags:d']));
             if ($LMSSongData === null) {
-                set_error_handler([$this, 'ModulErrorHandler']);
                 trigger_error(sprintf($this->Translate('Error read Playlist %d .'), $Key), E_USER_NOTICE);
-                restore_error_handler();
                 continue;
             }
             $LMSSongData->SliceData();
@@ -1107,9 +1029,7 @@ class LyrionMusicServer extends IPSModuleStrict
                 if ((new \SqueezeBox\LMSTaggingData($LMSData->Data[0]))->Value == $PlaylistId) {
                     return true;
                 }
-                set_error_handler([$this, 'ModulErrorHandler']);
                 trigger_error(sprintf($this->Translate('Error rename Playlist. Name already used by Playlist %s'), (new \SqueezeBox\LMSTaggingData($LMSData->Data[0]))->Value), E_USER_NOTICE);
-                restore_error_handler();
                 return false;
             }
         }
@@ -1138,9 +1058,7 @@ class LyrionMusicServer extends IPSModuleStrict
         if (strpos($LMSData->Data[0], 'playlist_id') === 0) {
             return (int) (new \SqueezeBox\LMSTaggingData($LMSData->Data[0]))->Value;
         }
-        set_error_handler([$this, 'ModulErrorHandler']);
         trigger_error($this->Translate('Playlist already exists.'), E_USER_NOTICE);
-        restore_error_handler();
         return false;
     }
 
@@ -1196,9 +1114,7 @@ class LyrionMusicServer extends IPSModuleStrict
 
         if (isset($LMSData->Data[2]) && (strpos($LMSData->Data[2], 'url') === 0)) {
             if ($SongURL != (new \SqueezeBox\LMSTaggingData($LMSData->Data[2]))->Value) {
-                set_error_handler([$this, 'ModulErrorHandler']);
                 trigger_error($this->Translate('Error on add SongURL to playlist.'), E_USER_NOTICE);
-                restore_error_handler();
                 return false;
             }
         }
@@ -1209,17 +1125,13 @@ class LyrionMusicServer extends IPSModuleStrict
 
         $LMSSongData = $this->SendDirect(new \SqueezeBox\LMSData(['playlists', 'tracks'], [0, 10000, 'playlist_id:' . $PlaylistId, 'tags:']));
         if ($LMSSongData === null) {
-            set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($this->Translate('Error on move Song after adding to playlist.'), E_USER_NOTICE);
-            restore_error_handler();
             return false;
         }
 
         $OldPosition = new \SqueezeBox\LMSTaggingData(array_pop($LMSSongData->Data));
         if ($OldPosition->Name != 'count') {
-            set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($this->Translate('Error on move Song after adding to playlist.'), E_USER_NOTICE);
-            restore_error_handler();
             return false;
         }
         // Der neue Song steht am Ende; seine Position (1 = 1.Eintrag) entspricht der Anzahl der Songs.
@@ -1244,9 +1156,7 @@ class LyrionMusicServer extends IPSModuleStrict
         }
         $LMSData->SliceData();
         if (count($LMSData->Data) > 0) {
-            set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($this->Translate('Error delete song from playlist.'), E_USER_NOTICE);
-            restore_error_handler();
             return false;
         }
         return true;
@@ -1272,9 +1182,7 @@ class LyrionMusicServer extends IPSModuleStrict
         }
         $LMSData->SliceData();
         if (count($LMSData->Data) > 0) {
-            set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($this->Translate('Error on move Song in playlist.'), E_USER_NOTICE);
-            restore_error_handler();
             return false;
         }
         return true;
@@ -1297,9 +1205,7 @@ class LyrionMusicServer extends IPSModuleStrict
         $LMSData->SliceData();
         $SongInfo = (new \SqueezeBox\LMSTaggingArray($LMSData->Data))->DataArray();
         if (!array_key_exists($SongID, $SongInfo)) {
-            set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($this->Translate('SongID not valid.'), E_USER_NOTICE);
-            restore_error_handler();
             return false;
         }
         $SongInfo[$SongID]['Id'] = $SongID;
@@ -1326,9 +1232,7 @@ class LyrionMusicServer extends IPSModuleStrict
         $LMSData->SliceData();
         $SongInfo = (new \SqueezeBox\LMSTaggingArray($LMSData->Data))->DataArray();
         if (count($SongInfo) == 0) {
-            set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($this->Translate('SongURL not found.'), E_USER_NOTICE);
-            restore_error_handler();
             return false;
         }
         $SongInfo[key($SongInfo)]['Track_id'] = key($SongInfo);
@@ -1448,9 +1352,7 @@ class LyrionMusicServer extends IPSModuleStrict
     public function Search(string $Value): bool|array
     {
         if ($Value == '') {
-            set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error(sprintf($this->Translate('%s can not be empty.'), 'Value'), E_USER_NOTICE);
-            restore_error_handler();
             return false;
         }
         $LMSData = $this->SendDirect(new \SqueezeBox\LMSData('search', [0, 100000, 'term:' . $Value]));
@@ -1787,9 +1689,7 @@ class LyrionMusicServer extends IPSModuleStrict
             } catch (Exception $exc) {
                 $buffer = $this->Buffer;
                 $this->Buffer = $part . chr(0x0d) . $buffer;
-                set_error_handler([$this, 'ModulErrorHandler']);
                 trigger_error($exc->getMessage(), E_USER_NOTICE);
-                restore_error_handler();
                 continue;
             }
 
@@ -1806,6 +1706,17 @@ class LyrionMusicServer extends IPSModuleStrict
             }
         }
         return '';
+    }
+
+    /**
+     * getTime
+     * Zeitquelle für Timer. Die Symcon-Stubs der Unit-Tests verlangen diese Methode im Modul.
+     *
+     * @return int
+     */
+    protected function getTime(): int
+    {
+        return time();
     }
 
     /**
@@ -1886,9 +1797,174 @@ class LyrionMusicServer extends IPSModuleStrict
      * ProcessHookData
      * Verarbeitet Daten aus dem Webhook.
      * @global array $_GET
-     * @param string $ID Die zu ladenden Playlist oder der zu ladende Favorit.
      */
     protected function ProcessHookData(): void
+    {
+        $this->ExecuteWithMessages(fn () => $this->HandleHookData());
+    }
+
+    /**
+     * LoadPlaylistforPlayers
+     * Synchronisiert die ausgewählten Player und lädt die Playlist bzw. den Favoriten auf dem ersten Player.
+     * Die Befehle gehen direkt an den LMS. Die Player-Instanzen erhalten ihren neuen Zustand
+     * über die Benachrichtigungen des LMS, wie bei einer Bedienung über die LMS-Oberfläche.
+     *
+     * @param  string $Type 'Playlist' oder 'Favorite'
+     * @param  int|string $PlaylistId
+     * @return bool True wenn die Playlist geladen wurde.
+     */
+    protected function LoadPlaylistforPlayers(string $Type, int|string $PlaylistId): bool
+    {
+        // Nur Player berücksichtigen, die (noch) mit diesem Splitter verbunden sind und eine Adresse haben.
+        $Addresses = [];
+        foreach (array_intersect($this->SelectedPlayers, $this->GetAllPlayers()) as $PlayerInstanceId) {
+            $Address = strtolower((string) IPS_GetProperty($PlayerInstanceId, \SqueezeBox\Device\Property::Address));
+            if ($Address !== '') {
+                $Addresses[] = $Address;
+            }
+        }
+        if (count($Addresses) == 0) {
+            trigger_error($this->Translate('No Player selected'), E_USER_NOTICE);
+            return false;
+        }
+        switch ($Type) {
+            case 'Playlist':
+                $LoadData = new \SqueezeBox\LMSData('playlistcontrol', ['cmd:load', 'playlist_id:' . (int) $PlaylistId]);
+                break;
+            case 'Favorite':
+                $LoadData = new \SqueezeBox\LMSData(['favorites', 'playlist'], ['load', 'item_id:' . (($PlaylistId === '') ? '.' : (string) $PlaylistId)]);
+                break;
+            default:
+                trigger_error($this->Translate('Bad Request'), E_USER_NOTICE);
+                return false;
+        }
+        $MasterAddress = '';
+        foreach ($Addresses as $Address) {
+            $OldActiveSync = $this->GetSyncOfPlayer($Address);
+            if ($OldActiveSync === false) {
+                continue;
+            }
+            $this->SendDebug('OldActiveSync:' . $Address, $OldActiveSync, 0);
+            // Player, die mit einem ausgewählten Player synchronisiert sind, aber selbst nicht ausgewählt wurden.
+            foreach (array_diff($OldActiveSync, $Addresses) as $UnSyncAddress) {
+                $this->SendDebug('SetUnSync', $UnSyncAddress, 0);
+                $this->SendToPlayer($UnSyncAddress, new \SqueezeBox\LMSData('sync', '-'));
+            }
+            if ($MasterAddress === '') {
+                $MasterAddress = $Address;
+                $this->SendDebug('Master', $MasterAddress, 0);
+                continue;
+            }
+            if (!in_array($MasterAddress, $OldActiveSync)) {
+                $this->SendDebug('SetSync', $MasterAddress . ' with ' . $Address, 0);
+                $this->SendToPlayer($MasterAddress, new \SqueezeBox\LMSData('sync', $Address));
+            }
+        }
+        if ($MasterAddress === '') {
+            // Kein ausgewählter Player war erreichbar; der Fehler wurde bereits gemeldet.
+            return false;
+        }
+        $LMSData = $this->SendToPlayer($MasterAddress, $LoadData);
+        if ($LMSData === null) {
+            return false;
+        }
+        if ($Type == 'Playlist') {
+            $LMSData->SliceData();
+            if (!array_key_exists('Count', (new \SqueezeBox\LMSTaggingArray($LMSData->Data))->DataArray())) {
+                trigger_error(sprintf($this->Translate('%s not found.'), 'PlaylistID'), E_USER_NOTICE);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * ExecuteAction
+     * Führt die Aktion einer Statusvariable bzw. des Formulars aus.
+     *
+     * @param string                $Ident Der Ident der Statusvariable.
+     * @param bool|float|int|string $Value Der angeforderte neue Wert.
+     * @return bool false im Fehlerfall.
+     */
+    private function ExecuteAction(string $Ident, mixed $Value): bool
+    {
+        if ($this->IORequestAction($Ident, $Value)) {
+            return true;
+        }
+        switch ($Ident) {
+            case 'PlayerSelect':
+                switch ($Value) {
+                    case 0: //keiner
+                        $this->SelectedPlayers = [];
+                        break;
+                    case 100: //alle
+                        $this->SelectedPlayers = $this->GetAllPlayers();
+                        break;
+                    default:
+                        $SelectedPlayers = $this->SelectedPlayers;
+                        $Index = array_search((int) $Value, $SelectedPlayers);
+                        if ($Index === false) {
+                            array_push($SelectedPlayers, (int) $Value);
+                        } else {
+                            unset($SelectedPlayers[$Index]);
+                        }
+                        $this->SelectedPlayers = $SelectedPlayers;
+                        break;
+                }
+                $this->RefreshPlayerList();
+                break;
+            case 'RescanState':
+                switch ((int) $Value) {
+                    case 0: // Standby ist nur eine Anzeige, kein Befehl
+                        return true;
+                    case 1:
+                        $ret = $this->AbortScan();
+                        break;
+                    case 2:
+                        $ret = $this->Rescan();
+                        break;
+                    case 3:
+                        $ret = $this->RescanPlaylists();
+                        break;
+                    case 4:
+                        $ret = $this->WipeCache();
+                        break;
+                    default:
+                        trigger_error($this->Translate('Value invalid.'), E_USER_NOTICE);
+                        return false;
+                }
+                if (!$ret) {
+                    trigger_error($this->Translate('Error on send scanner-command'), E_USER_NOTICE);
+                    return false;
+                }
+                if ($this->GetValue('RescanState') != $Value) {
+                    $this->SetValueInteger('RescanState', $Value);
+                }
+                break;
+            case 'RefreshPlayerList':
+                $this->SetTimerInterval(\SqueezeBox\Splitter\Timer::RefreshPlayerList, 0);
+                $this->RefreshPlayerList();
+                break;
+            case 'showHTMLPlaylist':
+                $this->UpdateFormField('Table', 'enabled', (bool) $Value);
+                $this->UpdateFormField('Columns', 'enabled', (bool) $Value);
+                $this->UpdateFormField('Rows', 'enabled', (bool) $Value);
+                $this->UpdateFormField('HTMLExpansionPanel', 'expanded', (bool) $Value);
+                return true;
+            default:
+                trigger_error($this->Translate('Invalid Ident'), E_USER_NOTICE);
+                return false;
+        }
+        return true;
+    }
+
+    /**
+     * HandleHookData
+     * Lädt die in der HTML-Playlist ausgewählte Playlist bzw. den Favoriten auf die ausgewählten Player.
+     *
+     * @global array $_GET
+     */
+    private function HandleHookData(): void
     {
         if ((!isset($_GET['ID'])) || (!isset($_GET['Type'])) || (!isset($_GET['Secret']))) {
             echo $this->Translate('Bad Request');
@@ -1907,72 +1983,37 @@ class LyrionMusicServer extends IPSModuleStrict
     }
 
     /**
-     * LoadPlaylistforPlayers
-     * Synchronisiert die ausgewählten Player und lädt die Playlist bzw. den Favoriten auf dem ersten Player.
+     * GetSyncOfPlayer
+     * Liefert die Adressen der Player, mit denen ein Player synchronisiert ist.
      *
-     * @param  string $Type 'Playlist' oder 'Favorite'
-     * @param  int|string $PlaylistId
-     * @return bool True wenn die Playlist geladen wurde.
+     * @param  string $Address Adresse des Players.
+     * @return array|false Adressen in Kleinschreibung, false im Fehlerfall.
      */
-    protected function LoadPlaylistforPlayers(string $Type, int|string $PlaylistId): bool
+    private function GetSyncOfPlayer(string $Address): array|false
     {
-        // Nur Player berücksichtigen, die (noch) mit diesem Splitter verbunden sind.
-        $SelectedPlayers = array_values(array_intersect($this->SelectedPlayers, $this->GetAllPlayers()));
-        if (count($SelectedPlayers) == 0) {
-            echo $this->Translate('No Player selected');
+        $LMSData = $this->SendToPlayer($Address, new \SqueezeBox\LMSData('sync', '?'));
+        if ($LMSData === null) {
             return false;
         }
-        $MasterId = 0;
-        foreach ($SelectedPlayers as $PlayerInstanceId) {
-            $OldActiveSync = LSQ_GetSync($PlayerInstanceId);
-            if ($OldActiveSync === false) {
-                continue;
-            }
-            $this->SendDebug('OldActiveSync:' . $PlayerInstanceId, $OldActiveSync, 0);
-            foreach (array_diff($OldActiveSync, $SelectedPlayers) as $UnSyncId) {
-                $this->SendDebug('SetUnSync', $UnSyncId, Format: 0);
-                LSQ_SetUnSync($UnSyncId);
-            }
-            if ($MasterId == 0) {
-                $MasterId = $PlayerInstanceId;
-                $this->SendDebug('MasterId', $MasterId, 0);
-                continue;
-            }
-            if (!in_array($MasterId, $OldActiveSync)) {
-                $this->SendDebug('SetSync', $MasterId . ' with ' . $PlayerInstanceId, 0);
-                LSQ_SetSync($MasterId, $PlayerInstanceId);
-            }
+        $Sync = (string) ($LMSData->Data[0] ?? '');
+        if (($Sync === '-') || ($Sync === '')) {
+            return [];
         }
-        if ($MasterId == 0) {
-            // Kein ausgewählter Player war erreichbar; LSQ_GetSync hat den Fehler bereits gemeldet.
-            return false;
-        }
-        switch ($Type) {
-            case 'Playlist':
-                return LSQ_LoadPlaylistByPlaylistID($MasterId, (int) $PlaylistId);
-            case 'Favorite':
-                return LSQ_LoadPlaylistByFavoriteID($MasterId, (string) $PlaylistId);
-        }
-        echo $this->Translate('Bad Request');
-        return false;
+        return array_map('strtolower', explode(',', $Sync));
     }
 
     /**
-     * ModulErrorHandler
+     * SendToPlayer
+     * Sendet einen Befehl für einen Player direkt an den LMS.
      *
-     * @param  int $errno
-     * @param  string $errstr
-     * @return bool
+     * @param  string $Address Adresse des Players.
+     * @param  \SqueezeBox\LMSData $LMSData Zu versendende Daten.
+     * @return ?\SqueezeBox\LMSData Antwort, NULL im Fehlerfall.
      */
-    protected function ModulErrorHandler(int $errno, string $errstr): bool
+    private function SendToPlayer(string $Address, \SqueezeBox\LMSData $LMSData): ?\SqueezeBox\LMSData
     {
-        if (!(error_reporting() & $errno)) {
-            // Dieser Fehlercode ist nicht in error_reporting enthalten
-            return true;
-        }
-        $this->SendDebug('ERROR', $errstr, 0);
-        echo $errstr . "\r\n";
-        return false;
+        $LMSData->Address = $Address;
+        return $this->SendDirect($LMSData);
     }
 
     /**
@@ -2148,9 +2189,7 @@ class LyrionMusicServer extends IPSModuleStrict
             $Playlist['Duration'] = 0;
             $LMSSongData = $this->SendDirect(new \SqueezeBox\LMSData(['playlists', 'tracks'], [0, 100000, 'playlist_id:' . $Key, 'tags:d'], true));
             if ($LMSSongData === null) {
-                set_error_handler([$this, 'ModulErrorHandler']);
                 trigger_error(sprintf($this->Translate('Error read Playlist %d .'), $Key), E_USER_NOTICE);
-                restore_error_handler();
                 continue;
             }
             $LMSSongData->SliceData();
@@ -2309,9 +2348,7 @@ class LyrionMusicServer extends IPSModuleStrict
                             $Playlists[$PlaylistData['Playlist_id']]['Id'] = $PlaylistData['Playlist_id'];
                             $LMSSongData = $this->SendDirect(new \SqueezeBox\LMSData('songinfo', ['0', '100', 'track_id:' . $PlaylistData['Playlist_id'], 'tags:u']));
                             if ($LMSSongData === null) {
-                                set_error_handler([$this, 'ModulErrorHandler']);
                                 trigger_error(sprintf($this->Translate('Error read Playlist %d .'), $PlaylistData['Playlist_id']), E_USER_NOTICE);
-                                restore_error_handler();
                                 $Playlists[$PlaylistData['Playlist_id']]['Url'] = '';
                             } else {
                                 $LMSSongData->SliceData();
@@ -2326,9 +2363,7 @@ class LyrionMusicServer extends IPSModuleStrict
                         case 'edit':
                             $LMSSongData = $this->SendDirect(new \SqueezeBox\LMSData(['playlists', 'tracks'], [0, 100000, 'playlist_id:' . $PlaylistData['Playlist_id'], 'tags:d']));
                             if ($LMSSongData === null) {
-                                set_error_handler([$this, 'ModulErrorHandler']);
                                 trigger_error(sprintf($this->Translate('Error read Playlist %d .'), $PlaylistData['Playlist_id']), E_USER_NOTICE);
-                                restore_error_handler();
                                 $Playlists[$PlaylistData['Playlist_id']]['Tracks'] = 0;
                                 $Playlists[$PlaylistData['Playlist_id']]['Duration'] = 0;
                             } else {
@@ -2428,7 +2463,7 @@ class LyrionMusicServer extends IPSModuleStrict
                 throw new Exception($this->Translate($Closed ? 'Login to LMS failed. Check username and password.' : 'No answer from LMS'), E_USER_NOTICE);
             }
         } catch (Exception $ex) {
-            echo $ex->getMessage();
+            trigger_error($ex->getMessage(), E_USER_NOTICE);
             return false;
         }
         return true;
@@ -2467,9 +2502,7 @@ class LyrionMusicServer extends IPSModuleStrict
                 return null;
             }
         } catch (Exception $exc) {
-            set_error_handler([$this, 'ModulErrorHandler']);
-            trigger_error($exc->getMessage(), $exc->getCode());
-            restore_error_handler();
+            trigger_error($exc->getMessage(), E_USER_NOTICE);
         }
         return null;
     }
@@ -2493,7 +2526,7 @@ class LyrionMusicServer extends IPSModuleStrict
                 $this->SendQueueRemove($SearchPatter);
                 return $Buffer[$SearchPatter]['Data'];
             }
-            IPS_Sleep(5);
+            usleep(5000);
         }
         $this->SendQueueRemove($SearchPatter);
         return false;
@@ -2580,9 +2613,7 @@ class LyrionMusicServer extends IPSModuleStrict
             }
         } catch (Exception $ex) {
             $this->SendDebug('Response Direct', $ex->getMessage(), 0);
-            set_error_handler([$this, 'ModulErrorHandler']);
-            trigger_error($ex->getMessage(), $ex->getCode());
-            restore_error_handler();
+            trigger_error($ex->getMessage(), E_USER_NOTICE);
             return null;
         }
         $Port = $this->ReadPropertyInteger(\SqueezeBox\Splitter\Property::Port);

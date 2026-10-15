@@ -127,8 +127,9 @@ class DeviceTest extends ModuleTestCase
         $this->receive($this->iid, self::$Responses['status']);
         // Ohne LMS schlägt das Laden fehl und meldet 'Error on read playlist'; daran ist der Versuch erkennbar.
         foreach (['play http%3A%2F%2Fradio.example%2Fstream.mp3', 'load_done', 'resume tempplaylist_000420000001 wipePlaylist%3A1 noplay%3A0', 'move 1 2', 'playtracks listRef ARRAY(0x1) %20 %20 index%3A0'] as $Event) {
+            $this->Errors = [];
             $this->receive($this->iid, '00%3A04%3A20%3A00%3A00%3A01 playlist ' . $Event);
-            $this->assertStringContainsString('Error on read playlist', $this->Output, $Event);
+            $this->assertContains('Error on read playlist', $this->Errors, $Event);
         }
         $this->assertNoPhpErrors();
     }
@@ -150,11 +151,13 @@ class DeviceTest extends ModuleTestCase
     public function testSearchWithoutGenre(): void
     {
         foreach (['LoadPlaylistBySearch', 'AddToPlaylistBySearch', 'InsertInPlaylistBySearch', 'DeleteFromPlaylistBySearch'] as $Function) {
+            $this->Errors = [];
             $this->call($this->iid, $Function, '', 'Queen', '');
-            $this->assertStringNotContainsString('One search pattern is required', $this->Output, $Function);
-            $this->assertStringNotContainsString('One search patter is required', $this->Output, $Function);
+            $this->assertNotContains('One search pattern is required', $this->Errors, $Function);
             $this->call($this->iid, $Function, '', '', '');
-            $this->assertStringContainsString('One search pattern is required', $this->Output, $Function);
+            $this->assertContains('One search pattern is required', $this->Errors, $Function);
+            // E1: Öffentliche Funktionen geben keine Meldung per echo aus.
+            $this->assertSame('', $this->Output, $Function);
         }
         $this->assertNoPhpErrors();
     }
@@ -192,6 +195,33 @@ class DeviceTest extends ModuleTestCase
     {
         $this->assertFalse($this->call($this->iid, 'GetSongInfoByTrackIndex', 1));
         $this->assertFalse($this->call($this->iid, 'GetPlaylistURL'));
+        $this->assertNoPhpErrors();
+    }
+
+    /** E1/E3: RequestAction zeigt die Meldung der Funktion genau einmal per echo an, ohne zusätzliche Notice. */
+    public function testRequestActionShowsMessageOnce(): void
+    {
+        $this->Errors = [];
+        $this->call($this->iid, 'RequestAction', 'Status', 9);
+        $this->assertSame('Value invalid.' . PHP_EOL, $this->Output);
+        $this->assertSame([], $this->Errors);
+        // Ohne verbundenen Player meldet Play() 'Player not connected'; die allgemeine Meldung entfällt dann.
+        $this->call($this->iid, 'RequestAction', 'Volume', 20);
+        $this->assertStringNotContainsString('Error on Execute Action', $this->Output);
+        $this->assertNotSame('', $this->Output);
+        $this->assertSame([], $this->Errors);
+        $this->assertNoPhpErrors();
+    }
+
+    /** E6: Tritt der Player einer Sync-Gruppe bei, liest er seinen Zustand neu; eine leere syncgroupid löst nichts aus. */
+    public function testSyncGroupIdRequestsState(): void
+    {
+        $this->Errors = [];
+        $this->receive($this->iid, '00%3A04%3A20%3A00%3A00%3A01 prefset server syncgroupid');
+        $this->assertSame([], $this->Errors);
+        // Ohne LMS schlägt die erste Abfrage fehl; daran ist der Versuch erkennbar.
+        $this->receive($this->iid, '00%3A04%3A20%3A00%3A00%3A01 prefset server syncgroupid 294891357');
+        $this->assertNotSame([], $this->Errors);
         $this->assertNoPhpErrors();
     }
 }

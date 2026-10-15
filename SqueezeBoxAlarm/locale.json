@@ -1,6 +1,10 @@
 {
     "translations": {
         "de": {
+            "Ident not valid": "Ident nicht gültig",
+            "Album": "Album",
+            "On": "An",
+            "%s not valid.": "%s nicht gültig.",
             "Maximum of 10 alarms reached.": "Es sind maximal 10 Wecker möglich.",
             "Squeezebox Alarm": "Squeezebox Wecker",
             "MAC-Address for SqueezeBox": "MAC-Adresse für Squeezebox",
@@ -46,7 +50,7 @@
             "MAC/IP address invalid.": "MAC/IP-Adresse ungültig.",
             "All alarms active": "Alle Wecker aktiv",
             "Invalid ident": "Ungültiger Ident",
-            "Error on Execute Action": "Fehler beim ausführen der Aktion",
+            "Error on Execute Action": "Fehler beim Ausführen der Aktion",
             "Fade alarm": "Weckerwiedergabe einblenden",
             "Automatically stop": "Automatisch beenden",
             "Snoozetime": "Schlummerzeit",

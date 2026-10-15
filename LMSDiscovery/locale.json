@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "Error on create socket": "Fehler beim Erstellen des Sockets",
             "IP Address": "IP Adresse",
             "Servername": "Servername",
             "Version": "Version",

@@ -529,9 +529,7 @@ class SqueezeboxBattery extends IPSModuleStrict
         if (!$LoggedIn) {
             // Bei fehlgeschlagener Anmeldung behalten die Variablen ihren letzten Wert.
             $this->SendDebug('Login', 'ERROR', 0);
-            set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($this->Translate('Login failed.'), E_USER_NOTICE);
-            restore_error_handler();
             return false;
         }
         $PowerMode = (int) $ssh->exec('cat /sys/class/i2c-adapter/i2c-1/1-0010/power_mode');
@@ -581,23 +579,5 @@ class SqueezeboxBattery extends IPSModuleStrict
         $ssh->disconnect();
         $this->SendDebug('Disconnect', '', 0);
         return true;
-    }
-
-    /**
-     * ModulErrorHandler
-     *
-     * @param  int $errno
-     * @param  string $errstr
-     * @return bool
-     */
-    protected function ModulErrorHandler(int $errno, string $errstr): bool
-    {
-        if (!(error_reporting() & $errno)) {
-            // Dieser Fehlercode ist nicht in error_reporting enthalten
-            return true;
-        }
-        $this->SendDebug('ERROR', $errstr, 0);
-        echo $errstr . "\r\n";
-        return false;
     }
 }

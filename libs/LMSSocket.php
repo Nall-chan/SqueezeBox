@@ -84,9 +84,7 @@ trait LMSSocket
             return $LMSData;
         } catch (\Exception $exc) {
             $this->SendDebug('Receive Direct', $exc->getMessage(), 0);
-            set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($exc->getMessage(), E_USER_NOTICE);
-            restore_error_handler();
         }
         return null;
     }
@@ -116,9 +114,7 @@ trait LMSSocket
             $this->SendDebug('Response', $LMSData, 0);
             return $LMSData;
         } catch (\Exception $exc) {
-            set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($exc->getMessage(), E_USER_NOTICE);
-            restore_error_handler();
             return null;
         }
     }

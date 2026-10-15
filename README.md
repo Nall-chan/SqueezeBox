@@ -123,6 +123,31 @@ Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:
 
 ### 3. Changelog
 
+**Nächste Version (in Vorbereitung):**  
+
+> [!IMPORTANT]
+> Geändertes Fehlerverhalten, bitte eigene Skripte prüfen:
+>
+> - Fehlermeldungen der Instanz-Funktionen (`LMS_…`, `LSQ_…`, `LSA_…`, `LSQB_…`) werden nicht mehr zusätzlich per `echo` ausgegeben. Die Funktion erzeugt nur noch einen Hinweis (Notice) mit der Meldung und liefert `false`. Das aufrufende Skript läuft weiter. Bisher erschien die Meldung doppelt.
+
+**Geändertes Verhalten**  
+
+- Bedienung über Statusvariablen: Eine Fehlermeldung erscheint nur noch einmal. „Fehler beim Ausführen der Aktion“ erscheint nur noch, wenn keine genauere Meldung vorliegt.  
+- Splitter: Beim Laden einer Playlist bzw. eines Favoriten auf die ausgewählten Player synchronisiert der Splitter die Player selbst über den LMS.  
+- Player: Tritt ein Player einer Sync-Gruppe bei (auch über die LMS-Oberfläche oder eine App), übernimmt seine Instanz den Sync-Zustand und die Playlist.  
+- `LSQ_GetPlaylistURL` meldet, wenn die aktuelle Playlist keine gespeicherte Playlist ist.  
+- Verzögerte Aktualisierungen (Sync-Anzeige der Player, Player-Liste im Splitter) starten keinen eigenen Skript-Thread mehr.  
+- Die Meldung „Migrated settings“ erscheint nicht mehr bei jedem Start im Log.  
+
+**Behobene falsche Werte in Statusvariablen**  
+
+- Wecker: Die Wiederholung zeigte „Playlist“ statt „An“. Die Auswahl ist jetzt „Aus“ / „An“.  
+- Player: Seit 4.10 wurde die Variable „Ausschalten in“ (Ident `SleepTimeout`) in „SleepTimeout (old)“ umbenannt, wenn noch die alte Variable aus Version 4.05 vorhanden war. Das passiert nicht mehr; bereits umbenannte Variablen bitte selbst zurückbenennen.  
+
+**Fehlerbehebungen**  
+
+- Fehlende deutsche Übersetzungen von Meldungen und Formularen ergänzt.  
+
 **Version 4.11:**  
 
 > [!IMPORTANT]

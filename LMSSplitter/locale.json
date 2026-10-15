@@ -1,6 +1,10 @@
 {
     "translations": {
         "de": {
+            "%s not found.": "%s nicht gefunden.",
+            "Error read Playlist %d .": "Fehler beim Lesen der Playlist %d.",
+            "%s not valid.": "%s nicht gültig.",
+            "Error on Execute Action": "Fehler beim Ausführen der Aktion",
             "Value invalid.": "Wert ungültig.",
             "Connected to LMS": "Verbunden mit LMS",
             "Version of LMS:": "Version des LMS:",

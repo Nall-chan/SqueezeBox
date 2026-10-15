@@ -107,7 +107,7 @@ Dabei wird die Synchronisierung der Player automatisch gesetzt, geändert bzw. a
 ## 7. PHP-Befehlsreferenz
 
 Für alle Befehle gilt:  
-Tritt ein Fehler auf, wird eine Warnung erzeugt.  
+Tritt ein Fehler auf, erzeugt der Befehl einen Hinweis (Notice) mit der Fehlermeldung und liefert `false`. Das aufrufende Skript läuft weiter.  
 Dies gilt auch wenn ein übergebender Wert für einen Parameter nicht gültig ist, oder außerhalb seines zulässigen Bereiches liegt.  
 
 ### 1. Server

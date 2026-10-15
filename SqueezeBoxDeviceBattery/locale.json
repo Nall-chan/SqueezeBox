@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "Host": "Host",
             "Squeezebox Battery": "Squeezebox Batterie",
             "Open": "Aktiv",
             "IP-Address of Squeezebox Radio": "IP-Adresse der Squeezebox Radio",

@@ -157,11 +157,16 @@ namespace SqueezeBox\Splitter
     class Timer
     {
         public const KeepAlive = 'KeepAlive';
+        public const RefreshPlayerList = 'RefreshPlayerList';
     }
 }
 
 namespace SqueezeBox\Device
 {
+    class Timer
+    {
+        public const SyncPresentation = 'SyncPresentation';
+    }
 
     class Property
     {
