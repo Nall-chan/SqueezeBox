@@ -53,6 +53,8 @@ Bei der manuellen Einrichtung ist die Instanz im Dialog `Instanz hinzufügen` un
 | Passwort  | Password    | string  | 1234         | Passwort für den SSH-Zugang          |
 | Intervall | Interval    | integer | 30           | Abfrageintervall                     |
 
+Ist die Squeezebox nicht erreichbar oder schlägt die Anmeldung fehl, wechselt die Instanz in den Status `201` (Verbindung zum Gerät fehlgeschlagen). Die Statusvariablen behalten ihren letzten Wert. Die zyklische Abfrage schreibt den Fehler nur beim ersten Fehlschlag in Folge ins Log; nach der nächsten erfolgreichen Abfrage ist die Instanz wieder aktiv (`102`).  
+
 ## 5. Statusvariablen
 
 Folgende Statusvariablen werden automatisch angelegt.
@@ -88,7 +90,7 @@ bool LSQB_RequestState(int $InstanzID)
 
 Aktuellen Status aus dem Gerät auslesen.  
 Es wird `true` zurückgeben wenn die Abfrage erfolgreich war,  
-oder `false` im Fehlerfall.  
+oder `false` im Fehlerfall. Dann erzeugt der Befehl einen Hinweis (Notice) mit der Fehlermeldung, auch wenn die zyklische Abfrage denselben Fehler schon gemeldet hat.  
 
 ## 8. Aktionen
 

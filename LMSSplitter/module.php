@@ -152,9 +152,9 @@ class LyrionMusicServer extends IPSModuleStrict
         $this->ReplyLMSData = [];
         $this->Buffer = '';
         // Eigene Variablen
-        $this->RegisterVariableString('Version', 'Version', [], 0);
+        $this->RegisterVariableString(\SqueezeBox\Splitter\Variables::Version, 'Version', [], 0);
         $this->RegisterVariableInteger(
-            'RescanState',
+            \SqueezeBox\Splitter\Variables::RescanState,
             'Scanner',
             [
                 \SqueezeBox\Presentation::Icon         => 'magnifying-glass-music',
@@ -202,12 +202,12 @@ class LyrionMusicServer extends IPSModuleStrict
             ],
             1
         );
-        $this->ScannerID = $this->FindIDForIdent('RescanState');
+        $this->ScannerID = $this->FindIDForIdent(\SqueezeBox\Splitter\Variables::RescanState);
         $this->RegisterMessage($this->ScannerID, VM_UPDATE);
-        $this->EnableAction('RescanState');
+        $this->EnableAction(\SqueezeBox\Splitter\Variables::RescanState);
 
         $this->RegisterVariableString(
-            'RescanInfo',
+            \SqueezeBox\Splitter\Variables::RescanInfo,
             $this->Translate('Rescan state'),
             [
                 \SqueezeBox\Presentation::Icon          => 'database',
@@ -281,13 +281,13 @@ class LyrionMusicServer extends IPSModuleStrict
             ],
             2
         );
-        $this->RegisterVariableString('RescanProgress', $this->Translate('Rescan progress'), [], 3);
-        $this->RegisterVariableInteger('Players', 'Number of players', [], 4);
+        $this->RegisterVariableString(\SqueezeBox\Splitter\Variables::RescanProgress, $this->Translate('Rescan progress'), [], 3);
+        $this->RegisterVariableInteger(\SqueezeBox\Splitter\Variables::Players, 'Number of players', [], 4);
 
         // ServerPlaylisten
         if ($this->ReadPropertyBoolean(\SqueezeBox\Splitter\Property::ShowHTMLPlaylist)) {
             if ($this->RegisterVariableString(
-                'HTMLPlaylists',
+                \SqueezeBox\Splitter\Variables::HTMLPlaylists,
                 $this->Translate('Playlists'),
                 [
                     \SqueezeBox\Presentation::Type         => VARIABLE_PRESENTATION_WEB_CONTENT,
@@ -296,10 +296,10 @@ class LyrionMusicServer extends IPSModuleStrict
                 ],
                 6
             )) {
-                IPS_SetIcon($this->FindIDForIdent('HTMLPlaylists'), 'list-music');
+                IPS_SetIcon($this->FindIDForIdent(\SqueezeBox\Splitter\Variables::HTMLPlaylists), 'list-music');
             }
             $this->RegisterVariableInteger(
-                'PlayerSelect',
+                \SqueezeBox\Splitter\Variables::PlayerSelect,
                 $this->Translate('select player'),
                 [
                     \SqueezeBox\Presentation::Icon         => 'Speaker',
@@ -323,12 +323,12 @@ class LyrionMusicServer extends IPSModuleStrict
                 ],
                 5
             );
-            $this->EnableAction('PlayerSelect');
+            $this->EnableAction(\SqueezeBox\Splitter\Variables::PlayerSelect);
             $this->RegisterMessage($this->InstanceID, FM_CHILDADDED);
             $this->RegisterMessage($this->InstanceID, FM_CHILDREMOVED);
         } else {
-            $this->UnregisterVariable('HTMLPlaylists');
-            $this->UnregisterVariable('PlayerSelect');
+            $this->UnregisterVariable(\SqueezeBox\Splitter\Variables::HTMLPlaylists);
+            $this->UnregisterVariable(\SqueezeBox\Splitter\Variables::PlayerSelect);
             $this->UnregisterMessage($this->InstanceID, FM_CHILDADDED);
             $this->UnregisterMessage($this->InstanceID, FM_CHILDREMOVED);
         }
@@ -365,7 +365,7 @@ class LyrionMusicServer extends IPSModuleStrict
      */
     public function GetCompatibleParents(): string
     {
-        return '{"type": "require", "moduleIDs": ["{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}"]}';
+        return json_encode(['type' => 'require', 'moduleIDs' => [\SqueezeBox\GUID::IO]]);
     }
 
     /**
@@ -518,13 +518,13 @@ class LyrionMusicServer extends IPSModuleStrict
             return false;
         }
         switch ($Ident) {
-            case 'Players':
+            case \SqueezeBox\Splitter\Variables::Players:
                 $LMSResponse = new \SqueezeBox\LMSData(['player', 'count'], '?');
                 break;
-            case 'Version':
+            case \SqueezeBox\Splitter\Variables::Version:
                 $LMSResponse = new \SqueezeBox\LMSData('version', '?');
                 break;
-            case 'Playlists':
+            case \SqueezeBox\Splitter\Variables::Playlists:
                 $this->RefreshPlaylistBuffer();
                 return true;
             default:
@@ -1680,17 +1680,17 @@ class LyrionMusicServer extends IPSModuleStrict
         $this->Buffer = $tail;
 
         // Pakete verarbeiten
-        foreach ($packet as $part) {
+        foreach ($packet as $Index => $part) {
             $part = trim($part);
             $Data = new \SqueezeBox\LMSResponse($part);
 
             try {
                 $isResponse = $this->SendQueueUpdate($Data);
             } catch (Exception $exc) {
-                $buffer = $this->Buffer;
-                $this->Buffer = $part . chr(0x0d) . $buffer;
+                // Dieses und alle folgenden Pakete in ihrer Reihenfolge vor den Rest des Streams zurücklegen.
+                $this->Buffer = implode(chr(0x0d), array_slice($packet, $Index)) . chr(0x0d) . $this->Buffer;
                 trigger_error($exc->getMessage(), E_USER_NOTICE);
-                continue;
+                break;
             }
 
             if ($isResponse === false) { //War keine Antwort also ein Event
@@ -1776,10 +1776,10 @@ class LyrionMusicServer extends IPSModuleStrict
                 $this->Send($LoginData);
                 $this->KeepAlive();
                 $this->LogMessage($this->Translate('Connected to LMS'), KL_NOTIFY);
-                $this->RequestState('Version');
-                $this->LogMessage($this->Translate('Version of LMS:') . $this->GetValue('Version'), KL_NOTIFY);
-                $this->RequestState('Players');
-                $this->LogMessage($this->Translate('Connected Players to LMS:') . $this->GetValue('Players'), KL_NOTIFY);
+                $this->RequestState(\SqueezeBox\Splitter\Variables::Version);
+                $this->LogMessage($this->Translate('Version of LMS:') . $this->GetValue(\SqueezeBox\Splitter\Variables::Version), KL_NOTIFY);
+                $this->RequestState(\SqueezeBox\Splitter\Variables::Players);
+                $this->LogMessage($this->Translate('Connected Players to LMS:') . $this->GetValue(\SqueezeBox\Splitter\Variables::Players), KL_NOTIFY);
                 $this->RefreshPlayerList();
                 $ret = $this->Send(new \SqueezeBox\LMSData('rescan', '?'));
                 if ($ret !== null) {
@@ -1892,7 +1892,7 @@ class LyrionMusicServer extends IPSModuleStrict
             return true;
         }
         switch ($Ident) {
-            case 'PlayerSelect':
+            case \SqueezeBox\Splitter\Variables::PlayerSelect:
                 switch ($Value) {
                     case 0: //keiner
                         $this->SelectedPlayers = [];
@@ -1913,7 +1913,7 @@ class LyrionMusicServer extends IPSModuleStrict
                 }
                 $this->RefreshPlayerList();
                 break;
-            case 'RescanState':
+            case \SqueezeBox\Splitter\Variables::RescanState:
                 switch ((int) $Value) {
                     case 0: // Standby ist nur eine Anzeige, kein Befehl
                         return true;
@@ -1937,8 +1937,8 @@ class LyrionMusicServer extends IPSModuleStrict
                     trigger_error($this->Translate('Error on send scanner-command'), E_USER_NOTICE);
                     return false;
                 }
-                if ($this->GetValue('RescanState') != $Value) {
-                    $this->SetValueInteger('RescanState', $Value);
+                if ($this->GetValue(\SqueezeBox\Splitter\Variables::RescanState) != $Value) {
+                    $this->SetValueInteger(\SqueezeBox\Splitter\Variables::RescanState, $Value);
                 }
                 break;
             case 'RefreshPlayerList':
@@ -2136,7 +2136,7 @@ class LyrionMusicServer extends IPSModuleStrict
             ];
         }
         $this->RegisterVariableInteger(
-            'PlayerSelect',
+            \SqueezeBox\Splitter\Variables::PlayerSelect,
             $this->Translate('select player'),
             [
                 \SqueezeBox\Presentation::Icon              => 'Speaker',
@@ -2145,7 +2145,7 @@ class LyrionMusicServer extends IPSModuleStrict
             ],
             5
         );
-        $this->SetValueInteger('PlayerSelect', $Value);
+        $this->SetValueInteger(\SqueezeBox\Splitter\Variables::PlayerSelect, $Value);
         return true;
     }
 
@@ -2235,7 +2235,7 @@ class LyrionMusicServer extends IPSModuleStrict
         // HTML-Playlist
         if ($this->ReadPropertyBoolean(\SqueezeBox\Splitter\Property::ShowHTMLPlaylist)) {
             $HTML = $this->GetTable($Data, 'LMSPlaylist', 'Playlist', 'Id');
-            $this->SetValueString('HTMLPlaylists', $HTML);
+            $this->SetValueString(\SqueezeBox\Splitter\Variables::HTMLPlaylists, $HTML);
         }
     }
 
@@ -2258,8 +2258,8 @@ class LyrionMusicServer extends IPSModuleStrict
                         switch ($Data->Name) {
                             case 'end':
                             case 'exit':
-                                $this->SetValueString('RescanInfo', '');
-                                $this->SetValueString('RescanProgress', '');
+                                $this->SetValueString(\SqueezeBox\Splitter\Variables::RescanInfo, '');
+                                $this->SetValueString(\SqueezeBox\Splitter\Variables::RescanProgress, '');
                                 return true;
                             case 'progress':
                                 $Info = explode('||', $Data->Value);
@@ -2267,60 +2267,60 @@ class LyrionMusicServer extends IPSModuleStrict
                                 if (strpos($StepInfo, '|')) {
                                     $StepInfo = explode('|', $StepInfo)[1];
                                 }
-                                $this->SetValueString('RescanInfo', $StepInfo);
+                                $this->SetValueString(\SqueezeBox\Splitter\Variables::RescanInfo, $StepInfo);
                                 $StepProgress = $Info[3] . $this->Translate(' from ') . ($Info[4] ? $Info[4] : $this->Translate('unknown'));
-                                $this->SetValueString('RescanProgress', $StepProgress);
+                                $this->SetValueString(\SqueezeBox\Splitter\Variables::RescanProgress, $StepProgress);
                                 return true;
                         }
                         break;
                 }
                 break;
             case 'wipecache':
-                if ($this->GetValue('RescanState') != 4) {
-                    $this->SetValueInteger('RescanState', 4); // Vollständig
+                if ($this->GetValue(\SqueezeBox\Splitter\Variables::RescanState) != 4) {
+                    $this->SetValueInteger(\SqueezeBox\Splitter\Variables::RescanState, 4); // Vollständig
                 }
                 return true;
             case 'player':
                 if ($LMSData->Command[1] == 'count') {
-                    $this->SetValueInteger('Players', (int) $LMSData->Data[0]);
+                    $this->SetValueInteger(\SqueezeBox\Splitter\Variables::Players, (int) $LMSData->Data[0]);
                     return true;
                 }
                 break;
             case 'client':
-                $this->RequestState('Players');
+                $this->RequestState(\SqueezeBox\Splitter\Variables::Players);
                 return true;
             case 'version':
-                $this->SetValueString('Version', $LMSData->Data[0]);
+                $this->SetValueString(\SqueezeBox\Splitter\Variables::Version, $LMSData->Data[0]);
                 return true;
             case 'rescan':
                 if (!isset($LMSData->Data[0])) {
-                    if ($this->GetValue('RescanState') != 2) {
-                        $this->SetValueInteger('RescanState', 2); // einfacher
+                    if ($this->GetValue(\SqueezeBox\Splitter\Variables::RescanState) != 2) {
+                        $this->SetValueInteger(\SqueezeBox\Splitter\Variables::RescanState, 2); // einfacher
                     }
                     return true;
                 } else {
                     if ($LMSData->Data[0] == '') {
-                        if ($this->GetValue('RescanState') != 2) {
-                            $this->SetValueInteger('RescanState', 2); // einfacher
+                        if ($this->GetValue(\SqueezeBox\Splitter\Variables::RescanState) != 2) {
+                            $this->SetValueInteger(\SqueezeBox\Splitter\Variables::RescanState, 2); // einfacher
                         }
                         return true;
                     }
                     elseif (($LMSData->Data[0] == 'done') || ($LMSData->Data[0] == '0')) {
-                        if ($this->GetValue('RescanState') != 0) {
-                            $this->SetValueInteger('RescanState', 0);   // fertig
+                        if ($this->GetValue(\SqueezeBox\Splitter\Variables::RescanState) != 0) {
+                            $this->SetValueInteger(\SqueezeBox\Splitter\Variables::RescanState, 0);   // fertig
                         } else {
                             $this->RefreshPlaylistBuffer();
                         }
                         return true;
                     } elseif ($LMSData->Data[0] == 'playlists') {
-                        if ($this->GetValue('RescanState') != 3) {
-                            $this->SetValueInteger('RescanState', 3); // Playlists
+                        if ($this->GetValue(\SqueezeBox\Splitter\Variables::RescanState) != 3) {
+                            $this->SetValueInteger(\SqueezeBox\Splitter\Variables::RescanState, 3); // Playlists
                         }
                         return true;
                     } elseif ($LMSData->Data[0] == '1') {
                         //start
-                        if ($this->GetValue('RescanState') != 2) {
-                            $this->SetValueInteger('RescanState', 2); // einfacher
+                        if ($this->GetValue(\SqueezeBox\Splitter\Variables::RescanState) != 2) {
+                            $this->SetValueInteger(\SqueezeBox\Splitter\Variables::RescanState, 2); // einfacher
                         }
                         return true;
                     }
@@ -2487,9 +2487,9 @@ class LyrionMusicServer extends IPSModuleStrict
             }
             if ($LMSData->needResponse) {
                 $this->SendDebug('Send CS', $LMSData->Masked(), 0);
-                $this->SendQueuePush($LMSData);
-                $this->SendDataToParent($LMSData->ToJSONStringForLMS('{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}'));
-                $ReplyDataArray = $this->WaitForResponse($LMSData);
+                $QueueKey = $this->SendQueuePush($LMSData);
+                $this->SendDataToParent($LMSData->ToJSONStringForLMS(\SqueezeBox\GUID::SendToIO));
+                $ReplyDataArray = $this->WaitForResponse($QueueKey);
                 if ($ReplyDataArray === false) {
                     throw new Exception($this->Translate('No answer from LMS'), E_USER_NOTICE);
                 }
@@ -2498,7 +2498,7 @@ class LyrionMusicServer extends IPSModuleStrict
                 return $LMSData;
             } else { // ohne Response, also ohne warten raussenden,
                 $this->SendDebug('SendFaF CS', $LMSData->Masked(), 0);
-                $this->SendDataToParent($LMSData->ToJSONStringForLMS('{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}'));
+                $this->SendDataToParent($LMSData->ToJSONStringForLMS(\SqueezeBox\GUID::SendToIO));
                 return null;
             }
         } catch (Exception $exc) {
@@ -2511,43 +2511,44 @@ class LyrionMusicServer extends IPSModuleStrict
      * WaitForResponse
      * Wartet auf eine Antwort einer Anfrage an den LMS.
      *
-     * @param \SqueezeBox\LMSData $LMSData Das Objekt welches an den LMS versendet wurde.
+     * @param string $QueueKey Der Schlüssel der Anfrage in der SendQueue.
      * @return bool|array Enthält ein Array mit den Daten der Antwort. False bei einem Timeout
      */
-    private function WaitForResponse(\SqueezeBox\LMSData $LMSData): bool|array
+    private function WaitForResponse(string $QueueKey): bool|array
     {
-        $SearchPatter = $LMSData->GetSearchPatter();
         for ($i = 0; $i < 1000; $i++) {
             $Buffer = $this->ReplyLMSData;
-            if (!array_key_exists($SearchPatter, $Buffer)) {
+            if (!array_key_exists($QueueKey, $Buffer)) {
                 return false;
             }
-            if (array_key_exists('Data', $Buffer[$SearchPatter])) {
-                $this->SendQueueRemove($SearchPatter);
-                return $Buffer[$SearchPatter]['Data'];
+            if (array_key_exists('Data', $Buffer[$QueueKey])) {
+                $this->SendQueueRemove($QueueKey);
+                return $Buffer[$QueueKey]['Data'];
             }
             usleep(5000);
         }
-        $this->SendQueueRemove($SearchPatter);
+        $this->SendQueueRemove($QueueKey);
         return false;
     }
 
     /**
      * SendQueuePush
-     * Fügt eine Anfrage in die SendQueue ein.
+     * Fügt eine Anfrage in die SendQueue ein. Jede Anfrage erhält einen eigenen Eintrag.
      *
      * @param \SqueezeBox\LMSData $LMSData Das versendete \SqueezeBox\LMSData Objekt.
-     * @return void
+     * @return string Der Schlüssel der Anfrage.
      */
-    private function SendQueuePush(\SqueezeBox\LMSData $LMSData): void
+    private function SendQueuePush(\SqueezeBox\LMSData $LMSData): string
     {
         if (!$this->lock('ReplyLMSData')) {
             throw new Exception($this->Translate('ReplyLMSData is locked'), E_USER_NOTICE);
         }
+        $QueueKey = uniqid('', true);
         $data = $this->ReplyLMSData;
-        $data[$LMSData->GetSearchPatter()] = [];
+        $data[$QueueKey] = \SqueezeBox\LMSReplyQueue::CreateEntry($LMSData);
         $this->ReplyLMSData = $data;
         $this->unlock('ReplyLMSData');
+        return $QueueKey;
     }
 
     /**
@@ -2562,32 +2563,30 @@ class LyrionMusicServer extends IPSModuleStrict
         if (!$this->lock('ReplyLMSData')) {
             throw new Exception($this->Translate('ReplyLMSData is locked'), E_USER_NOTICE);
         }
-        $key = $LMSResponse->GetSearchPatter(); //Address . implode('', $LMSResponse->Command);
         $data = $this->ReplyLMSData;
-        if (array_key_exists($key, $data)) {
-            $data[$key]['Data'] = $LMSResponse->Data;
+        $QueueKey = \SqueezeBox\LMSReplyQueue::FindRequest($data, $LMSResponse);
+        if ($QueueKey !== null) {
+            $data[$QueueKey]['Data'] = $LMSResponse->Data;
             $this->ReplyLMSData = $data;
-            $this->unlock('ReplyLMSData');
-            return true;
         }
         $this->unlock('ReplyLMSData');
-        return false;
+        return $QueueKey !== null;
     }
 
     /**
      * SendQueueRemove
      * Löscht einen Eintrag aus der SendQueue.
      *
-     * @param int $Index Der Index des zu löschenden Eintrags.
+     * @param string $QueueKey Der Schlüssel der Anfrage.
      * @return void
      */
-    private function SendQueueRemove(string $Index): void
+    private function SendQueueRemove(string $QueueKey): void
     {
         if (!$this->lock('ReplyLMSData')) {
             throw new Exception($this->Translate('ReplyLMSData is locked'), E_USER_NOTICE);
         }
         $data = $this->ReplyLMSData;
-        unset($data[$Index]);
+        unset($data[$QueueKey]);
         $this->ReplyLMSData = $data;
         $this->unlock('ReplyLMSData');
     }

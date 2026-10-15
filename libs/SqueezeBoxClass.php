@@ -366,6 +366,59 @@ class LMSResponse extends LMSData
 }
 
 /**
+ * Ordnet Antworten des LMS den wartenden Anfragen des Splitters zu.
+ *
+ * Der LMS beantwortet eine Anfrage mit Adresse, Befehl und dem Echo der gesendeten Werte.
+ * Eine Antwort gehört bevorzugt zur ältesten wartenden Anfrage mit gleichem Befehl,
+ * deren erster gesendeter Wert im Echo steht. Gibt es keine solche, zur ältesten mit gleichem Befehl.
+ *
+ * @version       4.20
+ */
+class LMSReplyQueue
+{
+    /**
+     * Erzeugt den Eintrag einer Anfrage für die Warteschlange.
+     *
+     * @param LMSData $LMSData Die gesendete Anfrage.
+     * @return array Pattern und Echo.
+     */
+    public static function CreateEntry(LMSData $LMSData): array
+    {
+        $Data = is_array($LMSData->Data) ? array_values($LMSData->Data) : [$LMSData->Data];
+        $Echo = rawurldecode((string) ($Data[0] ?? ''));
+        // Ein '?' ersetzt der LMS durch den Wert, es steht nicht im Echo.
+        if ($Echo === '?') {
+            $Echo = '';
+        }
+        return ['Pattern' => $LMSData->GetSearchPatter(), 'Echo' => $Echo];
+    }
+
+    /**
+     * Sucht die wartende Anfrage zu einer Antwort.
+     *
+     * @param array       $Queue    Die Warteschlange (Schlüssel => Eintrag), älteste zuerst.
+     * @param LMSResponse $Response Die empfangene Antwort.
+     * @return ?string Der Schlüssel der Anfrage oder NULL, wenn die Antwort ein Ereignis ist.
+     */
+    public static function FindRequest(array $Queue, LMSResponse $Response): ?string
+    {
+        $Pattern = $Response->GetSearchPatter();
+        $First = is_array($Response->Data) ? (string) ($Response->Data[0] ?? '') : (string) $Response->Data;
+        $Fallback = null;
+        foreach ($Queue as $Key => $Entry) {
+            if (($Entry['Pattern'] !== $Pattern) || array_key_exists('Data', $Entry)) {
+                continue;
+            }
+            if (($Entry['Echo'] === '') || ($Entry['Echo'] === $First)) {
+                return (string) $Key;
+            }
+            $Fallback ??= (string) $Key;
+        }
+        return $Fallback;
+    }
+}
+
+/**
  * Zerlegt einen getaggten Datensatz in Name und Wert.
  *
  * @author        Michael Tröger <micha@nall-chan.net>

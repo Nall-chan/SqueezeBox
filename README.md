@@ -138,6 +138,8 @@ Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:
 - `LSQ_GetPlaylistURL` meldet, wenn die aktuelle Playlist keine gespeicherte Playlist ist.  
 - Verzögerte Aktualisierungen (Sync-Anzeige der Player, Player-Liste im Splitter) starten keinen eigenen Skript-Thread mehr.  
 - Die Meldung „Migrated settings“ erscheint nicht mehr bei jedem Start im Log.  
+- Batterie: Ist die Squeezebox nicht erreichbar oder schlägt die Anmeldung fehl, zeigt die Instanz den neuen Status `201`. Die zyklische Abfrage schreibt den Fehler nur noch beim ersten Fehlschlag ins Log; Meldungen der SSH-Bibliothek erscheinen nur noch im Debug.  
+- Player: Cover, Playlist-Markierung und Titeldaten werden je Titelwechsel nur noch einmal geladen (bisher bis zu viermal).  
 
 **Behobene falsche Werte in Statusvariablen**  
 
@@ -147,6 +149,7 @@ Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:
 **Fehlerbehebungen**  
 
 - Fehlende deutsche Übersetzungen von Meldungen und Formularen ergänzt.  
+- Splitter: Gleichzeitige Anfragen (z.B. aus zwei geöffneten Konfiguratoren) konnten die Antwort einer anderen Anfrage erhalten oder mit „Keine Antwort vom LMS“ abbrechen.  
 
 **Version 4.11:**  
 

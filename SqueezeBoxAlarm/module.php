@@ -146,7 +146,7 @@ class SqueezeboxAlarm extends IPSModuleStrict
 
         //Status-Variablen anlegen
         $this->RegisterVariableBoolean(
-            'EnableAll',
+            \SqueezeBox\Alarm\Variables::EnableAll,
             $this->Translate('All alarms active'),
             [
                 \SqueezeBox\Presentation::Type                     => VARIABLE_PRESENTATION_SWITCH,
@@ -159,9 +159,9 @@ class SqueezeboxAlarm extends IPSModuleStrict
             ],
             1
         );
-        $this->EnableAction('EnableAll');
+        $this->EnableAction(\SqueezeBox\Alarm\Variables::EnableAll);
         $this->RegisterVariableInteger(
-            'DefaultVolume',
+            \SqueezeBox\Alarm\Variables::DefaultVolume,
             $this->Translate('Default alarm volume'),
             [
                 \SqueezeBox\Presentation::Type                 => VARIABLE_PRESENTATION_SLIDER,
@@ -181,9 +181,9 @@ class SqueezeboxAlarm extends IPSModuleStrict
             ],
             2
         );
-        $this->EnableAction('DefaultVolume');
+        $this->EnableAction(\SqueezeBox\Alarm\Variables::DefaultVolume);
         $this->RegisterVariableBoolean(
-            'FadeIn',
+            \SqueezeBox\Alarm\Variables::FadeIn,
             $this->Translate('Fade alarm'),
             [
                 \SqueezeBox\Presentation::Type                     => VARIABLE_PRESENTATION_SWITCH,
@@ -196,9 +196,9 @@ class SqueezeboxAlarm extends IPSModuleStrict
             ],
             3
         );
-        $this->EnableAction('FadeIn');
+        $this->EnableAction(\SqueezeBox\Alarm\Variables::FadeIn);
         $this->RegisterVariableInteger(
-            'Timeout',
+            \SqueezeBox\Alarm\Variables::Timeout,
             $this->Translate('Automatically stop'),
             [
                 \SqueezeBox\Presentation::Type                 => VARIABLE_PRESENTATION_SLIDER,
@@ -218,9 +218,9 @@ class SqueezeboxAlarm extends IPSModuleStrict
             ],
             4
         );
-        $this->EnableAction('Timeout');
+        $this->EnableAction(\SqueezeBox\Alarm\Variables::Timeout);
         $this->RegisterVariableInteger(
-            'SnoozeSeconds',
+            \SqueezeBox\Alarm\Variables::SnoozeSeconds,
             $this->Translate('Snoozetime'),
             [
                 \SqueezeBox\Presentation::Type                 => VARIABLE_PRESENTATION_SLIDER,
@@ -240,10 +240,10 @@ class SqueezeboxAlarm extends IPSModuleStrict
             ],
             4
         );
-        $this->EnableAction('SnoozeSeconds');
+        $this->EnableAction(\SqueezeBox\Alarm\Variables::SnoozeSeconds);
         if ($this->ReadPropertyBoolean(\SqueezeBox\Alarm\Property::ShowAdd)) {
             $this->RegisterVariableInteger(
-                'AddAlarm',
+                \SqueezeBox\Alarm\Variables::AddAlarm,
                 $this->Translate('Add alarm'),
                 [
                     \SqueezeBox\Presentation::Icon         => 'alarm-plus',
@@ -262,19 +262,19 @@ class SqueezeboxAlarm extends IPSModuleStrict
                 ],
                 4
             );
-            $this->EnableAction('AddAlarm');
+            $this->EnableAction(\SqueezeBox\Alarm\Variables::AddAlarm);
         } else {
-            $this->UnregisterVariable('AddAlarm');
+            $this->UnregisterVariable(\SqueezeBox\Alarm\Variables::AddAlarm);
         }
         if ($this->ReadPropertyBoolean(\SqueezeBox\Alarm\Property::ShowDelete)) {
             $this->RefreshDeleteVariable(0);
-            $this->EnableAction('DelAlarm');
+            $this->EnableAction(\SqueezeBox\Alarm\Variables::DelAlarm);
         } else {
-            $this->UnregisterVariable('DelAlarm');
+            $this->UnregisterVariable(\SqueezeBox\Alarm\Variables::DelAlarm);
         }
         if (!$this->ReadPropertyBoolean(\SqueezeBox\Alarm\Property::ShowAlarmHTMLPlaylist)) {
             for ($AlarmIndex = 0; $AlarmIndex < 10; $AlarmIndex++) {
-                $this->UnregisterVariable('AlarmHTMLPlaylist' . $AlarmIndex);
+                $this->UnregisterVariable(\SqueezeBox\Alarm\Variables::AlarmHTMLPlaylist . $AlarmIndex);
             }
         }
         // Profile löschen
@@ -379,7 +379,7 @@ class SqueezeboxAlarm extends IPSModuleStrict
      */
     public function RequestAllState(): bool
     {
-        if (!$this->RequestState('EnableAll')) {
+        if (!$this->RequestState(\SqueezeBox\Alarm\Variables::EnableAll)) {
             return false;
         }
         $ret = true;
@@ -403,19 +403,19 @@ class SqueezeboxAlarm extends IPSModuleStrict
             case 'Alarms':
                 $LMSResponse = new \SqueezeBox\LMSData('alarms', ['0', '10', 'filter:all']);
                 break;
-            case 'EnableAll':
+            case \SqueezeBox\Alarm\Variables::EnableAll:
                 $LMSResponse = new \SqueezeBox\LMSData(['playerpref', 'alarmsEnabled'], '?');
                 break;
-            case 'DefaultVolume':
+            case \SqueezeBox\Alarm\Variables::DefaultVolume:
                 $LMSResponse = new \SqueezeBox\LMSData(['playerpref', 'alarmDefaultVolume'], '?');
                 break;
-            case 'FadeIn':
+            case \SqueezeBox\Alarm\Variables::FadeIn:
                 $LMSResponse = new \SqueezeBox\LMSData(['playerpref', 'alarmfadeseconds'], '?');
                 break;
-            case 'Timeout':
+            case \SqueezeBox\Alarm\Variables::Timeout:
                 $LMSResponse = new \SqueezeBox\LMSData(['playerpref', 'alarmTimeoutSeconds'], '?');
                 break;
-            case 'SnoozeSeconds':
+            case \SqueezeBox\Alarm\Variables::SnoozeSeconds:
                 $LMSResponse = new \SqueezeBox\LMSData(['playerpref', 'alarmSnoozeSeconds'], '?');
                 break;
             case 'AlarmPlaylistName0':
@@ -887,26 +887,26 @@ class SqueezeboxAlarm extends IPSModuleStrict
                 $this->UpdateFormField('Rows', 'enabled', (bool) $Value);
                 $this->UpdateFormField('HTMLExpansionPanel', 'expanded', (bool) $Value);
                 return true;
-            case 'EnableAll':
+            case \SqueezeBox\Alarm\Variables::EnableAll:
                 $result = $this->SetAllActive((bool) $Value);
                 break;
-            case 'DefaultVolume':
+            case \SqueezeBox\Alarm\Variables::DefaultVolume:
                 $result = $this->SetDefaultVolume((int) $Value);
                 break;
-            case 'FadeIn':
+            case \SqueezeBox\Alarm\Variables::FadeIn:
                 $result = $this->SetFadeIn((bool) $Value);
                 break;
-            case 'AddAlarm':
+            case \SqueezeBox\Alarm\Variables::AddAlarm:
                 $AlarmIndex = $this->AddAlarm();
                 $result = ($AlarmIndex !== false);
                 break;
-            case 'DelAlarm':
+            case \SqueezeBox\Alarm\Variables::DelAlarm:
                 $result = $this->DelAlarm((int) $Value);
                 break;
-            case 'Timeout':
+            case \SqueezeBox\Alarm\Variables::Timeout:
                 $result = $this->SetTimeout((int) $Value);
                 break;
-            case 'SnoozeSeconds':
+            case \SqueezeBox\Alarm\Variables::SnoozeSeconds:
                 $result = $this->SetSnoozeSeconds((int) $Value);
                 break;
             case 'AlarmShuffle0':
@@ -1095,7 +1095,7 @@ class SqueezeboxAlarm extends IPSModuleStrict
         // HTML-Tabelle
         if ($this->ReadPropertyBoolean(\SqueezeBox\Alarm\Property::ShowAlarmHTMLPlaylist)) {
             if ($this->RegisterVariableString(
-                'AlarmHTMLPlaylist' . $AlarmIndex,
+                \SqueezeBox\Alarm\Variables::AlarmHTMLPlaylist . $AlarmIndex,
                 sprintf($this->Translate('Alarm %d playlist selection'), $AlarmIndex + 1),
                 [
                     \SqueezeBox\Presentation::Type         => VARIABLE_PRESENTATION_WEB_CONTENT,
@@ -1104,10 +1104,10 @@ class SqueezeboxAlarm extends IPSModuleStrict
                 ],
                 (($AlarmIndex + 1) * 10) + 7
             )) {
-                IPS_SetIcon($this->FindIDForIdent('AlarmHTMLPlaylist' . $AlarmIndex), 'list-music');
+                IPS_SetIcon($this->FindIDForIdent(\SqueezeBox\Alarm\Variables::AlarmHTMLPlaylist . $AlarmIndex), 'list-music');
             }
-            $HTML = $this->GetTable($Data, 'LSAPlaylist', 'AlarmHTMLPlaylist' . $AlarmIndex, 'Url', $PlaylistIndex + 1);
-            $this->SetValueString('AlarmHTMLPlaylist' . $AlarmIndex, $HTML);
+            $HTML = $this->GetTable($Data, 'LSAPlaylist', \SqueezeBox\Alarm\Variables::AlarmHTMLPlaylist . $AlarmIndex, 'Url', $PlaylistIndex + 1);
+            $this->SetValueString(\SqueezeBox\Alarm\Variables::AlarmHTMLPlaylist . $AlarmIndex, $HTML);
         }
     }
 
@@ -1162,7 +1162,7 @@ class SqueezeboxAlarm extends IPSModuleStrict
             ];
         }
         $this->RegisterVariableInteger(
-            'DelAlarm',
+            \SqueezeBox\Alarm\Variables::DelAlarm,
             $this->Translate('Delete alarm'),
             [
                 \SqueezeBox\Presentation::Icon              => 'delete-right',
@@ -1203,7 +1203,7 @@ class SqueezeboxAlarm extends IPSModuleStrict
      */
     private function RefreshEvent(LSA_Alarm $Alarm): void
     {
-        $eid = $this->FindIDForIdent('AlarmTime' . $Alarm->Index);
+        $eid = $this->FindIDForIdent(\SqueezeBox\Alarm\Variables::AlarmTime . $Alarm->Index);
         if ($eid > 0) {
             $this->UnregisterMessage($eid, EM_CHANGEACTIVE);
             $this->UnregisterMessage($eid, EM_CHANGECYCLIC);
@@ -1211,7 +1211,7 @@ class SqueezeboxAlarm extends IPSModuleStrict
         } else {
             $eid = IPS_CreateEvent(1);
             IPS_SetParent($eid, $this->InstanceID);
-            IPS_SetIdent($eid, 'AlarmTime' . $Alarm->Index);
+            IPS_SetIdent($eid, \SqueezeBox\Alarm\Variables::AlarmTime . $Alarm->Index);
             IPS_SetName($eid, sprintf($this->Translate('Alarm %d alarmtime'), $Alarm->Index + 1));
             IPS_SetPosition($eid, (($Alarm->Index + 1) * 10) + 1);
             IPS_SetIcon($eid, 'Alert');
@@ -1247,18 +1247,18 @@ class SqueezeboxAlarm extends IPSModuleStrict
         $PlaylistItem = $this->GetPlaylistItemFromUrl($Alarm->Url);
         if (!is_null($PlaylistItem)) {
             if ($this->RegisterVariableString(
-                'AlarmPlaylistName' . $Alarm->Index,
+                \SqueezeBox\Alarm\Variables::AlarmPlaylistName . $Alarm->Index,
                 sprintf($this->Translate('Alarm %d playlist'), $Alarm->Index + 1),
                 [],
                 (($Alarm->Index + 1) * 10) + 6
             )) {
-                IPS_SetIcon($this->FindIDForIdent('AlarmPlaylistName' . $Alarm->Index), 'list-music');
+                IPS_SetIcon($this->FindIDForIdent(\SqueezeBox\Alarm\Variables::AlarmPlaylistName . $Alarm->Index), 'list-music');
             }
-            $this->SetValueString('AlarmPlaylistName' . $Alarm->Index, $PlaylistItem['Title']);
+            $this->SetValueString(\SqueezeBox\Alarm\Variables::AlarmPlaylistName . $Alarm->Index, $PlaylistItem['Title']);
             $this->RefreshPlaylist($Alarm->Index, $PlaylistItem['Index']);
         }
         if ($this->RegisterVariableInteger(
-            'AlarmShuffle' . $Alarm->Index,
+            \SqueezeBox\Alarm\Variables::AlarmShuffle . $Alarm->Index,
             sprintf($this->Translate('Alarm %d playlist shuffle'), $Alarm->Index + 1),
             [
                 \SqueezeBox\Presentation::Icon         => 'Shuffle',
@@ -1291,12 +1291,12 @@ class SqueezeboxAlarm extends IPSModuleStrict
             ],
             (($Alarm->Index + 1) * 10) + 5
         )) {
-            $this->EnableAction('AlarmShuffle' . $Alarm->Index);
+            $this->EnableAction(\SqueezeBox\Alarm\Variables::AlarmShuffle . $Alarm->Index);
         }
-        $this->SetValueInteger('AlarmShuffle' . $Alarm->Index, $Alarm->Shufflemode);
+        $this->SetValueInteger(\SqueezeBox\Alarm\Variables::AlarmShuffle . $Alarm->Index, $Alarm->Shufflemode);
 
         if ($this->RegisterVariableInteger(
-            'AlarmRepeat' . $Alarm->Index,
+            \SqueezeBox\Alarm\Variables::AlarmRepeat . $Alarm->Index,
             sprintf($this->Translate('Alarm %d repeat'), $Alarm->Index + 1),
             [
                 \SqueezeBox\Presentation::Icon         => 'Repeat',
@@ -1324,13 +1324,13 @@ class SqueezeboxAlarm extends IPSModuleStrict
             ],
             (($Alarm->Index + 1) * 10) + 4
         )) {
-            $this->EnableAction('AlarmRepeat' . $Alarm->Index);
-            IPS_SetIcon($this->FindIDForIdent('AlarmRepeat' . $Alarm->Index), 'Repeat');
+            $this->EnableAction(\SqueezeBox\Alarm\Variables::AlarmRepeat . $Alarm->Index);
+            IPS_SetIcon($this->FindIDForIdent(\SqueezeBox\Alarm\Variables::AlarmRepeat . $Alarm->Index), 'Repeat');
         }
-        $this->SetValueInteger('AlarmRepeat' . $Alarm->Index, (int) $Alarm->Repeat);
+        $this->SetValueInteger(\SqueezeBox\Alarm\Variables::AlarmRepeat . $Alarm->Index, (int) $Alarm->Repeat);
 
         if ($this->RegisterVariableInteger(
-            'AlarmVolume' . $Alarm->Index,
+            \SqueezeBox\Alarm\Variables::AlarmVolume . $Alarm->Index,
             sprintf($this->Translate('Alarm %d volume'), $Alarm->Index + 1),
             [
                 \SqueezeBox\Presentation::Type                 => VARIABLE_PRESENTATION_SLIDER,
@@ -1350,12 +1350,12 @@ class SqueezeboxAlarm extends IPSModuleStrict
             ],
             (($Alarm->Index + 1) * 10) + 3
         )) {
-            $this->EnableAction('AlarmVolume' . $Alarm->Index);
+            $this->EnableAction(\SqueezeBox\Alarm\Variables::AlarmVolume . $Alarm->Index);
         }
-        $this->SetValueInteger('AlarmVolume' . $Alarm->Index, $Alarm->Volume);
+        $this->SetValueInteger(\SqueezeBox\Alarm\Variables::AlarmVolume . $Alarm->Index, $Alarm->Volume);
 
         if ($this->RegisterVariableInteger(
-            'AlarmState' . $Alarm->Index,
+            \SqueezeBox\Alarm\Variables::AlarmState . $Alarm->Index,
             sprintf($this->Translate('Alarm %d state'), $Alarm->Index + 1),
             [
                 \SqueezeBox\Presentation::Icon         => 'alarm-clock',
@@ -1388,7 +1388,7 @@ class SqueezeboxAlarm extends IPSModuleStrict
             ],
             (($Alarm->Index + 1) * 10) + 2
         )) {
-            $this->EnableAction('AlarmState' . $Alarm->Index);
+            $this->EnableAction(\SqueezeBox\Alarm\Variables::AlarmState . $Alarm->Index);
         }
     }
 
@@ -1424,7 +1424,7 @@ class SqueezeboxAlarm extends IPSModuleStrict
     private function ClearAlarmSlot(int $Index): void
     {
         $Delete = $this->ReadPropertyBoolean(\SqueezeBox\Alarm\Property::DynamicDisplay);
-        $eid = $this->FindIDForIdent('AlarmTime' . $Index);
+        $eid = $this->FindIDForIdent(\SqueezeBox\Alarm\Variables::AlarmTime . $Index);
         if ($eid > 0) {
             $this->UnregisterMessage($eid, EM_CHANGEACTIVE);
             $this->UnregisterMessage($eid, EM_CHANGECYCLIC);
@@ -1456,11 +1456,11 @@ class SqueezeboxAlarm extends IPSModuleStrict
                 $this->SetValueInteger($Ident . $Index, $Default);
             }
         }
-        if ($this->FindIDForIdent('AlarmHTMLPlaylist' . $Index) > 0) {
+        if ($this->FindIDForIdent(\SqueezeBox\Alarm\Variables::AlarmHTMLPlaylist . $Index) > 0) {
             if ($Delete || !$this->ReadPropertyBoolean(\SqueezeBox\Alarm\Property::ShowAlarmHTMLPlaylist)) {
-                $this->UnregisterVariable('AlarmHTMLPlaylist' . $Index);
+                $this->UnregisterVariable(\SqueezeBox\Alarm\Variables::AlarmHTMLPlaylist . $Index);
             } else {
-                $this->SetValueString('AlarmHTMLPlaylist' . $Index, '');
+                $this->SetValueString(\SqueezeBox\Alarm\Variables::AlarmHTMLPlaylist . $Index, '');
             }
         }
     }
@@ -1480,15 +1480,15 @@ class SqueezeboxAlarm extends IPSModuleStrict
             case 'alarm':
                 switch ($LMSData->Command[1]) {
                     case 'enableall':
-                        $this->SetValueBoolean('EnableAll', true);
+                        $this->SetValueBoolean(\SqueezeBox\Alarm\Variables::EnableAll, true);
                         break;
                     case 'disableall':
-                        $this->SetValueBoolean('EnableAll', false);
+                        $this->SetValueBoolean(\SqueezeBox\Alarm\Variables::EnableAll, false);
                         break;
                     case 'defaultvolume':
                         $Data = (new \SqueezeBox\LMSTaggingArray($LMSData->Data))->DataArray();
                         if (isset($Data['Volume'])) {
-                            $this->SetValueInteger('DefaultVolume', (int) $Data['Volume']);
+                            $this->SetValueInteger(\SqueezeBox\Alarm\Variables::DefaultVolume, (int) $Data['Volume']);
                         }
                         break;
                     case 'add':
@@ -1499,7 +1499,7 @@ class SqueezeboxAlarm extends IPSModuleStrict
                         $this->SendDebug('ADD', $Data, 0);
                         $Alarms = $this->Alarms;
                         $Alarm = new LSA_Alarm($Data);
-                        $Alarm->Volume = $this->GetValue('DefaultVolume');
+                        $Alarm->Volume = $this->GetValue(\SqueezeBox\Alarm\Variables::DefaultVolume);
                         $Alarm->Index = $Alarms->Add($Alarm);
                         $this->Alarms = $Alarms;
                         $this->RefreshDeleteVariable(count($Alarms->Items));
@@ -1582,7 +1582,7 @@ class SqueezeboxAlarm extends IPSModuleStrict
                             break;
                         }
                         if ($this->RegisterVariableInteger(
-                            'AlarmState' . $Alarm->Index,
+                            \SqueezeBox\Alarm\Variables::AlarmState . $Alarm->Index,
                             sprintf($this->Translate('Alarm %d state'), $Alarm->Index + 1),
                             [
                                 \SqueezeBox\Presentation::Icon         => 'alarm-clock',
@@ -1615,9 +1615,9 @@ class SqueezeboxAlarm extends IPSModuleStrict
                             ],
                             (($Alarm->Index + 1) * 10) + 2
                         )) {
-                            $this->EnableAction('AlarmState' . $Alarm->Index);
+                            $this->EnableAction(\SqueezeBox\Alarm\Variables::AlarmState . $Alarm->Index);
                         }
-                        $this->SetValueInteger('AlarmState' . $Alarm->Index, $State);
+                        $this->SetValueInteger(\SqueezeBox\Alarm\Variables::AlarmState . $Alarm->Index, $State);
                         break;
                 }
                 break;
@@ -1628,19 +1628,19 @@ class SqueezeboxAlarm extends IPSModuleStrict
             case 'playerpref':
                 switch ($LMSData->Command[1]) {
                     case 'alarmfadeseconds':
-                        $this->SetValueBoolean('FadeIn', (bool) $LMSData->Data[0]);
+                        $this->SetValueBoolean(\SqueezeBox\Alarm\Variables::FadeIn, (bool) $LMSData->Data[0]);
                         break;
                     case 'alarmDefaultVolume':
-                        $this->SetValueInteger('DefaultVolume', (int) $LMSData->Data[0]);
+                        $this->SetValueInteger(\SqueezeBox\Alarm\Variables::DefaultVolume, (int) $LMSData->Data[0]);
                         break;
                     case 'alarmTimeoutSeconds':
-                        $this->SetValueInteger('Timeout', (int) $LMSData->Data[0]);
+                        $this->SetValueInteger(\SqueezeBox\Alarm\Variables::Timeout, (int) $LMSData->Data[0]);
                         break;
                     case 'alarmSnoozeSeconds':
-                        $this->SetValueInteger('SnoozeSeconds', (int) $LMSData->Data[0]);
+                        $this->SetValueInteger(\SqueezeBox\Alarm\Variables::SnoozeSeconds, (int) $LMSData->Data[0]);
                         break;
                     case 'alarmsEnabled':
-                        $this->SetValueBoolean('EnableAll', (bool) $LMSData->Data[0]);
+                        $this->SetValueBoolean(\SqueezeBox\Alarm\Variables::EnableAll, (bool) $LMSData->Data[0]);
                         break;
                 }
                 break;
@@ -1716,19 +1716,7 @@ class SqueezeboxAlarm extends IPSModuleStrict
             return null;
         }
         $LMSData->Address = $this->ReadPropertyString(\SqueezeBox\Alarm\Property::Address);
-        $SplitterID = IPS_GetInstance($this->InstanceID)['ConnectionID'];
-        $IoID = IPS_GetInstance($SplitterID)['ConnectionID'];
-        $Host = IPS_GetProperty($IoID, \SqueezeBox\IO\Property::Host);
-        if ($Host === '') {
-            return null;
-        }
-        return $this->SendDirectToLMS(
-            gethostbyname($Host),
-            IPS_GetProperty($SplitterID, \SqueezeBox\Splitter\Property::Port),
-            IPS_GetProperty($SplitterID, \SqueezeBox\Splitter\Property::Username),
-            IPS_GetProperty($SplitterID, \SqueezeBox\Splitter\Property::Password),
-            $LMSData
-        );
+        return $this->SendDirectViaSplitter($LMSData);
     }
 
 }

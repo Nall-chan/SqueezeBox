@@ -292,7 +292,7 @@ class LyrionMusicServerConfigurator extends IPSModuleStrict
         if ($SplitterId > 0) {
             $IOId = @IPS_GetInstance($SplitterId)['ConnectionID'];
             if ($IOId > 0) {
-                $this->SetSummary(IPS_GetProperty($IOId, 'Host'));
+                $this->SetSummary(IPS_GetProperty($IOId, \SqueezeBox\IO\Property::Host));
                 return;
             }
         }

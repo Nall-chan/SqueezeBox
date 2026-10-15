@@ -224,4 +224,20 @@ class DeviceTest extends ModuleTestCase
         $this->assertNotSame([], $this->Errors);
         $this->assertNoPhpErrors();
     }
+    /** E13: newsong lädt das Cover höchstens einmal; bei neuem Index übernimmt VM_UPDATE von Index. */
+    public function testNewSongLoadsCoverOnce(): void
+    {
+        $this->receive($this->iid, self::$Responses['status']);
+        $this->assertSame(12, $this->values($this->iid)['Index']);
+        $Covers = fn (): int => count(array_filter(IPS\DebugServer::getDebugMessages($this->iid), fn (array $Debug): bool => $Debug['Message'] == 'Refresh Cover'));
+        $Before = $Covers();
+        // Gleicher Index (z.B. neue Playlist ab demselben Titel): genau ein Cover.
+        $this->receive($this->iid, '00%3A04%3A20%3A00%3A00%3A01 playlist newsong Realize 11');
+        $this->assertSame($Before + 1, $Covers());
+        // Neuer Index: nur der Index wird geschrieben, Cover und Playlist folgen über VM_UPDATE.
+        $this->receive($this->iid, '00%3A04%3A20%3A00%3A00%3A01 playlist newsong Next 12');
+        $this->assertSame(13, $this->values($this->iid)['Index']);
+        $this->assertSame($Before + 1, $Covers());
+        $this->assertNoPhpErrors();
+    }
 }

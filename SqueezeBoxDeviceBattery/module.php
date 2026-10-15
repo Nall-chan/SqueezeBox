@@ -16,25 +16,24 @@ require_once __DIR__ . '/../libs/DebugHelper.php';
 eval('declare(strict_types=1);namespace SqueezeboxBattery {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableHelper.php') . '}');
 eval('declare(strict_types=1);namespace SqueezeboxBattery {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableProfileHelper.php') . '}');
 
-$AutoLoader = new AutoLoaderSqueezeboxBatteryPHPSecLib('Net\SSH2');
+$AutoLoader = new AutoLoaderSqueezeboxBatteryPHPSecLib();
 $AutoLoader->register();
 
+/**
+ * Lädt die Klassen von phpseclib 2 aus libs/phpseclib. Andere Klassen werden nicht angefasst.
+ */
 class AutoLoaderSqueezeboxBatteryPHPSecLib
 {
-    private $namespace;
-
-    public function __construct($namespace = null)
-    {
-        $this->namespace = $namespace;
-    }
-
-    public function register()
+    public function register(): void
     {
         spl_autoload_register([$this, 'loadClass']);
     }
 
-    public function loadClass($className)
+    public function loadClass(string $className): void
     {
+        if (!str_starts_with($className, 'phpseclib\\')) {
+            return;
+        }
         $LibPath = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'libs' . DIRECTORY_SEPARATOR . 'phpseclib' . DIRECTORY_SEPARATOR;
         $file = $LibPath . str_replace('\\', DIRECTORY_SEPARATOR, $className) . '.php';
         if (file_exists($file)) {
@@ -83,7 +82,7 @@ class SqueezeboxBattery extends IPSModuleStrict
         $this->RegisterPropertyString(\SqueezeBox\Battery\Property::Address, '');
         $this->RegisterPropertyInteger(\SqueezeBox\Battery\Property::Interval, 30);
         $this->RegisterPropertyString(\SqueezeBox\Battery\Property::Password, '1234');
-        $this->RegisterTimer(\SqueezeBox\Battery\Timer::RequestState, 0, 'LSQB_RequestState($_IPS[\'TARGET\']);');
+        $this->RegisterTimer(\SqueezeBox\Battery\Timer::RequestState, 0, 'IPS_RequestAction($_IPS["TARGET"], "RequestState", 0);');
     }
 
     /**
@@ -98,7 +97,7 @@ class SqueezeboxBattery extends IPSModuleStrict
         parent::ApplyChanges();
         //Status-Variablen anlegen
         $this->RegisterVariableInteger(
-            'State',
+            \SqueezeBox\Battery\Variables::State,
             $this->Translate('State'),
             [
                 \SqueezeBox\Presentation::Icon                => 'plug',
@@ -181,7 +180,7 @@ class SqueezeboxBattery extends IPSModuleStrict
             1
         );
         $this->RegisterVariableFloat(
-            'SysVoltage',
+            \SqueezeBox\Battery\Variables::SysVoltage,
             $this->Translate('Device voltage'),
             [
                 \SqueezeBox\Presentation::Icon                => 'Electricity',
@@ -199,7 +198,7 @@ class SqueezeboxBattery extends IPSModuleStrict
             2
         );
         $this->RegisterVariableFloat(
-            'WallVoltage',
+            \SqueezeBox\Battery\Variables::WallVoltage,
             $this->Translate('Line voltage'),
             [
                 \SqueezeBox\Presentation::Icon                => 'Electricity',
@@ -217,7 +216,7 @@ class SqueezeboxBattery extends IPSModuleStrict
             3
         );
         $this->RegisterVariableInteger(
-            'ChargeState',
+            \SqueezeBox\Battery\Variables::ChargeState,
             $this->Translate('Charge state'),
             [
                 \SqueezeBox\Presentation::Icon                => 'Battery',
@@ -340,7 +339,7 @@ class SqueezeboxBattery extends IPSModuleStrict
             4
         );
         $this->RegisterVariableFloat(
-            'BatteryLevel',
+            \SqueezeBox\Battery\Variables::BatteryLevel,
             $this->Translate('Battery level'),
             [
                 \SqueezeBox\Presentation::Icon                => 'Battery',
@@ -358,7 +357,7 @@ class SqueezeboxBattery extends IPSModuleStrict
             5
         );
         $this->RegisterVariableFloat(
-            'BatteryTemperature',
+            \SqueezeBox\Battery\Variables::BatteryTemperature,
             $this->Translate('Battery temperature'),
             [
                 \SqueezeBox\Presentation::Icon                => 'Temperature',
@@ -376,7 +375,7 @@ class SqueezeboxBattery extends IPSModuleStrict
             6
         );
         $this->RegisterVariableFloat(
-            'BatteryVoltage',
+            \SqueezeBox\Battery\Variables::BatteryVoltage,
             $this->Translate('Battery voltage total'),
             [
                 \SqueezeBox\Presentation::Icon                => 'Electricity',
@@ -394,7 +393,7 @@ class SqueezeboxBattery extends IPSModuleStrict
             7
         );
         $this->RegisterVariableFloat(
-            'BatteryVMon1',
+            \SqueezeBox\Battery\Variables::BatteryVMon1,
             $this->Translate('Battery voltage 1'),
             [
                 \SqueezeBox\Presentation::Icon                => 'Electricity',
@@ -412,7 +411,7 @@ class SqueezeboxBattery extends IPSModuleStrict
             8
         );
         $this->RegisterVariableFloat(
-            'BatteryVMon2',
+            \SqueezeBox\Battery\Variables::BatteryVMon2,
             $this->Translate('Battery voltage 2'),
             [
                 \SqueezeBox\Presentation::Icon                => 'Electricity',
@@ -430,7 +429,7 @@ class SqueezeboxBattery extends IPSModuleStrict
             9
         );
         $this->RegisterVariableInteger(
-            'BatteryCapacity',
+            \SqueezeBox\Battery\Variables::BatteryCapacity,
             $this->Translate('Battery capacity'),
             [
                 \SqueezeBox\Presentation::Icon                => 'Intensity',
@@ -514,70 +513,143 @@ class SqueezeboxBattery extends IPSModuleStrict
         if (!$this->ReadPropertyBoolean(\SqueezeBox\Battery\Property::Active)) {
             return false;
         }
-        $Address = trim($this->ReadPropertyString(\SqueezeBox\Battery\Property::Address));
-        if ($Address == '') {
+        $Error = $this->ReadBatteryState();
+        if ($Error !== '') {
+            trigger_error($Error, E_USER_NOTICE);
             return false;
         }
-        $ssh = new \phpseclib\Net\SSH2($Address);
-        try {
-            $this->SendDebug('Try to connect', $Address, 0);
-            $LoggedIn = $ssh->login('root', $this->ReadPropertyString(\SqueezeBox\Battery\Property::Password));
-        } catch (\Throwable $th) {
-            $this->SendDebug('Login', $th->getMessage(), 0);
-            $LoggedIn = false;
+        return true;
+    }
+
+    /**
+     * RequestAction
+     * Nur für den Timer: Ein Fehler wird beim ersten Fehlschlag in Folge geloggt, danach nur über den Status angezeigt.
+     *
+     * @param  string $Ident
+     * @param  mixed $Value
+     * @return void
+     */
+    public function RequestAction(string $Ident, mixed $Value): void
+    {
+        if ($Ident != 'RequestState') {
+            trigger_error($this->Translate('Invalid Ident'), E_USER_NOTICE);
+            return;
         }
+        if (!$this->ReadPropertyBoolean(\SqueezeBox\Battery\Property::Active)) {
+            return;
+        }
+        $WasFailed = ($this->GetStatus() == IS_EBASE + 1);
+        $Error = $this->ReadBatteryState();
+        if (($Error !== '') && !$WasFailed) {
+            $this->LogMessage($Error, KL_WARNING);
+        }
+    }
+
+    /**
+     * getTime
+     * Zeitquelle für Timer. Die Symcon-Stubs der Unit-Tests verlangen diese Methode im Modul.
+     *
+     * @return int
+     */
+    protected function getTime(): int
+    {
+        return time();
+    }
+
+    /**
+     * ReadBatteryState
+     * Liest die Werte per SSH und setzt den Status (201 bei Verbindungs- oder Anmeldefehler).
+     * Meldungen von phpseclib landen nur im Debug.
+     *
+     * @return string Leer bei Erfolg, sonst die Fehlermeldung.
+     */
+    private function ReadBatteryState(): string
+    {
+        $Address = trim($this->ReadPropertyString(\SqueezeBox\Battery\Property::Address));
+        if ($Address == '') {
+            return '';
+        }
+        set_error_handler(function (int $errno, string $errstr): bool
+        {
+            $this->SendDebug('phpseclib', $errstr, 0);
+            return true;
+        }, E_USER_NOTICE | E_USER_WARNING | E_NOTICE | E_WARNING);
+        try {
+            return $this->ReadBatteryValues($Address);
+        } catch (\Throwable $th) {
+            $this->SendDebug('SSH', $th->getMessage(), 0);
+            $this->SetStatus(IS_EBASE + 1);
+            return sprintf($this->Translate('Connection to %s failed.'), $Address);
+        } finally {
+            restore_error_handler();
+        }
+    }
+
+    /**
+     * ReadBatteryValues
+     * Meldet sich per SSH an und schreibt die Werte in die Statusvariablen.
+     *
+     * @param  string $Address
+     * @return string Leer bei Erfolg, sonst die Fehlermeldung.
+     */
+    private function ReadBatteryValues(string $Address): string
+    {
+        $ssh = new \phpseclib\Net\SSH2($Address);
+        $this->SendDebug('Try to connect', $Address, 0);
+        $LoggedIn = $ssh->login('root', $this->ReadPropertyString(\SqueezeBox\Battery\Property::Password));
         if (!$LoggedIn) {
             // Bei fehlgeschlagener Anmeldung behalten die Variablen ihren letzten Wert.
             $this->SendDebug('Login', 'ERROR', 0);
-            trigger_error($this->Translate('Login failed.'), E_USER_NOTICE);
-            return false;
+            $this->SetStatus(IS_EBASE + 1);
+            return $ssh->isConnected() ? $this->Translate('Login failed.') : sprintf($this->Translate('Connection to %s failed.'), $Address);
         }
         $PowerMode = (int) $ssh->exec('cat /sys/class/i2c-adapter/i2c-1/1-0010/power_mode');
         $this->SendDebug('PowerMode', $PowerMode, 0);
-        $this->SetValueInteger('State', $PowerMode);
+        $this->SetValueInteger(\SqueezeBox\Battery\Variables::State, $PowerMode);
         if ($PowerMode == 5) {
-            $this->SetValueFloat('WallVoltage', 0);
+            $this->SetValueFloat(\SqueezeBox\Battery\Variables::WallVoltage, 0);
         } else {
             $WallVoltage = round((int) $ssh->exec('cat /sys/class/i2c-adapter/i2c-1/1-0010/wall_voltage') / 1000, 1);
-            $this->SetValueFloat('WallVoltage', $WallVoltage);
+            $this->SetValueFloat(\SqueezeBox\Battery\Variables::WallVoltage, $WallVoltage);
         }
 
         $SysVoltage = round((float) $ssh->exec('cat /sys/class/i2c-adapter/i2c-1/1-0010/sys_voltage') / 1000, 1);
         $this->SendDebug('SysVoltage', $SysVoltage, 0);
-        $this->SetValueFloat('SysVoltage', $SysVoltage);
+        $this->SetValueFloat(\SqueezeBox\Battery\Variables::SysVoltage, $SysVoltage);
         $ChargeState = (int) $ssh->exec('cat /sys/class/i2c-adapter/i2c-1/1-0010/charger_state');
         $this->SendDebug('ChargeState', $ChargeState, 0);
-        $this->SetValueInteger('ChargeState', $ChargeState);
+        $this->SetValueInteger(\SqueezeBox\Battery\Variables::ChargeState, $ChargeState);
         if ($ChargeState != 1) {
             $BatteryLevel = (int) $ssh->exec('cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_charge') / 2000;
             $this->SendDebug('BatteryLevel', $BatteryLevel, 0);
-            $this->SetValueFloat('BatteryLevel', $BatteryLevel);
+            $this->SetValueFloat(\SqueezeBox\Battery\Variables::BatteryLevel, $BatteryLevel);
             $BatteryCapacity = (int) $ssh->exec('cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_capacity');
             $this->SendDebug('BatteryCapacity', $BatteryCapacity, 0);
-            $this->SetValueInteger('BatteryCapacity', $BatteryCapacity);
+            $this->SetValueInteger(\SqueezeBox\Battery\Variables::BatteryCapacity, $BatteryCapacity);
             $BatteryTemperature = round((float) $ssh->exec('cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_temperature') / 32, 1);
             $this->SendDebug('BatteryTemperature', $BatteryTemperature, 0);
-            $this->SetValueFloat('BatteryTemperature', $BatteryTemperature);
+            $this->SetValueFloat(\SqueezeBox\Battery\Variables::BatteryTemperature, $BatteryTemperature);
             $BatteryVoltage = round((float) $ssh->exec('cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_voltage') / 1000, 1);
             $this->SendDebug('BatteryVoltage', $BatteryVoltage, 0);
-            $this->SetValueFloat('BatteryVoltage', $BatteryVoltage);
+            $this->SetValueFloat(\SqueezeBox\Battery\Variables::BatteryVoltage, $BatteryVoltage);
             $BatteryVMon1 = round((float) $ssh->exec('cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_vmon1_voltage') / 1000, 1);
             $this->SendDebug('BatteryVMon1', $BatteryVMon1, 0);
-            $this->SetValueFloat('BatteryVMon1', $BatteryVMon1);
+            $this->SetValueFloat(\SqueezeBox\Battery\Variables::BatteryVMon1, $BatteryVMon1);
             $BatteryVMon2 = round((float) $ssh->exec('cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_vmon2_voltage') / 1000, 1);
             $this->SendDebug('BatteryVMon2', $BatteryVMon2, 0);
-            $this->SetValueFloat('BatteryVMon2', $BatteryVMon2);
+            $this->SetValueFloat(\SqueezeBox\Battery\Variables::BatteryVMon2, $BatteryVMon2);
         } else {
-            $this->SetValueFloat('BatteryLevel', 0.0);
-            $this->SetValueInteger('BatteryCapacity', 0);
-            $this->SetValueFloat('BatteryTemperature', 0.0);
-            $this->SetValueFloat('BatteryVoltage', 0.0);
-            $this->SetValueFloat('BatteryVMon1', 0.0);
-            $this->SetValueFloat('BatteryVMon2', 0.0);
+            $this->SetValueFloat(\SqueezeBox\Battery\Variables::BatteryLevel, 0.0);
+            $this->SetValueInteger(\SqueezeBox\Battery\Variables::BatteryCapacity, 0);
+            $this->SetValueFloat(\SqueezeBox\Battery\Variables::BatteryTemperature, 0.0);
+            $this->SetValueFloat(\SqueezeBox\Battery\Variables::BatteryVoltage, 0.0);
+            $this->SetValueFloat(\SqueezeBox\Battery\Variables::BatteryVMon1, 0.0);
+            $this->SetValueFloat(\SqueezeBox\Battery\Variables::BatteryVMon2, 0.0);
         }
 
         $ssh->disconnect();
         $this->SendDebug('Disconnect', '', 0);
-        return true;
+        $this->SetStatus(IS_ACTIVE);
+        return '';
     }
 }

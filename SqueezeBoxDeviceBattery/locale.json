@@ -1,6 +1,9 @@
 {
     "translations": {
         "de": {
+            "Connection to device failed.": "Verbindung zum Gerät fehlgeschlagen.",
+            "Connection to %s failed.": "Verbindung zu %s fehlgeschlagen.",
+            "Invalid Ident": "Ungültiger Ident",
             "Host": "Host",
             "Squeezebox Battery": "Squeezebox Batterie",
             "Open": "Aktiv",

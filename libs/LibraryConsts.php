@@ -143,6 +143,17 @@ namespace SqueezeBox\IO{
 
 namespace SqueezeBox\Splitter
 {
+    class Variables
+    {
+        public const HTMLPlaylists = 'HTMLPlaylists';
+        public const PlayerSelect = 'PlayerSelect';
+        public const Players = 'Players';
+        public const Playlists = 'Playlists';
+        public const RescanInfo = 'RescanInfo';
+        public const RescanProgress = 'RescanProgress';
+        public const RescanState = 'RescanState';
+        public const Version = 'Version';
+    }
     class Property
     {
         public const Username = 'User';
@@ -163,6 +174,41 @@ namespace SqueezeBox\Splitter
 
 namespace SqueezeBox\Device
 {
+    class Variables
+    {
+        public const Album = 'Album';
+        public const Artist = 'Artist';
+        public const Bass = 'Bass';
+        public const Duration = 'Duration';
+        public const DurationText = 'DurationText';
+        public const Genre = 'Genre';
+        public const HTMLPlaylist = 'HTMLPlaylist';
+        public const Index = 'Index';
+        public const Master = 'Master';
+        public const Mute = 'Mute';
+        public const Pitch = 'Pitch';
+        public const Playlistname = 'Playlistname';
+        public const Position = 'Position';
+        public const Position2 = 'Position2';
+        public const PositionText = 'PositionText';
+        public const Power = 'Power';
+        public const Preset = 'Preset';
+        public const Randomplay = 'Randomplay';
+        public const Repeat = 'Repeat';
+        public const Shuffle = 'Shuffle';
+        public const Signalstrength = 'Signalstrength';
+        public const SleepTimeout = 'SleepTimeout';
+        public const SleepTimer = 'SleepTimer';
+        public const Status = 'Status';
+        public const Sync = 'Sync';
+        public const TilePlaylist = 'TilePlaylist';
+        public const Title = 'Title';
+        public const TotalRuntime = 'TotalRuntime';
+        public const Tracks = 'Tracks';
+        public const Treble = 'Treble';
+        public const Volume = 'Volume';
+        public const Cover = 'CoverIMG';
+    }
     class Timer
     {
         public const SyncPresentation = 'SyncPresentation';
@@ -197,6 +243,23 @@ namespace SqueezeBox\Device
 
 namespace SqueezeBox\Alarm
 {
+    class Variables
+    {
+        public const AddAlarm = 'AddAlarm';
+        public const AlarmHTMLPlaylist = 'AlarmHTMLPlaylist';
+        public const AlarmPlaylistName = 'AlarmPlaylistName';
+        public const AlarmRepeat = 'AlarmRepeat';
+        public const AlarmShuffle = 'AlarmShuffle';
+        public const AlarmState = 'AlarmState';
+        public const AlarmTime = 'AlarmTime';
+        public const AlarmVolume = 'AlarmVolume';
+        public const DefaultVolume = 'DefaultVolume';
+        public const DelAlarm = 'DelAlarm';
+        public const EnableAll = 'EnableAll';
+        public const FadeIn = 'FadeIn';
+        public const SnoozeSeconds = 'SnoozeSeconds';
+        public const Timeout = 'Timeout';
+    }
     class Property
     {
         public const Address = 'Address';
@@ -212,6 +275,19 @@ namespace SqueezeBox\Alarm
 
 namespace SqueezeBox\Battery
 {
+    class Variables
+    {
+        public const BatteryCapacity = 'BatteryCapacity';
+        public const BatteryLevel = 'BatteryLevel';
+        public const BatteryTemperature = 'BatteryTemperature';
+        public const BatteryVMon1 = 'BatteryVMon1';
+        public const BatteryVMon2 = 'BatteryVMon2';
+        public const BatteryVoltage = 'BatteryVoltage';
+        public const ChargeState = 'ChargeState';
+        public const State = 'State';
+        public const SysVoltage = 'SysVoltage';
+        public const WallVoltage = 'WallVoltage';
+    }
     class Property
     {
         public const Active = 'Active';

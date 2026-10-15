@@ -90,6 +90,52 @@ trait LMSSocket
     }
 
     /**
+     * GetLMSConnectionData
+     * Liest die Verbindungsdaten des LMS aus dem übergeordneten Splitter und dessen Client Socket.
+     * Nur für Instanzen unterhalb eines Splitters (Player, Wecker).
+     *
+     * @return ?array Host (aufgelöst), Port (CLI), Webport, User, Password. NULL ohne Splitter, IO oder Host.
+     */
+    private function GetLMSConnectionData(): ?array
+    {
+        $SplitterID = IPS_GetInstance($this->InstanceID)['ConnectionID'];
+        if ($SplitterID < 10000) {
+            return null;
+        }
+        $IoID = IPS_GetInstance($SplitterID)['ConnectionID'];
+        if ($IoID < 10000) {
+            return null;
+        }
+        $Host = (string) IPS_GetProperty($IoID, \SqueezeBox\IO\Property::Host);
+        if ($Host === '') {
+            return null;
+        }
+        return [
+            'Host'     => gethostbyname($Host),
+            'Port'     => (int) IPS_GetProperty($SplitterID, \SqueezeBox\Splitter\Property::Port),
+            'Webport'  => (int) IPS_GetProperty($SplitterID, \SqueezeBox\Splitter\Property::Webport),
+            'User'     => (string) IPS_GetProperty($SplitterID, \SqueezeBox\Splitter\Property::Username),
+            'Password' => (string) IPS_GetProperty($SplitterID, \SqueezeBox\Splitter\Property::Password)
+        ];
+    }
+
+    /**
+     * SendDirectViaSplitter
+     * Versendet $LMSData direkt an den LMS mit den Verbindungsdaten des übergeordneten Splitters.
+     *
+     * @param \SqueezeBox\LMSData $LMSData Zu versendende Daten (Address bereits gesetzt).
+     * @return ?\SqueezeBox\LMSData Objekt mit der Antwort. NULL im Fehlerfall.
+     */
+    private function SendDirectViaSplitter(\SqueezeBox\LMSData $LMSData): ?\SqueezeBox\LMSData
+    {
+        $Connection = $this->GetLMSConnectionData();
+        if ($Connection === null) {
+            return null;
+        }
+        return $this->SendDirectToLMS($Connection['Host'], $Connection['Port'], $Connection['User'], $Connection['Password'], $LMSData);
+    }
+
+    /**
      * SendToSplitter
      * Konvertiert $Data zu einem JSONString und versendet diese an den Splitter.
      *
@@ -121,7 +167,7 @@ trait LMSSocket
 }
 
 /**
- * Trait um ein Cover vom LMS zu laden.
+ * Trait um ein Cover vom LMS zu laden. Benötigt den Trait LMSSocket (GetLMSConnectionData).
  */
 trait LMSCover
 {
@@ -136,21 +182,16 @@ trait LMSCover
      */
     private function GetCover(string $CoverID, string $Size, string $Player): bool|string
     {
-        $SplitterID = IPS_GetInstance($this->InstanceID)['ConnectionID'];
-        $IoID = IPS_GetInstance($SplitterID)['ConnectionID'];
-        $Hostname = IPS_GetProperty($IoID, 'Host');
-        $Webport = IPS_GetProperty($SplitterID, 'Webport');
-        $Login = [
-            'AuthUser' => IPS_GetProperty($SplitterID, 'User'),
-            'AuthPass' => IPS_GetProperty($SplitterID, 'Password'),
-            'Timeout'  => 5000
-        ];
-
-        if ($Hostname === '') {
+        $Connection = $this->GetLMSConnectionData();
+        if ($Connection === null) {
             return false;
         }
-        $Host = gethostbyname($Hostname);
-        $Host .= ':' . $Webport;
+        $Login = [
+            'AuthUser' => $Connection['User'],
+            'AuthPass' => $Connection['Password'],
+            'Timeout'  => 5000
+        ];
+        $Host = $Connection['Host'] . ':' . $Connection['Webport'];
         if ($Player != '') {
             $Player = '?player=' . rawurlencode($Player);
             $CoverID = 'current';

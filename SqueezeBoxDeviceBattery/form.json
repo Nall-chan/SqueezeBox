@@ -71,6 +71,11 @@
             "caption": "Instance is inactive."
         },
         {
+            "code": 201,
+            "icon": "error",
+            "caption": "Connection to device failed."
+        },
+        {
             "code": 203,
             "icon": "error",
             "caption": "Interval to small (<30)."

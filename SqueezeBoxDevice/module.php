@@ -223,7 +223,7 @@ class Squeezebox extends IPSModuleStrict
         $this->SetSummary($Address);
         if (preg_match('/\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b/', $Address) !== 1) {
             $this->RegisterVariableBoolean(
-                'Power',
+                \SqueezeBox\Device\Variables::Power,
                 'Power',
                 [
                     \SqueezeBox\Presentation::Type            => VARIABLE_PRESENTATION_SWITCH,
@@ -231,10 +231,10 @@ class Squeezebox extends IPSModuleStrict
                 ],
                 1
             );
-            $this->EnableAction('Power');
+            $this->EnableAction(\SqueezeBox\Device\Variables::Power);
             if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnablePreset)) {
                 $this->RegisterVariableInteger(
-                    'Preset',
+                    \SqueezeBox\Device\Variables::Preset,
                     'Preset',
                     [
                         \SqueezeBox\Presentation::Icon         => 'bookmark',
@@ -310,12 +310,12 @@ class Squeezebox extends IPSModuleStrict
                     ],
                     2
                 );
-                $this->EnableAction('Preset');
+                $this->EnableAction(\SqueezeBox\Device\Variables::Preset);
             } else {
-                $this->UnregisterVariable('Preset');
+                $this->UnregisterVariable(\SqueezeBox\Device\Variables::Preset);
             }
             $this->RegisterVariableBoolean(
-                'Mute',
+                \SqueezeBox\Device\Variables::Mute,
                 'Mute',
                 [
                     \SqueezeBox\Presentation::Type                     => VARIABLE_PRESENTATION_SWITCH,
@@ -326,9 +326,9 @@ class Squeezebox extends IPSModuleStrict
                 ],
                 4
             );
-            $this->EnableAction('Mute');
+            $this->EnableAction(\SqueezeBox\Device\Variables::Mute);
             $this->RegisterVariableInteger(
-                'Volume',
+                \SqueezeBox\Device\Variables::Volume,
                 'Volume',
                 [
                     \SqueezeBox\Presentation::Type                 => VARIABLE_PRESENTATION_SLIDER,
@@ -348,10 +348,10 @@ class Squeezebox extends IPSModuleStrict
                 ],
                 5
             );
-            $this->EnableAction('Volume');
+            $this->EnableAction(\SqueezeBox\Device\Variables::Volume);
             if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableBass)) {
                 $this->RegisterVariableInteger(
-                    'Bass',
+                    \SqueezeBox\Device\Variables::Bass,
                     'Bass',
                     [
                         \SqueezeBox\Presentation::Type                 => VARIABLE_PRESENTATION_SLIDER,
@@ -371,13 +371,13 @@ class Squeezebox extends IPSModuleStrict
                     ],
                     6
                 );
-                $this->EnableAction('Bass');
+                $this->EnableAction(\SqueezeBox\Device\Variables::Bass);
             } else {
-                $this->UnregisterVariable('Bass');
+                $this->UnregisterVariable(\SqueezeBox\Device\Variables::Bass);
             }
             if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableTreble)) {
                 $this->RegisterVariableInteger(
-                    'Treble',
+                    \SqueezeBox\Device\Variables::Treble,
                     $this->Translate('Treble'),
                     [
                         \SqueezeBox\Presentation::Type                 => VARIABLE_PRESENTATION_SLIDER,
@@ -397,13 +397,13 @@ class Squeezebox extends IPSModuleStrict
                     ],
                     7
                 );
-                $this->EnableAction('Treble');
+                $this->EnableAction(\SqueezeBox\Device\Variables::Treble);
             } else {
-                $this->UnregisterVariable('Treble');
+                $this->UnregisterVariable(\SqueezeBox\Device\Variables::Treble);
             }
             if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnablePitch)) {
                 $this->RegisterVariableInteger(
-                    'Pitch',
+                    \SqueezeBox\Device\Variables::Pitch,
                     $this->Translate('Pitch'),
                     [
                         \SqueezeBox\Presentation::Type                 => VARIABLE_PRESENTATION_SLIDER,
@@ -423,29 +423,29 @@ class Squeezebox extends IPSModuleStrict
                     ],
                     8
                 );
-                $this->EnableAction('Pitch');
+                $this->EnableAction(\SqueezeBox\Device\Variables::Pitch);
             } else {
-                $this->UnregisterVariable('Pitch');
+                $this->UnregisterVariable(\SqueezeBox\Device\Variables::Pitch);
             }
             if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSyncMaster)) {
                 $this->RegisterVariableBoolean(
-                    'Master',
+                    \SqueezeBox\Device\Variables::Master,
                     $this->Translate('Master'),
                     [],
                     14
                 );
             } else {
-                $this->UnregisterVariable('Master');
+                $this->UnregisterVariable(\SqueezeBox\Device\Variables::Master);
             }
             if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSyncControl)) {
                 $this->_SetNewSyncPresentation();
-                $this->EnableAction('Sync');
+                $this->EnableAction(\SqueezeBox\Device\Variables::Sync);
             } else {
-                $this->UnregisterVariable('Sync');
+                $this->UnregisterVariable(\SqueezeBox\Device\Variables::Sync);
             }
             if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSignalStrength)) {
                 $this->RegisterVariableInteger(
-                    'Signalstrength',
+                    \SqueezeBox\Device\Variables::Signalstrength,
                     $this->Translate('Signal strength'),
                     [
                         \SqueezeBox\Presentation::Icon                => 'signal-bars',
@@ -460,33 +460,33 @@ class Squeezebox extends IPSModuleStrict
                     31
                 );
             } else {
-                $this->UnregisterVariable('Signalstrength');
+                $this->UnregisterVariable(\SqueezeBox\Device\Variables::Signalstrength);
             }
         } else {
-            $this->UnregisterVariable('Power');
-            $this->UnregisterVariable('Preset');
-            $this->UnregisterVariable('Mute');
-            $this->UnregisterVariable('Volume');
-            $this->UnregisterVariable('Bass');
-            $this->UnregisterVariable('Treble');
-            $this->UnregisterVariable('Pitch');
-            $this->UnregisterVariable('Signalstrength');
-            $this->UnregisterVariable('Master');
-            $this->UnregisterVariable('Sync');
+            $this->UnregisterVariable(\SqueezeBox\Device\Variables::Power);
+            $this->UnregisterVariable(\SqueezeBox\Device\Variables::Preset);
+            $this->UnregisterVariable(\SqueezeBox\Device\Variables::Mute);
+            $this->UnregisterVariable(\SqueezeBox\Device\Variables::Volume);
+            $this->UnregisterVariable(\SqueezeBox\Device\Variables::Bass);
+            $this->UnregisterVariable(\SqueezeBox\Device\Variables::Treble);
+            $this->UnregisterVariable(\SqueezeBox\Device\Variables::Pitch);
+            $this->UnregisterVariable(\SqueezeBox\Device\Variables::Signalstrength);
+            $this->UnregisterVariable(\SqueezeBox\Device\Variables::Master);
+            $this->UnregisterVariable(\SqueezeBox\Device\Variables::Sync);
         }
         // @todo @Symcon muss noch Profil bleiben bis Symcon eine Darstellung dafür hat
         $this->RegisterVariableInteger(
-            'Status',
+            \SqueezeBox\Device\Variables::Status,
             $this->Translate('State'),
             '~PlaybackPreviousNext',
             3
         );
-        $this->PlayerMode = $this->FindIDForIdent('Status');
+        $this->PlayerMode = $this->FindIDForIdent(\SqueezeBox\Device\Variables::Status);
         $this->RegisterMessage($this->PlayerMode, VM_UPDATE);
-        $this->EnableAction('Status');
+        $this->EnableAction(\SqueezeBox\Device\Variables::Status);
         if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableRandomPlay)) {
             $this->RegisterVariableInteger(
-                'Randomplay',
+                \SqueezeBox\Device\Variables::Randomplay,
                 $this->Translate('Randomplay'),
                 [
                     \SqueezeBox\Presentation::Icon         => 'Shuffle',
@@ -531,22 +531,22 @@ class Squeezebox extends IPSModuleStrict
                 ],
                 13
             );
-            $this->EnableAction('Randomplay');
+            $this->EnableAction(\SqueezeBox\Device\Variables::Randomplay);
         } else {
-            $this->UnregisterVariable('Randomplay');
+            $this->UnregisterVariable(\SqueezeBox\Device\Variables::Randomplay);
         }
         if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableDurationText)) {
             $this->RegisterVariableString(
-                'DurationText',
+                \SqueezeBox\Device\Variables::DurationText,
                 $this->Translate('Duration as text'),
                 [],
                 24
             );
         } else {
-            $this->UnregisterVariable('DurationText');
+            $this->UnregisterVariable(\SqueezeBox\Device\Variables::DurationText);
         }
         $this->RegisterVariableInteger(
-            'Duration',
+            \SqueezeBox\Device\Variables::Duration,
             $this->Translate('Duration'),
             [
                 \SqueezeBox\Presentation::Type => VARIABLE_PRESENTATION_DURATION
@@ -555,16 +555,16 @@ class Squeezebox extends IPSModuleStrict
         );
         if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnablePositionText)) {
             $this->RegisterVariableString(
-                'PositionText',
+                \SqueezeBox\Device\Variables::PositionText,
                 $this->Translate('Position as Text'),
                 [],
                 25
             );
         } else {
-            $this->UnregisterVariable('PositionText');
+            $this->UnregisterVariable(\SqueezeBox\Device\Variables::PositionText);
         }
         $this->RegisterVariableInteger(
-            'Position',
+            \SqueezeBox\Device\Variables::Position,
             $this->Translate('Position'),
             [
                 \SqueezeBox\Presentation::Type => VARIABLE_PRESENTATION_DURATION
@@ -572,7 +572,7 @@ class Squeezebox extends IPSModuleStrict
             29
         );
         $this->RegisterVariableInteger(
-            'Shuffle',
+            \SqueezeBox\Device\Variables::Shuffle,
             $this->Translate('Shuffle'),
             [
                 \SqueezeBox\Presentation::Icon         => 'Shuffle',
@@ -606,12 +606,12 @@ class Squeezebox extends IPSModuleStrict
             ],
             9
         );
-        $this->PlayerShuffle = $this->FindIDForIdent('Shuffle');
-        $this->EnableAction('Shuffle');
+        $this->PlayerShuffle = $this->FindIDForIdent(\SqueezeBox\Device\Variables::Shuffle);
+        $this->EnableAction(\SqueezeBox\Device\Variables::Shuffle);
         $this->RegisterMessage($this->PlayerShuffle, VM_UPDATE);
         // @todo @Symcon muss noch Profil bleiben bis Symcon eine Darstellung dafür hat
         $this->RegisterVariableInteger(
-            'Repeat',
+            \SqueezeBox\Device\Variables::Repeat,
             $this->Translate('Repeat'),
             '~Repeat',
             /*[
@@ -646,9 +646,9 @@ class Squeezebox extends IPSModuleStrict
             ],*/
             10
         );
-        $this->EnableAction('Repeat');
+        $this->EnableAction(\SqueezeBox\Device\Variables::Repeat);
         $this->RegisterVariableInteger(
-            'Tracks',
+            \SqueezeBox\Device\Variables::Tracks,
             $this->Translate('Tracks in Playlist'),
             [
                 \SqueezeBox\Presentation::Icon                => 'list-music',
@@ -660,47 +660,47 @@ class Squeezebox extends IPSModuleStrict
             ],
             11
         );
-        $this->PlayerTracks = $this->FindIDForIdent('Tracks');
+        $this->PlayerTracks = $this->FindIDForIdent(\SqueezeBox\Device\Variables::Tracks);
         $this->RegisterMessage($this->PlayerTracks, VM_UPDATE);
-        $this->_SetNewTrackPresentation($this->GetValue('Tracks'));
-        $this->PlayerTrackIndex = $this->FindIDForIdent('Index');
-        $this->EnableAction('Index');
+        $this->_SetNewTrackPresentation($this->GetValue(\SqueezeBox\Device\Variables::Tracks));
+        $this->PlayerTrackIndex = $this->FindIDForIdent(\SqueezeBox\Device\Variables::Index);
+        $this->EnableAction(\SqueezeBox\Device\Variables::Index);
         $this->RegisterMessage($this->PlayerTrackIndex, VM_UPDATE);
         $this->RegisterVariableString(
-            'Playlistname',
+            \SqueezeBox\Device\Variables::Playlistname,
             'Name of Playlist',
             [],
             19
         );
         $this->RegisterVariableString(
-            'Album',
+            \SqueezeBox\Device\Variables::Album,
             'Album',
             [],
             20
         );
         // @todo @Symcon muss noch Profil bleiben bis Symcon eine Darstellung dafür hat
         $this->RegisterVariableString(
-            'Title',
+            \SqueezeBox\Device\Variables::Title,
             $this->Translate('Title'),
             '~Song',
             21
         );
         // @todo @Symcon muss noch Profil bleiben bis Symcon eine Darstellung dafür hat
         $this->RegisterVariableString(
-            'Artist',
+            \SqueezeBox\Device\Variables::Artist,
             $this->Translate('Artist'),
             '~Artist',
             22
         );
         // @todo  @Symcon Kommt da noch was?
         $this->RegisterVariableString(
-            'Genre',
+            \SqueezeBox\Device\Variables::Genre,
             $this->Translate('Genre'),
             [],
             23
         );
         $this->RegisterVariableFloat(
-            'Position2',
+            \SqueezeBox\Device\Variables::Position2,
             'Position',
             // @todo @Symcon Bringt die Media-Kachel zum Absturz.
             // Und geht mit Dynamischen Variablen-Aktionen (wenn Stream nicht seekable ist) auch nicht.
@@ -724,10 +724,10 @@ class Squeezebox extends IPSModuleStrict
             '~Progress',
             26
         );
-        $this->DisableAction('Position2');
+        $this->DisableAction(\SqueezeBox\Device\Variables::Position2);
         if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableSleepTimer)) {
             $this->RegisterVariableInteger(
-                'SleepTimer',
+                \SqueezeBox\Device\Variables::SleepTimer,
                 $this->Translate('Sleep timer'),
                 [
                     \SqueezeBox\Presentation::Type                 => VARIABLE_PRESENTATION_SLIDER,
@@ -765,13 +765,13 @@ class Squeezebox extends IPSModuleStrict
                 ],
                 32
             );
-            $this->EnableAction('SleepTimer');
+            $this->EnableAction(\SqueezeBox\Device\Variables::SleepTimer);
         } else {
-            $this->UnregisterVariable('SleepTimer');
+            $this->UnregisterVariable(\SqueezeBox\Device\Variables::SleepTimer);
         }
         if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSleepTimeout)) {
             $this->RegisterVariableInteger(
-                'SleepTimeout',
+                \SqueezeBox\Device\Variables::SleepTimeout,
                 $this->Translate('Switch off in'),
                 [
                     \SqueezeBox\Presentation::Icon => 'face-sleeping', // Warum kein Icon bei Dauer?
@@ -780,24 +780,24 @@ class Squeezebox extends IPSModuleStrict
                 33
             );
         } else {
-            $this->UnregisterVariable('SleepTimeout');
+            $this->UnregisterVariable(\SqueezeBox\Device\Variables::SleepTimeout);
         }
 
         // @todo @Symcon Tile-Playlist muss noch Profil bleiben bis Symcon eine Darstellung dafür hat
         if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowTilePlaylist)) {
             $this->RegisterVariableString(
-                'TilePlaylist',
+                \SqueezeBox\Device\Variables::TilePlaylist,
                 'Playlist',
                 '~Playlist',
                 34
             );
-            $this->EnableAction('TilePlaylist');
+            $this->EnableAction(\SqueezeBox\Device\Variables::TilePlaylist);
         } else {
-            $this->UnregisterVariable('TilePlaylist');
+            $this->UnregisterVariable(\SqueezeBox\Device\Variables::TilePlaylist);
         }
         if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowHTMLPlaylist)) {
             $this->RegisterVariableString(
-                'HTMLPlaylist',
+                \SqueezeBox\Device\Variables::HTMLPlaylist,
                 'Playlist',
                 [
                     \SqueezeBox\Presentation::Type         => VARIABLE_PRESENTATION_WEB_CONTENT,
@@ -807,11 +807,11 @@ class Squeezebox extends IPSModuleStrict
                 30
             );
         } else {
-            $this->UnregisterVariable('HTMLPlaylist');
+            $this->UnregisterVariable(\SqueezeBox\Device\Variables::HTMLPlaylist);
         }
         if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowTotalPlaytime)) {
             $this->RegisterVariableInteger(
-                'TotalRuntime',
+                \SqueezeBox\Device\Variables::TotalRuntime,
                 $this->Translate('Runtime'),
                 [
                     \SqueezeBox\Presentation::Type            => VARIABLE_PRESENTATION_DURATION,
@@ -820,7 +820,7 @@ class Squeezebox extends IPSModuleStrict
                 35
             );
         } else {
-            $this->UnregisterVariable('TotalRuntime');
+            $this->UnregisterVariable(\SqueezeBox\Device\Variables::TotalRuntime);
         }
 
         // Alte Profile löschen
@@ -903,13 +903,17 @@ class Squeezebox extends IPSModuleStrict
                         $this->_RefreshPlaylist();
                         break;
                     case $this->PlayerTrackIndex:
+                        // VM_UPDATE kommt bei jedem Schreiben; Playlist-Markierung, Cover und Titeldaten nur bei neuem Index.
+                        if (!$Data[1]) {
+                            break;
+                        }
                         $this->_RefreshPlaylistIndex();
                         $this->SetCover();
-                        $this->RequestState('Album');
-                        $this->RequestState('Title');
-                        $this->RequestState('Artist');
-                        $this->RequestState('Genre');
-                        $this->RequestState('Duration');
+                        $this->RequestState(\SqueezeBox\Device\Variables::Album);
+                        $this->RequestState(\SqueezeBox\Device\Variables::Title);
+                        $this->RequestState(\SqueezeBox\Device\Variables::Artist);
+                        $this->RequestState(\SqueezeBox\Device\Variables::Genre);
+                        $this->RequestState(\SqueezeBox\Device\Variables::Duration);
                         break;
                     case $this->PlayerTracks:
                         $this->_SetNewTrackPresentation($Data[0]);
@@ -932,42 +936,42 @@ class Squeezebox extends IPSModuleStrict
         if (!$this->RequestState('Name')) {
             return false;
         }
-        $this->RequestState('Power');
-        $this->RequestState('Status');
+        $this->RequestState(\SqueezeBox\Device\Variables::Power);
+        $this->RequestState(\SqueezeBox\Device\Variables::Status);
         if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSyncControl)) {
-            $this->RequestState('Sync');
+            $this->RequestState(\SqueezeBox\Device\Variables::Sync);
         }
         $this->RequestState('Remote');
-        $this->RequestState('Mute');
-        $this->RequestState('Volume');
+        $this->RequestState(\SqueezeBox\Device\Variables::Mute);
+        $this->RequestState(\SqueezeBox\Device\Variables::Volume);
         if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableBass)) {
-            $this->RequestState('Bass');
+            $this->RequestState(\SqueezeBox\Device\Variables::Bass);
         }
         if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableTreble)) {
-            $this->RequestState('Treble');
+            $this->RequestState(\SqueezeBox\Device\Variables::Treble);
         }
         if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnablePitch)) {
-            $this->RequestState('Pitch');
+            $this->RequestState(\SqueezeBox\Device\Variables::Pitch);
         }
-        $this->RequestState('Shuffle');
-        $this->RequestState('Repeat');
-        $this->RequestState('Tracks');
-        $this->RequestState('Index');
-        $this->RequestState('Playlistname');
-        $this->RequestState('Album');
-        $this->RequestState('Title');
-        $this->RequestState('Artist');
-        $this->RequestState('Genre');
-        $this->RequestState('Duration');
-        $this->RequestState('Position');
+        $this->RequestState(\SqueezeBox\Device\Variables::Shuffle);
+        $this->RequestState(\SqueezeBox\Device\Variables::Repeat);
+        $this->RequestState(\SqueezeBox\Device\Variables::Tracks);
+        $this->RequestState(\SqueezeBox\Device\Variables::Index);
+        $this->RequestState(\SqueezeBox\Device\Variables::Playlistname);
+        $this->RequestState(\SqueezeBox\Device\Variables::Album);
+        $this->RequestState(\SqueezeBox\Device\Variables::Title);
+        $this->RequestState(\SqueezeBox\Device\Variables::Artist);
+        $this->RequestState(\SqueezeBox\Device\Variables::Genre);
+        $this->RequestState(\SqueezeBox\Device\Variables::Duration);
+        $this->RequestState(\SqueezeBox\Device\Variables::Position);
         if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSignalStrength)) {
-            $this->RequestState('Signalstrength');
+            $this->RequestState(\SqueezeBox\Device\Variables::Signalstrength);
         }
         if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSleepTimeout)) {
-            $this->RequestState('SleepTimeout');
+            $this->RequestState(\SqueezeBox\Device\Variables::SleepTimeout);
         }
         if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableRandomPlay)) {
-            $this->RequestState('Randomplay');
+            $this->RequestState(\SqueezeBox\Device\Variables::Randomplay);
         }
         $this->SetCover();
         $this->_RefreshPlaylist();
@@ -977,7 +981,7 @@ class Squeezebox extends IPSModuleStrict
         }
         $LMSData->SliceData();
         $this->DecodeLMSResponse($LMSData);
-        if ($this->GetValue('Status') == 2) {
+        if ($this->GetValue(\SqueezeBox\Device\Variables::Status) == 2) {
             $this->_StartSubscribe();
         }
         return true;
@@ -997,95 +1001,95 @@ class Squeezebox extends IPSModuleStrict
             case 'Name':
                 $LMSResponse = new \SqueezeBox\LMSData('name', '?');
                 break;
-            case 'Power':
+            case \SqueezeBox\Device\Variables::Power:
                 $LMSResponse = new \SqueezeBox\LMSData('power', '?');
                 break;
-            case 'Status':
+            case \SqueezeBox\Device\Variables::Status:
                 if (!$this->_isPlayerOn()) {
                     $this->_SetModeToStop();
                     return true;
                 }
                 $LMSResponse = new \SqueezeBox\LMSData('mode', '?');
                 break;
-            case 'Mute':
+            case \SqueezeBox\Device\Variables::Mute:
                 $LMSResponse = new \SqueezeBox\LMSData(['mixer', 'muting'], '?');
                 break;
-            case 'Volume':
+            case \SqueezeBox\Device\Variables::Volume:
                 $LMSResponse = new \SqueezeBox\LMSData(['mixer', 'volume'], '?');
                 break;
-            case 'Bass':
+            case \SqueezeBox\Device\Variables::Bass:
                 if (!$this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableBass)) {
                     trigger_error($this->Translate('Invalid ident'), E_USER_NOTICE);
                     return false;
                 }
                 $LMSResponse = new \SqueezeBox\LMSData(['mixer', 'bass'], '?');
                 break;
-            case 'Treble':
+            case \SqueezeBox\Device\Variables::Treble:
                 if (!$this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableTreble)) {
                     trigger_error($this->Translate('Invalid ident'), E_USER_NOTICE);
                     return false;
                 }
                 $LMSResponse = new \SqueezeBox\LMSData(['mixer', 'treble'], '?');
                 break;
-            case 'Pitch':
+            case \SqueezeBox\Device\Variables::Pitch:
                 if (!$this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnablePitch)) {
                     trigger_error($this->Translate('Invalid ident'), E_USER_NOTICE);
                     return false;
                 }
                 $LMSResponse = new \SqueezeBox\LMSData(['mixer', 'pitch'], '?');
                 break;
-            case 'Randomplay':
+            case \SqueezeBox\Device\Variables::Randomplay:
                 if (!$this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableRandomPlay)) {
                     trigger_error($this->Translate('Invalid ident'), E_USER_NOTICE);
                     return false;
                 }
                 $LMSResponse = new \SqueezeBox\LMSData('randomplayisactive', '');
                 break;
-            case 'Sync':
+            case \SqueezeBox\Device\Variables::Sync:
                 if (!$this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSyncControl)) {
                     trigger_error($this->Translate('Invalid ident'), E_USER_NOTICE);
                     return false;
                 }
                 $LMSResponse = new \SqueezeBox\LMSData('sync', '?');
                 break;
-            case 'Shuffle':
+            case \SqueezeBox\Device\Variables::Shuffle:
                 $LMSResponse = new \SqueezeBox\LMSData(['playlist', 'shuffle'], '?');
                 break;
-            case 'Repeat':
+            case \SqueezeBox\Device\Variables::Repeat:
                 $LMSResponse = new \SqueezeBox\LMSData(['playlist', 'repeat'], '?');
                 break;
-            case 'Tracks':
+            case \SqueezeBox\Device\Variables::Tracks:
                 $LMSResponse = new \SqueezeBox\LMSData(['playlist', 'tracks'], '?');
                 break;
-            case 'Index':
+            case \SqueezeBox\Device\Variables::Index:
                 $LMSResponse = new \SqueezeBox\LMSData(['playlist', 'index'], '?');
                 break;
-            case 'Playlistname':
+            case \SqueezeBox\Device\Variables::Playlistname:
                 $LMSResponse = new \SqueezeBox\LMSData(['playlist', 'name'], '?');
                 break;
-            case 'Album':
+            case \SqueezeBox\Device\Variables::Album:
                 $LMSResponse = new \SqueezeBox\LMSData('album', '?');
                 break;
-            case 'Title':
+            case \SqueezeBox\Device\Variables::Title:
                 $LMSResponse = new \SqueezeBox\LMSData('title', '?');
                 break;
-            case 'Artist':
+            case \SqueezeBox\Device\Variables::Artist:
                 $LMSResponse = new \SqueezeBox\LMSData('artist', '?');
                 break;
-            case 'Genre':
+            case \SqueezeBox\Device\Variables::Genre:
                 $LMSResponse = new \SqueezeBox\LMSData('genre', '?');
                 break;
-            case 'Duration':
+            case \SqueezeBox\Device\Variables::Duration:
                 $LMSResponse = new \SqueezeBox\LMSData('duration', '?');
                 break;
-            case 'Position2':
-            case 'Position':
+            case \SqueezeBox\Device\Variables::Position2:
+            case \SqueezeBox\Device\Variables::Position:
                 $LMSResponse = new \SqueezeBox\LMSData('time', '?');
                 break;
-            case 'Signalstrength':
+            case \SqueezeBox\Device\Variables::Signalstrength:
                 $LMSResponse = new \SqueezeBox\LMSData('signalstrength', '?');
                 break;
-            case 'SleepTimeout':
+            case \SqueezeBox\Device\Variables::SleepTimeout:
                 $LMSResponse = new \SqueezeBox\LMSData('sleep', '?');
                 break;
             case 'Connected':
@@ -2474,7 +2478,7 @@ class Squeezebox extends IPSModuleStrict
      */
     public function GoToTrack(int $Index): bool
     {
-        if (($Index < 1) || ($Index > $this->GetValue('Tracks'))) {
+        if (($Index < 1) || ($Index > $this->GetValue(\SqueezeBox\Device\Variables::Tracks))) {
             trigger_error(sprintf($this->Translate('%s out of range.'), 'Index'), E_USER_NOTICE);
             return false;
         }
@@ -2894,7 +2898,7 @@ class Squeezebox extends IPSModuleStrict
      */
     public function GetSongInfoOfCurrentPlaylist(): bool|array
     {
-        $max = $this->GetValue('Tracks');
+        $max = $this->GetValue(\SqueezeBox\Device\Variables::Tracks);
         if ($max == 0) {
             return [];
         }
@@ -2905,7 +2909,7 @@ class Squeezebox extends IPSModuleStrict
         $LMSData->SliceData();
         $SongInfo = new \SqueezeBox\LMSSongInfo($LMSData->Data);
         if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowTotalPlaytime)) {
-            $this->SetValueInteger('TotalRuntime', $SongInfo->GetTotalDuration());
+            $this->SetValueInteger(\SqueezeBox\Device\Variables::TotalRuntime, $SongInfo->GetTotalDuration());
         }
         return $SongInfo->GetAllSongs();
     }
@@ -3160,7 +3164,7 @@ class Squeezebox extends IPSModuleStrict
                 $this->SetTimerInterval(\SqueezeBox\Device\Timer::SyncPresentation, 0);
                 $this->_SetNewSyncPresentation();
                 return true;
-            case 'Status':
+            case \SqueezeBox\Device\Variables::Status:
                 switch ((int) $Value) {
                     case 0: //Prev
                         $result = $this->PreviousTrack();
@@ -3182,28 +3186,28 @@ class Squeezebox extends IPSModuleStrict
                         return false;
                 }
                 break;
-            case 'Volume':
+            case \SqueezeBox\Device\Variables::Volume:
                 $result = $this->SetVolume((int) $Value);
                 break;
-            case 'Bass':
+            case \SqueezeBox\Device\Variables::Bass:
                 $result = $this->SetBass((int) $Value);
                 break;
-            case 'Treble':
+            case \SqueezeBox\Device\Variables::Treble:
                 $result = $this->SetTreble((int) $Value);
                 break;
-            case 'Pitch':
+            case \SqueezeBox\Device\Variables::Pitch:
                 $result = $this->SetPitch((int) $Value);
                 break;
-            case 'Preset':
+            case \SqueezeBox\Device\Variables::Preset:
                 $result = $this->SelectPreset((int) $Value);
                 break;
-            case 'Power':
+            case \SqueezeBox\Device\Variables::Power:
                 $result = $this->Power((bool) $Value);
                 break;
-            case 'Mute':
+            case \SqueezeBox\Device\Variables::Mute:
                 $result = $this->SetMute((bool) $Value);
                 break;
-            case 'Repeat':
+            case \SqueezeBox\Device\Variables::Repeat:
                 if ((int) $Value == 1) {
                     $Value = 2;
                 } elseif ((int) $Value == 2) {
@@ -3211,20 +3215,20 @@ class Squeezebox extends IPSModuleStrict
                 }
                 $result = $this->SetRepeat((int) $Value);
                 break;
-            case 'Shuffle':
+            case \SqueezeBox\Device\Variables::Shuffle:
                 $result = $this->SetShuffle((int) $Value);
                 break;
-            case 'Position2':
+            case \SqueezeBox\Device\Variables::Position2:
                 $Time = ($this->DurationRAW / 100) * (int) $Value;
                 $result = $this->SetPosition(intval($Time));
                 break;
-            case 'Index':
+            case \SqueezeBox\Device\Variables::Index:
                 $result = $this->GoToTrack((int) $Value);
                 break;
-            case 'SleepTimer':
+            case \SqueezeBox\Device\Variables::SleepTimer:
                 $result = $this->SetSleep((int) $Value);
                 break;
-            case 'Sync':
+            case \SqueezeBox\Device\Variables::Sync:
                 if ((int) $Value == 0) {
                     $result = $this->SetUnSync();
                 } elseif ((int) $Value == 100) {
@@ -3233,7 +3237,7 @@ class Squeezebox extends IPSModuleStrict
                     $result = $this->SetSync((int) $Value);
                 }
                 break;
-            case 'Randomplay':
+            case \SqueezeBox\Device\Variables::Randomplay:
                 switch ((int) $Value) {
                     case 0:
                         $result = $this->StopRandomPlay();
@@ -3255,7 +3259,7 @@ class Squeezebox extends IPSModuleStrict
                         return false;
                 }
                 break;
-            case 'TilePlaylist':
+            case \SqueezeBox\Device\Variables::TilePlaylist:
                 $TilePlaylist = json_decode((string) $Value, true);
                 if (!is_array($TilePlaylist) || !isset($TilePlaylist['current'])) {
                     $this->_InvalidActionValue();
@@ -3589,10 +3593,10 @@ class Squeezebox extends IPSModuleStrict
     private function _isPlayerOn(): bool
     {
         // Player mit IP-Adresse haben keine Variable Power und lassen sich nicht ausschalten.
-        if ($this->FindIDForIdent('Power') == 0) {
+        if ($this->FindIDForIdent(\SqueezeBox\Device\Variables::Power) == 0) {
             return true;
         }
-        return (bool) $this->GetValue('Power');
+        return (bool) $this->GetValue(\SqueezeBox\Device\Variables::Power);
     }
 
     /**
@@ -3617,7 +3621,7 @@ class Squeezebox extends IPSModuleStrict
     {
         if ($this->_isPlayerConnected()) {
             if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableSleepTimer)) {
-                if (($this->GetValue('SleepTimer')) != 0) {
+                if (($this->GetValue(\SqueezeBox\Device\Variables::SleepTimer)) != 0) {
                     return;
                 }
             }
@@ -3651,18 +3655,18 @@ class Squeezebox extends IPSModuleStrict
     private function _SetNewPower(bool $Power): void
     {
         // Player mit IP-Adresse haben keine Variable Power.
-        if ($this->FindIDForIdent('Power') == 0) {
+        if ($this->FindIDForIdent(\SqueezeBox\Device\Variables::Power) == 0) {
             return;
         }
-        if ($this->GetValue('Power') != $Power) {
-            $this->SetValueBoolean('Power', $Power);
+        if ($this->GetValue(\SqueezeBox\Device\Variables::Power) != $Power) {
+            $this->SetValueBoolean(\SqueezeBox\Device\Variables::Power, $Power);
             if (!$Power) {
                 $this->_SetModeToStop();
                 if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSleepTimeout)) {
-                    $this->SetValueInteger('SleepTimeout', 0);
+                    $this->SetValueInteger(\SqueezeBox\Device\Variables::SleepTimeout, 0);
                 }
                 if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableSleepTimer)) {
-                    $this->SetValueInteger('SleepTimer', 0);
+                    $this->SetValueInteger(\SqueezeBox\Device\Variables::SleepTimer, 0);
                 }
                 if ($this->isSubscribed) {
                     $this->_StopSubscribe();
@@ -3678,8 +3682,8 @@ class Squeezebox extends IPSModuleStrict
      */
     private function _SetModeToPlay(): void
     {
-        if ($this->GetValue('Status') != 2) {
-            $this->SetValueInteger('Status', 2);
+        if ($this->GetValue(\SqueezeBox\Device\Variables::Status) != 2) {
+            $this->SetValueInteger(\SqueezeBox\Device\Variables::Status, 2);
         }
     }
 
@@ -3693,8 +3697,8 @@ class Squeezebox extends IPSModuleStrict
         if (!$this->_isPlayerOn()) {
             return;
         }
-        if ($this->GetValue('Status') != 3) {
-            $this->SetValueInteger('Status', 3);
+        if ($this->GetValue(\SqueezeBox\Device\Variables::Status) != 3) {
+            $this->SetValueInteger(\SqueezeBox\Device\Variables::Status, 3);
         }
     }
 
@@ -3705,22 +3709,22 @@ class Squeezebox extends IPSModuleStrict
      */
     private function _SetModeToStop(): void
     {
-        if ($this->GetValue('Status') != 1) {
-            $this->SetValueInteger('Status', 1);
+        if ($this->GetValue(\SqueezeBox\Device\Variables::Status) != 1) {
+            $this->SetValueInteger(\SqueezeBox\Device\Variables::Status, 1);
             $this->_SetNewTime(0);
             if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSleepTimeout)) {
-                $this->SetValueInteger('SleepTimeout', 0);
+                $this->SetValueInteger(\SqueezeBox\Device\Variables::SleepTimeout, 0);
             }
             if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableSleepTimer)) {
-                $this->SetValueInteger('SleepTimer', 0);
+                $this->SetValueInteger(\SqueezeBox\Device\Variables::SleepTimer, 0);
             }
         } else {
             if ($this->isSubscribed) {
                 if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSleepTimeout)) {
-                    $this->SetValueInteger('SleepTimeout', 0);
+                    $this->SetValueInteger(\SqueezeBox\Device\Variables::SleepTimeout, 0);
                 }
                 if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableSleepTimer)) {
-                    $this->SetValueInteger('SleepTimer', 0);
+                    $this->SetValueInteger(\SqueezeBox\Device\Variables::SleepTimer, 0);
                 }
                 $this->_StopSubscribe();
             }
@@ -3737,7 +3741,7 @@ class Squeezebox extends IPSModuleStrict
     private function _SetNewVolume(int|string $Value): void
     {
         if (is_string($Value) && in_array(substr($Value, 0, 1), ['+', '-'])) {
-            $Value = (int) $this->GetValue('Volume') + (int) $Value;
+            $Value = (int) $this->GetValue(\SqueezeBox\Device\Variables::Volume) + (int) $Value;
             if ($Value < 0) {
                 $Value = 0;
             }
@@ -3748,12 +3752,12 @@ class Squeezebox extends IPSModuleStrict
         if ($Value < 0) {
             $Value = $Value - (2 * $Value);
         } else {
-            if ($this->GetValue('Mute')) {
-                $this->SetValueBoolean('Mute', false);
+            if ($this->GetValue(\SqueezeBox\Device\Variables::Mute)) {
+                $this->SetValueBoolean(\SqueezeBox\Device\Variables::Mute, false);
             }
         }
-        if ($this->GetValue('Volume') != (int) $Value) {
-            $this->SetValueInteger('Volume', (int) $Value);
+        if ($this->GetValue(\SqueezeBox\Device\Variables::Volume) != (int) $Value) {
+            $this->SetValueInteger(\SqueezeBox\Device\Variables::Volume, (int) $Value);
         }
     }
 
@@ -3769,7 +3773,7 @@ class Squeezebox extends IPSModuleStrict
             return;
         }
         if (is_string($Value) && in_array(substr($Value, 0, 1), ['+', '-'])) {
-            $Value = (int) $this->GetValue('Bass') + (int) $Value;
+            $Value = (int) $this->GetValue(\SqueezeBox\Device\Variables::Bass) + (int) $Value;
             if ($Value < 0) {
                 $Value = 0;
             }
@@ -3777,7 +3781,7 @@ class Squeezebox extends IPSModuleStrict
                 $Value = 100;
             }
         }
-        $this->SetValueInteger('Bass', (int) $Value);
+        $this->SetValueInteger(\SqueezeBox\Device\Variables::Bass, (int) $Value);
     }
 
     /**
@@ -3792,7 +3796,7 @@ class Squeezebox extends IPSModuleStrict
             return;
         }
         if (is_string($Value) && in_array(substr($Value, 0, 1), ['+', '-'])) {
-            $Value = (int) $this->GetValue('Treble') + (int) $Value;
+            $Value = (int) $this->GetValue(\SqueezeBox\Device\Variables::Treble) + (int) $Value;
             if ($Value < 0) {
                 $Value = 0;
             }
@@ -3800,7 +3804,7 @@ class Squeezebox extends IPSModuleStrict
                 $Value = 100;
             }
         }
-        $this->SetValueInteger('Treble', (int) $Value);
+        $this->SetValueInteger(\SqueezeBox\Device\Variables::Treble, (int) $Value);
     }
 
     /**
@@ -3815,7 +3819,7 @@ class Squeezebox extends IPSModuleStrict
             return;
         }
         if (is_string($Value) && in_array(substr($Value, 0, 1), ['+', '-'])) {
-            $Value = (int) $this->GetValue('Pitch') + (int) $Value;
+            $Value = (int) $this->GetValue(\SqueezeBox\Device\Variables::Pitch) + (int) $Value;
             if ($Value < 80) {
                 $Value = 80;
             }
@@ -3823,7 +3827,7 @@ class Squeezebox extends IPSModuleStrict
                 $Value = 120;
             }
         }
-        $this->SetValueInteger('Pitch', (int) $Value);
+        $this->SetValueInteger(\SqueezeBox\Device\Variables::Pitch, (int) $Value);
     }
 
     /**
@@ -3841,14 +3845,14 @@ class Squeezebox extends IPSModuleStrict
 
         $this->PositionRAW = $Time;
         if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnablePositionText)) {
-            $this->SetValueString('PositionText', $this->ConvertSeconds($Time));
+            $this->SetValueString(\SqueezeBox\Device\Variables::PositionText, $this->ConvertSeconds($Time));
         }
-        $this->SetValueInteger('Position', $Time);
+        $this->SetValueInteger(\SqueezeBox\Device\Variables::Position, $Time);
         if ($this->DurationRAW == 0) {
-            $this->SetValueFloat('Position2', 0);
+            $this->SetValueFloat(\SqueezeBox\Device\Variables::Position2, 0);
         } elseif ($this->isSeekable) {
             $Value = (100 / $this->DurationRAW) * $Time;
-            $this->SetValueFloat('Position2', $Value);
+            $this->SetValueFloat(\SqueezeBox\Device\Variables::Position2, $Value);
         }
     }
 
@@ -3862,18 +3866,18 @@ class Squeezebox extends IPSModuleStrict
     {
         if ($Duration == 0) {
             if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableDurationText)) {
-                $this->SetValueString('DurationText', '');
+                $this->SetValueString(\SqueezeBox\Device\Variables::DurationText, '');
             }
         } else {
             if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableDurationText)) {
                 $NewDuration = $this->ConvertSeconds($Duration);
-                if ($this->GetValue('DurationText') != $NewDuration) {
-                    $this->SetValueString('DurationText', $NewDuration);
+                if ($this->GetValue(\SqueezeBox\Device\Variables::DurationText) != $NewDuration) {
+                    $this->SetValueString(\SqueezeBox\Device\Variables::DurationText, $NewDuration);
                 }
             }
         }
         $this->DurationRAW = $Duration;
-        $this->SetValueInteger('Duration', $Duration);
+        $this->SetValueInteger(\SqueezeBox\Device\Variables::Duration, $Duration);
         $this->_RefreshPositionAction();
         if ($Duration == 0) {
             // Position, PositionText und Position2 zurücksetzen.
@@ -3890,8 +3894,8 @@ class Squeezebox extends IPSModuleStrict
     private function _SetNewSleepTimeout(int $Value): void
     {
         if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSleepTimeout)) {
-            $this->SetValueInteger('SleepTimeout', $Value);
-            if ($Value == 0 && $this->GetValue('Status') != 2) {
+            $this->SetValueInteger(\SqueezeBox\Device\Variables::SleepTimeout, $Value);
+            if ($Value == 0 && $this->GetValue(\SqueezeBox\Device\Variables::Status) != 2) {
                 $this->_StopSubscribe();
             }
             if ($Value != 0 && !$this->isSubscribed) {
@@ -3900,7 +3904,7 @@ class Squeezebox extends IPSModuleStrict
         }
         if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableSleepTimer)) {
             if ($Value == 0) {
-                $this->SetValueInteger('SleepTimer', 0);
+                $this->SetValueInteger(\SqueezeBox\Device\Variables::SleepTimer, 0);
             }
         }
     }
@@ -3914,8 +3918,8 @@ class Squeezebox extends IPSModuleStrict
     private function _SetNewSyncMaster(bool $isMaster): void
     {
         if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSyncMaster)) {
-            if ($this->GetValue('Master') != $isMaster) {
-                $this->SetValueBoolean('Master', $isMaster);
+            if ($this->GetValue(\SqueezeBox\Device\Variables::Master) != $isMaster) {
+                $this->SetValueBoolean(\SqueezeBox\Device\Variables::Master, $isMaster);
             }
         }
     }
@@ -3969,7 +3973,7 @@ class Squeezebox extends IPSModuleStrict
     private function _SetNewTrackPresentation(int $Tracks): void
     {
         $this->RegisterVariableInteger(
-            'Index',
+            \SqueezeBox\Device\Variables::Index,
             $this->Translate('Playlist current position'),
             [
                 \SqueezeBox\Presentation::Type                 => VARIABLE_PRESENTATION_SLIDER,
@@ -4040,7 +4044,7 @@ class Squeezebox extends IPSModuleStrict
             ];
         }
         $this->RegisterVariableInteger(
-            'Sync',
+            \SqueezeBox\Device\Variables::Sync,
             $this->Translate('Synchronize'),
             [
                 \SqueezeBox\Presentation::Icon              => 'Speaker',
@@ -4049,7 +4053,7 @@ class Squeezebox extends IPSModuleStrict
             ],
             15
         );
-        $this->SetValueInteger('Sync', count($SyncMembers) == 0 ? 0 : 100);
+        $this->SetValueInteger(\SqueezeBox\Device\Variables::Sync, count($SyncMembers) == 0 ? 0 : 100);
     }
 
     /**
@@ -4075,9 +4079,9 @@ class Squeezebox extends IPSModuleStrict
     private function _RefreshPositionAction(): void
     {
         if ($this->isSeekable && ($this->DurationRAW > 0)) {
-            $this->EnableAction('Position2');
+            $this->EnableAction(\SqueezeBox\Device\Variables::Position2);
         } else {
-            $this->DisableAction('Position2');
+            $this->DisableAction(\SqueezeBox\Device\Variables::Position2);
         }
     }
 
@@ -4088,12 +4092,11 @@ class Squeezebox extends IPSModuleStrict
      */
     private function _RefreshPlaylistIndex(): void
     {
-        $this->SetCover();
         $Data = $this->Multi_Playlist;
         if (!is_array($Data)) {
             $Data = [];
         }
-        $CurrentIndex = (int) $this->GetValue('Index');
+        $CurrentIndex = (int) $this->GetValue(\SqueezeBox\Device\Variables::Index);
 
         // TilePlaylist
         if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowTilePlaylist)) {
@@ -4112,12 +4115,12 @@ class Squeezebox extends IPSModuleStrict
                     'entries' => $playlistEntries
                 ]);
             }
-            $this->SetValueString('TilePlaylist', $TilePlaylistData);
+            $this->SetValueString(\SqueezeBox\Device\Variables::TilePlaylist, $TilePlaylistData);
         }
         // HTML-Playlist
         if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowHTMLPlaylist)) {
             $HTML = $this->GetTable($Data, 'SqueezeBoxPlaylist', 'Track', 'Position', $CurrentIndex);
-            $this->SetValueString('HTMLPlaylist', $HTML);
+            $this->SetValueString(\SqueezeBox\Device\Variables::HTMLPlaylist, $HTML);
         }
     }
 
@@ -4153,11 +4156,11 @@ class Squeezebox extends IPSModuleStrict
     private function SetCover(): void
     {
         $this->SendDebug('Refresh Cover', '', 0);
-        $CoverID = @IPS_GetObjectIDByIdent('CoverIMG', $this->InstanceID);
+        $CoverID = @IPS_GetObjectIDByIdent(\SqueezeBox\Device\Variables::Cover, $this->InstanceID);
         if ($CoverID === false) {
             $CoverID = IPS_CreateMedia(1);
             IPS_SetParent($CoverID, $this->InstanceID);
-            IPS_SetIdent($CoverID, 'CoverIMG');
+            IPS_SetIdent($CoverID, \SqueezeBox\Device\Variables::Cover);
             IPS_SetName($CoverID, 'Cover');
             IPS_SetPosition($CoverID, 27);
             IPS_SetMediaCached($CoverID, true);
@@ -4222,8 +4225,8 @@ class Squeezebox extends IPSModuleStrict
                         $this->_SetNewVolume($LMSData->Data[0]);
                         break;
                     case 'muting':
-                        if ($this->GetValue('Mute') != (bool) $LMSData->Data[0]) {
-                            $this->SetValueBoolean('Mute', (bool) $LMSData->Data[0]);
+                        if ($this->GetValue(\SqueezeBox\Device\Variables::Mute) != (bool) $LMSData->Data[0]) {
+                            $this->SetValueBoolean(\SqueezeBox\Device\Variables::Mute, (bool) $LMSData->Data[0]);
                         }
                         break;
                     case 'bass':
@@ -4263,33 +4266,33 @@ class Squeezebox extends IPSModuleStrict
                             $LMSData->Data[0] = 0;
                         }
                         if ((int) $LMSData->Data[0] == 0) { // alles leeren
-                            $this->SetValueString('Title', '');
-                            $this->SetValueString('Playlistname', '');
-                            $this->SetValueString('Artist', '');
-                            $this->SetValueString('Album', '');
-                            $this->SetValueString('Genre', '');
-                            $this->SetValueInteger('Duration', 0);
+                            $this->SetValueString(\SqueezeBox\Device\Variables::Title, '');
+                            $this->SetValueString(\SqueezeBox\Device\Variables::Playlistname, '');
+                            $this->SetValueString(\SqueezeBox\Device\Variables::Artist, '');
+                            $this->SetValueString(\SqueezeBox\Device\Variables::Album, '');
+                            $this->SetValueString(\SqueezeBox\Device\Variables::Genre, '');
+                            $this->SetValueInteger(\SqueezeBox\Device\Variables::Duration, 0);
                             $this->DurationRAW = 0;
                             if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableDurationText)) {
-                                $this->SetValueString('DurationText', '0:00');
+                                $this->SetValueString(\SqueezeBox\Device\Variables::DurationText, '0:00');
                             }
-                            $this->SetValueFloat('Position2', 0);
+                            $this->SetValueFloat(\SqueezeBox\Device\Variables::Position2, 0);
                             $this->PositionRAW = 0;
-                            $this->SetValueInteger('Position', 0);
+                            $this->SetValueInteger(\SqueezeBox\Device\Variables::Position, 0);
                             if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnablePositionText)) {
-                                $this->SetValueString('PositionText', '0:00');
+                                $this->SetValueString(\SqueezeBox\Device\Variables::PositionText, '0:00');
                             }
-                            $this->SetValueInteger('Index', 0);
+                            $this->SetValueInteger(\SqueezeBox\Device\Variables::Index, 0);
                         }
-                        if ($this->GetValue('Tracks') != (int) $LMSData->Data[0]) {
-                            $this->SetValueInteger('Tracks', (int) $LMSData->Data[0]);
+                        if ($this->GetValue(\SqueezeBox\Device\Variables::Tracks) != (int) $LMSData->Data[0]) {
+                            $this->SetValueInteger(\SqueezeBox\Device\Variables::Tracks, (int) $LMSData->Data[0]);
                         }
                         break;
                     case 'delete':
                     case 'addtracks':
                         // Die Anzahl ändert sich immer; VM_UPDATE von Tracks lädt die Playlist.
                         if (!$this->isSubscribed) {
-                            $this->RequestState('Tracks');
+                            $this->RequestState(\SqueezeBox\Device\Variables::Tracks);
                         }
                         break;
                     case 'play':
@@ -4299,15 +4302,15 @@ class Squeezebox extends IPSModuleStrict
                     case 'playtracks':
                     case 'loadtracks':
                         // Neue oder umsortierte Playlist. Ändert sich die Anzahl der Titel, lädt VM_UPDATE von Tracks die Playlist; sonst hier neu laden (auch bei laufendem Abo).
-                        $Tracks = $this->GetValue('Tracks');
-                        $this->RequestState('Tracks');
-                        if ($this->GetValue('Tracks') == $Tracks) {
+                        $Tracks = $this->GetValue(\SqueezeBox\Device\Variables::Tracks);
+                        $this->RequestState(\SqueezeBox\Device\Variables::Tracks);
+                        if ($this->GetValue(\SqueezeBox\Device\Variables::Tracks) == $Tracks) {
                             $this->_RefreshPlaylist();
                         }
                         break;
                     case 'shuffle':
-                        if ($this->GetValue('Shuffle') != (int) $LMSData->Data[0]) {
-                            $this->SetValueInteger('Shuffle', (int) $LMSData->Data[0]);
+                        if ($this->GetValue(\SqueezeBox\Device\Variables::Shuffle) != (int) $LMSData->Data[0]) {
+                            $this->SetValueInteger(\SqueezeBox\Device\Variables::Shuffle, (int) $LMSData->Data[0]);
                         }
                         break;
                     case 'repeat':
@@ -4317,12 +4320,12 @@ class Squeezebox extends IPSModuleStrict
                         } elseif ($Value == 2) {
                             $Value = 1;
                         }
-                        if ($this->GetValue('Repeat') != $Value) {
-                            $this->SetValueInteger('Repeat', $Value);
+                        if ($this->GetValue(\SqueezeBox\Device\Variables::Repeat) != $Value) {
+                            $this->SetValueInteger(\SqueezeBox\Device\Variables::Repeat, $Value);
                         }
                         break;
                     case 'name':
-                        $this->SetValueString('Playlistname', trim((string) $LMSData->Data[0]));
+                        $this->SetValueString(\SqueezeBox\Device\Variables::Playlistname, trim((string) $LMSData->Data[0]));
                         break;
                     case 'index':
                     case 'jump':
@@ -4330,25 +4333,31 @@ class Squeezebox extends IPSModuleStrict
                             break;
                         }
                         if (((string) $LMSData->Data[0][0] === '+') || ((string) $LMSData->Data[0][0] === '-')) {
-                            $this->SetValueInteger('Index', (int) $this->GetValue('Index') + (int) $LMSData->Data[0]);
+                            $this->SetValueInteger(\SqueezeBox\Device\Variables::Index, (int) $this->GetValue(\SqueezeBox\Device\Variables::Index) + (int) $LMSData->Data[0]);
                         } else {
-                            $this->SetValueInteger('Index', (int) $LMSData->Data[0] + 1);
+                            $this->SetValueInteger(\SqueezeBox\Device\Variables::Index, (int) $LMSData->Data[0] + 1);
                         }
                         break;
                     case 'newsong':
                         $Value = trim((string) (string) $LMSData->Data[0]);
-                        $this->SetValueString('Title', $Value);
+                        $this->SetValueString(\SqueezeBox\Device\Variables::Title, $Value);
                         if (isset($LMSData->Data[1])) {
-                            $this->SetValueInteger('Index', (int) $LMSData->Data[1] + 1);
-                            $this->_RefreshPlaylistIndex();
-                            $this->SetCover();
+                            $NewIndex = (int) $LMSData->Data[1] + 1;
+                            if ($this->GetValue(\SqueezeBox\Device\Variables::Index) != $NewIndex) {
+                                // VM_UPDATE von Index aktualisiert Playlist-Markierung, Cover und Titeldaten.
+                                $this->SetValueInteger(\SqueezeBox\Device\Variables::Index, $NewIndex);
+                            } else {
+                                // Gleicher Index, z.B. neue Playlist ab Titel 1.
+                                $this->_RefreshPlaylistIndex();
+                                $this->SetCover();
+                            }
                         } else {
-                            $this->RequestState('Playlistname');
-                            $this->RequestState('Album');
-                            $this->RequestState('Title');
-                            $this->RequestState('Artist');
-                            $this->RequestState('Genre');
-                            $this->RequestState('Duration');
+                            $this->RequestState(\SqueezeBox\Device\Variables::Playlistname);
+                            $this->RequestState(\SqueezeBox\Device\Variables::Album);
+                            $this->RequestState(\SqueezeBox\Device\Variables::Title);
+                            $this->RequestState(\SqueezeBox\Device\Variables::Artist);
+                            $this->RequestState(\SqueezeBox\Device\Variables::Genre);
+                            $this->RequestState(\SqueezeBox\Device\Variables::Duration);
                             $this->SetCover();
                         }
                         break;
@@ -4357,18 +4366,18 @@ class Squeezebox extends IPSModuleStrict
                 }
                 break;
             case 'album':
-                $this->SetValueString('Album', trim((string) $LMSData->Data[0]));
+                $this->SetValueString(\SqueezeBox\Device\Variables::Album, trim((string) $LMSData->Data[0]));
                 break;
             case 'current_title':
                 break;
             case 'title':
-                $this->SetValueString('Title', trim((string) $LMSData->Data[0]));
+                $this->SetValueString(\SqueezeBox\Device\Variables::Title, trim((string) $LMSData->Data[0]));
                 break;
             case 'artist':
-                $this->SetValueString('Artist', trim((string) $LMSData->Data[0]));
+                $this->SetValueString(\SqueezeBox\Device\Variables::Artist, trim((string) $LMSData->Data[0]));
                 break;
             case 'genre':
-                $this->SetValueString('Genre', trim((string) $LMSData->Data[0]));
+                $this->SetValueString(\SqueezeBox\Device\Variables::Genre, trim((string) $LMSData->Data[0]));
                 break;
             case 'duration':
                 if ((int) $LMSData->Data[0] != $this->DurationRAW) {
@@ -4380,7 +4389,7 @@ class Squeezebox extends IPSModuleStrict
                 break;
             case 'signalstrength':
                 if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSignalStrength)) {
-                    $this->SetValueInteger('Signalstrength', (int) $LMSData->Data[0]);
+                    $this->SetValueInteger(\SqueezeBox\Device\Variables::Signalstrength, (int) $LMSData->Data[0]);
                 }
                 break;
             case 'sleep':
@@ -4430,19 +4439,19 @@ class Squeezebox extends IPSModuleStrict
                 if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableRandomPlay)) {
                     switch ($LMSData->Data[0]) {
                         case 'tracks':
-                            $this->SetValueInteger('Randomplay', 1);
+                            $this->SetValueInteger(\SqueezeBox\Device\Variables::Randomplay, 1);
                             break;
                         case 'albums':
-                            $this->SetValueInteger('Randomplay', 2);
+                            $this->SetValueInteger(\SqueezeBox\Device\Variables::Randomplay, 2);
                             break;
                         case 'contributors':
-                            $this->SetValueInteger('Randomplay', 3);
+                            $this->SetValueInteger(\SqueezeBox\Device\Variables::Randomplay, 3);
                             break;
                         case 'year':
-                            $this->SetValueInteger('Randomplay', 4);
+                            $this->SetValueInteger(\SqueezeBox\Device\Variables::Randomplay, 4);
                             break;
                         default:
-                            $this->SetValueInteger('Randomplay', 0);
+                            $this->SetValueInteger(\SqueezeBox\Device\Variables::Randomplay, 0);
                             break;
                     }
                 }
@@ -4471,7 +4480,7 @@ class Squeezebox extends IPSModuleStrict
                             break;
                         case 'signalstrength':
                             if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::ShowSignalStrength)) {
-                                $this->SetValueInteger('Signalstrength', (int) $Data->Value);
+                                $this->SetValueInteger(\SqueezeBox\Device\Variables::Signalstrength, (int) $Data->Value);
                             }
                             break;
                         case 'mode':
@@ -4481,8 +4490,8 @@ class Squeezebox extends IPSModuleStrict
                                     $this->_SetModeToPlay();
                                     break;
                                 case 'stop':
-                                    if ($this->GetValue('Status') != 1) {
-                                        $this->SetValueInteger('Status', 1);
+                                    if ($this->GetValue(\SqueezeBox\Device\Variables::Status) != 1) {
+                                        $this->SetValueInteger(\SqueezeBox\Device\Variables::Status, 1);
                                     }
                                     break;
                                 case 'pause':
@@ -4508,8 +4517,8 @@ class Squeezebox extends IPSModuleStrict
                             break;
                         case 'sleep':
                             if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableSleepTimer)) {
-                                if ($this->GetValue('SleepTimer') != (int) $Data->Value) {
-                                    $this->SetValueInteger('SleepTimer', (int) $Data->Value);
+                                if ($this->GetValue(\SqueezeBox\Device\Variables::SleepTimer) != (int) $Data->Value) {
+                                    $this->SetValueInteger(\SqueezeBox\Device\Variables::SleepTimer, (int) $Data->Value);
                                 }
                             }
                             break;
@@ -4556,18 +4565,18 @@ class Squeezebox extends IPSModuleStrict
                             } elseif ($Value == 2) {
                                 $Value = 1;
                             }
-                            if ($this->GetValue('Repeat') != $Value) {
-                                $this->SetValueInteger('Repeat', $Value);
+                            if ($this->GetValue(\SqueezeBox\Device\Variables::Repeat) != $Value) {
+                                $this->SetValueInteger(\SqueezeBox\Device\Variables::Repeat, $Value);
                             }
                             break;
                         case 'playlist shuffle':
-                            if ($this->GetValue('Shuffle') != (int) $Data->Value) {
-                                $this->SetValueInteger('Shuffle', (int) $Data->Value);
+                            if ($this->GetValue(\SqueezeBox\Device\Variables::Shuffle) != (int) $Data->Value) {
+                                $this->SetValueInteger(\SqueezeBox\Device\Variables::Shuffle, (int) $Data->Value);
                             }
                             break;
                         case 'playlist_tracks':
-                            if ($this->GetValue('Tracks') != (int) $Data->Value) {
-                                $this->SetValueInteger('Tracks', (int) $Data->Value);
+                            if ($this->GetValue(\SqueezeBox\Device\Variables::Tracks) != (int) $Data->Value) {
+                                $this->SetValueInteger(\SqueezeBox\Device\Variables::Tracks, (int) $Data->Value);
                             }
                             break;
                         case 'playlist mode':
@@ -4575,13 +4584,13 @@ class Squeezebox extends IPSModuleStrict
                             break;
                         case 'playlist_cur_index':
                         case 'playlist index':
-                            if ($this->GetValue('Index') != ((int) $Data->Value + 1)) {
-                                $this->SetValueInteger('Index', (int) $Data->Value + 1);
+                            if ($this->GetValue(\SqueezeBox\Device\Variables::Index) != ((int) $Data->Value + 1)) {
+                                $this->SetValueInteger(\SqueezeBox\Device\Variables::Index, (int) $Data->Value + 1);
                             }
                             break;
                         case 'playlist_name':
                             $HasPlaylistName = true;
-                            $this->SetValueString('Playlistname', trim((string) $Data->Value));
+                            $this->SetValueString(\SqueezeBox\Device\Variables::Playlistname, trim((string) $Data->Value));
                             break;
                             //playlist_timestamp:1474744498.14079
                             // merken und auf änderung ein Refresh machen ?!
@@ -4589,18 +4598,18 @@ class Squeezebox extends IPSModuleStrict
                             break;
                         case 'title':
                             $Value = trim((string) $Data->Value);
-                            if ($this->GetValue('Title') != $Value) {
-                                $this->SetValueString('Title', $Value);
+                            if ($this->GetValue(\SqueezeBox\Device\Variables::Title) != $Value) {
+                                $this->SetValueString(\SqueezeBox\Device\Variables::Title, $Value);
                             }
                             break;
                         case 'genre':
-                            $this->SetValueString('Genre', trim((string) $Data->Value));
+                            $this->SetValueString(\SqueezeBox\Device\Variables::Genre, trim((string) $Data->Value));
                             break;
                         case 'artist':
-                            $this->SetValueString('Artist', trim((string) $Data->Value));
+                            $this->SetValueString(\SqueezeBox\Device\Variables::Artist, trim((string) $Data->Value));
                             break;
                         case 'album':
-                            $this->SetValueString('Album', trim((string) $Data->Value));
+                            $this->SetValueString(\SqueezeBox\Device\Variables::Album, trim((string) $Data->Value));
                             break;
                     }
                 }
@@ -4612,8 +4621,8 @@ class Squeezebox extends IPSModuleStrict
                     $this->_SetNewTime($NewTime);
                 }
                 // playlist_name fehlt, wenn die aktuelle Playlist keine gespeicherte ist (z.B. nach PlayUrl).
-                if (!$HasPlaylistName && ($this->GetValue('Playlistname') !== '')) {
-                    $this->SetValueString('Playlistname', '');
+                if (!$HasPlaylistName && ($this->GetValue(\SqueezeBox\Device\Variables::Playlistname) !== '')) {
+                    $this->SetValueString(\SqueezeBox\Device\Variables::Playlistname, '');
                 }
                 if (!$isSyncActive) {
                     $this->_SetNewSyncMaster(false);
@@ -4680,18 +4689,6 @@ class Squeezebox extends IPSModuleStrict
             return null;
         }
         $LMSData->Address = $this->ReadPropertyString(\SqueezeBox\Device\Property::Address);
-        $SplitterID = IPS_GetInstance($this->InstanceID)['ConnectionID'];
-        $IoID = IPS_GetInstance($SplitterID)['ConnectionID'];
-        $Host = IPS_GetProperty($IoID, 'Host');
-        if ($Host === '') {
-            return null;
-        }
-        return $this->SendDirectToLMS(
-            gethostbyname($Host),
-            IPS_GetProperty($SplitterID, \SqueezeBox\Splitter\Property::Port),
-            IPS_GetProperty($SplitterID, \SqueezeBox\Splitter\Property::Username),
-            IPS_GetProperty($SplitterID, \SqueezeBox\Splitter\Property::Password),
-            $LMSData
-        );
+        return $this->SendDirectViaSplitter($LMSData);
     }
 }
