@@ -130,8 +130,21 @@ Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:
 >
 > - Fehlermeldungen der Instanz-Funktionen (`LMS_…`, `LSQ_…`, `LSA_…`, `LSQB_…`) werden nicht mehr zusätzlich per `echo` ausgegeben. Die Funktion erzeugt nur noch einen Hinweis (Notice) mit der Meldung und liefert `false`. Das aufrufende Skript läuft weiter. Bisher erschien die Meldung doppelt.
 
+**Neue Funktionen und Aktionen**  
+
+- Player: `LSQ_InsertInPlaylistByUrlAt` fügt eine URL an einer Position der Playlist ein.  
+
+**Neue Statusvariablen**  
+
+- Player: `Sender` (Ident `StationName`) mit dem Namen des Senders bei Streams wie Internetradio.  
+
 **Geändertes Verhalten**  
 
+- Player: `Titel` zeigt keine Stream-URL mehr, solange ein Stream noch keine Titelinformationen liefert; der letzte Titel bleibt stehen.  
+- Player: In der Kachel- und HTML-Playlist erscheint bei Streams der Name des Favoriten bzw. Anzeigetitel, eine URL ersetzt den Titel nicht mehr.  
+- `LSQ_GetPlaylistInfo` liefert nur noch `Id`, `Name`, `Modified` und `Url` (bisher zusätzlich leere Songfelder).  
+- `LMS_ExistsUrlInFavorite` und `LMS_ExistsIdInFavorite` liefern ohne Treffer `['Exists' => false]` statt eines leeren Arrays.  
+- Wecker: Hat ein Gerät mehr als 10 Wecker, rückt nach dem Löschen eines Weckers der nächste sofort nach (bisher erst nach einem Neustart der Instanz).  
 - Bedienung über Statusvariablen: Eine Fehlermeldung erscheint nur noch einmal. „Fehler beim Ausführen der Aktion“ erscheint nur noch, wenn keine genauere Meldung vorliegt.  
 - Splitter: Beim Laden einer Playlist bzw. eines Favoriten auf die ausgewählten Player synchronisiert der Splitter die Player selbst über den LMS.  
 - Player: Tritt ein Player einer Sync-Gruppe bei (auch über die LMS-Oberfläche oder eine App), übernimmt seine Instanz den Sync-Zustand und die Playlist.  
@@ -143,12 +156,17 @@ Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:
 
 **Behobene falsche Werte in Statusvariablen**  
 
+- Player in einer Sync-Gruppe (Slave): Bei einem Titelwechsel im Stream blieben Interpret, Album, Stilrichtung und Cover auf dem vorherigen Titel stehen.  
+- Player: `Playlist Aktueller Track` war bei einer Playlist mit nur einem Titel bedienbar (Regler 0 bis 1); die Aktion ist dann jetzt aus.  
 - Wecker: Die Wiederholung zeigte „Playlist“ statt „An“. Die Auswahl ist jetzt „Aus“ / „An“.  
 - Player: Seit 4.10 wurde die Variable „Ausschalten in“ (Ident `SleepTimeout`) in „SleepTimeout (old)“ umbenannt, wenn noch die alte Variable aus Version 4.05 vorhanden war. Das passiert nicht mehr; bereits umbenannte Variablen bitte selbst zurückbenennen.  
 
 **Fehlerbehebungen**  
 
 - Fehlende deutsche Übersetzungen von Meldungen und Formularen ergänzt.  
+- `LMS_GetRadios` und `LMS_GetApps` ordneten die Felder (z.B. `Cmd`, `Name`) teilweise dem falschen Eintrag zu.  
+- `LMS_GetRadioOrAppData(Ex)`: Ids von Einträgen in Unterordnern (z.B. `0.1`) wurden zu `0` abgeschnitten.  
+- Batterie: Der Ladestand wird mit der vom Gerät gemeldeten Akkukapazität berechnet (bisher fest 2000 mAh).  
 - Splitter: Gleichzeitige Anfragen (z.B. aus zwei geöffneten Konfiguratoren) konnten die Antwort einer anderen Anfrage erhalten oder mit „Keine Antwort vom LMS“ abbrechen.  
 
 **Version 4.11:**  

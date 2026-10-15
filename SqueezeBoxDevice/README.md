@@ -116,6 +116,7 @@ Folgende Statusvariablen werden automatisch angelegt.
 | Wiederholen              | integer | Repeat         | Aktuelle Playlist wiederholen                               |
 | Playlist Aktueller Track | integer | Index          | Aktueller Track in der Playlist                             |
 | Playlist Anzahl Tracks   | integer | Tracks         | Anzahl der Tracks in der Playlist                           |
+| Sender                   | string  | StationName    | Name des Senders bei Streams (z.B. Internetradio), sonst leer |
 | Name der Playlist        | string  | Playlistname   | Name der Playlist oder Remote-Stream, sofern vorhanden      |
 | Album                    | string  | Album          | Album des Tracks der aktuellen Wiedergabe                   |
 | Titel                    | string  | Title          | Titel des Tracks der aktuellen Wiedergabe                   |
@@ -492,7 +493,28 @@ LSQ_AddToPlaylistByUrl(int $InstanzID, string $URL)
 LSQ_AddToPlaylistByUrlEx(int $InstanzID, string $URL, string $DisplayTitle)
 ```
 
-TODO  
+Hängt eine URL (z.B. `file:///…` oder die URL eines Streams) an das Ende der Playlist an.  
+`$DisplayTitle` ist der Anzeigetitel, unter dem der Eintrag in der Playlist erscheint (bei Streams statt der URL).  
+Liefert `true` bei Erfolg, sonst `false`.  
+
+---
+
+```php
+bool LSQ_InsertInPlaylistByUrlAt(int $InstanzID, string $URL, int $Position)
+```
+
+Fügt eine URL an der Position `$Position` der Playlist ein (ab `1`; Anzahl der Titel + 1 hängt an).  
+Enthält die URL mehrere Titel (z.B. eine Playlist-Datei), stehen alle in ihrer Reihenfolge ab `$Position`.  
+Liefert `true` bei Erfolg, sonst `false`.  
+
+> [!NOTE]
+> Bei aktiver Zufallswiedergabe (`Mischen`) ist das Einfügen an einer Position nicht möglich, da sich die Positionen dann auf die gemischte Reihenfolge beziehen.
+
+**Beispiel:**  
+
+```php
+LSQ_InsertInPlaylistByUrlAt(12345, 'file:///E:/Musik/Max%20Giesinger/Der%20Junge,%20der%20rennt/01-05-%20Wenn%20sie%20tanzt.mp3', 2);
+```
 
 ---
 
@@ -583,7 +605,9 @@ TODO
 LSQ_InsertInPlaylistBySearch(int $InstanzID, string $Genre, string $Artist, string $Album)
 ```
 
-TODO  
+Fügt die Titel, die zu Genre, Interpret und Album passen, hinter dem aktuellen Titel ein (wird als nächstes gespielt).  
+Mindestens einer der Parameter muss gefüllt sein.  
+Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
 
@@ -596,7 +620,9 @@ LSQ_InsertInPlaylistByFolderID(int $InstanzID, int $FolderID)
 LSQ_InsertInPlaylistByFavoriteID(int $InstanzID, string $FavoriteID)
 ```
 
-TODO  
+Fügt die Titel des Albums, Genres, Interpreten, der Playlist, des Ordners bzw. Favoriten hinter dem aktuellen Titel ein (wird als nächstes gespielt).  
+Die IDs stammen aus den Funktionen des Splitters (z.B. `LMS_GetAlbums`, `LMS_GetPlaylists`, `LMS_GetFavorites`; bei Favoriten der Array-Schlüssel, z.B. `'1'` oder `'6.1'`).  
+Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
 
@@ -604,7 +630,8 @@ TODO
 LSQ_InsertInPlaylistBySongIDs(int $InstanzID, string $SongIDs)
 ```
 
-TODO  
+Fügt die Titel mit den Track-Ids aus `$SongIDs` (kommagetrennt, z.B. `'220161,241158'`) hinter dem aktuellen Titel ein.  
+Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
 
@@ -629,7 +656,8 @@ TODO
 LSQ_GetPlaylistURL(int $InstanzID)
 ```
 
-TODO  
+Liefert die URL der zuletzt geladenen gespeicherten Playlist (z.B. `file:///E:/Musik/Playlist/9.m3u`).  
+Stammt die aktuelle Playlist nicht aus einer gespeicherten Playlist, wird ein Hinweis erzeugt und `false` geliefert.  
 
 ---
 
@@ -637,7 +665,7 @@ TODO
 LSQ_IsPlaylistModified(int $InstanzID)
 ```
 
-TODO  
+Liefert `true`, wenn die aktuelle Playlist gegenüber der geladenen gespeicherten Playlist verändert wurde, sonst `false`.  
 
 ---
 

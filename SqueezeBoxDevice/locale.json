@@ -1,6 +1,8 @@
 {
     "translations": {
         "de": {
+            "Not possible while shuffle is active.": "Bei aktiver Zufallswiedergabe nicht möglich.",
+            "Station name": "Sender",
             "Master": "Master",
             "Track": "Titel",
             "Album": "Album",

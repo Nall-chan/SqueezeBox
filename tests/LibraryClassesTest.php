@@ -318,4 +318,25 @@ class LibraryClassesTest extends TestCase
         $Other = new \SqueezeBox\LMSData(['playlist', 'play'], ['geheim']);
         $this->assertSame($Other->ToRawStringForLMS(), $Other->Masked()->ToRawStringForLMS());
     }
+    /** F5: radios/apps liefern die Felder je Eintrag in wechselnder Reihenfolge (Mitschnitt LMS 9.1.1). */
+    public function testTaggingArrayRepeatedField(): void
+    {
+        $Data = ['weight:5', 'type:xmlbrowser', 'name:Eigene Voreinstellungen', 'cmd:presets', 'icon:/plugins/TuneIn/html/images/radiopresets.png',
+            'weight:20', 'name:Lokal', 'type:xmlbrowser', 'icon:/plugins/TuneIn/html/images/radiolocal.png', 'cmd:local',
+            'cmd:music', 'icon:/plugins/TuneIn/html/images/radiomusic.png', 'type:xmlbrowser', 'name:Musik', 'weight:30'];
+        $Items = (new \SqueezeBox\LMSTaggingArray($Data, \SqueezeBox\LMSTaggingArray::RepeatedField))->DataArray();
+        $this->assertCount(3, $Items);
+        $this->assertSame(['presets', 'local', 'music'], array_column($Items, 'Cmd'));
+        $this->assertSame(['Eigene Voreinstellungen', 'Lokal', 'Musik'], array_column($Items, 'Name'));
+        $this->assertSame([5, 20, 30], array_column($Items, 'Weight'));
+    }
+
+    /** F5: Ids mit Punkt (Menüpfade wie 0.1) werden nicht zur Zahl abgeschnitten. */
+    public function testTaggingArrayIdPath(): void
+    {
+        $Items = (new \SqueezeBox\LMSTaggingArray(['name:A', 'id:0.0', 'name:B', 'id:0.1'], 'name'))->DataArray();
+        $this->assertSame(['0.0', '0.1'], array_column($Items, 'Id'));
+        $Items = (new \SqueezeBox\LMSTaggingArray(['name:C', 'id:42'], 'name'))->DataArray();
+        $this->assertSame(42, $Items[0]['Id']);
+    }
 }

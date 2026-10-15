@@ -603,6 +603,11 @@ class SqueezeboxBattery extends IPSModuleStrict
             $this->SetStatus(IS_EBASE + 1);
             return $ssh->isConnected() ? $this->Translate('Login failed.') : sprintf($this->Translate('Connection to %s failed.'), $Address);
         }
+        // Werte des MSP430 der Squeezebox Radio (sysfs 1-0010).
+        // Belegt durch Squeezeplay (SqueezeboxBabyApplet.lua, Logitech, BSD): Restladung = battery_charge / battery_capacity,
+        // charger_state 1 = kein Akku, 2 = Leerlauf, 3 = Entladen, Bit 8 = Laden, 3 | (1 << 5) = Akku fast leer.
+        // Annahmen ohne Quelle (plausibel mit Live-Werten und Mitschnitt in Lyrion Bug 12598):
+        // power_mode-Bereiche, Spannungen in mV (/1000, Netzteil 18 V), battery_temperature in 1/32 °C.
         $PowerMode = (int) $ssh->exec('cat /sys/class/i2c-adapter/i2c-1/1-0010/power_mode');
         $this->SendDebug('PowerMode', $PowerMode, 0);
         $this->SetValueInteger(\SqueezeBox\Battery\Variables::State, $PowerMode);
@@ -620,12 +625,17 @@ class SqueezeboxBattery extends IPSModuleStrict
         $this->SendDebug('ChargeState', $ChargeState, 0);
         $this->SetValueInteger(\SqueezeBox\Battery\Variables::ChargeState, $ChargeState);
         if ($ChargeState != 1) {
-            $BatteryLevel = (int) $ssh->exec('cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_charge') / 2000;
-            $this->SendDebug('BatteryLevel', $BatteryLevel, 0);
-            $this->SetValueFloat(\SqueezeBox\Battery\Variables::BatteryLevel, $BatteryLevel);
             $BatteryCapacity = (int) $ssh->exec('cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_capacity');
             $this->SendDebug('BatteryCapacity', $BatteryCapacity, 0);
             $this->SetValueInteger(\SqueezeBox\Battery\Variables::BatteryCapacity, $BatteryCapacity);
+            $BatteryCharge = (int) $ssh->exec('cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_charge');
+            $this->SendDebug('BatteryCharge', $BatteryCharge, 0);
+            // Anteil 0 bis 1, die Darstellung zeigt Prozent. Bisher fest durch 2000 (Kapazität des Original-Akkus) geteilt.
+            if ($BatteryCapacity > 0) {
+                $BatteryLevel = min($BatteryCharge / $BatteryCapacity, 1);
+                $this->SendDebug('BatteryLevel', $BatteryLevel, 0);
+                $this->SetValueFloat(\SqueezeBox\Battery\Variables::BatteryLevel, $BatteryLevel);
+            }
             $BatteryTemperature = round((float) $ssh->exec('cat /sys/class/i2c-adapter/i2c-1/1-0010/battery_temperature') / 32, 1);
             $this->SendDebug('BatteryTemperature', $BatteryTemperature, 0);
             $this->SetValueFloat(\SqueezeBox\Battery\Variables::BatteryTemperature, $BatteryTemperature);

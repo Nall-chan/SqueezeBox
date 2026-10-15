@@ -664,8 +664,17 @@ class Squeezebox extends IPSModuleStrict
         $this->RegisterMessage($this->PlayerTracks, VM_UPDATE);
         $this->_SetNewTrackPresentation($this->GetValue(\SqueezeBox\Device\Variables::Tracks));
         $this->PlayerTrackIndex = $this->FindIDForIdent(\SqueezeBox\Device\Variables::Index);
-        $this->EnableAction(\SqueezeBox\Device\Variables::Index);
+        // Die Aktion von Index setzt _SetNewTrackPresentation (nur bei mehr als einem Titel).
         $this->RegisterMessage($this->PlayerTrackIndex, VM_UPDATE);
+        $this->RegisterVariableString(
+            \SqueezeBox\Device\Variables::StationName,
+            $this->Translate('Station name'),
+            [
+                \SqueezeBox\Presentation::Type => VARIABLE_PRESENTATION_VALUE_PRESENTATION,
+                \SqueezeBox\Presentation::Icon => 'radio'
+            ],
+            18
+        );
         $this->RegisterVariableString(
             \SqueezeBox\Device\Variables::Playlistname,
             'Name of Playlist',
@@ -1869,15 +1878,49 @@ class Squeezebox extends IPSModuleStrict
         }
 
         return self::IsSameSongURL($URL, (string) $LMSData->Data[0]);
-        // todo für neue funktion InsertAt
-        //neue Tracks holen
-        // alt = 5
-        // neu = 10
-        // ToMove = neu - alt = 5 hinzufügt.
-        // Position = 3
-        // move alt(5, = erster neuer) to Position (3)
-        // move alt+1 to position+1
-        //etc..
+    }
+
+    /**
+     * InsertInPlaylistByUrlAt
+     * IPS-Instanz-Funktion 'LSQ_InsertInPlaylistByUrlAt'.
+     * Fügt eine URL an einer Position der Playlist ein. Der LMS hängt sie an, danach wird sie verschoben.
+     * Enthält die URL mehrere Titel (z.B. eine Playlist-Datei), werden alle in ihrer Reihenfolge verschoben.
+     *
+     * @param  string $URL      Die URL (z.B. file:///…, http://…).
+     * @param  int    $Position Position ab 1; Anzahl der Titel + 1 hängt an.
+     * @return bool
+     */
+    public function InsertInPlaylistByUrlAt(string $URL, int $Position): bool
+    {
+        // Bei Zufallswiedergabe beziehen sich Positionen und 'playlist move' auf die gemischte Reihenfolge (live geprüft).
+        if ($this->GetValue(\SqueezeBox\Device\Variables::Shuffle) != 0) {
+            trigger_error($this->Translate('Not possible while shuffle is active.'), E_USER_NOTICE);
+            return false;
+        }
+        $OldTracks = $this->_GetTrackCount();
+        if ($OldTracks === false) {
+            return false;
+        }
+        if (($Position < 1) || ($Position > $OldTracks + 1)) {
+            trigger_error(sprintf($this->Translate('%s out of range.'), 'Position'), E_USER_NOTICE);
+            return false;
+        }
+        if (!$this->AddToPlaylistByUrlEx($URL, '')) {
+            return false;
+        }
+        $NewTracks = $this->_GetTrackCount();
+        if ($NewTracks === false) {
+            return false;
+        }
+        for ($i = 0; $i < ($NewTracks - $OldTracks); $i++) {
+            if (($OldTracks + 1 + $i) == ($Position + $i)) {
+                continue;
+            }
+            if (!$this->MoveSongInPlaylist($OldTracks + 1 + $i, $Position + $i)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -1896,15 +1939,6 @@ class Squeezebox extends IPSModuleStrict
             return false;
         }
         return self::IsSameSongURL($URL, (string) $LMSData->Data[0]);
-        // todo für neue funktion InsertAt
-        //neue Tracks holen
-        // alt = 5
-        // neu = 10
-        // ToMove = neu - alt = 5 hinzufügt.
-        // Position = 3
-        // move alt(5, = erster neuer) to Position (3)
-        // move alt+1 to position+1
-        //etc..
     }
 
     /**
@@ -2384,77 +2418,12 @@ class Squeezebox extends IPSModuleStrict
         return $LMSData->Data[0] == '1';
     }
 
-    //TESTEN TODO
-    /*            <br>
-      <p id="playlist playlistsinfo">
-      <strong>
-      <code>
-      &lt;playerid&gt;
-      playlist
-      playlistsinfo
-      &lt;taggedParameters&gt;
-      </code>
-      </strong>
-      </p>
-      <p>
-      The "playlist playlistsinfo" query returns information on the
-      saved playlist last loaded into the Now Playing playlist, if any.
-      </p>
-      <p>
-      Accepted tagged parameters:
-      </p>
-      <table border="0" spacing="50">
-      <tbody><tr>
-      <td width="100"><b>Tag</b></td>
-      <td><b>Description</b></td>
-      </tr>
-      </tbody></table>
-      <p>
-      Returned tagged parameters:
-      </p>
-      <table border="0" spacing="50">
-      <tbody><tr>
-      <td width="100"><b>Tag</b></td>
-      <td><b>Description</b></td>
-      </tr>
-      <tr>
-      <td>id</td>
-      <td>Playlist id.</td>
-      </tr>
-      <tr>
-      <td>name</td>
-      <td>Playlist name. Equivalent to
-      "<a href="#playlist name">playlist name ?</a>".
-      </td>
-      </tr>
-      <tr>
-      <td>modified</td>
-      <td>Modification state of the saved playlist. Equivalent to
-      "<a href="#playlist modified">playlist modified ?</a>".
-      </td>
-      </tr><tr>
-      <td>url</td>
-      <td>Playlist url. Equivalent to
-      "<a href="#playlist url">playlist url ?</a>".
-      </td>
-      </tr>
-      </tbody></table>
-      <p>
-      Example:
-      </p>
-      <blockquote>
-      <p>
-      Request: "a5:41:d2:cd:cd:05 playlist playlistsinfo &lt;LF&gt;"
-      <br>
-      Response: "a5:41:d2:cd:cd:05 playlist playlistsinfo
-      id:267 name:A98 modified:0 url:file://Volumes/... &lt;LF&gt;"
-      </p>
-      </blockquote> */
-
     /**
      * GetPlaylistInfo
+     * IPS-Instanz-Funktion 'LSQ_GetPlaylistInfo'.
+     * Liefert Informationen zur zuletzt geladenen gespeicherten Playlist.
      *
-     * @return bool|array
+     * @return bool|array Id, Name, Modified und Url; leeres Array, wenn keine gespeicherte Playlist geladen ist.
      */
     public function GetPlaylistInfo(): bool|array
     {
@@ -2465,8 +2434,9 @@ class Squeezebox extends IPSModuleStrict
         if (count($LMSData->Data) == 1) {
             return [];
         }
-        $SongInfo = new \SqueezeBox\LMSSongInfo($LMSData->Data);
-        return $SongInfo->GetSong();
+        $Song = (new \SqueezeBox\LMSSongInfo($LMSData->Data))->GetSong();
+        // Die Antwort enthält nur id, name, modified und url; Songfelder ohne Wert entfallen.
+        return array_intersect_key($Song, array_flip(['Id', 'Name', 'Modified', 'Url']));
     }
 
     /**
@@ -2700,9 +2670,8 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * InsertInPlaylistByAlbumID
+     * Fügt die Titel hinter dem aktuellen Titel ein.
      *
-     * @todo alles auch mit add + move
-     * @todo insert testen !?!?
      * @param  int $AlbumID
      * @return bool
      */
@@ -3608,7 +3577,8 @@ class Squeezebox extends IPSModuleStrict
     {
         if ($this->_isPlayerConnected()) {
             $this->isSubscribed = true;
-            $this->Send(new \SqueezeBox\LMSData(['status', '-', '1'], 'subscribe:' . $this->ReadPropertyInteger(\SqueezeBox\Device\Property::Interval), false));
+            // tags:N liefert remote_title (Sendername bzw. Anzeigetitel von Streams); id und title sind immer enthalten.
+            $this->Send(new \SqueezeBox\LMSData(['status', '-', '1'], ['subscribe:' . $this->ReadPropertyInteger(\SqueezeBox\Device\Property::Interval), 'tags:N'], false));
         }
     }
 
@@ -3910,6 +3880,59 @@ class Squeezebox extends IPSModuleStrict
     }
 
     /**
+     * _GetTrackCount
+     * Liest die Anzahl der Titel der aktuellen Playlist direkt vom LMS.
+     *
+     * @return int|false
+     */
+    private function _GetTrackCount(): int|false
+    {
+        $LMSData = $this->SendDirect(new \SqueezeBox\LMSData(['playlist', 'tracks'], '?'));
+        if ($LMSData === null) {
+            return false;
+        }
+        return (int) ($LMSData->Data[0] ?? 0);
+    }
+
+    /**
+     * _SetNewStationName
+     * Setzt den Sendernamen aus einer Statusmeldung (live geprüft mit TuneIn und Icecast, 15.10.2026):
+     * 1. remote_title (Name des Favoriten bzw. Anzeigetitel), wenn es keine URL ist; nur in der Antwort mit Tags.
+     * 2. sonst den bisherigen Wert behalten (die Abo-Meldung enthält kein remote_title),
+     * 3. ist der leer, current_title, wenn es keine URL und kein Songtitel ist. TuneIn liefert dort den Sendernamen,
+     *    Icecast-Streams dagegen 'Interpret - Titel'.
+     * Ohne Remote-Titel ist der Sendername leer. Im Zustand Stop fehlt die Dauer auch bei Titeln,
+     * daher bleibt der Sendername bei einem angehaltenen Remote-Titel erhalten.
+     *
+     * @param  string $Mode         play, pause oder stop.
+     * @param  bool   $Remote       remote:1 in der Statusmeldung.
+     * @param  bool   $HasDuration  Dauer größer 0 in der Statusmeldung.
+     * @param  string $CurrentTitle current_title der Statusmeldung.
+     * @param  string $RemoteTitle  remote_title der Statusmeldung.
+     * @param  string $Title        title der Statusmeldung.
+     * @return void
+     */
+    private function _SetNewStationName(string $Mode, bool $Remote, bool $HasDuration, string $CurrentTitle, string $RemoteTitle, string $Title): void
+    {
+        if ($Remote && !in_array($Mode, ['play', 'pause'])) {
+            return;
+        }
+        $Station = '';
+        if ($Remote && !$HasDuration) {
+            $Station = (string) $this->GetValue(\SqueezeBox\Device\Variables::StationName);
+            $IsSongTitle = ($Title !== '') && (($CurrentTitle === $Title) || str_ends_with($CurrentTitle, ' - ' . $Title));
+            if (($RemoteTitle !== '') && !self::IsUrl($RemoteTitle)) {
+                $Station = $RemoteTitle;
+            } elseif (($Station === '') && ($CurrentTitle !== '') && !self::IsUrl($CurrentTitle) && !$IsSongTitle) {
+                $Station = $CurrentTitle;
+            }
+        }
+        if ($this->GetValue(\SqueezeBox\Device\Variables::StationName) !== $Station) {
+            $this->SetValueString(\SqueezeBox\Device\Variables::StationName, $Station);
+        }
+    }
+
+    /**
      * _SetNewSyncMaster
      *
      * @param  bool $isMaster
@@ -3992,6 +4015,12 @@ class Squeezebox extends IPSModuleStrict
             ],
             12
         );
+        // Bei höchstens einem Titel gibt es nichts auszuwählen; der Regler (0 bis 1) wäre sonst bedienbar.
+        if ($Tracks > 1) {
+            $this->EnableAction(\SqueezeBox\Device\Variables::Index);
+        } else {
+            $this->DisableAction(\SqueezeBox\Device\Variables::Index);
+        }
     }
 
     /**
@@ -4267,6 +4296,7 @@ class Squeezebox extends IPSModuleStrict
                         }
                         if ((int) $LMSData->Data[0] == 0) { // alles leeren
                             $this->SetValueString(\SqueezeBox\Device\Variables::Title, '');
+                            $this->SetValueString(\SqueezeBox\Device\Variables::StationName, '');
                             $this->SetValueString(\SqueezeBox\Device\Variables::Playlistname, '');
                             $this->SetValueString(\SqueezeBox\Device\Variables::Artist, '');
                             $this->SetValueString(\SqueezeBox\Device\Variables::Album, '');
@@ -4302,6 +4332,10 @@ class Squeezebox extends IPSModuleStrict
                     case 'playtracks':
                     case 'loadtracks':
                         // Neue oder umsortierte Playlist. Ändert sich die Anzahl der Titel, lädt VM_UPDATE von Tracks die Playlist; sonst hier neu laden (auch bei laufendem Abo).
+                        // Bei neuer Playlist den Sender leeren; läuft ein Stream, setzt ihn die nächste Statusmeldung wieder.
+                        if (($LMSData->Command[1] != 'move') && ($this->GetValue(\SqueezeBox\Device\Variables::StationName) !== '')) {
+                            $this->SetValueString(\SqueezeBox\Device\Variables::StationName, '');
+                        }
                         $Tracks = $this->GetValue(\SqueezeBox\Device\Variables::Tracks);
                         $this->RequestState(\SqueezeBox\Device\Variables::Tracks);
                         if ($this->GetValue(\SqueezeBox\Device\Variables::Tracks) == $Tracks) {
@@ -4339,8 +4373,11 @@ class Squeezebox extends IPSModuleStrict
                         }
                         break;
                     case 'newsong':
-                        $Value = trim((string) (string) $LMSData->Data[0]);
-                        $this->SetValueString(\SqueezeBox\Device\Variables::Title, $Value);
+                        $Value = trim((string) $LMSData->Data[0]);
+                        // Solange ein Stream keine Metadaten hat, sendet der LMS die URL als Titel; dann den letzten Titel behalten.
+                        if (!self::IsUrl($Value)) {
+                            $this->SetValueString(\SqueezeBox\Device\Variables::Title, $Value);
+                        }
                         if (isset($LMSData->Data[1])) {
                             $NewIndex = (int) $LMSData->Data[1] + 1;
                             if ($this->GetValue(\SqueezeBox\Device\Variables::Index) != $NewIndex) {
@@ -4462,6 +4499,13 @@ class Squeezebox extends IPSModuleStrict
                 $HasPlaylistName = false;
                 $NewTime = null;
                 $Mode = '';
+                $Remote = false;
+                $CurrentTitle = '';
+                $RemoteTitle = '';
+                $StatusTitle = '';
+                $DurationValue = 0;
+                $IndexChanged = false;
+                $TitleChanged = false;
                 foreach ($LMSData->Data as $TaggedDataLine) {
                     $Data = new \SqueezeBox\LMSTaggingData($TaggedDataLine);
                     switch ($Data->Name) {
@@ -4505,6 +4549,7 @@ class Squeezebox extends IPSModuleStrict
                             break;
                         case 'duration':
                             $HasDuration = true;
+                            $DurationValue = (int) $Data->Value;
                             if ((int) $Data->Value != $this->DurationRAW) {
                                 $this->_SetNewDuration((int) $Data->Value);
                             }
@@ -4513,7 +4558,10 @@ class Squeezebox extends IPSModuleStrict
                             $this->_SetSeekable((int) $Data->Value == 1);
                             break;
                         case 'remote':
-                            //$this->_SetSeekable((int) $Data->Value != 1);
+                            $Remote = ((int) $Data->Value == 1);
+                            break;
+                        case 'remote_title':
+                            $RemoteTitle = trim((string) $Data->Value);
                             break;
                         case 'sleep':
                             if ($this->ReadPropertyBoolean(\SqueezeBox\Device\Property::EnableSleepTimer)) {
@@ -4577,15 +4625,21 @@ class Squeezebox extends IPSModuleStrict
                         case 'playlist_tracks':
                             if ($this->GetValue(\SqueezeBox\Device\Variables::Tracks) != (int) $Data->Value) {
                                 $this->SetValueInteger(\SqueezeBox\Device\Variables::Tracks, (int) $Data->Value);
+                                // Andere Playlist: Sender leeren. Slaves erhalten die Ereignisse zum Laden einer Playlist nicht.
+                                // Läuft ein Stream, setzt ihn _SetNewStationName am Ende dieser Meldung wieder.
+                                if ($this->GetValue(\SqueezeBox\Device\Variables::StationName) !== '') {
+                                    $this->SetValueString(\SqueezeBox\Device\Variables::StationName, '');
+                                }
                             }
                             break;
                         case 'playlist mode':
-                            //TODO
+                            // off, on oder disabled (Party-Modus der LMS-Oberfläche); wird nicht ausgewertet.
                             break;
                         case 'playlist_cur_index':
                         case 'playlist index':
                             if ($this->GetValue(\SqueezeBox\Device\Variables::Index) != ((int) $Data->Value + 1)) {
                                 $this->SetValueInteger(\SqueezeBox\Device\Variables::Index, (int) $Data->Value + 1);
+                                $IndexChanged = true;
                             }
                             break;
                         case 'playlist_name':
@@ -4595,11 +4649,14 @@ class Squeezebox extends IPSModuleStrict
                             //playlist_timestamp:1474744498.14079
                             // merken und auf änderung ein Refresh machen ?!
                         case 'current_title':
+                            $CurrentTitle = trim((string) $Data->Value);
                             break;
                         case 'title':
                             $Value = trim((string) $Data->Value);
-                            if ($this->GetValue(\SqueezeBox\Device\Variables::Title) != $Value) {
+                            $StatusTitle = $Value;
+                            if (!self::IsUrl($Value) && ($this->GetValue(\SqueezeBox\Device\Variables::Title) != $Value)) {
                                 $this->SetValueString(\SqueezeBox\Device\Variables::Title, $Value);
+                                $TitleChanged = true;
                             }
                             break;
                         case 'genre':
@@ -4619,6 +4676,17 @@ class Squeezebox extends IPSModuleStrict
                 }
                 if ($NewTime !== null) {
                     $this->_SetNewTime($NewTime);
+                }
+                // Streams haben keine Dauer: in der Abo-Meldung fehlt sie, in der Antwort mit Tags ist sie 0.
+                $this->_SetNewStationName($Mode, $Remote, $HasDuration && ($DurationValue > 0), $CurrentTitle, $RemoteTitle, $StatusTitle);
+                // Neuer Titel im Stream ohne neuen Index: Der LMS sendet 'playlist newsong' nur an den Master einer Sync-Gruppe,
+                // Slaves erfahren den Wechsel nur aus der Statusmeldung (live geprüft 15.10.2026). Daher hier Titeldaten und Cover nachladen.
+                // Beim Master hat newsong den Titel bereits gesetzt, dann ist TitleChanged false.
+                if ($TitleChanged && !$IndexChanged && in_array($Mode, ['play', 'pause'])) {
+                    $this->RequestState(\SqueezeBox\Device\Variables::Album);
+                    $this->RequestState(\SqueezeBox\Device\Variables::Artist);
+                    $this->RequestState(\SqueezeBox\Device\Variables::Genre);
+                    $this->SetCover();
                 }
                 // playlist_name fehlt, wenn die aktuelle Playlist keine gespeicherte ist (z.B. nach PlayUrl).
                 if (!$HasPlaylistName && ($this->GetValue(\SqueezeBox\Device\Variables::Playlistname) !== '')) {

@@ -591,7 +591,7 @@ Im Fehlerfall wird `false` zurückgegeben.
 **Beispiel:**  
 
 ```php
-print_r(LMS_GetFavorites($id,`6.1`));
+print_r(LMS_GetFavorites(12345, '6.1'));
 ```
 
 ```php
@@ -661,16 +661,32 @@ array LMS_ExistsUrlInFavorite (int $InstanzID, string $URL)
 array LMS_ExistsIdInFavorite (int $InstanzID, int $ID)
 ```
 
-Prüft ob die in `$ID` oder `$URL` übergebene Datei in den Favoriten vorhanden ist.  
-Liefert ein assoziiertes Array.  
+Prüft, ob die übergebene Datei in den Favoriten vorhanden ist.  
+`$URL` ist die URL der Datei, wie sie z.B. `LMS_GetFavorites` oder die Songinfos im Feld `Url` liefern (`file:///…`, Kodierung wie `%20` beibehalten).  
+`$ID` ist die Track-Id aus der Datenbank (z.B. `Track_id` aus `LMS_Search`), **nicht** die `$FavoriteID`.  
+Liefert ein assoziiertes Array; ohne Treffer nur `Exists` mit `false`.  
 Im Fehlerfall wird `false` zurückgegeben.  
 
 **Array:**  
 
-| Index  |  Typ   | Beschreibung                                       |
-| :----: | :----: | :------------------------------------------------- |
-| Exists |  bool  | True wenn die Datei in den Favoriten existiert     |
-| Index  | string | Der Index der Datei in den Favoriten (FavoritenID) |
+| Index  |  Typ   | Beschreibung                                                 |
+| :----: | :----: | :----------------------------------------------------------- |
+| Exists |  bool  | True wenn die Datei in den Favoriten existiert               |
+| Index  | string | Die `$FavoriteID` des gefundenen Favoriten (nur bei Treffer) |
+
+**Beispiel:**  
+
+```php
+print_r(LMS_ExistsIdInFavorite(12345, 220161));
+```
+
+```php
+Array
+(
+    [Exists] => 1
+    [Index] => 0
+)
+```
 
 ### 8. Radio & Apps
 
@@ -689,7 +705,7 @@ Im Fehlerfall wird `false` zurückgegeben.
 | :----: | :----: | :------------------------------------------------------ |
 |  Icon  | string | URL zum Icon des Eintrags                               |
 |  Cmd   | string | Das zu verwendende Kommando für den Player              |
-| Weight | string | Sortierreihenfolge                                      |
+| Weight |  int   | Sortierreihenfolge                                      |
 |  Name  | string | Der Names des Eintrags                                  |
 |  Type  | string | Der Typ des Eintrags, xmlbrowser oder xmlbrowser_search |
 
@@ -700,19 +716,19 @@ array LMS_GetRadioOrAppData (int $InstanzID, string $Cmd, string $FolderID)
 array LMS_GetRadioOrAppDataEx (int $InstanzID, string $Cmd, string $FolderID, string $Search)
 ```
 
-Über den Befehl können die Kommandos von LMS_GetRadios und LMS_GetApps ausgeführt werden.  
+Über den Befehl können die Menüs der von `LMS_GetRadios` und `LMS_GetApps` gelieferten Einträge gelesen werden.  
 Liefert ein mehrdimensionales assoziiertes Array.  
-`$Cmd` ist das Kommando z.B. `world`, `itunes`, `search` etc..  
-`$FolderID` muss entweder einen leeren String enthalten für die Oberste Ebene des Plugin, oder die ID der Einträge.  
-`$Search` enthält den Suchparameter für alle Plugins vom Typ xmlbrowser_search.  
+`$Cmd` ist der Wert `Cmd` eines Eintrags aus `LMS_GetRadios` bzw. `LMS_GetApps`, z.B. `local`, `music`, `search`, `sounds` oder `youtube`. Welche Kommandos es gibt, hängt von den installierten Plugins ab.  
+`$FolderID` ist ein leerer String für die oberste Ebene, sonst der Wert `Id` eines Eintrags mit `Hasitems` = `true` (z.B. `0` oder `0.1`).  
+`$Search` enthält den Suchbegriff für Einträge vom Typ `xmlbrowser_search`.  
 Im Fehlerfall wird `false` zurückgegeben.  
 
 **Beispiel:**  
 
 ```php
-LMS_GetRadioOrAppData($id,"lma",``);  
-LMS_GetRadioOrAppData($id,"world",`1.1`);  
-LMS_GetRadioOrAppDataEx($id,"search",``,`Anime`);  
+print_r(LMS_GetRadioOrAppData(12345, 'sounds', ''));    // Ordner der Sounds-App
+print_r(LMS_GetRadioOrAppData(12345, 'sounds', '0'));   // Einträge im ersten Ordner, Id 0.0, 0.1, …
+print_r(LMS_GetRadioOrAppDataEx(12345, 'search', '', 'Anime'));
 ```
 
 **Array:**  

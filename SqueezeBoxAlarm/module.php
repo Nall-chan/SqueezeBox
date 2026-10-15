@@ -1203,6 +1203,11 @@ class SqueezeboxAlarm extends IPSModuleStrict
      */
     private function RefreshEvent(LSA_Alarm $Alarm): void
     {
+        // Die Idents haben eine einstellige Nummer; weitere Wecker (angelegt über LMS oder Gerät) werden nicht abgebildet.
+        if ($Alarm->Index > 9) {
+            $this->SendDebug('Alarm ignored', $Alarm->Index, 0);
+            return;
+        }
         $eid = $this->FindIDForIdent(\SqueezeBox\Alarm\Variables::AlarmTime . $Alarm->Index);
         if ($eid > 0) {
             $this->UnregisterMessage($eid, EM_CHANGEACTIVE);
@@ -1404,6 +1409,10 @@ class SqueezeboxAlarm extends IPSModuleStrict
         $MaxIndex = -1;
         foreach ($Alarms->Items as $Alarm) {
             /** @var LSA_Alarm $Alarm  */
+            if ($Alarm->Index > 9) {
+                // Wird von RefreshEvent nicht abgebildet und zählt nicht zu den belegten Plätzen.
+                continue;
+            }
             $MaxIndex = max($MaxIndex, $Alarm->Index);
             $this->RefreshEvent($Alarm);
         }
@@ -1512,10 +1521,15 @@ class SqueezeboxAlarm extends IPSModuleStrict
                         if (!isset($Data['Id'])) {
                             break;
                         }
+                        // Die Instanz bildet höchstens 10 Wecker ab. War die Liste voll, kann der LMS weitere haben, die jetzt nachrücken.
+                        $WasFull = (count($Alarms->Items) >= 10);
                         $Alarms->Remove((string) $Data['Id']);
                         $this->Alarms = $Alarms;
                         $this->RefreshDeleteVariable(count($Alarms->Items));
                         $this->RefreshEvents($Alarms);
+                        if ($WasFull) {
+                            $this->RequestState('Alarms');
+                        }
                         break;
                     case 'update':
                         $Data = (new \SqueezeBox\LMSTaggingArray($LMSData->Data, ''))->DataArray();

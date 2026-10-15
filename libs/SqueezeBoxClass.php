@@ -471,6 +471,12 @@ class LMSTaggingData extends \stdClass
 class LMSTaggingArray extends \stdClass
 {
     /**
+     * Trenner-Modus: Ein neuer Datensatz beginnt, sobald sich ein Feldname wiederholt.
+     * Für Antworten, deren Felder je Datensatz in wechselnder Reihenfolge kommen (z.B. radios, apps).
+     */
+    public const RepeatedField = '*';
+
+    /**
      * @var array Enthält alle zu dekodierenden Index mit ihren Typenumwandlungen.
      */
     public static $DataFields = [
@@ -558,13 +564,19 @@ class LMSTaggingArray extends \stdClass
         $UseIDs = false;
         if (count($TaggedData) > 0) {
             $UseIDs = ((new LMSTaggingData($TaggedData[0]))->Name == 'id') ? true : false;
-            if ($UsedIdIndex === '') {
+            if (($UsedIdIndex === '') || ($UsedIdIndex === self::RepeatedField)) {
                 $UseIDs = false;
             }
         }
         foreach ($TaggedData as $Line) {
             $Part = new LMSTaggingData($Line);
-            if ($UseIDs) {
+            if ($UsedIdIndex === self::RepeatedField) {
+                $Index = ucfirst($Part->Name);
+                if (array_key_exists($Index, static::$DataFields) && (($id < 0) || array_key_exists($Index, $DataArray[$id]))) {
+                    $id++;
+                    $DataArray[$id] = [];
+                }
+            } elseif ($UseIDs) {
                 if ($Part->Name == 'id') {
                     if (strpos($Part->Value, '.') === false) {
                         $id = (int) $Part->Value;
@@ -595,7 +607,10 @@ class LMSTaggingArray extends \stdClass
                 case 1:
                     // Nur echte Dezimalzahlen wandeln (Nachkommastellen werden abgeschnitten).
                     // Werte wie '1e512345' oder '01234567' sind z.B. Wecker-Ids und bleiben Strings.
-                    if (preg_match('/^-?(0|[1-9]\d*)(\.\d+)?$/', $Part->Value)) {
+                    // Ids mit Punkt (z.B. Favoriten, Radio- und App-Menüs '0.1') sind Pfade und bleiben Strings.
+                    if (($Index == 'Id') && str_contains($Part->Value, '.')) {
+                        $DataArray[$id][$Index] = $Part->Value;
+                    } elseif (preg_match('/^-?(0|[1-9]\d*)(\.\d+)?$/', $Part->Value)) {
                         $DataArray[$id][$Index] = (int) $Part->Value;
                     } else {
                         $DataArray[$id][$Index] = $Part->Value;
@@ -758,7 +773,8 @@ class LMSSongInfo extends \stdClass
             } else {
                 // Die Werte sind bereits von LMSResponse dekodiert.
                 $Songs[$id][$Index] = $Part->Value;
-                if ($Index == 'Remote_title') {
+                // Bei Streams ist remote_title der Name des Favoriten bzw. Anzeigetitel; eine URL ersetzt den Titel nicht.
+                if (($Index == 'Remote_title') && (preg_match('/^[a-z][a-z0-9+.-]*:\/\//i', (string) $Part->Value) !== 1)) {
                     $Songs[$id]['Title'] = $Songs[$id]['Remote_title'];
                 }
             }
@@ -836,6 +852,18 @@ trait LMSSongURL
         }
         $SongURL = str_replace('\\', '/', $SongURL);
         return true;
+    }
+
+    /**
+     * IsUrl
+     * Prüft, ob ein Text eine URL ist (z.B. Titel eines Streams ohne Metadaten).
+     *
+     * @param string $Text
+     * @return bool
+     */
+    protected static function IsUrl(string $Text): bool
+    {
+        return preg_match('/^[a-z][a-z0-9+.-]*:\/\//i', $Text) === 1;
     }
 
     /**

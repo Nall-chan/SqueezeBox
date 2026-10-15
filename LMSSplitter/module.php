@@ -1530,13 +1530,13 @@ class LyrionMusicServer extends IPSModuleStrict
         return count($LMSData->Data) == 0;
     }
 
-    // TODO ab Hier !
-
     /**
      * ExistsUrlInFavorite
+     * IPS-Instanz-Funktion 'LMS_ExistsUrlInFavorite'.
+     * Prüft, ob eine URL in den Favoriten vorhanden ist.
      *
-     * @param  string $URL
-     * @return bool|array
+     * @param  string $URL URL der Datei wie in den Songinfos bzw. Favoriten (Kodierung beibehalten).
+     * @return bool|array ['Exists' => bool, 'Index' => FavoriteID (nur bei Treffer)], false im Fehlerfall.
      */
     public function ExistsUrlInFavorite(string $URL): bool|array
     {
@@ -1546,14 +1546,17 @@ class LyrionMusicServer extends IPSModuleStrict
         }
         $LMSData->SliceData();
         $Result = (new \SqueezeBox\LMSTaggingArray($LMSData->Data))->DataArray();
-        return $Result;
+        // Ohne Treffer (z.B. unbekannte Track-Id) fehlt exists in der Antwort.
+        return isset($Result['Exists']) ? $Result : ['Exists' => false];
     }
 
     /**
      * ExistsIdInFavorite
+     * IPS-Instanz-Funktion 'LMS_ExistsIdInFavorite'.
+     * Prüft, ob ein Titel der Datenbank in den Favoriten vorhanden ist.
      *
-     * @param  int $ID
-     * @return bool|array
+     * @param  int $ID Track-Id aus der Datenbank (nicht die FavoriteID).
+     * @return bool|array ['Exists' => bool, 'Index' => FavoriteID (nur bei Treffer)], false im Fehlerfall.
      */
     public function ExistsIdInFavorite(int $ID): bool|array
     {
@@ -1563,13 +1566,16 @@ class LyrionMusicServer extends IPSModuleStrict
         }
         $LMSData->SliceData();
         $Result = (new \SqueezeBox\LMSTaggingArray($LMSData->Data))->DataArray();
-        return $Result;
+        // Ohne Treffer (z.B. unbekannte Track-Id) fehlt exists in der Antwort.
+        return isset($Result['Exists']) ? $Result : ['Exists' => false];
     }
 
     /**
      * GetRadios
+     * IPS-Instanz-Funktion 'LMS_GetRadios'.
+     * Liefert die Einträge der Radio-Plugins.
      *
-     * @return bool|array
+     * @return bool|array Einträge mit Cmd, Name, Type, Icon und Weight, false im Fehlerfall.
      */
     public function GetRadios(): bool|array
     {
@@ -1578,13 +1584,15 @@ class LyrionMusicServer extends IPSModuleStrict
             return false;
         }
         $LMSData->SliceData();
-        return (new \SqueezeBox\LMSTaggingArray($LMSData->Data, 'icon'))->DataArray();
+        return $this->DecodeMenuItems($LMSData->Data);
     }
 
     /**
      * GetApps
+     * IPS-Instanz-Funktion 'LMS_GetApps'.
+     * Liefert die Einträge der App-Plugins.
      *
-     * @return bool|array
+     * @return bool|array Einträge mit Cmd, Name, Type, Icon und Weight, false im Fehlerfall.
      */
     public function GetApps(): bool|array
     {
@@ -1593,15 +1601,17 @@ class LyrionMusicServer extends IPSModuleStrict
             return false;
         }
         $LMSData->SliceData();
-        return (new \SqueezeBox\LMSTaggingArray($LMSData->Data, 'icon'))->DataArray();
+        return $this->DecodeMenuItems($LMSData->Data);
     }
 
     /**
      * GetRadioOrAppData
+     * IPS-Instanz-Funktion 'LMS_GetRadioOrAppData'.
+     * Liefert ein Menü eines Radio- oder App-Plugins.
      *
-     * @param  string $Cmd
-     * @param  string $FolderID
-     * @return bool|array
+     * @param  string $Cmd      Wert Cmd aus GetRadios bzw. GetApps.
+     * @param  string $FolderID Leer für die oberste Ebene, sonst die Id eines Eintrags (z.B. 0.1).
+     * @return bool|array Einträge mit Id, Name, Type, Url, Isaudio, Hasitems, false im Fehlerfall.
      */
     public function GetRadioOrAppData(string $Cmd, string $FolderID): bool|array
     {
@@ -1610,11 +1620,13 @@ class LyrionMusicServer extends IPSModuleStrict
 
     /**
      * GetRadioOrAppDataEx
+     * IPS-Instanz-Funktion 'LMS_GetRadioOrAppDataEx'.
+     * Liefert ein Menü eines Radio- oder App-Plugins, bei Einträgen vom Typ xmlbrowser_search mit Suchbegriff.
      *
-     * @param  string $Cmd
-     * @param  string $FolderID
-     * @param  string $Search
-     * @return bool|array
+     * @param  string $Cmd      Wert Cmd aus GetRadios bzw. GetApps.
+     * @param  string $FolderID Leer für die oberste Ebene, sonst die Id eines Eintrags (z.B. 0.1).
+     * @param  string $Search   Suchbegriff oder leer.
+     * @return bool|array Einträge mit Id, Name, Type, Url, Isaudio, Hasitems, false im Fehlerfall.
      */
     public function GetRadioOrAppDataEx(string $Cmd, string $FolderID, string $Search): bool|array
     {
@@ -1637,7 +1649,6 @@ class LyrionMusicServer extends IPSModuleStrict
         array_shift($LMSData->Data);
         return (new \SqueezeBox\LMSTaggingArray($LMSData->Data))->DataArray();
     }
-
     /**
      * ForwardData
      * Interne Funktion des SDK. Nimmt Daten von Children entgegen und sendet Diese weiter.
@@ -1876,6 +1887,20 @@ class LyrionMusicServer extends IPSModuleStrict
             }
         }
         return true;
+    }
+
+    /**
+     * DecodeMenuItems
+     * Zerlegt die Antwort von radios bzw. apps. Die Felder kommen je Eintrag in wechselnder Reihenfolge.
+     *
+     * @param  array $TaggedData Die Antwort ohne Echo der Parameter.
+     * @return array Einträge mit Cmd, Name, Type, Icon und Weight.
+     */
+    private function DecodeMenuItems(array $TaggedData): array
+    {
+        // sort und count gehören zur Antwort, nicht zu einem Eintrag.
+        $Items = array_values(array_filter($TaggedData, fn ($Line): bool => !str_starts_with((string) $Line, 'sort:') && !str_starts_with((string) $Line, 'count:')));
+        return (new \SqueezeBox\LMSTaggingArray($Items, \SqueezeBox\LMSTaggingArray::RepeatedField))->DataArray();
     }
 
     /**

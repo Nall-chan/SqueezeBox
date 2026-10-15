@@ -207,6 +207,7 @@ namespace SqueezeBox\Device
         public const Tracks = 'Tracks';
         public const Treble = 'Treble';
         public const Volume = 'Volume';
+        public const StationName = 'StationName';
         public const Cover = 'CoverIMG';
     }
     class Timer

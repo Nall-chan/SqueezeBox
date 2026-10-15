@@ -93,6 +93,12 @@ Wird ein Wecker in der SqueezeBox gelöscht, so werden bei konfigurierten Auto-L
 | Wecker X Wiedergabeliste mischen | integer | AlarmShuffleX      | Zufallsmodus des Weckers                                                   |
 | Wecker X Wiedergabeliste wählen  | string  | AlarmHTMLPlaylistX | HTML-Box mit allen verfügbaren Alarm-Playlisten                            |
 
+> [!NOTE]
+> Eine Instanz verwaltet höchstens 10 Wecker (X = 0 bis 9). `LSA_AddAlarm` lehnt einen elften Wecker mit einem Hinweis ab. Wecker, die über die LMS-Oberfläche oder am Gerät darüber hinaus angelegt werden, erscheinen nicht in Symcon; wird einer der 10 Wecker gelöscht, rückt der nächste nach.
+
+> [!WARNING]
+> Ist `Nicht benutzte Objekte löschen` (`dynamicDisplay`) aktiv, löscht die Instanz Ereignis und Statusvariablen eines Weckers, sobald dieser in der Squeezebox gelöscht wird. Verknüpfungen, Ereignisse oder Skripte, die diese Objekte verwenden, verlieren dann ihr Ziel. Ohne diese Option bleiben die Objekte erhalten und werden nur zurückgesetzt.
+
 ![WebFront Beispiel](imgs/log1.png)  
 
 ## 6. Visualisierung
@@ -203,6 +209,7 @@ int|bool LSA_AddAlarm(int $InstanzID)
 
 Erzeugt einen neuen Wecker.  
 Es wird der Index des neuen Weckers zurückgegeben, im Fehlerfall false.  
+Sind bereits 10 Wecker vorhanden, wird ein Hinweis erzeugt und `false` geliefert.
 Achtung Prüfung auf === false sinnvoll, da es auch den Index 0 gibt!  
 
 ### 2. Wecker-Befehle

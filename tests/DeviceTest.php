@@ -240,4 +240,94 @@ class DeviceTest extends ModuleTestCase
         $this->assertSame($Before + 1, $Covers());
         $this->assertNoPhpErrors();
     }
+    /**
+     * F13: Sendername nach Live-Mitschnitten (15.10.2026). Abo-Meldungen enthalten weder Dauer noch remote_title,
+     * Antworten mit Tags enthalten duration:0 und remote_title. TuneIn liefert in current_title den Sender,
+     * Icecast-Streams 'Interpret - Titel'.
+     */
+    public function testStationName(): void
+    {
+        $Status = fn (string $Mode, string $Fields): string => '00%3A04%3A20%3A00%3A00%3A01 status - 1 subscribe%3A2 player_connected%3A1 power%3A1 mode%3A' . $Mode . ' remote%3A1 ' . $Fields . ' playlist_cur_index%3A0 playlist_tracks%3A1';
+        // Icecast, Abo-Meldung: current_title ist der Songtitel -> kein Sender.
+        $this->receive($this->iid, $Status('play', 'current_title%3AModerator%20-%20Words%20Remain title%3AWords%20Remain'));
+        $this->assertSame('', $this->values($this->iid)['StationName']);
+        // Antwort mit Tags: remote_title ist der Anzeigetitel.
+        $this->receive($this->iid, $Status('play', 'current_title%3AModerator%20-%20Words%20Remain title%3AWords%20Remain artist%3AModerator duration%3A0 remote_title%3ARadio%20Paradise'));
+        $this->assertSame('Radio Paradise', $this->values($this->iid)['StationName']);
+        // Folgende Abo-Meldung ohne remote_title: Sender bleibt.
+        $this->receive($this->iid, $Status('play', 'current_title%3AThe%20Flaming%20Lips%20-%20Are%20You%20A%20Hypnotist title%3AAre%20You%20A%20Hypnotist'));
+        $this->assertSame('Radio Paradise', $this->values($this->iid)['StationName']);
+        // Solange der Stream keine Metadaten hat, sendet der LMS die URL als Titel; der letzte Titel bleibt.
+        $this->receive($this->iid, '00%3A04%3A20%3A00%3A00%3A01 playlist newsong http%3A%2F%2Fopml.radiotime.com%2FTune.ashx%3Fid%3Ds1 0');
+        $this->assertSame('Are You A Hypnotist', $this->values($this->iid)['Title']);
+        // Angehaltener Stream behält den Sender; eine neue Playlist leert ihn.
+        $this->receive($this->iid, $Status('stop', 'current_title%3ARadio%20Paradise title%3AAre%20You%20A%20Hypnotist'));
+        $this->assertSame('Radio Paradise', $this->values($this->iid)['StationName']);
+        $this->receive($this->iid, '00%3A04%3A20%3A00%3A00%3A01 playlist play http%3A%2F%2Fopml.radiotime.com%2FTune.ashx%3Fid%3Ds108601');
+        $this->assertSame('', $this->values($this->iid)['StationName']);
+        // TuneIn, Abo-Meldung: current_title ist der Sendername.
+        $this->receive($this->iid, $Status('play', 'current_title%3ARadio%20Anime%20Nexus title%3AThe%20Poison%20Bloom'));
+        $this->assertSame('Radio Anime Nexus', $this->values($this->iid)['StationName']);
+        // Antwort mit Tags: remote_title (Name des Favoriten) hat Vorrang, eine URL nicht.
+        $this->receive($this->iid, $Status('play', 'current_title%3ARadio%20Anime%20Nexus title%3AThe%20Poison%20Bloom duration%3A0 remote_title%3AAnime%20Nexus'));
+        $this->assertSame('Anime Nexus', $this->values($this->iid)['StationName']);
+        $this->receive($this->iid, $Status('play', 'current_title%3ARadio%20Anime%20Nexus title%3AThe%20Poison%20Bloom duration%3A0 remote_title%3Ahttp%3A%2F%2Fopml.radiotime.com%2FTune.ashx'));
+        $this->assertSame('Anime Nexus', $this->values($this->iid)['StationName']);
+        // Remote-Titel mit Dauer (z.B. YouTube Music oder Werbung von TuneIn): kein Sender.
+        $this->receive($this->iid, $Status('play', 'current_title%3ARealize title%3ARealize duration%3A245'));
+        $this->assertSame('', $this->values($this->iid)['StationName']);
+        // Angehaltener lokaler Titel (ohne remote) leert den Sender.
+        $this->receive($this->iid, $Status('play', 'current_title%3ARadio%20Anime%20Nexus title%3AThe%20Poison%20Bloom'));
+        $this->receive($this->iid, str_replace('remote%3A1 ', '', $Status('stop', 'title%3ALied')));
+        $this->assertSame('', $this->values($this->iid)['StationName']);
+        $this->assertNoPhpErrors();
+    }
+
+    /** F4: Einfügen an einer Position ist bei Zufallswiedergabe nicht möglich. */
+    public function testInsertAtWithShuffle(): void
+    {
+        $this->receive($this->iid, self::$Responses['status']);
+        $this->Errors = [];
+        $this->assertFalse($this->call($this->iid, 'InsertInPlaylistByUrlAt', 'file:///x.mp3', 1));
+        $this->assertSame(['Not possible while shuffle is active.'], $this->Errors);
+        $this->assertNoPhpErrors();
+    }
+
+    /** F13: In der Playlist ersetzt remote_title den Titel nur, wenn es keine URL ist. */
+    public function testSongInfoRemoteTitle(): void
+    {
+        $Songs = (new \SqueezeBox\LMSSongInfo(['id:1', 'title:Song', 'remote_title:Anime Nexus', 'id:2', 'title:Werbung', 'remote_title:http://opml.radiotime.com/Tune.ashx?id=s1']))->GetAllSongs();
+        $this->assertSame(['Anime Nexus', 'Werbung'], array_column($Songs, 'Title'));
+    }
+    /** Slave einer Sync-Gruppe: Titelwechsel im Stream nur aus der Statusmeldung (kein newsong) lädt Cover und Titeldaten. */
+    public function testSlaveTitleChangeLoadsCover(): void
+    {
+        $Status = fn (string $Title, int $Tracks = 1): string => '00%3A04%3A20%3A00%3A00%3A01 status - 1 subscribe%3A2 player_connected%3A1 power%3A1 mode%3Aplay remote%3A1 current_title%3AA%20-%20' . rawurlencode($Title) . ' playlist_cur_index%3A0 playlist_tracks%3A' . $Tracks . ' id%3A-1 title%3A' . rawurlencode($Title) . ' remote_title%3ARadio%20Paradise';
+        $Covers = fn (): int => count(array_filter(IPS\DebugServer::getDebugMessages($this->iid), fn (array $Debug): bool => $Debug['Message'] == 'Refresh Cover'));
+        $this->receive($this->iid, $Status('Cosmic Pulse'));
+        $Before = $Covers();
+        $this->receive($this->iid, $Status('Cosmic Pulse'));
+        $this->assertSame($Before, $Covers(), 'gleicher Titel lädt kein Cover');
+        $this->receive($this->iid, $Status('Exhale Inhale'));
+        $this->assertSame($Before + 1, $Covers(), 'neuer Titel lädt das Cover einmal');
+        $this->assertSame('Exhale Inhale', $this->values($this->iid)['Title']);
+        $this->assertSame('Radio Paradise', $this->values($this->iid)['StationName']);
+        // Andere Playlist (Anzahl der Titel ändert sich), angehalten und ohne Stream-Daten: Sender wird geleert.
+        $this->receive($this->iid, '00%3A04%3A20%3A00%3A00%3A01 status - 1 subscribe%3A2 player_connected%3A1 power%3A1 mode%3Astop remote%3A1 playlist_cur_index%3A11 playlist_tracks%3A50 id%3A-2 title%3ALied');
+        $this->assertSame('', $this->values($this->iid)['StationName']);
+        $this->assertNoPhpErrors();
+    }
+
+    /** Index ist bei höchstens einem Titel nicht bedienbar. */
+    public function testIndexActionDependsOnTracks(): void
+    {
+        $Index = IPS_GetObjectIDByIdent('Index', $this->iid);
+        $this->receive($this->iid, '00%3A04%3A20%3A00%3A00%3A01 status - 1 subscribe%3A2 player_connected%3A1 power%3A1 mode%3Astop playlist_cur_index%3A0 playlist_tracks%3A1 id%3A-1 title%3AA');
+        IPS_ApplyChanges($this->iid);
+        $this->assertSame(0, IPS_GetVariable($Index)['VariableAction']);
+        $this->receive($this->iid, '00%3A04%3A20%3A00%3A00%3A01 status - 1 subscribe%3A2 player_connected%3A1 power%3A1 mode%3Astop playlist_cur_index%3A0 playlist_tracks%3A5 id%3A-1 title%3AA');
+        IPS_ApplyChanges($this->iid);
+        $this->assertSame($this->iid, IPS_GetVariable($Index)['VariableAction']);
+        $this->assertNoPhpErrors();
+    }
 }
