@@ -151,6 +151,7 @@ Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:
 - Wecker: Schlug eine Abfrage beim Start fehl, wurden die Wecker nicht geladen.  
 - Wecker: Ein Wecker ohne ausgewählte Wochentage führte zu einem Fehler.  
 - Wecker: Die Auswahl in der HTML-Playlist schlug bei Datei-URLs mit Leer- oder Sonderzeichen mit `Access denied` fehl.  
+- Wecker: War die Variable „Wecker löschen“ abgeschaltet, wurde sie bei jedem Start der Instanz gelöscht und neu angelegt.  
 - `LMS_Search`, `LMS_Get…Ex` und `LMS_GetSongsBy…Ex` fanden bei Suchbegriffen mit Umlauten oder Sonderzeichen nichts.  
 - Favoriten-Funktionen haben Ids und URLs doppelt kodiert.  
 - Antworten des LMS wurden doppelt dekodiert: URLs kamen verfälscht an und wurden so auch in Wecker übernommen. `LMS_GetDirectoryByID` lieferte bei Ordnern mit Umlauten im Pfad `false`.  
