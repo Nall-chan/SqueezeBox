@@ -1,9 +1,9 @@
 [![SDK](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Module Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FSqueezeBox%2Frefs%2Fheads%2Fstrict%2Flibrary.json&query=%24.version&label=Modul%20Version&color=blue)](https://community.symcon.de/t/modul-squeezebox-release/46937)
-[![Symcon Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FSqueezeBox%2Frefs%2Fheads%2Fstrict%2Flibrary.json&query=%24.compatibility.version&suffix=%3E&label=Symcon%20Version&color=green)](https://www.symcon.de/de/service/dokumentation/installation/migrationen/v80-v81-q3-2025/)  
-[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![Symcon Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FSqueezeBox%2Frefs%2Fheads%2Fstrict%2Flibrary.json&query=%24.compatibility.version&suffix=%3E&label=Symcon%20Version&color=green)](https://www.symcon.de/de/service/dokumentation/installation/migrationen/)  
+[![License](https://img.shields.io/badge/License-Custom--NC--SA-green.svg)](#6-lizenz)
 [![Check Style](https://github.com/Nall-chan/SqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/SqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions)  
-[![PayPal.Me](https://img.shields.io/badge/PayPal-Me-lightblue.svg)](#4-spenden)[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#4-spenden)
+[![PayPal.Me](https://img.shields.io/badge/PayPal-Me-lightblue.svg)](#3-spenden)[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#3-spenden)
 
 # Symcon-Modul: SqueezeBox  <!-- omit in toc -->  
 
@@ -14,84 +14,107 @@ Lyrion Music Server.
 ## Inhaltsverzeichnis <!-- omit in toc -->
 
 - [1. Funktionsumfang](#1-funktionsumfang)
-  - [Discovery:](#discovery)
-  - [Squeezebox Konfigurator:](#squeezebox-konfigurator)
-  - [Lyrion Music Server:](#lyrion-music-server)
-  - [SqueezeBox Player:](#squeezebox-player)
-  - [Squeezebox Alarm (Wecker):](#squeezebox-alarm-wecker)
-  - [Squeezebox Battery:](#squeezebox-battery)
+- [Vorbemerkungen](#vorbemerkungen)
+  - [Zur Library](#zur-library)
+  - [Zur Integration von Geräten](#zur-integration-von-geräten)
 - [2. Voraussetzungen](#2-voraussetzungen)
 - [3. Software-Installation](#3-software-installation)
-- [4. Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
+- [4. Enthaltene Module](#4-enthaltene-module)
+  - [Lyrion Music Server Discovery](#lyrion-music-server-discovery)
+  - [Lyrion Music Server Konfigurator](#lyrion-music-server-konfigurator)
+  - [Lyrion Music Server (Splitter)](#lyrion-music-server-splitter)
+  - [SqueezeBox Player](#squeezebox-player)
+  - [Squeezebox Alarm (Wecker)](#squeezebox-alarm-wecker)
+  - [Squeezebox Battery](#squeezebox-battery)
 - [5. Anhang](#5-anhang)
   - [1. GUID der Module](#1-guid-der-module)
-  - [2. Datenaustausch](#2-datenaustausch)
-  - [3. Changelog](#3-changelog)
-  - [4. Spenden](#4-spenden)
+  - [2. Changelog](#2-changelog)
+  - [3. Spenden](#3-spenden)
 - [6. Lizenz](#6-lizenz)
 
 ## 1. Funktionsumfang
 
-### [Discovery:](LMSDiscovery/)  
+- Automatisches Auffinden von Lyrion Music Servern (LMS) im lokalen Netzwerk und Anlegen der Instanzen über einen Konfigurator.  
+- Steuern und Darstellen von Playern (Squeezebox und andere Player am LMS) in der Kachel-Visualisierung und im WebFront, inklusive Playlist, Cover und Synchronisierung.  
+- Verwalten der Wecker einer Squeezebox.  
+- Auslesen von Server-Informationen, Datenbank, Playlisten, Favoriten sowie Radio- und App-Plugins über PHP-Befehle.  
+- Auslesen der Stromversorgung und des Akkus einer Squeezebox Radio.  
 
-- Einfaches Auffinden von Lyrion Music Servern im lokalen Netzwerk.  
-- Einfaches Einrichten von Konfiguratoren für gefundene Server.  
+## Vorbemerkungen
 
-### [Squeezebox Konfigurator:](LMSConfigurator/)  
+### Zur Library
 
-- Auslesen und darstellen aller im LMS und IPS bekannten Geräte und Instanzen.  
-- Einfaches Anlegen von neuen Instanzen in IPS.  
+Die Library kommuniziert ausschließlich über die [CLI-Schnittstelle](https://lyrion.org/reference/cli/introduction/) des Lyrion Music Server mit den Playern. Es werden nur die Befehle umgesetzt, die in der [PHP-Befehlsreferenz](#4-enthaltene-module) der einzelnen Module beschrieben sind.  
+Die Werte der Batterie-Instanz werden nicht über den LMS, sondern per SSH direkt aus der Squeezebox Radio gelesen.  
 
-### [Lyrion Music Server:](LMSSplitter/)  
+### Zur Integration von Geräten
 
-- Auslesen un darstellen von Server-Informationen.  
-- Auslesen von Datenbank Informationen.  
-- Auslesen und bearbeiten von Server-Playlisten.  
-- Laden von Server-Playlisten über das WebFront in einen (mehrere) Player.  
-- Steuern des Scanner der Datenbank inkl. Darstellung des laufenden Modi vom Scanner.  
-
-### [SqueezeBox Player:](SqueezeBoxDevice/)  
-
-- Steuern und Abfragen der diversen verschiedenen Zustände und Eigenschaften.  
-- Abfragen, Laden, bearbeiten und speichern von der internen Playlist des Gerätes.  
-- Synchronisierung steuern.  
-- Fähigkeiten über das WebFront:  
-  - Modus: Play,Pause, Stop
-  - Audio: Lautstärke mit Stummschaltung, und wenn vom Gerät unterstützt, auch Tonhöhe sowie Höhen und Bass.
-  - Bedienung der 6 Preset-Tasten vom Gerät
-  - Sleeptimer: Setzen und löschen des Timer.
-  - Playlist: Trackwahl, nächster, vorheriger Track, Wiederholung und Zufallsmodus
-  - Darstellung der Daten zum aktuellen Track: Titel, Album, Interpret, Stilrichtung, Cover etc..
-  - Darstellen der Server-Playlisten sowie laden derselben auf Player.
-
-### [Squeezebox Alarm (Wecker):](SqueezeBoxAlarm/)  
-
-- Auslesen und darstellen der Wecker einer Squeezebox.
-- Steuern der Wecker über das WebFront und PHP-Befehlen.
-
-### [Squeezebox Battery:](SqueezeBoxDeviceBattery/)  
-
-- Auslesen und darstellen von Werten der Stromversorgung und des Akkumulators.  
+- Der CLI-Port des LMS (Standard `9090`) und der Webserver (Standard `9000`) müssen von Symcon aus erreichbar sein.  
+- Ist im LMS der Kennwortschutz aktiv, werden Benutzername und Passwort im Splitter benötigt.  
+- Für die Batterie-Instanz muss an der Squeezebox der SSH-Zugang (Remote Login) aktiviert sein; benötigt wird das Passwort des Benutzers `root` (Standard `1234`).  
 
 ## 2. Voraussetzungen
 
-- Symcon ab Version 8.2
+- Symcon ab Version 9.0
 - Lyrion Music Server
 - kompatible Player
 
 ## 3. Software-Installation
 
 Über den 'Module-Store' in IPS das Modul 'SqueezeBox' hinzufügen.  
-**Bei kommerzieller Nutzung (z.B. als Errichter oder Integrator) wenden Sie sich bitte an den Autor.**  
+
 ![Module-Store](imgs/install.png)  
 
-## 4. Einrichten der Instanzen in IP-Symcon
-
-Nach der Installation über den 'Modul-Store' fragt Symcon ob die enthaltende [Discovery Instanz](LMSDiscovery/) erstellt werden soll.  
+Nach der Installation über den 'Modul-Store' fragt Symcon, ob die enthaltene [Discovery Instanz](LMSDiscovery/README.md) erstellt werden soll.  
 Werden Symcon und der `Lyrion Music Server` allerdings nicht im gleichen physikalischen Netzwerk betrieben, wie z.B. Symcon hinter einer NAT, so kann diese Frage verneint werden.  
-Der [Squeezebox Konfigurator](LMSConfigurator/) muss in dieser Konstellation per Hand angelegt und sein dazugehöriger [LMS Splitter](LMSSplitter/) manuell konfiguriert werden.  
+Der [Squeezebox Konfigurator](LMSConfigurator/README.md) muss in dieser Konstellation per Hand angelegt und sein dazugehöriger [LMS Splitter](LMSSplitter/README.md) manuell konfiguriert werden.  
 
-Die Einrichtung der Instanzen ist direkt in der Dokumentation der jeweiligen Module beschrieben.  
+> [!TIP]
+> Die Instanzen am besten über die Discovery und den Konfigurator anlegen. Die Einrichtung ist in der Dokumentation der jeweiligen Module beschrieben.
+
+## 4. Enthaltene Module
+
+### [Lyrion Music Server Discovery](LMSDiscovery/README.md)
+
+- Einfaches Auffinden von Lyrion Music Servern im lokalen Netzwerk.  
+- Einfaches Einrichten von Konfiguratoren für gefundene Server.  
+
+### [Lyrion Music Server Konfigurator](LMSConfigurator/README.md)
+
+- Auslesen und darstellen aller im LMS und IPS bekannten Geräte und Instanzen.  
+- Einfaches Anlegen von neuen Instanzen in IPS.  
+
+### [Lyrion Music Server (Splitter)](LMSSplitter/README.md)
+
+- Verbindung zum CLI des LMS für alle Instanzen.  
+- Auslesen und darstellen von Server-Informationen.  
+- Auslesen von Datenbank-Informationen, Favoriten sowie Radio- und App-Plugins.  
+- Auslesen und bearbeiten von Server-Playlisten.  
+- Laden von Server-Playlisten über die Visualisierung auf einen oder mehrere Player.  
+- Steuern des Datenbank-Scanners inkl. Darstellung des laufenden Scans.  
+
+### [SqueezeBox Player](SqueezeBoxDevice/README.md)
+
+- Steuern und Abfragen der diversen verschiedenen Zustände und Eigenschaften.  
+- Abfragen, Laden, bearbeiten und speichern der Playlist des Gerätes.  
+- Synchronisierung steuern.  
+- Fähigkeiten über die Visualisierung:  
+  - Modus: Play, Pause, Stop
+  - Audio: Lautstärke mit Stummschaltung, und wenn vom Gerät unterstützt, auch Tonhöhe sowie Höhen und Bass.
+  - Bedienung der Preset-Tasten vom Gerät
+  - Sleeptimer: Setzen und löschen des Timer.
+  - Playlist: Trackwahl, nächster, vorheriger Track, Wiederholung und Zufallsmodus
+  - Darstellung der Daten zum aktuellen Track: Titel, Album, Interpret, Stilrichtung, Cover etc.
+  - Darstellung als Media-Kachel in der Kachel-Visualisierung.
+
+### [Squeezebox Alarm (Wecker)](SqueezeBoxAlarm/README.md)
+
+- Auslesen und darstellen der Wecker einer Squeezebox.
+- Steuern der Wecker über die Visualisierung und PHP-Befehle.
+
+### [Squeezebox Battery](SqueezeBoxDeviceBattery/README.md)
+
+- Auslesen und darstellen von Werten der Stromversorgung und des Akkus einer Squeezebox Radio.  
 
 ## 5. Anhang
 
@@ -106,7 +129,7 @@ Die Einrichtung der Instanzen ist direkt in der Dokumentation der jeweiligen Mod
 | Squeezebox Alarm                 | Device       |  LSA   | {E7423083-3502-42C8-B244-2852D0BE41D4} |
 | Squeezebox Battery               | Device       |  LSQB  | {718158BB-B247-4A71-9440-9C2FF1378752} |
 
-### 2. Datenaustausch
+**Datenaustausch:**  
 
 | Funktion                | GUID                                   |
 | :---------------------- | :------------------------------------- |
@@ -121,13 +144,14 @@ Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:
 | Command     | array  | CLI Kommandos als Array       |
 | Data        | array  | Daten des Kommandos als Array |
 
-### 3. Changelog
+### 2. Changelog
 
-**Nächste Version (in Vorbereitung):**  
+**Version 4.20:**  
 
 > [!IMPORTANT]
-> Geändertes Fehlerverhalten, bitte eigene Skripte prüfen:
+> Geänderte Voraussetzung und geändertes Fehlerverhalten, bitte eigene Skripte prüfen:
 >
+> - Die Library benötigt Symcon ab Version 9.0.
 > - Fehlermeldungen der Instanz-Funktionen (`LMS_…`, `LSQ_…`, `LSA_…`, `LSQB_…`) werden nicht mehr zusätzlich per `echo` ausgegeben. Die Funktion erzeugt nur noch einen Hinweis (Notice) mit der Meldung und liefert `false`. Das aufrufende Skript läuft weiter. Bisher erschien die Meldung doppelt.
 
 **Neue Funktionen und Aktionen**  
@@ -168,6 +192,7 @@ Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:
 - `LMS_GetRadioOrAppData(Ex)`: Ids von Einträgen in Unterordnern (z.B. `0.1`) wurden zu `0` abgeschnitten.  
 - Batterie: Der Ladestand wird mit der vom Gerät gemeldeten Akkukapazität berechnet (bisher fest 2000 mAh).  
 - Splitter: Gleichzeitige Anfragen (z.B. aus zwei geöffneten Konfiguratoren) konnten die Antwort einer anderen Anfrage erhalten oder mit „Keine Antwort vom LMS“ abbrechen.  
+- Wecker: Die Beschriftung „Alarm Playlist als HTML-Box anlegen“ wurde im Konfigurationsformular umgebrochen.  
 
 **Version 4.11:**  
 
@@ -225,6 +250,15 @@ Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:
 - Konfigurator: PHP-Fehler beim Aufbau der Liste, wenn eine Antwort des LMS fehlte.  
 
 **Version 4.10:**  
+
+> [!IMPORTANT]
+> Geänderte Statusvariablen, bitte eigene Skripte, Ereignisse und Verknüpfungen prüfen:
+>
+> - Player `Status`: Die Werte sind um 1 verschoben (Darstellung `~PlaybackPreviousNext`): `0` = Zurück, `1` = Stop, `2` = Play, `3` = Pause, `4` = Weiter.
+> - Player `Wiederholen`: Die Werte `1` und `2` sind getauscht (Darstellung `~Repeat`): `1` = Playlist, `2` = Titel.
+> - Player `Position` (Ident `Position2`): Die Integer-Variable wurde gelöscht und als Float mit der Darstellung `~Progress` neu angelegt.
+> - Wecker `Wecker X wiederholen` (Ident `AlarmRepeatX`): Die Boolean-Variable wurde gelöscht und als Integer neu angelegt (`0` = Aus, `1` = An).
+> - Player `Ausschalten in` (Ident `SleepTimeout`): als Integer neu angelegt, die alte String-Variable heißt „SleepTimeout (old)“ (Ident `SleepTimeoutOld`).
 
 - Anpassung an den neuen Namen Lyrion.  
 - Umstellung von Profile auf Variablendarstellungen.  
@@ -379,7 +413,7 @@ Der Datenaustausch erfolgt mit einem Objekt vom Typ `LMSData`:
 
 - Erstes offizielles Release  
 
-### 4. Spenden  
+### 3. Spenden  
   
 Die Library ist für die nicht kommerzielle Nutzung kostenlos, Schenkungen als Unterstützung für den Autor werden hier akzeptiert:  
 
@@ -392,4 +426,9 @@ Wunschliste:
 ## 6. Lizenz
 
 IPS-Modul:  
-[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
+[Custom NC-SA](LICENSE)  
+
+Enthaltene bzw. genutzte Fremdquellen:  
+
+- [phpseclib](https://github.com/phpseclib/phpseclib) 2.0 (SSH-Verbindung der Batterie-Instanz), Copyright (c) 2011-2019 TerraFrost (Jim Wigginton) and other contributors, [MIT License](https://github.com/phpseclib/phpseclib/blob/2.0/LICENSE)  
+- Skalierung der Akkuwerte nach Squeezeplay ([`SqueezeboxBabyApplet.lua`](https://github.com/ralph-irving/squeezeplay/blob/master/src/squeezeplay_baby/share/applets/SqueezeboxBaby/SqueezeboxBabyApplet.lua)), Copyright 2010 Logitech, BSD-Lizenz  

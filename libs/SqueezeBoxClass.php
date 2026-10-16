@@ -11,10 +11,10 @@ require_once __DIR__ . '/TimeConvert.php';
 /**
  * @package       Squeezebox
  * @file          SqueezeBoxClass.php
- * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2025 Michael Tröger
- * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       4.10
+ * @author        Michael Tröger <nall4chan@gmail.com>
+ * @copyright     2026 Michael Tröger
+ * @license       Custom Non-Commercial Share-Alike License (see LICENSE)
+ * @version       4.20
  *
  */
 
@@ -31,11 +31,11 @@ enum DeviceType
 /**
  * Definiert eine Datensatz zum Versenden an des LMS.
  *
- * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2025 Michael Tröger
- * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
+ * @author        Michael Tröger <nall4chan@gmail.com>
+ * @copyright     2026 Michael Tröger
+ * @license       Custom Non-Commercial Share-Alike License (see LICENSE)
  *
- * @version       4.10
+ * @version       4.20
  */
 class LMSData extends \stdClass
 {
@@ -220,11 +220,11 @@ class LMSData extends \stdClass
 /**
  * Klasse mit den Empfangenen Daten vom LMS.
  *
- * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2025 Michael Tröger
- * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
+ * @author        Michael Tröger <nall4chan@gmail.com>
+ * @copyright     2026 Michael Tröger
+ * @license       Custom Non-Commercial Share-Alike License (see LICENSE)
  *
- * @version       4.10
+ * @version       4.20
  */
 class LMSResponse extends LMSData
 {
@@ -421,11 +421,11 @@ class LMSReplyQueue
 /**
  * Zerlegt einen getaggten Datensatz in Name und Wert.
  *
- * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2025 Michael Tröger
- * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
+ * @author        Michael Tröger <nall4chan@gmail.com>
+ * @copyright     2026 Michael Tröger
+ * @license       Custom Non-Commercial Share-Alike License (see LICENSE)
  *
- * @version       4.10
+ * @version       4.20
  */
 class LMSTaggingData extends \stdClass
 {
@@ -462,11 +462,11 @@ class LMSTaggingData extends \stdClass
 /**
  * Zerlegt einen Array aus getaggten Datensätzen.
  *
- * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2025 Michael Tröger
- * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
+ * @author        Michael Tröger <nall4chan@gmail.com>
+ * @copyright     2026 Michael Tröger
+ * @license       Custom Non-Commercial Share-Alike License (see LICENSE)
  *
- * @version       4.10
+ * @version       4.20
  */
 class LMSTaggingArray extends \stdClass
 {
@@ -678,11 +678,11 @@ class LMSTaggingArray extends \stdClass
 /**
  * Zerlegt einen Array aus getaggten Datensätzen zu SongInfos.
  *
- * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2025 Michael Tröger
- * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
+ * @author        Michael Tröger <nall4chan@gmail.com>
+ * @copyright     2026 Michael Tröger
+ * @license       Custom Non-Commercial Share-Alike License (see LICENSE)
  *
- * @version       4.10
+ * @version       4.20
  */
 class LMSSongInfo extends \stdClass
 {

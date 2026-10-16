@@ -1,7 +1,7 @@
 [![SDK](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Module Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FSqueezeBox%2Frefs%2Fheads%2Fstrict%2Flibrary.json&query=%24.version&label=Modul%20Version&color=blue)](https://community.symcon.de/t/modul-squeezebox-release/46937)
-[![Symcon Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FSqueezeBox%2Frefs%2Fheads%2Fstrict%2Flibrary.json&query=%24.compatibility.version&suffix=%3E&label=Symcon%20Version&color=green)](https://www.symcon.de/de/service/dokumentation/installation/migrationen/v80-v81-q3-2025/)  
-[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![Symcon Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FSqueezeBox%2Frefs%2Fheads%2Fstrict%2Flibrary.json&query=%24.compatibility.version&suffix=%3E&label=Symcon%20Version&color=green)](https://www.symcon.de/de/service/dokumentation/installation/migrationen/)  
+[![License](https://img.shields.io/badge/License-Custom--NC--SA-green.svg)](#10-lizenz)
 [![Check Style](https://github.com/Nall-chan/SqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/SqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions)  
 [![PayPal.Me](https://img.shields.io/badge/PayPal-Me-lightblue.svg)](#2-spenden)[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#2-spenden)
 
@@ -31,7 +31,7 @@ Sucht Lyrion Music Server im Netzwerk
 
 ## 2. Voraussetzungen
 
-- Symcon ab Version 8.2
+- Symcon ab Version 9.0
 - Lyrion Music Server
 
 ## 3. Software-Installation
@@ -40,13 +40,10 @@ Dieses Modul ist Bestandteil der [SqueezeBox-Library](../README.md#3-software-in
 
 ## 4. Verwendung
 
-<span style="color:red">**Hinweis**</span>  
-
-> Über einen Netzwerk Broadcast wird versucht alle im Netzwerk vorhandenen `Lyrion Music Server` aufzufinden.  
->
-> Werden Symcon und der `Lyrion Music Server` allerdings in verschiedenen (gerouteten) Netzwerkren betrieben, oder z.B. Symcon hinter einer NAT, so wird in der Regel kein `Lyrion Music Server` gefunden.  
->
-> Der [Squeezebox Konfigurator](LMSConfigurator/) muss in dieser Konstellation per Hand angelegt und sein dazugehöriger [LMS Splitter](LMSSplitter/) manuell konfiguriert werden.  
+> [!NOTE]
+> Über einen Netzwerk-Broadcast wird versucht, alle im Netzwerk vorhandenen `Lyrion Music Server` aufzufinden.  
+> Werden Symcon und der `Lyrion Music Server` allerdings in verschiedenen (gerouteten) Netzwerken betrieben, oder z.B. Symcon hinter einer NAT, so wird in der Regel kein `Lyrion Music Server` gefunden.  
+> Der [Squeezebox Konfigurator](../LMSConfigurator/README.md) muss in dieser Konstellation per Hand angelegt und sein dazugehöriger [LMS Splitter](../LMSSplitter/README.md) manuell konfiguriert werden.
 
 Nach der installation des Moduls, erfolgt eine Aufforderung von der Konsole diese `Discovery Instanz` zu erstellen.  
 Bei der manuellen Einrichtung ist die Instanz im Dialog `Instanz hinzufügen` unter dem Hersteller `Lyrion` zu finden.  
@@ -78,7 +75,7 @@ Die Discovery Instanz unterstützt keine Aktionen.
 
 ### 1. Changelog
 
-[Changelog der Library](../README.md#3-changelog)
+[Changelog der Library](../README.md#2-changelog)
 
 ### 2. Spenden
 
@@ -93,4 +90,4 @@ Wunschliste:
 ## 10. Lizenz
 
 IPS-Modul:  
-[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
+[Custom NC-SA](../LICENSE)  

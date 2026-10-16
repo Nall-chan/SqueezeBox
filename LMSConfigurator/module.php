@@ -5,10 +5,10 @@ declare(strict_types=1);
 /**
  * @package       Squeezebox
  * @file          module.php
- * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2025 Michael Tröger
- * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       4.10
+ * @author        Michael Tröger <nall4chan@gmail.com>
+ * @copyright     2026 Michael Tröger
+ * @license       Custom Non-Commercial Share-Alike License (see LICENSE)
+ * @version       4.20
  *
  */
 require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
@@ -20,11 +20,11 @@ eval('declare(strict_types=1);namespace LyrionMusicServerConfigurator {?>' . fil
  * LyrionMusicServerConfigurator Klasse für ein SqueezeBox Konfigurator.
  * Erweitert IPSModule.
  *
- * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2025 Michael Tröger
- * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
+ * @author        Michael Tröger <nall4chan@gmail.com>
+ * @copyright     2026 Michael Tröger
+ * @license       Custom Non-Commercial Share-Alike License (see LICENSE)
  *
- * @version       4.10
+ * @version       4.20
  *
  * @property int $ParentID
  * @method bool IORequestAction(string $Ident, mixed $Value)
@@ -317,7 +317,6 @@ class LyrionMusicServerConfigurator extends IPSModuleStrict
 
     /**
      * GetDeviceInfo
-     * IPS-Instanz-Funktion 'LMC_GetDeviceInfo'.
      * Lädt die bekannten Player vom LMS.
      *
      * @return array|bool Assoziiertes Array,  false und Fehlermeldung.

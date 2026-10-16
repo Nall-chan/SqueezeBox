@@ -7,10 +7,10 @@ namespace SqueezeBox;
 /**
  * @package       Squeezebox
  * @file          LMSSocket.php
- * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2025 Michael Tröger
- * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       4.10
+ * @author        Michael Tröger <nall4chan@gmail.com>
+ * @copyright     2026 Michael Tröger
+ * @license       Custom Non-Commercial Share-Alike License (see LICENSE)
+ * @version       4.20
  *
  */
 

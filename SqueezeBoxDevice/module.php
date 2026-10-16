@@ -5,10 +5,10 @@ declare(strict_types=1);
 /**
  * @package       Squeezebox
  * @file          module.php
- * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2025 Michael Tröger
- * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       4.10
+ * @author        Michael Tröger <nall4chan@gmail.com>
+ * @copyright     2026 Michael Tröger
+ * @license       Custom Non-Commercial Share-Alike License (see LICENSE)
+ * @version       4.20
  *
  */
 require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
@@ -24,10 +24,10 @@ eval('declare(strict_types=1);namespace SqueezeboxDevice {?>' . file_get_content
  * SqueezeboxDevice Klasse für eine SqueezeBox-Instanz in IPS.
  * Erweitert IPSModule.
  *
- * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2024 Michael Tröger
- * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       4.10
+ * @author        Michael Tröger <nall4chan@gmail.com>
+ * @copyright     2026 Michael Tröger
+ * @license       Custom Non-Commercial Share-Alike License (see LICENSE)
+ * @version       4.20
  *
  * @property int $ParentID
  * @property array $Multi_Playlist Alle Datensätze der Playlisten
@@ -1123,10 +1123,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * SetSync
-     *
      * IPS-Instanz-Funktion 'LSQ_SetSync'.
-     * @param  int $SlaveInstanceID
-     * @return bool
+     * Synchronisiert einen anderen Player mit diesem Player (dieser wird Master).
+     *
+     * @param int $SlaveInstanceID InstanzID des Players, welcher der Gruppe beitritt.
+     * @return bool True bei Erfolg, sonst false.
      */
     public function SetSync(int $SlaveInstanceID): bool
     {
@@ -1239,14 +1240,12 @@ class Squeezebox extends IPSModuleStrict
     }
 
     /**
-     * SetPower
-     * IPS-Instanz-Funktion 'LSQ_SetPower'.
+     * Power
+     * IPS-Instanz-Funktion 'LSQ_Power'.
      * Schaltet das Gerät ein oder aus.
      *
-     * @param bool $Value
-     *                    false  = ausschalten
-     *                    true = einschalten
-     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
+     * @param bool $Value true = einschalten, false = ausschalten.
+     * @return bool True bei erfolgreicher Ausführung und Rückmeldung.
      */
     public function Power(bool $Value): bool
     {
@@ -1259,10 +1258,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * SetSleep
-     * Restzeit bis zum Sleep setzen.
+     * IPS-Instanz-Funktion 'LSQ_SetSleep'.
+     * Setzt den Einschlaftimer.
      *
-     * @param int $Seconds Sekunden bis zum ausschalten
-     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
+     * @param int $Seconds Sekunden bis zum Ausschalten, 0 = Einschlaftimer aus.
+     * @return bool True bei erfolgreicher Ausführung und Rückmeldung.
      */
     public function SetSleep(int $Seconds): bool
     {
@@ -1280,12 +1280,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * SetMute
-     * Setzten der Stummschaltung.
+     * IPS-Instanz-Funktion 'LSQ_SetMute'.
+     * Setzt die Stummschaltung.
      *
-     * @param boolean $Value
-     *                      true = Stumm an
-     *                      false = Stumm aus
-     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
+     * @param bool $Value true = Stumm an, false = Stumm aus.
+     * @return bool True bei erfolgreicher Ausführung und Rückmeldung.
      */
     public function SetMute(bool $Value): bool
     {
@@ -1298,10 +1297,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * SetVolume
-     * Setzten der Lautstärke.
+     * IPS-Instanz-Funktion 'LSQ_SetVolume'.
+     * Setzt die Lautstärke.
      *
-     * @param int $Value
-     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
+     * @param int $Value Lautstärke 0 bis 100.
+     * @return bool True bei erfolgreicher Ausführung und Rückmeldung.
      */
     public function SetVolume(int $Value): bool
     {
@@ -1318,10 +1318,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * SetVolumeEx
-     * Setzten der Lautstärke.
+     * IPS-Instanz-Funktion 'LSQ_SetVolumeEx'.
+     * Ändert die Lautstärke relativ.
      *
-     * @param string $Value
-     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
+     * @param string $Value Änderung mit Vorzeichen, '-100' bis '+100'.
+     * @return bool True bei erfolgreicher Ausführung und Rückmeldung.
      */
     public function SetVolumeEx(string $Value): bool
     {
@@ -1342,10 +1343,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * SetBass
-     * Setzt den Bass-Wert.
+     * IPS-Instanz-Funktion 'LSQ_SetBass'.
+     * Setzt die Tiefen. Erfordert die Option enableBass.
      *
-     * @param int $Value
-     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
+     * @param int $Value Tiefen 0 bis 100.
+     * @return bool True bei erfolgreicher Ausführung und Rückmeldung.
      */
     public function SetBass(int $Value): bool
     {
@@ -1366,10 +1368,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * SetBassEx
-     * Setzt den Bass-Wert.
+     * IPS-Instanz-Funktion 'LSQ_SetBassEx'.
+     * Ändert die Tiefen relativ. Erfordert die Option enableBass.
      *
-     * @param string $Value
-     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
+     * @param string $Value Änderung mit Vorzeichen, '-100' bis '+100'.
+     * @return bool True bei erfolgreicher Ausführung und Rückmeldung.
      */
     public function SetBassEx(string $Value): bool
     {
@@ -1394,10 +1397,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * SetTreble
-     * Setzt den Treble-Wert.
+     * IPS-Instanz-Funktion 'LSQ_SetTreble'.
+     * Setzt die Höhen. Erfordert die Option enableTreble.
      *
-     * @param int $Value
-     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
+     * @param int $Value Höhen 0 bis 100.
+     * @return bool True bei erfolgreicher Ausführung und Rückmeldung.
      */
     public function SetTreble(int $Value): bool
     {
@@ -1418,10 +1422,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * SetTrebleEx
-     * Setzt den Treble-Wert.
+     * IPS-Instanz-Funktion 'LSQ_SetTrebleEx'.
+     * Ändert die Höhen relativ. Erfordert die Option enableTreble.
      *
-     * @param string $Value
-     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
+     * @param string $Value Änderung mit Vorzeichen, '-100' bis '+100'.
+     * @return bool True bei erfolgreicher Ausführung und Rückmeldung.
      */
     public function SetTrebleEx(string $Value): bool
     {
@@ -1446,10 +1451,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * SetPitch
-     * Setzt den Pitch-Wert.
+     * IPS-Instanz-Funktion 'LSQ_SetPitch'.
+     * Setzt die Tonhöhe. Erfordert die Option enablePitch.
      *
-     * @param int $Value
-     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
+     * @param int $Value Tonhöhe 80 bis 120.
+     * @return bool True bei erfolgreicher Ausführung und Rückmeldung.
      */
     public function SetPitch(int $Value): bool
     {
@@ -1470,10 +1476,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * SetPitchEx
-     * Setzt den Pitch-Wert.
+     * IPS-Instanz-Funktion 'LSQ_SetPitchEx'.
+     * Ändert die Tonhöhe relativ. Erfordert die Option enablePitch.
      *
-     * @param string $Value
-     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
+     * @param string $Value Änderung mit Vorzeichen, '-40' bis '+40'.
+     * @return bool True bei erfolgreicher Ausführung und Rückmeldung.
      */
     public function SetPitchEx(string $Value): bool
     {
@@ -1498,9 +1505,10 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * PreviousButton
-     * Simuliert einen Tastendruck.
+     * IPS-Instanz-Funktion 'LSQ_PreviousButton'.
+     * Simuliert einen Tastendruck auf die Taste Zurück.
      *
-     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
+     * @return bool True bei erfolgreicher Ausführung und Rückmeldung.
      */
     public function PreviousButton(): bool
     {
@@ -1513,9 +1521,10 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * NextButton
-     * Simuliert einen Tastendruck.
+     * IPS-Instanz-Funktion 'LSQ_NextButton'.
+     * Simuliert einen Tastendruck auf die Taste Vorwärts.
      *
-     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
+     * @return bool True bei erfolgreicher Ausführung und Rückmeldung.
      */
     public function NextButton(): bool
     {
@@ -1528,10 +1537,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * SelectPreset
-     * Simuliert einen Tastendruck auf einen der Preset-Tasten.
+     * IPS-Instanz-Funktion 'LSQ_SelectPreset'.
+     * Simuliert einen Tastendruck auf eine der Preset-Tasten.
      *
-     * @param int $Value 1 - 10
-     * @return bool  true bei erfolgreicher Ausführung und Rückmeldung
+     * @param int $Value Preset-Taste 1 bis 10.
+     * @return bool True bei erfolgreicher Ausführung und Rückmeldung.
      */
     public function SelectPreset(int $Value): bool
     {
@@ -1549,9 +1559,10 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * Play
+     * IPS-Instanz-Funktion 'LSQ_Play'.
      * Startet die Wiedergabe.
      *
-     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
+     * @return bool True wenn der Befehl gesendet wurde, sonst false.
      */
     public function Play(): bool
     {
@@ -1564,10 +1575,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * PlayEx
-     * Startet die Wiedergabe.
+     * IPS-Instanz-Funktion 'LSQ_PlayEx'.
+     * Startet die Wiedergabe mit Einblenden.
      *
-     * @param int $FadeIn Einblendezeit
-     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
+     * @param int $FadeIn Einblendzeit in Sekunden.
+     * @return bool True wenn der Befehl gesendet wurde, sonst false.
      */
     public function PlayEx(int $FadeIn): bool
     {
@@ -1580,9 +1592,10 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * Stop
+     * IPS-Instanz-Funktion 'LSQ_Stop'.
      * Stoppt die Wiedergabe.
      *
-     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
+     * @return bool True wenn der Befehl gesendet wurde, sonst false.
      */
     public function Stop(): bool
     {
@@ -1595,9 +1608,10 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * Pause
+     * IPS-Instanz-Funktion 'LSQ_Pause'.
      * Pausiert die Wiedergabe.
      *
-     * @return bool true bei erfolgreicher Ausführung und Rückmeldung
+     * @return bool True bei erfolgreicher Ausführung und Rückmeldung.
      */
     public function Pause(): bool
     {
@@ -1610,10 +1624,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * SetPosition
-     * Setzt eine absolute Zeit-Position des aktuellen Titels.
+     * IPS-Instanz-Funktion 'LSQ_SetPosition'.
+     * Springt im aktuellen Titel auf eine absolute Zeit.
      *
-     * @param int $Value Zeit in Sekunden.
-     * @return bool true bei erfolgreicher Ausführung und Rückmeldung.
+     * @param int $Value Zeit in Sekunden, höchstens die Dauer des Titels.
+     * @return bool True bei erfolgreicher Ausführung und Rückmeldung.
      */
     public function SetPosition(int $Value): bool
     {
@@ -1630,10 +1645,12 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * DisplayLine
+     * IPS-Instanz-Funktion 'LSQ_DisplayLine'.
+     * Zeigt eine Zeile in großer Schrift auf dem Display an.
      *
-     * @param  string $Text
-     * @param  int $Duration
-     * @return bool
+     * @param string $Text Anzuzeigender Text.
+     * @param int $Duration Anzeigedauer in Sekunden, mindestens 3.
+     * @return bool True wenn der Befehl gesendet wurde, sonst false.
      */
     public function DisplayLine(string $Text, int $Duration): bool
     {
@@ -1642,12 +1659,14 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * DisplayLineEx
+     * IPS-Instanz-Funktion 'LSQ_DisplayLineEx'.
+     * Zeigt eine Zeile in großer Schrift auf dem Display an.
      *
-     * @param  string $Text
-     * @param  int $Duration
-     * @param  bool $Centered
-     * @param  int $Brightness
-     * @return bool
+     * @param string $Text Anzuzeigender Text.
+     * @param int $Duration Anzeigedauer in Sekunden, mindestens 3.
+     * @param bool $Centered True zentriert den Text.
+     * @param int $Brightness Helligkeit 0 bis 4.
+     * @return bool True wenn der Befehl gesendet wurde, sonst false.
      */
     public function DisplayLineEx(string $Text, int $Duration, bool $Centered, int $Brightness): bool
     {
@@ -1656,11 +1675,13 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * Display2Lines
+     * IPS-Instanz-Funktion 'LSQ_Display2Lines'.
+     * Zeigt zwei Zeilen auf dem Display an.
      *
-     * @param  string $Text1
-     * @param  string $Text2
-     * @param  int $Duration
-     * @return bool
+     * @param string $Text1 Text der ersten Zeile.
+     * @param string $Text2 Text der zweiten Zeile.
+     * @param int $Duration Anzeigedauer in Sekunden, mindestens 3.
+     * @return bool True wenn der Befehl gesendet wurde, sonst false.
      */
     public function Display2Lines(string $Text1, string $Text2, int $Duration): bool
     {
@@ -1669,13 +1690,15 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * Display2LinesEx
+     * IPS-Instanz-Funktion 'LSQ_Display2LinesEx'.
+     * Zeigt zwei Zeilen auf dem Display an.
      *
-     * @param  string $Text1
-     * @param  string $Text2
-     * @param  int $Duration
-     * @param  bool $Centered
-     * @param  int $Brightness
-     * @return bool
+     * @param string $Text1 Text der ersten Zeile.
+     * @param string $Text2 Text der zweiten Zeile.
+     * @param int $Duration Anzeigedauer in Sekunden, mindestens 3.
+     * @param bool $Centered True zentriert den Text.
+     * @param int $Brightness Helligkeit 0 bis 4.
+     * @return bool True wenn der Befehl gesendet wurde, sonst false.
      */
     public function Display2LinesEx(string $Text1, string $Text2, int $Duration, bool $Centered, int $Brightness): bool
     {
@@ -1684,11 +1707,13 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * DisplayText
+     * IPS-Instanz-Funktion 'LSQ_DisplayText'.
+     * Zeigt zwei Zeilen auf dem Display an (LMS-Befehl display).
      *
-     * @param  string $Text1
-     * @param  string $Text2
-     * @param  int $Duration
-     * @return bool
+     * @param string $Text1 Text der ersten Zeile.
+     * @param string $Text2 Text der zweiten Zeile.
+     * @param int $Duration Anzeigedauer in Sekunden, mindestens 3.
+     * @return bool True bei Erfolg, sonst false.
      */
     public function DisplayText(string $Text1, string $Text2, int $Duration): bool
     {
@@ -1714,8 +1739,10 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * GetLinesPerScreen
+     * IPS-Instanz-Funktion 'LSQ_GetLinesPerScreen'.
+     * Liefert die Anzahl der Zeilen, die das Display mit der aktuellen Schrift darstellt.
      *
-     * @return bool|int
+     * @return bool|int Anzahl der Zeilen, false im Fehlerfall.
      */
     public function GetLinesPerScreen(): bool|int
     {
@@ -1728,8 +1755,10 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * GetDisplayedText
+     * IPS-Instanz-Funktion 'LSQ_GetDisplayedText'.
+     * Liefert den aktuellen Text auf dem Display.
      *
-     * @return bool|array
+     * @return bool|array Zwei Zeilen, false im Fehlerfall.
      */
     public function GetDisplayedText(): bool|array
     {
@@ -1742,8 +1771,10 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * GetDisplayedNow
+     * IPS-Instanz-Funktion 'LSQ_GetDisplayedNow'.
+     * Liefert die zuletzt an das Display gesendeten Daten.
      *
-     * @return bool|array
+     * @return bool|array Zwei Zeilen, false im Fehlerfall.
      */
     public function GetDisplayedNow(): bool|array
     {
@@ -1756,9 +1787,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * PressButton
+     * IPS-Instanz-Funktion 'LSQ_PressButton'.
+     * Simuliert einen Tastendruck.
      *
-     * @param  string $ButtonCode
-     * @return bool
+     * @param string $ButtonCode Tastencode des LMS (Default.map), z.B. play oder volup.
+     * @return bool True wenn der LMS den Tastencode bestätigt hat, sonst false.
      */
     public function PressButton(string $ButtonCode): bool
     {
@@ -1771,10 +1804,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * PlayUrl
-     * Lädt eine neue Playlist.
+     * IPS-Instanz-Funktion 'LSQ_PlayUrl'.
+     * Ersetzt die Playlist durch eine URL und startet die Wiedergabe.
      *
-     * @param string $URL SongURL, Verzeichnis oder Remote-Stream
-     * @return bool
+     * @param string $URL Datei, Verzeichnis oder Stream (file:///…, http://…).
+     * @return bool True bei Erfolg, sonst false.
      */
     public function PlayUrl(string $URL): bool
     {
@@ -1783,10 +1817,12 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * PlayUrlEx
+     * IPS-Instanz-Funktion 'LSQ_PlayUrlEx'.
+     * Ersetzt die Playlist durch eine URL mit Anzeigetitel und startet die Wiedergabe.
      *
-     * @param  string $URL
-     * @param  string $DisplayTitle
-     * @return bool
+     * @param string $URL Datei, Verzeichnis oder Stream (file:///…, http://…).
+     * @param string $DisplayTitle Anzeigetitel in der Playlist.
+     * @return bool True bei Erfolg, sonst false.
      */
     public function PlayUrlEx(string $URL, string $DisplayTitle): bool
     {
@@ -1802,9 +1838,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * PlayUrlSpecial
+     * IPS-Instanz-Funktion 'LSQ_PlayUrlSpecial'.
+     * Wie PlayUrl, aber ohne Prüfung der URL (z.B. spotify:playlist:…).
      *
-     * @param  string $URL
-     * @return bool
+     * @param string $URL URL eines Plugins.
+     * @return bool True bei Erfolg, sonst false.
      */
     public function PlayUrlSpecial(string $URL): bool
     {
@@ -1813,10 +1851,12 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * PlayUrlSpecialEx
+     * IPS-Instanz-Funktion 'LSQ_PlayUrlSpecialEx'.
+     * Wie PlayUrlEx, aber ohne Prüfung der URL (z.B. spotify:playlist:…).
      *
-     * @param  string $URL
-     * @param  string $DisplayTitle
-     * @return bool
+     * @param string $URL URL eines Plugins.
+     * @param string $DisplayTitle Anzeigetitel in der Playlist.
+     * @return bool True bei Erfolg, sonst false.
      */
     public function PlayUrlSpecialEx(string $URL, string $DisplayTitle): bool
     {
@@ -1829,9 +1869,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * PlayFavorite
+     * IPS-Instanz-Funktion 'LSQ_PlayFavorite'.
+     * Spielt einen Favoriten ab.
      *
-     * @param  string $FavoriteID
-     * @return bool
+     * @param string $FavoriteID ID des Favoriten aus LMS_GetFavorites, z.B. '6.1'.
+     * @return bool True wenn der Befehl gesendet wurde, sonst false.
      */
     public function PlayFavorite(string $FavoriteID): bool
     {
@@ -1850,10 +1892,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * AddToPlaylistByUrl
-     * Am Ende hinzufügen.
+     * IPS-Instanz-Funktion 'LSQ_AddToPlaylistByUrl'.
+     * Hängt eine URL an das Ende der Playlist an.
      *
-     * @param string $URL
-     * @return bool
+     * @param string $URL Datei, Verzeichnis oder Stream (file:///…, http://…).
+     * @return bool True bei Erfolg, sonst false.
      */
     public function AddToPlaylistByUrl(string $URL): bool
     {
@@ -1862,10 +1905,12 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * AddToPlaylistByUrlEx
+     * IPS-Instanz-Funktion 'LSQ_AddToPlaylistByUrlEx'.
+     * Hängt eine URL mit Anzeigetitel an das Ende der Playlist an.
      *
-     * @param  string $URL
-     * @param  string $DisplayTitle
-     * @return bool
+     * @param string $URL Datei, Verzeichnis oder Stream (file:///…, http://…).
+     * @param string $DisplayTitle Anzeigetitel in der Playlist.
+     * @return bool True bei Erfolg, sonst false.
      */
     public function AddToPlaylistByUrlEx(string $URL, string $DisplayTitle): bool
     {
@@ -1925,9 +1970,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * DeleteFromPlaylistByUrl
+     * IPS-Instanz-Funktion 'LSQ_DeleteFromPlaylistByUrl'.
+     * Entfernt alle Einträge einer URL aus der Playlist.
      *
-     * @param  string $URL
-     * @return bool
+     * @param string $URL Datei, Playlist oder Verzeichnis.
+     * @return bool True bei Erfolg, sonst false.
      */
     public function DeleteFromPlaylistByUrl(string $URL): bool
     {
@@ -1943,10 +1990,12 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * MoveSongInPlaylist
+     * IPS-Instanz-Funktion 'LSQ_MoveSongInPlaylist'.
+     * Verschiebt einen Titel innerhalb der Playlist.
      *
-     * @param  int $Position
-     * @param  int $NewPosition
-     * @return bool
+     * @param int $Position Position (1 = 1.Eintrag) des Titels.
+     * @param int $NewPosition Neue Position (1 = 1.Eintrag).
+     * @return bool True bei Erfolg, sonst false.
      */
     public function MoveSongInPlaylist(int $Position, int $NewPosition): bool
     {
@@ -1965,10 +2014,12 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * DeleteFromPlaylistByIndex
-     * The "playlist delete" command deletes the song at the specified index from the current playlist.
+     * IPS-Instanz-Funktion 'LSQ_DeleteFromPlaylistByIndex'.
+     * Entfernt einen Titel aus der Playlist.
+     * Der LMS bestätigt auch eine Position ohne Titel.
      *
-     * @param  int $Position
-     * @return bool
+     * @param int $Position Position (1 = 1.Eintrag) des Titels.
+     * @return bool True wenn der LMS den Befehl bestätigt hat, sonst false.
      */
     public function DeleteFromPlaylistByIndex(int $Position): bool
     {
@@ -1987,9 +2038,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * PreviewPlaylistStart
+     * IPS-Instanz-Funktion 'LSQ_PreviewPlaylistStart'.
+     * Ersetzt die Playlist vorübergehend und sichert die bisherige auf dem LMS.
      *
-     * @param  string $Name
-     * @return bool
+     * @param string $Name Name der Playlist oder URL.
+     * @return bool True bei Erfolg, sonst false.
      */
     public function PreviewPlaylistStart(string $Name): bool
     {
@@ -2006,8 +2059,10 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * PreviewPlaylistStop
+     * IPS-Instanz-Funktion 'LSQ_PreviewPlaylistStop'.
+     * Stellt die vor PreviewPlaylistStart aktive Playlist wieder her.
      *
-     * @return bool
+     * @return bool True wenn der Befehl gesendet wurde, sonst false.
      */
     public function PreviewPlaylistStop(): bool
     {
@@ -2121,11 +2176,13 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * LoadPlaylistBySearch
+     * IPS-Instanz-Funktion 'LSQ_LoadPlaylistBySearch'.
+     * Ersetzt die Playlist durch die Titel, die zu Genre, Interpret und Album passen.
      *
-     * @param  string $Genre
-     * @param  string $Artist
-     * @param  string $Album
-     * @return bool
+     * @param string $Genre Name des Genre, leer = alle.
+     * @param string $Artist Name des Interpreten, leer = alle.
+     * @param string $Album Name des Album, leer = alle. Mindestens ein Parameter muss gefüllt sein.
+     * @return bool True wenn der Befehl gesendet wurde, sonst false.
      */
     public function LoadPlaylistBySearch(string $Genre, string $Artist, string $Album): bool
     {
@@ -2141,11 +2198,13 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * AddToPlaylistBySearch
+     * IPS-Instanz-Funktion 'LSQ_AddToPlaylistBySearch'.
+     * Hängt die Titel, die zu Genre, Interpret und Album passen, an die Playlist an.
      *
-     * @param  string $Genre
-     * @param  string $Artist
-     * @param  string $Album
-     * @return bool
+     * @param string $Genre Name des Genre, leer = alle.
+     * @param string $Artist Name des Interpreten, leer = alle.
+     * @param string $Album Name des Album, leer = alle. Mindestens ein Parameter muss gefüllt sein.
+     * @return bool True wenn der Befehl gesendet wurde, sonst false.
      */
     public function AddToPlaylistBySearch(string $Genre, string $Artist, string $Album): bool
     {
@@ -2161,9 +2220,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * LoadPlaylistByTrackTitel
+     * IPS-Instanz-Funktion 'LSQ_LoadPlaylistByTrackTitel'.
+     * Ersetzt die Playlist durch alle Titel, deren Name den Suchbegriff enthält.
      *
-     * @param  string $Titel
-     * @return bool
+     * @param string $Titel Suchbegriff.
+     * @return bool True wenn der Befehl gesendet wurde, sonst false.
      */
     public function LoadPlaylistByTrackTitel(string $Titel): bool
     {
@@ -2180,9 +2241,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * LoadPlaylistByAlbumTitel
+     * IPS-Instanz-Funktion 'LSQ_LoadPlaylistByAlbumTitel'.
+     * Ersetzt die Playlist durch alle Titel der Alben, deren Name den Suchbegriff enthält.
      *
-     * @param  string $Titel
-     * @return bool
+     * @param string $Titel Suchbegriff.
+     * @return bool True wenn der Befehl gesendet wurde, sonst false.
      */
     public function LoadPlaylistByAlbumTitel(string $Titel): bool
     {
@@ -2199,9 +2262,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * LoadPlaylistByArtistName
+     * IPS-Instanz-Funktion 'LSQ_LoadPlaylistByArtistName'.
+     * Ersetzt die Playlist durch alle Titel der Interpreten, deren Name den Suchbegriff enthält.
      *
-     * @param  string $Name
-     * @return bool
+     * @param string $Name Suchbegriff.
+     * @return bool True wenn der Befehl gesendet wurde, sonst false.
      */
     public function LoadPlaylistByArtistName(string $Name): bool
     {
@@ -2218,9 +2283,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * LoadPlaylistByFavoriteID
+     * IPS-Instanz-Funktion 'LSQ_LoadPlaylistByFavoriteID'.
+     * Ersetzt die Playlist durch einen Favoriten.
      *
-     * @param  string $FavoriteID
-     * @return bool
+     * @param string $FavoriteID ID des Favoriten aus LMS_GetFavorites, z.B. '6.1'.
+     * @return bool True wenn der Befehl gesendet wurde, sonst false.
      */
     public function LoadPlaylistByFavoriteID(string $FavoriteID): bool
     {
@@ -2239,9 +2306,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * AddToPlaylistByTrackTitel
+     * IPS-Instanz-Funktion 'LSQ_AddToPlaylistByTrackTitel'.
+     * Hängt alle Titel, deren Name den Suchbegriff enthält, an die Playlist an.
      *
-     * @param  string $Titel
-     * @return bool
+     * @param string $Titel Suchbegriff.
+     * @return bool True wenn der Befehl gesendet wurde, sonst false.
      */
     public function AddToPlaylistByTrackTitel(string $Titel): bool
     {
@@ -2258,9 +2327,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * AddToPlaylistByAlbumTitel
+     * IPS-Instanz-Funktion 'LSQ_AddToPlaylistByAlbumTitel'.
+     * Hängt alle Titel der Alben, deren Name den Suchbegriff enthält, an die Playlist an.
      *
-     * @param  string $Titel
-     * @return bool
+     * @param string $Titel Suchbegriff.
+     * @return bool True wenn der Befehl gesendet wurde, sonst false.
      */
     public function AddToPlaylistByAlbumTitel(string $Titel): bool
     {
@@ -2277,9 +2348,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * AddToPlaylistByArtistName
+     * IPS-Instanz-Funktion 'LSQ_AddToPlaylistByArtistName'.
+     * Hängt alle Titel der Interpreten, deren Name den Suchbegriff enthält, an die Playlist an.
      *
-     * @param  string $Name
-     * @return bool
+     * @param string $Name Suchbegriff.
+     * @return bool True wenn der Befehl gesendet wurde, sonst false.
      */
     public function AddToPlaylistByArtistName(string $Name): bool
     {
@@ -2296,9 +2369,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * AddToPlaylistByFavoriteID
+     * IPS-Instanz-Funktion 'LSQ_AddToPlaylistByFavoriteID'.
+     * Hängt einen Favoriten an die Playlist an.
      *
-     * @param  string $FavoriteID
-     * @return bool
+     * @param string $FavoriteID ID des Favoriten aus LMS_GetFavorites, z.B. '6.1'.
+     * @return bool True wenn der Befehl gesendet wurde, sonst false.
      */
     public function AddToPlaylistByFavoriteID(string $FavoriteID): bool
     {
@@ -2316,11 +2391,13 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * InsertInPlaylistBySearch
+     * IPS-Instanz-Funktion 'LSQ_InsertInPlaylistBySearch'.
+     * Fügt die Titel, die zu Genre, Interpret und Album passen, hinter dem aktuellen Titel ein.
      *
-     * @param  string $Genre
-     * @param  string $Artist
-     * @param  string $Album
-     * @return bool
+     * @param string $Genre Name des Genre, leer = alle.
+     * @param string $Artist Name des Interpreten, leer = alle.
+     * @param string $Album Name des Album, leer = alle. Mindestens ein Parameter muss gefüllt sein.
+     * @return bool True wenn der Befehl gesendet wurde, sonst false.
      */
     public function InsertInPlaylistBySearch(string $Genre, string $Artist, string $Album): bool
     {
@@ -2336,11 +2413,13 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * DeleteFromPlaylistBySearch
+     * IPS-Instanz-Funktion 'LSQ_DeleteFromPlaylistBySearch'.
+     * Entfernt die Titel, die zu Genre, Interpret und Album passen, aus der Playlist.
      *
-     * @param  string $Genre
-     * @param  string $Artist
-     * @param  string $Album
-     * @return bool
+     * @param string $Genre Name des Genre, leer = alle.
+     * @param string $Artist Name des Interpreten, leer = alle.
+     * @param string $Album Name des Album, leer = alle. Mindestens ein Parameter muss gefüllt sein.
+     * @return bool True wenn der Befehl gesendet wurde, sonst false.
      */
     public function DeleteFromPlaylistBySearch(string $Genre, string $Artist, string $Album): bool
     {
@@ -2356,9 +2435,10 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * ClearPlaylist
-     * The "playlist clear" command removes any song that is on the playlist. The player is stopped.
+     * IPS-Instanz-Funktion 'LSQ_ClearPlaylist'.
+     * Entfernt alle Titel aus der Playlist, die Wiedergabe wird gestoppt.
      *
-     * @return bool
+     * @return bool True wenn der Befehl gesendet wurde, sonst false.
      */
     public function ClearPlaylist(): bool
     {
@@ -2371,9 +2451,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * AddPlaylistIndexToZappedList
+     * IPS-Instanz-Funktion 'LSQ_AddPlaylistIndexToZappedList'.
+     * Fügt einen Titel der Playlist der LMS-Playlist „Zapped Songs“ hinzu.
      *
-     * @param  int $Position
-     * @return bool
+     * @param int $Position Position wie beim LMS (0 = 1.Eintrag).
+     * @return bool True wenn der Befehl gesendet wurde, sonst false.
      */
     public function AddPlaylistIndexToZappedList(int $Position): bool
     {
@@ -2386,8 +2468,10 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * GetPlaylistURL
+     * IPS-Instanz-Funktion 'LSQ_GetPlaylistURL'.
+     * Liefert die URL der zuletzt geladenen gespeicherten Playlist.
      *
-     * @return bool|string
+     * @return bool|string URL der Playlist, false wenn keine gespeicherte Playlist geladen ist.
      */
     public function GetPlaylistURL(): bool|string
     {
@@ -2406,8 +2490,10 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * IsPlaylistModified
+     * IPS-Instanz-Funktion 'LSQ_IsPlaylistModified'.
+     * Prüft, ob die aktuelle Playlist gegenüber der gespeicherten Playlist verändert wurde.
      *
-     * @return bool
+     * @return bool True wenn verändert, sonst false.
      */
     public function IsPlaylistModified(): bool
     {
@@ -2538,9 +2624,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * LoadPlaylistByAlbumID
+     * IPS-Instanz-Funktion 'LSQ_LoadPlaylistByAlbumID'.
+     * Ersetzt die Playlist durch die Titel eines Albums.
      *
-     * @param  int $AlbumID
-     * @return bool
+     * @param int $AlbumID AlbumID aus LMS_GetAlbums.
+     * @return bool True bei Erfolg, sonst false.
      */
     public function LoadPlaylistByAlbumID(int $AlbumID): bool
     {
@@ -2549,9 +2637,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * LoadPlaylistByGenreID
+     * IPS-Instanz-Funktion 'LSQ_LoadPlaylistByGenreID'.
+     * Ersetzt die Playlist durch die Titel eines Genres.
      *
-     * @param  int $GenreID
-     * @return bool
+     * @param int $GenreID GenreID aus LMS_GetGenres.
+     * @return bool True bei Erfolg, sonst false.
      */
     public function LoadPlaylistByGenreID(int $GenreID): bool
     {
@@ -2560,9 +2650,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * LoadPlaylistByArtistID
+     * IPS-Instanz-Funktion 'LSQ_LoadPlaylistByArtistID'.
+     * Ersetzt die Playlist durch die Titel eines Interpreten.
      *
-     * @param  int $ArtistID
-     * @return bool
+     * @param int $ArtistID ArtistID aus LMS_GetArtists.
+     * @return bool True bei Erfolg, sonst false.
      */
     public function LoadPlaylistByArtistID(int $ArtistID): bool
     {
@@ -2571,9 +2663,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * LoadPlaylistByPlaylistID
+     * IPS-Instanz-Funktion 'LSQ_LoadPlaylistByPlaylistID'.
+     * Ersetzt die Playlist durch eine gespeicherte Playlist.
      *
-     * @param  int $PlaylistID
-     * @return bool
+     * @param int $PlaylistID PlaylistID aus LMS_GetPlaylists.
+     * @return bool True bei Erfolg, sonst false.
      */
     public function LoadPlaylistByPlaylistID(int $PlaylistID): bool
     {
@@ -2582,9 +2676,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * LoadPlaylistBySongIDs
+     * IPS-Instanz-Funktion 'LSQ_LoadPlaylistBySongIDs'.
+     * Ersetzt die Playlist durch Titel der Datenbank.
      *
-     * @param  string $SongIDs
-     * @return bool
+     * @param string $SongIDs Track-Ids, kommagetrennt, z.B. '220161,241158'.
+     * @return bool True bei Erfolg, sonst false.
      */
     public function LoadPlaylistBySongIDs(string $SongIDs): bool
     {
@@ -2593,9 +2689,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * LoadPlaylistByFolderID
+     * IPS-Instanz-Funktion 'LSQ_LoadPlaylistByFolderID'.
+     * Ersetzt die Playlist durch die Titel eines Ordners.
      *
-     * @param  int $FolderID
-     * @return bool
+     * @param int $FolderID FolderID aus LMS_GetDirectoryByID.
+     * @return bool True bei Erfolg, sonst false.
      */
     public function LoadPlaylistByFolderID(int $FolderID): bool
     {
@@ -2604,9 +2702,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * AddToPlaylistByAlbumID
+     * IPS-Instanz-Funktion 'LSQ_AddToPlaylistByAlbumID'.
+     * Hängt die Titel eines Albums an die Playlist an.
      *
-     * @param  int $AlbumID
-     * @return bool
+     * @param int $AlbumID AlbumID aus LMS_GetAlbums.
+     * @return bool True bei Erfolg, sonst false.
      */
     public function AddToPlaylistByAlbumID(int $AlbumID): bool
     {
@@ -2615,9 +2715,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * AddToPlaylistByGenreID
+     * IPS-Instanz-Funktion 'LSQ_AddToPlaylistByGenreID'.
+     * Hängt die Titel eines Genres an die Playlist an.
      *
-     * @param  int $GenreID
-     * @return bool
+     * @param int $GenreID GenreID aus LMS_GetGenres.
+     * @return bool True bei Erfolg, sonst false.
      */
     public function AddToPlaylistByGenreID(int $GenreID): bool
     {
@@ -2626,9 +2728,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * AddToPlaylistByArtistID
+     * IPS-Instanz-Funktion 'LSQ_AddToPlaylistByArtistID'.
+     * Hängt die Titel eines Interpreten an die Playlist an.
      *
-     * @param  int $ArtistID
-     * @return bool
+     * @param int $ArtistID ArtistID aus LMS_GetArtists.
+     * @return bool True bei Erfolg, sonst false.
      */
     public function AddToPlaylistByArtistID(int $ArtistID): bool
     {
@@ -2637,9 +2741,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * AddToPlaylistByPlaylistID
+     * IPS-Instanz-Funktion 'LSQ_AddToPlaylistByPlaylistID'.
+     * Hängt eine gespeicherte Playlist an die Playlist an.
      *
-     * @param  int $PlaylistID
-     * @return bool
+     * @param int $PlaylistID PlaylistID aus LMS_GetPlaylists.
+     * @return bool True bei Erfolg, sonst false.
      */
     public function AddToPlaylistByPlaylistID(int $PlaylistID): bool
     {
@@ -2648,9 +2754,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * AddToPlaylistBySongIDs
+     * IPS-Instanz-Funktion 'LSQ_AddToPlaylistBySongIDs'.
+     * Hängt Titel der Datenbank an die Playlist an.
      *
-     * @param  string $SongIDs
-     * @return bool
+     * @param string $SongIDs Track-Ids, kommagetrennt, z.B. '220161,241158'.
+     * @return bool True bei Erfolg, sonst false.
      */
     public function AddToPlaylistBySongIDs(string $SongIDs): bool
     {
@@ -2659,9 +2767,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * AddToPlaylistByFolderID
+     * IPS-Instanz-Funktion 'LSQ_AddToPlaylistByFolderID'.
+     * Hängt die Titel eines Ordners an die Playlist an.
      *
-     * @param  int $FolderID
-     * @return bool
+     * @param int $FolderID FolderID aus LMS_GetDirectoryByID.
+     * @return bool True bei Erfolg, sonst false.
      */
     public function AddToPlaylistByFolderID(int $FolderID): bool
     {
@@ -2670,10 +2780,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * InsertInPlaylistByAlbumID
-     * Fügt die Titel hinter dem aktuellen Titel ein.
+     * IPS-Instanz-Funktion 'LSQ_InsertInPlaylistByAlbumID'.
+     * Fügt die Titel eines Albums hinter dem aktuellen Titel ein.
      *
-     * @param  int $AlbumID
-     * @return bool
+     * @param int $AlbumID AlbumID aus LMS_GetAlbums.
+     * @return bool True bei Erfolg, sonst false.
      */
     public function InsertInPlaylistByAlbumID(int $AlbumID): bool
     {
@@ -2682,9 +2793,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * InsertInPlaylistByGenreID
+     * IPS-Instanz-Funktion 'LSQ_InsertInPlaylistByGenreID'.
+     * Fügt die Titel eines Genres hinter dem aktuellen Titel ein.
      *
-     * @param  int $GenreID
-     * @return bool
+     * @param int $GenreID GenreID aus LMS_GetGenres.
+     * @return bool True bei Erfolg, sonst false.
      */
     public function InsertInPlaylistByGenreID(int $GenreID): bool
     {
@@ -2693,9 +2806,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * InsertInPlaylistByArtistID
+     * IPS-Instanz-Funktion 'LSQ_InsertInPlaylistByArtistID'.
+     * Fügt die Titel eines Interpreten hinter dem aktuellen Titel ein.
      *
-     * @param  int $ArtistID
-     * @return bool
+     * @param int $ArtistID ArtistID aus LMS_GetArtists.
+     * @return bool True bei Erfolg, sonst false.
      */
     public function InsertInPlaylistByArtistID(int $ArtistID): bool
     {
@@ -2704,9 +2819,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * InsertInPlaylistByPlaylistID
+     * IPS-Instanz-Funktion 'LSQ_InsertInPlaylistByPlaylistID'.
+     * Fügt eine gespeicherte Playlist hinter dem aktuellen Titel ein.
      *
-     * @param  int $PlaylistID
-     * @return bool
+     * @param int $PlaylistID PlaylistID aus LMS_GetPlaylists.
+     * @return bool True bei Erfolg, sonst false.
      */
     public function InsertInPlaylistByPlaylistID(int $PlaylistID): bool
     {
@@ -2715,9 +2832,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * InsertInPlaylistBySongIDs
+     * IPS-Instanz-Funktion 'LSQ_InsertInPlaylistBySongIDs'.
+     * Fügt Titel der Datenbank hinter dem aktuellen Titel ein.
      *
-     * @param  string $SongIDs
-     * @return bool
+     * @param string $SongIDs Track-Ids, kommagetrennt, z.B. '220161,241158'.
+     * @return bool True bei Erfolg, sonst false.
      */
     public function InsertInPlaylistBySongIDs(string $SongIDs): bool
     {
@@ -2726,9 +2845,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * InsertInPlaylistByFolderID
+     * IPS-Instanz-Funktion 'LSQ_InsertInPlaylistByFolderID'.
+     * Fügt die Titel eines Ordners hinter dem aktuellen Titel ein.
      *
-     * @param  int $FolderID
-     * @return bool
+     * @param int $FolderID FolderID aus LMS_GetDirectoryByID.
+     * @return bool True bei Erfolg, sonst false.
      */
     public function InsertInPlaylistByFolderID(int $FolderID): bool
     {
@@ -2737,9 +2858,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * InsertInPlaylistByFavoriteID
+     * IPS-Instanz-Funktion 'LSQ_InsertInPlaylistByFavoriteID'.
+     * Fügt einen Favoriten hinter dem aktuellen Titel ein.
      *
-     * @param  string $FavoriteID
-     * @return bool
+     * @param string $FavoriteID ID des Favoriten aus LMS_GetFavorites, z.B. '6.1'.
+     * @return bool True wenn der Befehl gesendet wurde, sonst false.
      */
     public function InsertInPlaylistByFavoriteID(string $FavoriteID): bool
     {
@@ -2757,9 +2880,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * DeleteFromPlaylistByAlbumID
+     * IPS-Instanz-Funktion 'LSQ_DeleteFromPlaylistByAlbumID'.
+     * Entfernt die Titel eines Albums aus der Playlist.
      *
-     * @param  int $AlbumID
-     * @return bool
+     * @param int $AlbumID AlbumID aus LMS_GetAlbums.
+     * @return bool True bei Erfolg, sonst false.
      */
     public function DeleteFromPlaylistByAlbumID(int $AlbumID): bool
     {
@@ -2768,9 +2893,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * DeleteFromPlaylistByGenreID
+     * IPS-Instanz-Funktion 'LSQ_DeleteFromPlaylistByGenreID'.
+     * Entfernt die Titel eines Genres aus der Playlist.
      *
-     * @param  int $GenreID
-     * @return bool
+     * @param int $GenreID GenreID aus LMS_GetGenres.
+     * @return bool True bei Erfolg, sonst false.
      */
     public function DeleteFromPlaylistByGenreID(int $GenreID): bool
     {
@@ -2779,9 +2906,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * DeleteFromPlaylistByArtistID
+     * IPS-Instanz-Funktion 'LSQ_DeleteFromPlaylistByArtistID'.
+     * Entfernt die Titel eines Interpreten aus der Playlist.
      *
-     * @param  int $ArtistID
-     * @return bool
+     * @param int $ArtistID ArtistID aus LMS_GetArtists.
+     * @return bool True bei Erfolg, sonst false.
      */
     public function DeleteFromPlaylistByArtistID(int $ArtistID): bool
     {
@@ -2790,9 +2919,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * DeleteFromPlaylistByPlaylistID
+     * IPS-Instanz-Funktion 'LSQ_DeleteFromPlaylistByPlaylistID'.
+     * Entfernt die Titel einer gespeicherten Playlist aus der Playlist.
      *
-     * @param  int $PlaylistID
-     * @return bool
+     * @param int $PlaylistID PlaylistID aus LMS_GetPlaylists.
+     * @return bool True bei Erfolg, sonst false.
      */
     public function DeleteFromPlaylistByPlaylistID(int $PlaylistID): bool
     {
@@ -2801,9 +2932,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * DeleteFromPlaylistBySongIDs
+     * IPS-Instanz-Funktion 'LSQ_DeleteFromPlaylistBySongIDs'.
+     * Entfernt Titel der Datenbank aus der Playlist.
      *
-     * @param  string $SongIDs
-     * @return bool
+     * @param string $SongIDs Track-Ids, kommagetrennt, z.B. '220161,241158'.
+     * @return bool True bei Erfolg, sonst false.
      */
     public function DeleteFromPlaylistBySongIDs(string $SongIDs): bool
     {
@@ -2812,22 +2945,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * GetSongInfoByTrackIndex
-     * Liefert Informationen über einen Song aus der aktuelle Wiedergabeliste.
+     * IPS-Instanz-Funktion 'LSQ_GetSongInfoByTrackIndex'.
+     * Liefert Informationen über einen Titel der aktuellen Playlist.
      *
-     * @param int $Index
-     *                   $Index für die absolute Position des Titels in der Wiedergabeliste.
-     *                   0 für den aktuellen Titel
-     * @return bool|array
-     *               ["duration"]=>string
-     *               ["id"]=>string
-     *               ["title"]=>string
-     *               ["genre"]=>string
-     *               ["album"]=>string
-     *               ["artist"]=>string
-     *               ["disc"]=> string
-     *               ["disccount"]=>string
-     *               ["bitrate"]=>string
-     *               ["tracknum"]=>string
+     * @param int $Index Position (1 = 1.Eintrag) in der Playlist, 0 für den aktuellen Titel.
+     * @return bool|array Songinfo (Id, Title, Album, Artist, Duration, Url, …), false bei ungültigem Index.
      */
     public function GetSongInfoByTrackIndex(int $Index): bool|array
     {
@@ -2850,20 +2972,11 @@ class Squeezebox extends IPSModuleStrict
     }
 
     /**
-     * GetSongInfoOfTilePlaylist
-     * Liefert Informationen über alle Songs aus der aktuelle Wiedergabeliste.
+     * GetSongInfoOfCurrentPlaylist
+     * IPS-Instanz-Funktion 'LSQ_GetSongInfoOfCurrentPlaylist'.
+     * Liefert Informationen über alle Titel der aktuellen Playlist.
      *
-     * @return bool|array[index]
-     *                      ["duration"]=>string
-     *                      ["id"]=>string
-     *                      ["title"]=>string
-     *                      ["genre"]=>string
-     *                      ["album"]=>string
-     *                      ["artist"]=>string
-     *                      ["disc"]=> string
-     *                      ["disccount"]=>string
-     *                      ["bitrate"]=>string
-     *                      ["tracknum"]=>string
+     * @return bool|array Songinfos, Schlüssel ist die Position ab 0; false im Fehlerfall.
      */
     public function GetSongInfoOfCurrentPlaylist(): bool|array
     {
@@ -2885,8 +2998,10 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * StartRandomplayOfTracks
+     * IPS-Instanz-Funktion 'LSQ_StartRandomplayOfTracks'.
+     * Startet die Zufallswiedergabe nach Titeln.
      *
-     * @return bool
+     * @return bool True wenn der Befehl gesendet wurde, sonst false.
      */
     public function StartRandomplayOfTracks(): bool
     {
@@ -2899,8 +3014,10 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * StartRandomplayOfAlbums
+     * IPS-Instanz-Funktion 'LSQ_StartRandomplayOfAlbums'.
+     * Startet die Zufallswiedergabe nach Alben.
      *
-     * @return bool
+     * @return bool True wenn der Befehl gesendet wurde, sonst false.
      */
     public function StartRandomplayOfAlbums(): bool
     {
@@ -2913,8 +3030,10 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * StartRandomplayOfArtist
+     * IPS-Instanz-Funktion 'LSQ_StartRandomplayOfArtist'.
+     * Startet die Zufallswiedergabe nach Interpreten.
      *
-     * @return bool
+     * @return bool True wenn der Befehl gesendet wurde, sonst false.
      */
     public function StartRandomplayOfArtist(): bool
     {
@@ -2927,8 +3046,10 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * StartRandomplayOfYear
+     * IPS-Instanz-Funktion 'LSQ_StartRandomplayOfYear'.
+     * Startet die Zufallswiedergabe nach Jahren.
      *
-     * @return bool
+     * @return bool True wenn der Befehl gesendet wurde, sonst false.
      */
     public function StartRandomplayOfYear(): bool
     {
@@ -2941,8 +3062,10 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * StopRandomplay
+     * IPS-Instanz-Funktion 'LSQ_StopRandomplay'.
+     * Beendet die Zufallswiedergabe.
      *
-     * @return bool
+     * @return bool True wenn der Befehl gesendet wurde, sonst false.
      */
     public function StopRandomplay(): bool
     {
@@ -2955,9 +3078,11 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * RandomplaySelectAllGenre
+     * IPS-Instanz-Funktion 'LSQ_RandomplaySelectAllGenre'.
+     * Wählt alle Genres für die Zufallswiedergabe aus bzw. ab.
      *
-     * @param  bool $Active
-     * @return bool
+     * @param bool $Active true = auswählen, false = abwählen.
+     * @return bool True wenn der Befehl gesendet wurde, sonst false.
      */
     public function RandomplaySelectAllGenre(bool $Active): bool
     {
@@ -2970,10 +3095,12 @@ class Squeezebox extends IPSModuleStrict
 
     /**
      * RandomplaySelectGenre
+     * IPS-Instanz-Funktion 'LSQ_RandomplaySelectGenre'.
+     * Wählt ein Genre für die Zufallswiedergabe aus bzw. ab.
      *
-     * @param  string $Genre
-     * @param  bool $Active
-     * @return bool
+     * @param string $Genre Name des Genre.
+     * @param bool $Active true = auswählen, false = abwählen.
+     * @return bool True wenn der Befehl gesendet wurde, sonst false.
      */
     public function RandomplaySelectGenre(string $Genre, bool $Active): bool
     {

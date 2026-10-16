@@ -1,7 +1,7 @@
 [![SDK](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Module Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FSqueezeBox%2Frefs%2Fheads%2Fstrict%2Flibrary.json&query=%24.version&label=Modul%20Version&color=blue)](https://community.symcon.de/t/modul-squeezebox-release/46937)
-[![Symcon Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FSqueezeBox%2Frefs%2Fheads%2Fstrict%2Flibrary.json&query=%24.compatibility.version&suffix=%3E&label=Symcon%20Version&color=green)](https://www.symcon.de/de/service/dokumentation/installation/migrationen/v80-v81-q3-2025/)  
-[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![Symcon Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FSqueezeBox%2Frefs%2Fheads%2Fstrict%2Flibrary.json&query=%24.compatibility.version&suffix=%3E&label=Symcon%20Version&color=green)](https://www.symcon.de/de/service/dokumentation/installation/migrationen/)  
+[![License](https://img.shields.io/badge/License-Custom--NC--SA-green.svg)](#10-lizenz)
 [![Check Style](https://github.com/Nall-chan/SqueezeBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions) [![Run Tests](https://github.com/Nall-chan/SqueezeBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/SqueezeBox/actions)  
 [![PayPal.Me](https://img.shields.io/badge/PayPal-Me-lightblue.svg)](#2-spenden)[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#2-spenden)
 
@@ -17,6 +17,8 @@ Ermöglicht die Kommunikation von IPS mit dem CLI des Lyrion Music Servers.
 - [4. Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
 - [5. Statusvariablen](#5-statusvariablen)
 - [6. Visualisierung](#6-visualisierung)
+  - [Kachel Visualisierung](#kachel-visualisierung)
+  - [WebFront Visualisierung](#webfront-visualisierung)
 - [7. PHP-Befehlsreferenz](#7-php-befehlsreferenz)
   - [1. Server](#1-server)
   - [2. Datenbank-Scanner](#2-datenbank-scanner)
@@ -42,7 +44,7 @@ Ermöglicht die Kommunikation von IPS mit dem CLI des Lyrion Music Servers.
 
 ## 2. Voraussetzungen
 
-- Symcon ab Version 8.2
+- Symcon ab Version 9.0
 - Lyrion Music Server
 - kompatibler Player
 
@@ -62,47 +64,61 @@ In dem Client Socket ist die IP-Adresse bzw. der Hostname einzutragen unter dem 
 ![Instanz hinzufügen](imgs/conf1.png)  
 
 **Konfigurationsseite:**  
-![Instanz hinzufügen](imgs/conf2.png)  
+![Konfiguration](imgs/config.png)  
 
-| Name                          | Eigenschaft  |   Typ   | Standardwert | Funktion                                                  |
-| :---------------------------- | :----------- | :-----: | :----------- | :-------------------------------------------------------- |
-| CLI Port                      | Port         | integer | 9090         | CLI-Port des LMS                                          |
-| Webserver Port                | Webport      | integer | 9000         | Port des LMS-Webserver                                    |
-| Benutzername                  | User         | string  |              | Benutzername wenn im LMS die Authentifizierung aktiv ist. |
-| Passwort                      | Password     | string  |              | Passwort wenn im LMS die Authentifizierung aktiv ist.     |
-| Playlist als HTML-Box anlegen | showPlaylist | boolean | true         | de/aktiviert die Anzeige der Playlist als HTML-Box.       |
-| Playlist Darstellung          | Table        | string  | Tabelle      | Style Eigenschaften der Playlist HTML-Tabelle.            |
-| Playlist Spalten              | Columns      | string  | Tabelle      | Style Eigenschaften der Playlist Spalten.                 |
-| Playlist Zeilen               | Rows         | string  | Tabelle      | Style Eigenschaften der Playlist Zeilen.                  |
+| Eigenschaft                   | Name             |   Typ   | Standardwert | Beschreibung                                                                                                    |
+| :---------------------------- | :--------------- | :-----: | :----------- | :-------------------------------------------------------------------------------------------------------------- |
+| CLI Port                      | Port             | integer | 9090         | CLI-Port des LMS (Lyrion: `Einstellungen` → `Erweitert` → `Netzwerk`).                                          |
+| Webserver Port                | Webport          | integer | 9000         | Port des LMS-Webservers, wird für Cover und HTML-Playlisten benötigt.                                           |
+| Benutzername                  | User             | string  |              | Benutzername, wenn im LMS die Anmeldung (Kennwortschutz) aktiv ist, sonst leer.                                 |
+| Passwort                      | Password         | string  |              | Passwort, wenn im LMS die Anmeldung aktiv ist, sonst leer.                                                      |
+| Playlist als HTML-Box anlegen | showHTMLPlaylist | boolean | false        | Legt die Variablen `Playlisten` und `Player wählen` an.                                                         |
+| Darstellung Tabelle           | Table            | string  | (Vorgabe)    | CSS der HTML-Tabelle als JSON-Liste (`tag`, `style`), nur mit `showHTMLPlaylist`. Am besten im Formular ändern. |
+| Playlist Spalten              | Columns          | string  | (Vorgabe)    | Spalten der HTML-Tabelle als JSON-Liste (`key`, `show`, `index`, `name`, `width`, `align`, `color`, `style`).   |
+| Playlist Zeilen               | Rows             | string  | (Vorgabe)    | Zeilenstile der HTML-Tabelle als JSON-Liste (`row`, `bgcolor`, `color`, `style`).                               |
+
+Die IP-Adresse bzw. der Hostname des LMS gehört nicht zum Splitter, sondern ist in der übergeordneten `Client Socket` Instanz einzutragen (Eigenschaft `Host`). Den Port des Client Socket verwaltet der Splitter selbst und übernimmt dafür den `CLI Port`.  
+
+**Beispiel:**  
+
+```php
+IPS_SetProperty(12345, 'User', 'Benutzer');
+IPS_SetProperty(12345, 'Password', 'Geheim');
+IPS_SetProperty(12345, 'showHTMLPlaylist', true);
+IPS_ApplyChanges(12345);
+```
 
 ## 5. Statusvariablen
 
 Folgende Statusvariablen werden automatisch angelegt.  
 
-**Statusvariablen allgemein:**  
-
-| Name               |   Typ   | Ident          | Beschreibung                                                   |
-| :----------------- | :-----: | :------------- | :------------------------------------------------------------- |
-| Version            | string  | Version        | Software-Version des Lyrion Music Server.                      |
-| Scanner            | integer | RescanState    | Aktueller Zustand vom Datenbank Scanner.                       |
-| Rescan Status      | string  | RescanInfo     | Aktueller Status bei aktivem scan.                             |
-| Rescan Fortschritt | string  | RescanProgress | Aktueller Fortschritt bei aktivem scan.                        |
-| Anzahl Player      | integer | Players        | Anzahl der des Server bekannten Player.                        |
-| Player wählen      | integer | PlayerSelect   | Spezialvariable für das Laden von Playlisten aus dem WebFront. |
-| Playlisten         | string  | Playlists      | HTML-Box mit allen dem Server bekannten Playlisten.            |
-
-![Objektbaum Beispiel](imgs/log1.png)  
+| Name               |   Typ   | Ident          | Beschreibung                                                                                                                                                                              |
+| :----------------- | :-----: | :------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Version            | string  | Version        | Software-Version des Lyrion Music Server.                                                                                                                                                 |
+| Scanner            | integer | RescanState    | Zustand bzw. Steuerung des Datenbank-Scanners: `0` = Standby, `1` = abbrechen, `2` = Scan, `3` = nur Playlisten, `4` = vollständig.                                                       |
+| Rescan Status      | string  | RescanInfo     | Aktueller Schritt des laufenden Scans (z.B. `discovering_directory`), leer = Standby.                                                                                                     |
+| Rescan Fortschritt | string  | RescanProgress | Fortschritt des laufenden Scans als Text.                                                                                                                                                 |
+| Anzahl Player      | integer | Players        | Anzahl der dem Server bekannten Player.                                                                                                                                                   |
+| Player wählen      | integer | PlayerSelect   | Nur mit `Playlist als HTML-Box anlegen`: Auswahl der Player, auf welche eine Playlist geladen wird (`0` = Keiner, `100` = Alle, die Instanz-ID eines Players schaltet dessen Auswahl um). |
+| Playlisten         | string  | HTMLPlaylists  | Nur mit `Playlist als HTML-Box anlegen`: HTML-Box mit allen Server-Playlisten.                                                                                                            |
 
 ## 6. Visualisierung
 
-Die direkte Darstellung im WebFront oder der Kachel Visualisierung ist nicht möglich, es ist zwingend ein Link auf die Instanz bzw die Statusvariablen anzulegen.  
-Beispiel mit einem Link auf die Instanz:  
-![Kachel Beispiel](imgs/tile1.png)  
-![WebFront Beispiel](imgs/wf1.png)  
-
+Die Instanz kann direkt oder über einen Link in der Visualisierung dargestellt werden.  
 Die Statusvariable `Player wählen` verfügt über eine dynamische Darstellung.  
-Zusammen mit der Variable `Playlisten` welche eine Tabelle der Serverplaylisten darstellt, ermöglichen diese das Auswählen von mehreren Player-Instanzen und anschließende Laden einer Playlist.  
-Dabei wird die Synchronisierung der Player automatisch gesetzt, geändert bzw. aufgehoben.  
+Zusammen mit der Variable `Playlisten`, welche eine Tabelle der Serverplaylisten darstellt, ermöglichen diese das Auswählen von mehreren Player-Instanzen und anschließende Laden einer Playlist.  
+Dabei synchronisiert der Splitter die ausgewählten Player über den LMS; bestehende Synchronisierungen werden geändert bzw. aufgehoben.  
+
+### Kachel Visualisierung
+
+![Kachel Liste](imgs/tile_list.png)  
+
+Die HTML-Box `Playlisten` erscheint in der Liste als Symbol zum Öffnen, als eigene Kachel sieht sie so aus:  
+![Kachel Playlisten](imgs/tile_html.png)  
+
+### WebFront Visualisierung
+
+![WebFront Beispiel](imgs/webfront.png)  
 
 ## 7. PHP-Befehlsreferenz
 
@@ -149,7 +165,7 @@ bool LMS_RequestState(int $InstanzID, string $Ident)
 
 Fragt einen einzelnen Wert ab.  
 Es ist der Ident der Statusvariable zu übergeben.  
-Unterstützt wird `Players`, `Version` und `Playlists`.  
+Unterstützt wird `Players`, `Version` und `Playlists` (liest die Server-Playlisten neu ein und aktualisiert die HTML-Box `Playlisten`).  
 Liefert `true` bei Erfolg, sonst `false`.  
 
 ---
@@ -193,7 +209,36 @@ Im Fehlerfall wird `false` zurückgegeben.
 | Displaytype | string  | Typ des Display                 |
 | Connected   |  bool   | Verbunden mit dem Server        |
 | Instanceid  | integer | InstanzeID wenn in IPS angelegt |
-  
+
+---
+
+```php
+array LMS_GetSyncGroups(int $InstanzID)
+```
+
+Liefert alle Sync-Gruppen des LMS.  
+Jede Gruppe ist ein Array mit den Instanz-IDs der Player-Instanzen dieser Gruppe. Player ohne Instanz in Symcon sind nicht enthalten, Gruppen ganz ohne Instanz entfallen.  
+Gibt es keine Sync-Gruppen, wird ein leeres Array geliefert.  
+Im Fehlerfall wird `false` zurückgegeben.  
+
+**Beispiel:**  
+
+```php
+print_r(LMS_GetSyncGroups(12345));
+```
+
+```php
+Array
+(
+    [0] => Array
+        (
+            [0] => 52017
+            [1] => 56521
+        )
+
+)
+```
+
 ### 2. Datenbank-Scanner
 
 Der Scanner kann auch über die Statusvariable `Scanner` (Ident `RescanState`) gesteuert werden: `1` = abbrechen, `2` = Scan, `3` = nur Playlisten, `4` = vollständig (Cache löschen).  
@@ -488,6 +533,48 @@ Im Fehlerfall wird `false` zurückgegeben.
 ---
 
 ```php
+array LMS_GetPlaylist (int $InstanzID, int $PlaylistId)
+```
+
+Liefert alle Songs der Server-Playlist `$PlaylistId` (Array-Schlüssel aus `LMS_GetPlaylists`).  
+Es wird ein mehrdimensionales Array zurückgegeben, der erste Index ist die Position in der Playlist ab `0`.  
+Die enthaltenen assoziierten Arrays entsprechen dem von `LMS_GetSongInfoByFileID`.  
+Ist die Playlist leer oder die `$PlaylistId` unbekannt, wird ein leeres Array geliefert.  
+Im Fehlerfall wird `false` zurückgegeben.  
+
+**Beispiel:**  
+
+```php
+print_r(LMS_GetPlaylist(12345, 241859));
+```
+
+```php
+Array
+(
+    [0] => Array
+        (
+            [Album] => Phineas und Ferb - Das Musik Album
+            [Album_id] => 13343
+            [Artist] => Phineas und Ferb
+            [Artist_id] => 14825
+            [Artwork_track_id] => 351d26e7
+            [Bitrate] => 320kb/s CBR
+            [Duration] => 47
+            [Genre] => Soundtrack/Disney
+            [Genre_id] => 549
+            [Id] => 240902
+            [Title] => Perry das Schnabeltier
+            [Tracknum] => 11
+            [Url] => file:////NADESICO/Musik/Disney/Phineas%20und%20Ferb%20-%20Das%20Musik%20Album/11%20-%20Perry%20das%20Schnabeltier.mp3
+            [Year] => 2011
+        )
+    ...
+)
+```
+
+---
+
+```php
 int LMS_CreatePlaylist (int $InstanzID, string $Name)
 ```
 
@@ -744,7 +831,7 @@ print_r(LMS_GetRadioOrAppDataEx(12345, 'search', '', 'Anime'));
 
 ## 8. Aktionen  
 
-**Grundsätzlich können alle bedienbaren Statusvariablen als Ziel einer [`Aktion`](https://www.symcon.de/service/dokumentation/konzepte/automationen/ablaufplaene/aktionen/) mit `Auf Wert schalten` angesteuert werden, so das hier keine speziellen Aktionen benutzt werden müssen.**
+**Grundsätzlich können alle bedienbaren Statusvariablen als Ziel einer [`Aktion`](https://www.symcon.de/service/dokumentation/konzepte/automationen/ablaufplaene/aktionen/) mit `Auf Wert schalten` angesteuert werden, so dass hier keine speziellen Aktionen benutzt werden müssen.**
 
 Dennoch gibt es diverse Aktionen für die `LMS Splitter` Instanz.  
 Wenn so eine Instanz als Ziel einer Aktion ausgewählt wurde, stehen folgende Aktionen zur Verfügung:  
@@ -754,7 +841,7 @@ Wenn so eine Instanz als Ziel einer Aktion ausgewählt wurde, stehen folgende Ak
 
 ### 1. Changelog
 
-[Changelog der Library](../README.md#3-changelog)
+[Changelog der Library](../README.md#2-changelog)
 
 ### 2. Spenden
 
@@ -769,4 +856,4 @@ Wunschliste:
 ## 10. Lizenz
 
 IPS-Modul:  
-[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
+[Custom NC-SA](../LICENSE)  

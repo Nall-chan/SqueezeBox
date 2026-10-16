@@ -5,10 +5,10 @@ declare(strict_types=1);
 /**
  * @package       Squeezebox
  * @file          module.php
- * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2025 Michael Tröger
- * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       4.10
+ * @author        Michael Tröger <nall4chan@gmail.com>
+ * @copyright     2026 Michael Tröger
+ * @license       Custom Non-Commercial Share-Alike License (see LICENSE)
+ * @version       4.20
  *
  */
 
@@ -27,11 +27,11 @@ eval('declare(strict_types=1);namespace LyrionMusicServer {?>' . file_get_conten
  *
  * @todo          Favoriten als Tabelle oder Baum ?! für das WF
  *
- * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2025 Michael Tröger
- * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
+ * @author        Michael Tröger <nall4chan@gmail.com>
+ * @copyright     2026 Michael Tröger
+ * @license       Custom Non-Commercial Share-Alike License (see LICENSE)
  *
- * @version       4.10
+ * @version       4.20
  *
  * @property array $ReplyLMSData \SqueezeBox\LMSData Enthält die versendeten Befehle und speichert die Antworten.
  * @property string $Buffer EmpfangsBuffer
@@ -495,8 +495,9 @@ class LyrionMusicServer extends IPSModuleStrict
     /**
      * RestartServer
      * IPS-Instanz-Funktion 'LMS_RestartServer'.
+     * Startet den LMS neu.
      *
-     * @return bool
+     * @return bool True wenn der Befehl gesendet wurde, sonst false.
      */
     public function RestartServer(): bool
     {
@@ -541,8 +542,9 @@ class LyrionMusicServer extends IPSModuleStrict
     /**
      * GetAudioDirs
      * IPS-Instanz-Funktion 'LMS_GetAudioDirs'.
+     * Liefert die Musikverzeichnisse des LMS.
      *
-     * @return bool|array
+     * @return bool|array Verzeichnisse, false im Fehlerfall.
      */
     public function GetAudioDirs(): bool|array
     {
@@ -556,8 +558,9 @@ class LyrionMusicServer extends IPSModuleStrict
     /**
      * GetPlaylistDir
      * IPS-Instanz-Funktion 'LMS_GetPlaylistDir'.
+     * Liefert das Verzeichnis der Server-Playlisten.
      *
-     * @return array
+     * @return bool|string Verzeichnis, false im Fehlerfall.
      */
     public function GetPlaylistDir(): bool|string
     {
@@ -1239,14 +1242,13 @@ class LyrionMusicServer extends IPSModuleStrict
         return array_shift($SongInfo);
     }
 
-    //
-    //////    DOKU TODO AFTER HERE
-    //
     /**
      * GetSongsByGenre
+     * IPS-Instanz-Funktion 'LMS_GetSongsByGenre'.
+     * Liefert alle Songs eines Genres.
      *
-     * @param  int $GenreId
-     * @return bool|array
+     * @param int $GenreId GenreID aus LMS_GetGenres.
+     * @return bool|array Songinfos, false im Fehlerfall.
      */
     public function GetSongsByGenre(int $GenreId): bool|array
     {
@@ -1255,10 +1257,12 @@ class LyrionMusicServer extends IPSModuleStrict
 
     /**
      * GetSongsByGenreEx
+     * IPS-Instanz-Funktion 'LMS_GetSongsByGenreEx'.
+     * Liefert alle Songs eines Genres, die den Suchbegriff enthalten.
      *
-     * @param  int $GenreId
-     * @param  string $Search
-     * @return bool|array
+     * @param int $GenreId GenreID aus LMS_GetGenres.
+     * @param string $Search Suchbegriff, leer = alle.
+     * @return bool|array Songinfos, false im Fehlerfall.
      */
     public function GetSongsByGenreEx(int $GenreId, string $Search): bool|array
     {
@@ -1277,9 +1281,11 @@ class LyrionMusicServer extends IPSModuleStrict
 
     /**
      * GetSongsByArtist
+     * IPS-Instanz-Funktion 'LMS_GetSongsByArtist'.
+     * Liefert alle Songs eines Interpreten.
      *
-     * @param  int $ArtistId
-     * @return bool|array
+     * @param int $ArtistId ArtistID aus LMS_GetArtists.
+     * @return bool|array Songinfos, false im Fehlerfall.
      */
     public function GetSongsByArtist(int $ArtistId): bool|array
     {
@@ -1288,10 +1294,12 @@ class LyrionMusicServer extends IPSModuleStrict
 
     /**
      * GetSongsByArtistEx
+     * IPS-Instanz-Funktion 'LMS_GetSongsByArtistEx'.
+     * Liefert alle Songs eines Interpreten, die den Suchbegriff enthalten.
      *
-     * @param  int $ArtistId
-     * @param  string $Search
-     * @return bool|array
+     * @param int $ArtistId ArtistID aus LMS_GetArtists.
+     * @param string $Search Suchbegriff, leer = alle.
+     * @return bool|array Songinfos, false im Fehlerfall.
      */
     public function GetSongsByArtistEx(int $ArtistId, string $Search): bool|array
     {
@@ -1311,9 +1319,11 @@ class LyrionMusicServer extends IPSModuleStrict
 
     /**
      * GetSongsByAlbum
+     * IPS-Instanz-Funktion 'LMS_GetSongsByAlbum'.
+     * Liefert alle Songs eines Albums.
      *
-     * @param  int $AlbumId
-     * @return bool|array
+     * @param int $AlbumId AlbumID aus LMS_GetAlbums.
+     * @return bool|array Songinfos, false im Fehlerfall.
      */
     public function GetSongsByAlbum(int $AlbumId): bool|array
     {
@@ -1322,10 +1332,12 @@ class LyrionMusicServer extends IPSModuleStrict
 
     /**
      * GetSongsByAlbumEx
+     * IPS-Instanz-Funktion 'LMS_GetSongsByAlbumEx'.
+     * Liefert alle Songs eines Albums, die den Suchbegriff enthalten.
      *
-     * @param  int $AlbumId
-     * @param  string $Search
-     * @return bool|array
+     * @param int $AlbumId AlbumID aus LMS_GetAlbums.
+     * @param string $Search Suchbegriff, leer = alle.
+     * @return bool|array Songinfos, false im Fehlerfall.
      */
     public function GetSongsByAlbumEx(int $AlbumId, string $Search): bool|array
     {
@@ -1345,9 +1357,11 @@ class LyrionMusicServer extends IPSModuleStrict
 
     /**
      * Search
+     * IPS-Instanz-Funktion 'LMS_Search'.
+     * Sucht in der Datenbank nach Interpreten, Titeln und Alben.
      *
-     * @param  string $Value
-     * @return bool|array
+     * @param string $Value Suchbegriff, darf nicht leer sein.
+     * @return bool|array ['Contributors' => …, 'Tracks' => …, 'Albums' => …], false im Fehlerfall.
      */
     public function Search(string $Value): bool|array
     {
@@ -1411,11 +1425,12 @@ class LyrionMusicServer extends IPSModuleStrict
     /**
      * AddFavorite
      * IPS-Instanz-Funktion 'LMS_AddFavorite'.
+     * Fügt einem Favoriten-Ordner einen Eintrag hinzu.
      *
-     * @param string $ParentFavoriteID
-     * @param string $Title
-     * @param string $URL
-     * @return bool
+     * @param string $ParentFavoriteID ID des Ordners, '' = oberste Ebene.
+     * @param string $Title Name des neuen Favoriten.
+     * @param string $URL URL des Favoriten.
+     * @return bool True bei Erfolg, sonst false.
      */
     public function AddFavorite(string $ParentFavoriteID, string $Title, string $URL): bool
     {

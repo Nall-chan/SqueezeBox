@@ -5,10 +5,10 @@ declare(strict_types=1);
 /**
  * @package       Squeezebox
  * @file          module.php
- * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2025 Michael Tröger
- * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       4.10
+ * @author        Michael Tröger <nall4chan@gmail.com>
+ * @copyright     2026 Michael Tröger
+ * @license       Custom Non-Commercial Share-Alike License (see LICENSE)
+ * @version       4.20
  *
  */
 require_once __DIR__ . '/../libs/LibraryConsts.php';
@@ -46,11 +46,11 @@ class AutoLoaderSqueezeboxBatteryPHPSecLib
  * SqueezeboxBattery Klasse für die Stromversorgung einer SqueezeBox als Instanz in IPS.
  * Erweitert IPSModule.
  *
- * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2025 Michael Tröger
- * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
+ * @author        Michael Tröger <nall4chan@gmail.com>
+ * @copyright     2026 Michael Tröger
+ * @license       Custom Non-Commercial Share-Alike License (see LICENSE)
  *
- * @version       4.10
+ * @version       4.20
  *
  * @method bool SendDebug(string $Message, mixed $Data, int $Format)
  * @method void UnregisterProfile(string $Name)

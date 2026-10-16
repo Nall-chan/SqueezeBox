@@ -7,9 +7,9 @@ namespace SqueezeBox;
 /**
  * @package       Squeezebox
  * @file          ActionErrorHandler.php
- * @author        Michael Tröger <micha@nall-chan.net>
+ * @author        Michael Tröger <nall4chan@gmail.com>
  * @copyright     2026 Michael Tröger
- * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
+ * @license       Custom Non-Commercial Share-Alike License (see LICENSE)
  * @version       4.20
  *
  */
